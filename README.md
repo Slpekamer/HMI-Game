@@ -1,46 +1,38 @@
 # HMI-Game
 
-面向 **团结引擎 1.6.14** 的空白项目仓库骨架。
+空白 Godot 3D 工程，替代原来的 Unity / 团结引擎占位工程。
 
-> 当前是手工准备的最小工程骨架，不是编辑器创建、导入或编译验证过的完整工程。
-> 尚无场景、脚本、游戏资产或内部包，也未导入任何 Mac 上的代码。
+## 环境
 
-## 编辑器版本
+- 创建和无界面验证版本：**Godot 4.6.3 stable**（`4.6.3.stable.official.7d41c59c4`），标准版。
+- 渲染器：**Compatibility**（`gl_compatibility`）。
+- 无脚本、无模型、无玩法，也没有第三方资源或插件；暂不选择脚本语言，不需要 .NET SDK。
+- Godot 编辑器不依赖 Unity Hub，也无需激活 Unity / 团结引擎许可证。
 
-- 目标发行版本：团结引擎 **1.6.14**。
-- `ProjectSettings/ProjectVersion.txt` 固定为 `2022.3.61t15`，依据此前已安装编辑器的版本记录；本次云端环境未能重新核验该二进制。
-- 未填写未知的编辑器 revision，未伪造其他 `ProjectSettings` 文件。
+## 打开与运行
 
-## 首次打开
+1. 使用 Godot 4.6.3 标准版，在项目管理器中导入仓库根目录的 `project.godot`。
+2. 打开项目；主场景为 `scenes/main.tscn`，仅含一个空的 `Node3D` 根节点。
+3. 按 **F6** 运行当前场景，或按 **F5** 运行工程。
 
-1. 在团结 Hub 中安装/选择团结 **1.6.14**，通过官方流程完成适用的授权。
-2. 在 Hub 中添加本仓库根目录 `HMI-Game`，使用该编辑器打开。
-3. 等待编辑器导入并生成默认设置、资源元数据及所需的包解析文件。
-4. 检查 Console 无错误，创建并保存首个场景，再检查版本控制差异；提交需要保留的 `ProjectSettings`、`Packages/packages-lock.json` 和资源对应的 `.meta` 文件。
+场景未添加相机、灯光或物体，因此运行窗口为空白是预期行为，并非已有可玩的游戏。
 
-`Packages/manifest.json` 当前使用空的 `dependencies`，刻意不声明未经验证的注册表包、模板包或内部包。按后续功能需要，通过目标编辑器的 Package Manager 添加依赖。
+也可在安装并配置好 Godot 命令行后，从项目根目录运行：
 
-## 目录
-
-```text
-Assets/                     # 空资源目录，仅 .gitkeep 占位
-Packages/manifest.json      # 最小包清单，无外部依赖
-ProjectSettings/
-  ProjectVersion.txt        # 目标编辑器版本
+```sh
+godot --editor --path .
+godot --path .
 ```
 
-## 当前验证范围
+## 验证
 
-2026-10-30，在本次云端工作区中：
+已在云端使用上述实际 Godot 版本通过以下检查（退出码均为 0）：
 
-- 已准备最小目录、JSON 包清单、版本文件和 Git 忽略规则。
-- 原记录路径 `apps/tuanjie-1.6.14/Editor/Tuanjie` 不存在；PATH 中未找到团结/Unity 编辑器。
-- 在检查的常用目录中未发现本地 `.ulf` 许可证文件；这不代表对账号授权状态作出判断。
-- **未执行**编辑器创建、项目导入、Console 检查、编译、运行或构建。
-- 未重新下载编辑器、接受许可条款或进行许可证激活。
+```sh
+godot --headless --editor --path . --import
+godot --headless --path . --quit-after 5
+```
 
-本仓库目前只完成初始化骨架，不代表 HMI 游戏功能已经实现。首次编辑器验证应在具备对应版本及有效授权的环境中进行。
+这些检查覆盖工程导入和空主场景初始化，不代表已验证图形窗口、GPU 渲染、导出包或其他操作系统。
 
-## 版本控制
-
-提交源文件及其 `.meta`；不要提交 `Library/`、`Temp/`、`Logs/`、`UserSettings/`、构建产物、凭据或许可证。`.gitignore` 已覆盖常见生成目录和敏感文件模式，但提交前仍应检查差异。
+`.godot/` 是可重建的本地缓存，不纳入版本控制；导出产物放在 `exports/` 或 `builds/` 中，也不提交。不要提交导出凭据。
