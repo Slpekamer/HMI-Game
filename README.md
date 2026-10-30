@@ -6,7 +6,7 @@
 
 - 创建和无界面验证版本：**Godot 4.6.3 stable**（`4.6.3.stable.official.7d41c59c4`），标准版。
 - 渲染器：**Compatibility**（`gl_compatibility`）。
-- 无脚本、无模型、无玩法，也没有第三方资源或插件；暂不选择脚本语言，不需要 .NET SDK。
+- 无脚本、无模型、无玩法，也没有第三方资源或插件；当前无脚本，不需要 .NET SDK；未来纯 C# ECS 核心路线及工具链前置验证见 [agent.md](agent.md)，不代表当前已具备 C# 支持。
 - Godot 编辑器不依赖 Unity Hub，也无需激活 Unity / 团结引擎许可证。
 
 ## 打开与运行
@@ -36,3 +36,7 @@ godot --headless --path . --quit-after 5
 这些检查覆盖工程导入和空主场景初始化，不代表已验证图形窗口、GPU 渲染、导出包或其他操作系统。
 
 `.godot/` 是可重建的本地缓存，不纳入版本控制；导出产物放在 `exports/` 或 `builds/` 中，也不提交。不要提交导出凭据。
+
+## 开发规范
+
+后续设计、ECS 实现和变更追溯遵循 [agent.md](agent.md)；开发记录见 [docs/development-log.md](docs/development-log.md)。
