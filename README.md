@@ -47,3 +47,5 @@ godot --headless --path . --quit-after 5
 完整文字设计入口：[docs/game-design.md](docs/game-design.md)，其中链接机制、技能/道具/敌人目录及原型参数附录。
 HTML 讨论稿用于展示和讨论；开发以文字记录中区分的已确认要求、提案及待决问题为依据，不把原型等同游戏成品。
 技能树、道具机制与角色的解耦扩展及回归门槛见 [AGENTS.md 第 3.4 节](AGENTS.md#34-技能树道具机制角色扩展与回归门槛)。
+
+局内与 UI 的四张最新 AI 概念图：[美术参考索引](docs/art-reference/README.md)。UI 布局提案已通过，非实机截图；包含最新远镜头、无网格地面与伙伴不被攻击的说明，机制数值仍待确认。
