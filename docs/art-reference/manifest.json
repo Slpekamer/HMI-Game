@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "change_id": "CHG-0005",
+  "status": "User-approved UI layout references; AI concepts, not engine screenshots or final mechanics/balance",
+  "images": [
+    {
+      "path": "docs/art-reference/combat-open-v03.png",
+      "version": "combat-v03",
+      "date": "2026-10-30",
+      "source": "AI image generation / user-reviewed visual concept",
+      "library_file_id": "libfile_465750d9da8081919333c87b4eec8acc",
+      "library_version": 2,
+      "width": 1672,
+      "height": 941,
+      "bytes": 2009372,
+      "sha256": "b39db91ac6a2371b7c8b8a9e00fab34d10bcd9a7ee9fd6db0d898ee978ea9523"
+    },
+    {
+      "path": "docs/art-reference/wave-upgrades.png",
+      "version": "upgrades-v01",
+      "date": "2026-10-30",
+      "source": "AI image generation / user-reviewed visual concept",
+      "library_file_id": "libfile_b65f0ab0a4748191bbd7b4f18ff57687",
+      "library_version": 0,
+      "width": 1672,
+      "height": 941,
+      "bytes": 2337723,
+      "sha256": "7c92f00d7b22dc0cf6e14a7b68c07597effc0fb9c36dc0a540b5b7915af4eb42"
+    },
+    {
+      "path": "docs/art-reference/wave-shop.png",
+      "version": "shop-v01",
+      "date": "2026-10-30",
+      "source": "AI image generation / user-reviewed visual concept",
+      "library_file_id": "libfile_9d81abf60344819185ea8a4a5bc0dc2f",
+      "library_version": 0,
+      "width": 1672,
+      "height": 941,
+      "bytes": 2365209,
+      "sha256": "957524c558f4dbdf454902dc114b7312aa62d012fc4e308e0d4107011f35d556"
+    },
+    {
+      "path": "docs/art-reference/character-select.png",
+      "version": "characters-v01",
+      "date": "2026-10-30",
+      "source": "AI image generation / user-reviewed visual concept",
+      "library_file_id": "libfile_2ef0cca59bec81919576bda829ec15b9",
+      "library_version": 0,
+      "width": 1672,
+      "height": 941,
+      "bytes": 2200183,
+      "sha256": "48511e588f7a210e1a27ce2647d33edeab237de91ecbe81e64d988b1f95f9006"
+    }
+  ]
+}
