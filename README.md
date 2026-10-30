@@ -6,7 +6,7 @@
 
 - 创建和无界面验证版本：**Godot 4.6.3 stable**（`4.6.3.stable.official.7d41c59c4`），标准版。
 - 渲染器：**Compatibility**（`gl_compatibility`）。
-- 无脚本、无模型、无玩法，也没有第三方资源或插件；打开当前空工程不需要 .NET SDK。未来纯 C# ECS 核心路线见 [agent.md](agent.md)。
+- 无脚本、无模型、无玩法，也没有第三方资源或插件；打开当前空工程不需要 .NET SDK。未来纯 C# ECS 核心路线见 [AGENTS.md](AGENTS.md)。
 - 仓库外已完成隔离 Godot .NET 工具链的 C# / Linux 运行及 Android ARM64 调试 APK 构建验证，详见 [工具链记录](docs/toolchain.md)。本工程尚未转换为 C# 项目；系统 `godot` 仍是标准版。
 - Godot 编辑器不依赖 Unity Hub，也无需激活 Unity / 团结引擎许可证。
 
@@ -40,4 +40,10 @@ godot --headless --path . --quit-after 5
 
 ## 开发规范
 
-后续设计、ECS 实现和变更追溯遵循 [agent.md](agent.md)；开发记录见 [docs/development-log.md](docs/development-log.md)。
+后续设计、ECS 实现和变更追溯遵循 [AGENTS.md](AGENTS.md)；开发记录见 [docs/development-log.md](docs/development-log.md)。
+
+## 游戏设计（尚未实现）
+
+完整文字设计入口：[docs/game-design.md](docs/game-design.md)，其中链接机制、技能/道具/敌人目录及原型参数附录。
+HTML 讨论稿用于展示和讨论；开发以文字记录中区分的已确认要求、提案及待决问题为依据，不把原型等同游戏成品。
+技能树、道具机制与角色的解耦扩展及回归门槛见 [AGENTS.md 第 3.4 节](AGENTS.md#34-技能树道具机制角色扩展与回归门槛)。
