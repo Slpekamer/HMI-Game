@@ -9,3 +9,10 @@ export_credentials.cfg
 # OS metadata
 .DS_Store
 Thumbs.db
+
+# .NET generated outputs
+**/bin/
+**/obj/
+*.user
+*.suo
+/.local/

@@ -49,3 +49,16 @@ HTML 讨论稿用于展示和讨论；开发以文字记录中区分的已确认
 技能树、道具机制与角色的解耦扩展及回归门槛见 [AGENTS.md 第 3.4 节](AGENTS.md#34-技能树道具机制角色扩展与回归门槛)。
 
 局内与 UI 的四张最新 AI 概念图：[美术参考索引](docs/art-reference/README.md)。UI 布局提案已通过，非实机截图；包含最新远镜头、无网格地面与伙伴不被攻击的说明，机制数值仍待确认。
+
+## 开发分支 M1：独立 ECS 核心（场景尚未接入）
+
+新增 `src/Core` 纯 C# 8 / netstandard2.1 核心、`content/gameplay.json` 与可运行控制台回归；本次提交仍保留空 Godot 场景，不把未验证的宿主/UI 混入核心里程碑。
+
+需要 .NET SDK 10.0.403：
+
+```sh
+dotnet build src/Core/Hmi.Core.csproj -c Release
+dotnet run --project tests/CoreTests/Hmi.CoreTests.csproj -c Release
+```
+
+[实际 M1 证据与限制](docs/evidence/FEAT-0001/M1-core.md) · [架构 ADR](docs/architecture/ADR-0001-portable-ecs.md) · **[次日逐项决策 Review](docs/overnight-decisions-2026-10-30.md)**。
