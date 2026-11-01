@@ -1,0 +1,77 @@
+[
+  {
+    "path": "docs/development-log.md",
+    "baseline_sha256": "5ed2f4acf9717595bcee9cdb3d02d3d827c76e71bed2f5b58d5385c5976607a5",
+    "candidate_sha256": "f4ab19e6cfe2bf66832cbc3eb1e5dbd496d706d719e6ce2534f6f0e12b4195ea"
+  },
+  {
+    "path": "src/Core/GameSimulation.cs",
+    "baseline_sha256": "a290fa446404d0883ebf8a24d1424422f724ea550dc83e1c5ec65c076484f303",
+    "candidate_sha256": "3eea7cae8e28e8cbc55d2f993a0b40fb09c63a337faf33b444dc1bd6cd4338a1"
+  },
+  {
+    "path": "src/Core/CheckpointSystem.cs",
+    "baseline_sha256": "bdaee1dae02392f1015a4d4513fb1c9f7cadd16e6ce701e842698d2c95d0a06e",
+    "candidate_sha256": "333fcabbed1c46fda4e97401323278a431d65b8582829d60a56002580b00800d"
+  },
+  {
+    "path": "src/Core/MovementSystems.cs",
+    "baseline_sha256": "66f2224db7f1baaadf6f0b8b274b4c34d9b0c552eb69088abedfedf545bd8423",
+    "candidate_sha256": "e6bb9b2cc1bab9c2032372827bbac8e15f135e5b9324d1c3ad3fd130b6bc5093"
+  },
+  {
+    "path": "src/Core/CombatObservation.cs",
+    "baseline_sha256": null,
+    "candidate_sha256": "b784a4a19fc0c3a2f1f0ed81af2e03233bc3a4a23bd2f9a7c73cc43152819934"
+  },
+  {
+    "path": "src/Core/Contracts.cs",
+    "baseline_sha256": "7a2bf9ace2592e4f0c3067fde968f65690ed57e28ec7d7d0e889155bf211d436",
+    "candidate_sha256": "595279f4c3e04abc4e712dda4662db1dbae9d285d64c65d85a0bf11624545cc6"
+  },
+  {
+    "path": "src/Core/EntityLifecycleSystem.cs",
+    "baseline_sha256": "91b09e602d9441b68618b76f055d21f9dcf400cbe7021506faff5bba459cea55",
+    "candidate_sha256": "263aa9b2ac2c39d2df4db24a9f9894a84696f67422fa7166accb83f264ce7d87"
+  },
+  {
+    "path": "src/Core/README.md",
+    "baseline_sha256": "79665ea6aeb4794fdbfc66f32f235e595f89c330a4538ee39fcf30fd35c3f6eb",
+    "candidate_sha256": "26a11df335de8ac6b7c467a9b1f42cecc432863b90068245264544570e265667"
+  },
+  {
+    "path": "src/Core/CombatSystems.cs",
+    "baseline_sha256": "bb2892b10515271dec1712e7c7e775f8f68f1b3116a37b74008f37ce3806623a",
+    "candidate_sha256": "067e7a56e257ccedd04d128357954b0f48080afa2fef1f78182bfc5bf12846ca"
+  },
+  {
+    "path": "src/Core/RunProgressionSystem.cs",
+    "baseline_sha256": "e22db805ecde7c6611f072b7754a4bd09f3cda6b8c655f410941bc0d97816ee2",
+    "candidate_sha256": "b7743d23ae28b0b446367a46fae8489351f935878222be973c8379b663808220"
+  },
+  {
+    "path": "docs/features/OBS-0001-combat-observation.md",
+    "baseline_sha256": null,
+    "candidate_sha256": "5a771d62b69cada58cb23cdb986c15beadd16a60fc82c08df070d7bffbd6d456"
+  },
+  {
+    "path": "docs/architecture/ADR-0011-read-only-combat-observation.md",
+    "baseline_sha256": null,
+    "candidate_sha256": "f7ff46eb8d65ea9774aee85f1baa831aa5b962ac392a1bcf953a59f7bcb241e1"
+  },
+  {
+    "path": "tests/CoreTests/Program.cs",
+    "baseline_sha256": "fcddb3865e8d9489653b595c849d80679ad115dd47a8c9ee41b5d38048add4f8",
+    "candidate_sha256": "49fa05440739937cba548711706b362e06acdc56b7f513779d9197c014ac8e03"
+  },
+  {
+    "path": "tests/CoreTests/CombatObservationTests.cs",
+    "baseline_sha256": null,
+    "candidate_sha256": "95acb767e5f6904778aaab41505578d5f2caa01c6ec6a5e645c28e33829d3e52"
+  },
+  {
+    "path": "tests/CoreTests/CombatObservationIndependentTests.cs",
+    "baseline_sha256": null,
+    "candidate_sha256": "dde54fc22833886f4f5045a3ca412dbf31ef4ec9be81897ab46e2294719a384b"
+  }
+]

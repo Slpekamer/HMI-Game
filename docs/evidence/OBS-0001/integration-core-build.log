@@ -1,0 +1,11 @@
+  Determining projects to restore...
+  Restored /workspace/scratch/80f5bc988ef7/HMI-Game-observations-scoped-r1/tests/CoreTests/Hmi.CoreTests.csproj (in 246 ms).
+  Restored /workspace/scratch/80f5bc988ef7/HMI-Game-observations-scoped-r1/src/Core/Hmi.Core.csproj (in 387 ms).
+  Hmi.Core -> /workspace/scratch/80f5bc988ef7/HMI-Game-observations-scoped-r1/src/Core/bin/Debug/netstandard2.1/Hmi.Core.dll
+  Hmi.CoreTests -> /workspace/scratch/80f5bc988ef7/HMI-Game-observations-scoped-r1/tests/CoreTests/bin/Debug/net10.0/Hmi.CoreTests.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:09.58

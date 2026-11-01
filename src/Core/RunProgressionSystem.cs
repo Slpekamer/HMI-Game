@@ -139,6 +139,7 @@ namespace Hmi.Core
             g.Run.SupplyHealthBonus = 0;
             g.Commands.Clear();
             g.EventLength = 0;
+            g.Observations.ResetScope();
             g.MoveInput = default;
             g.PowerTime = g.HasteTime = 0;
             g.MeleeTimer = g.RicochetTimer = g.HoneyTimer = g.ImpactTimer = g.SpawnTimer = 0;
@@ -166,6 +167,7 @@ namespace Hmi.Core
         {
             g.World.Clear();
             g.EventLength = 0;
+            g.Observations.ResetScope();
             g.Run.Phase = RunPhase.Combat;
             g.Run.Paused = false;
             g.Run.Tick = 0;

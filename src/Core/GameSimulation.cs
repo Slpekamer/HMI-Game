@@ -29,6 +29,8 @@ namespace Hmi.Core
         internal int SpawnCounter;
         internal int EventLength;
         private readonly GameEvent[] _events = new GameEvent[2048];
+        internal readonly CombatObservationStorage Observations;
+        public const int CombatObservationSchemaVersion = 1;
         private readonly RunProgressionSystem _progression = new RunProgressionSystem();
         private readonly StatEffectSystem _statEffects = new StatEffectSystem();
         private ISimulationSystem[] _systems;
@@ -86,6 +88,7 @@ namespace Hmi.Core
             CatalogHash = catalogHash?.ToLowerInvariant();
             Catalog = catalog;
             World = new World(limits.EntityCapacity);
+            Observations = new CombatObservationStorage(limits.EntityCapacity);
             Wallet = new WalletResource(Catalog.Items.Length);
             Loadout = new CardLoadoutResource(Catalog.Cards.Length);
             _systems = new ISimulationSystem[]
@@ -122,6 +125,7 @@ namespace Hmi.Core
         public void Step()
         {
             EventLength = 0;
+            Observations.BeginStep();
             _progression.Update(this);
             if (Phase != RunPhase.Combat || Paused)
                 return;
@@ -191,7 +195,7 @@ namespace Hmi.Core
                 throw new ArgumentOutOfRangeException(nameof(index));
             return _events[index];
         }
-        internal void Emit(EventKind kind, EntityId source, EntityId target, Vec2 from, Vec2 to, float value)
+        internal void Emit(EventKind kind, EntityId source, EntityId target, Vec2 from, Vec2 to, float value, FeedbackMechanism mechanism = FeedbackMechanism.Unknown)
         {
             // Cosmetic-only drop-newest policy. Rules never read this presentation event buffer.
             if (EventLength == _events.Length)
@@ -199,9 +203,27 @@ namespace Hmi.Core
                 DroppedEvents++;
                 return;
             }
-            _events[EventLength++] = new GameEvent(kind, source, target, from, to, value, Tick, RunToken, Wave);
+            _events[EventLength++] = new GameEvent(kind, source, target, from, to, value, Tick, RunToken, Wave, mechanism);
         }
-        internal void Damage(int target, float amount, EntityId source) => DamageResolutionSystem.Apply(this, target, amount, source);
+        internal void Damage(int target, float amount, EntityId source, FeedbackMechanism mechanism = FeedbackMechanism.Unknown)
+            => DamageResolutionSystem.Apply(this, target, amount, source, mechanism);
+        public int ObservationCount => Observations.Count;
+        public long DroppedObservations => Observations.Dropped;
+        public CombatObservation GetObservation(int index) => Observations.Get(index);
+        internal void Observe(CombatObservationKind kind, EntityId source, EntityId target, Vec2 from, Vec2 to, float value)
+            => Observations.Add(new CombatObservation(kind, source, target, from, to, value, Tick, RunToken, Wave));
+        internal void ObserveMotion(int slot, float honeyMultiplier, bool usedKnockMovement)
+            => Observations.SetMotion(new EnemyMotionObservation(World.Id(slot), honeyMultiplier, usedKnockMovement, Tick, RunToken, Wave));
+        public bool TryGetEnemyMotionObservation(EntityId id, out EnemyMotionObservation value)
+        {
+            if (Phase == RunPhase.Combat && World.Alive(id) && World.Has(id.Index, Components.Enemy))
+            {
+                var sample = Observations.GetMotion(id.Index);
+                if (sample.Id == id && sample.RunToken == RunToken && sample.Wave == Wave && sample.Tick == Tick)
+                { value = sample; return true; }
+            }
+            value = default; return false;
+        }
         internal void SpawnEnemy() => EntityLifecycleSystem.SpawnEnemy(this);
         internal void RecallCompanions() => EntityLifecycleSystem.RecallCompanions(this);
         internal uint Random()

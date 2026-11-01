@@ -1,0 +1,23 @@
+{
+  "src/Core/Catalog.cs": "9d39e203473cb21d655214a3f84e3ac7e1b918d7ae2aefc872c7a489e5aff238",
+  "src/Core/GameSimulation.cs": "3eea7cae8e28e8cbc55d2f993a0b40fb09c63a337faf33b444dc1bd6cd4338a1",
+  "src/Core/CheckpointSystem.cs": "333fcabbed1c46fda4e97401323278a431d65b8582829d60a56002580b00800d",
+  "src/Core/MovementSystems.cs": "e6bb9b2cc1bab9c2032372827bbac8e15f135e5b9324d1c3ad3fd130b6bc5093",
+  "src/Core/CheckpointContracts.cs": "16fc8844d5e14a1fc7932a19a91cd7ac74c4895250c34592852ccbae24f76c85",
+  "src/Core/Geometry.cs": "d884b53c50025d1165d2326ca545e6d37e424a844eb3b2fb7ae81304dff9d922",
+  "src/Core/.editorconfig": "c87c803125007036a90700004617cdb31960bc6ad12bfba3f57c2c35c6a3d54f",
+  "src/Core/Hmi.Core.csproj": "9386c2d05518d31df3a593cd1d0525e52b576de0bff02a26c3d9be9ea59ad8ea",
+  "src/Core/CombatObservation.cs": "b784a4a19fc0c3a2f1f0ed81af2e03233bc3a4a23bd2f9a7c73cc43152819934",
+  "src/Core/.gdignore": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "src/Core/Contracts.cs": "595279f4c3e04abc4e712dda4662db1dbae9d285d64c65d85a0bf11624545cc6",
+  "src/Core/StatSystems.cs": "09c274e358aa52a2cbe14b00c4766c76cfd098152f2b99c63394dd8b231afd6c",
+  "src/Core/TemporaryContractSystem.cs": "3d3b3816e10a5746292ab29f95fe6d95c52b163cce537057c862dac3d70bf010",
+  "src/Core/World.cs": "233a86ebc65e78f1aefdf3999f8fc713cf1fc7b8452d3646c3f04c5d7ae2cecd",
+  "src/Core/EntityLifecycleSystem.cs": "263aa9b2ac2c39d2df4db24a9f9894a84696f67422fa7166accb83f264ce7d87",
+  "src/Core/README.md": "26a11df335de8ac6b7c467a9b1f42cecc432863b90068245264544570e265667",
+  "src/Core/AssemblyInfo.cs": "3cf3cbc1ed33af345948fd62440d610be1098c2d9184c6e5714ec5523737a78c",
+  "src/Core/EndlessRules.cs": "4afcf4bc6c27ca0f61defd190cfeac6dc2e909566c2b7a5a834cfb9b7443d33e",
+  "src/Core/CombatSystems.cs": "067e7a56e257ccedd04d128357954b0f48080afa2fef1f78182bfc5bf12846ca",
+  "src/Core/CompiledSkillGraph.cs": "85513301f41610f5ccbfac90faff65597a8ea40fd1d3b4c94a7b3450dc041d6c",
+  "src/Core/RunProgressionSystem.cs": "b7743d23ae28b0b446367a46fae8489351f935878222be973c8379b663808220"
+}

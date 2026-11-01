@@ -90,6 +90,8 @@ static class Program
     }
     static void Main()
     {
+        CombatObservationTests.Run(Check);
+        CombatObservationIndependentTests.Run(Check);
         SchemaV2IndependentTests.Run(Check);
         SchemaV2Tests.Run(Check);
         ProductionBranchTests.Run(Check);

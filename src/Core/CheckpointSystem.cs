@@ -64,6 +64,7 @@ namespace Hmi.Core
             g.PowerTime = g.HasteTime = 0;
             g.SpawnCounter = 0;
             g.EventLength = 0;
+            g.Observations.ResetScope();
             g.Commands.Clear();
             return true;
         }
