@@ -119,7 +119,12 @@ public partial class EndlessProbe:Node
      var label=Walk(ui).OfType<Label>().Single(l=>l.Text==offer.Detail);
      GD.Print($"ENDLESS_DETAIL {offer.Id} size={label.Size} minimum={label.GetMinimumSize()}");
      Check(label.Size==new Vector2(278,190)&&label.GetMinimumSize().Y<=190,"Full temporary text fits actual body");
-     Check(label.GlobalPosition.Y+label.GetMinimumSize().Y<=530,"Full temporary cost/expiry above button");
+     var cardButton=Walk(ui).OfType<Button>().Where(b=>b.IsVisibleInTree()&&b.Text=="选择")
+      .OrderBy(b=>Math.Abs(b.GlobalPosition.X-label.GlobalPosition.X)).First();
+     var labelBounds=label.GetGlobalRect();var buttonBounds=cardButton.GetGlobalRect();
+     GD.Print($"ENDLESS_DETAIL_BOUNDS {offer.Id} label={labelBounds} button={buttonBounds}");
+     Check(Math.Abs(labelBounds.Position.X-buttonBounds.Position.X)<1,"Temporary detail and choice share card column");
+     Check(labelBounds.End.Y<=buttonBounds.Position.Y,"Full temporary cost/expiry above actual transformed button");
      Check(offer.Enabled&&offer.Temporary,"Typed contract keeps enabled duration badge");
     }
     Check(Walk(ui).OfType<Label>().Count(l=>l.Text=="仅下一波")==3,"All three slots visibly temporary");

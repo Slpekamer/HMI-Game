@@ -1,0 +1,92 @@
+using Godot;
+using Hmi.GodotAdapter;
+using System;
+
+// Compiled only into the isolated test copy. Establishes native ownership, not pixels.
+public partial class PrimitiveOwnershipProbe : Node
+{
+    private int _checks;
+
+    private void Check(bool value, string reason)
+    {
+        _checks++;
+        if (!value) throw new Exception(reason);
+    }
+
+    public override void _Ready()
+    {
+        try
+        {
+            for (int i = 0; i < 32; i++) CheckOwnership();
+            GD.Print("PRIMITIVE_OWNERSHIP PASS " + _checks + " headless native identity only");
+            GetTree().Quit(0);
+        }
+        catch (Exception error)
+        {
+            GD.PushError(error.ToString());
+            GetTree().Quit(1);
+        }
+    }
+
+    private void CheckOwnership()
+    {
+        var mesh = new BoxMesh { Size = new Vector3(2, 3, 4) };
+        var material = AssetVisuals.Material(Colors.Coral);
+        ulong meshId = mesh.GetInstanceId();
+        ulong materialId = material.GetInstanceId();
+        var owner = new MeshInstance3D { Mesh = mesh, MaterialOverride = material };
+        AddChild(owner);
+        mesh.Dispose();
+        material.Dispose();
+        Check(!GodotObject.IsInstanceValid(mesh) && !GodotObject.IsInstanceValid(material),
+            "Original managed wrappers released");
+
+        // Getters create/recover wrappers. Release these test-owned references too.
+        using (var ownedMesh = (BoxMesh)owner.Mesh)
+        using (var ownedMaterial = (StandardMaterial3D)owner.MaterialOverride)
+        {
+            Check(ownedMesh.GetInstanceId() == meshId && ownedMesh.Size == new Vector3(2, 3, 4),
+                "Native mesh identity and properties retained");
+            Check(ownedMaterial.GetInstanceId() == materialId && ownedMaterial.AlbedoColor == Colors.Coral,
+                "Native material identity and color retained");
+        }
+
+        var first = AssetVisuals.Box(new Vector3(2, 3, 4), Vector3.One, Colors.Red);
+        var second = AssetVisuals.Box(new Vector3(5, 6, 7), Vector3.Zero, Colors.Blue);
+        AddChild(first);
+        AddChild(second);
+        using (var firstMesh = (BoxMesh)first.Mesh)
+        using (var secondMesh = (BoxMesh)second.Mesh)
+        using (var firstMaterial = (StandardMaterial3D)first.MaterialOverride)
+        using (var secondMaterial = (StandardMaterial3D)second.MaterialOverride)
+        {
+            Check(firstMesh.GetInstanceId() != secondMesh.GetInstanceId()
+                && firstMaterial.GetInstanceId() != secondMaterial.GetInstanceId(),
+                "Two instances own distinct primitives");
+            firstMesh.Size = Vector3.One;
+            firstMaterial.AlbedoColor = Colors.Green;
+            Check(secondMesh.Size == new Vector3(5, 6, 7) && secondMaterial.AlbedoColor == Colors.Blue,
+                "Instance mutation isolated");
+        }
+        first.Free();
+        using (var secondMesh = (BoxMesh)second.Mesh)
+            Check(secondMesh.Size == new Vector3(5, 6, 7), "Second survives first free");
+
+        var disc = AssetVisuals.Disc(Colors.Yellow);
+        AddChild(disc);
+        using (var discMesh = (CylinderMesh)disc.Mesh)
+        using (var discMaterial = (StandardMaterial3D)disc.MaterialOverride)
+        {
+            Check(discMesh.TopRadius == 1 && discMesh.BottomRadius == 1
+                && Math.Abs(discMesh.Height - .01f) < .00001f && discMesh.RadialSegments == 48,
+                "Disc mesh retained");
+            Check(discMaterial.AlbedoColor == Colors.Yellow
+                && discMaterial.Transparency == BaseMaterial3D.TransparencyEnum.Alpha
+                && discMaterial.ShadingMode == BaseMaterial3D.ShadingModeEnum.Unshaded,
+                "Disc material retained");
+        }
+        owner.Free();
+        second.Free();
+        disc.Free();
+    }
+}

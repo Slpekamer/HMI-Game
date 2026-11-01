@@ -1,0 +1,18 @@
+{
+  "core": {
+    "checked": 16,
+    "differences": []
+  },
+  "persistence": {
+    "checked": 4,
+    "differences": []
+  },
+  "models": {
+    "checked": 10,
+    "differences": []
+  },
+  "content_json": {
+    "checked": 3,
+    "differences": []
+  }
+}

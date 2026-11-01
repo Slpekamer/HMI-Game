@@ -24,12 +24,18 @@ public sealed class AssetVisuals
         throw new InvalidOperationException("Required runtime model missing or invalid: res://content/models/" + id + ".glb. No placeholder or old-hero fallback is permitted.");
     }
     public static StandardMaterial3D Material(Color color) => new() { AlbedoColor = color, Roughness = 1, SpecularMode = BaseMaterial3D.SpecularModeEnum.Disabled };
-    public static MeshInstance3D Box(Vector3 size, Vector3 position, Color color) => new() { Mesh = new BoxMesh { Size = size }, Position = position, MaterialOverride = Material(color) };
+    public static MeshInstance3D Box(Vector3 size, Vector3 position, Color color)
+    {
+        using var mesh = new BoxMesh { Size = size };
+        using var material = Material(color);
+        return new MeshInstance3D { Mesh = mesh, Position = position, MaterialOverride = material };
+    }
     public static MeshInstance3D Disc(Color color)
     {
-        var mat = Material(color);
+        using var mat = Material(color);
         mat.Transparency = BaseMaterial3D.TransparencyEnum.Alpha;
         mat.ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded;
-        return new MeshInstance3D { Mesh = new CylinderMesh { TopRadius = 1, BottomRadius = 1, Height = .01f, RadialSegments = 48 }, MaterialOverride = mat, CastShadow = GeometryInstance3D.ShadowCastingSetting.Off };
+        using var mesh = new CylinderMesh { TopRadius = 1, BottomRadius = 1, Height = .01f, RadialSegments = 48 };
+        return new MeshInstance3D { Mesh = mesh, MaterialOverride = mat, CastShadow = GeometryInstance3D.ShadowCastingSetting.Off };
     }
 }

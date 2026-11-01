@@ -1,0 +1,134 @@
+using Godot;
+using Hmi.Core;
+using Hmi.GodotAdapter;
+using System;
+using System.Linq;
+using System.Reflection;
+using System.Collections.Generic;
+
+// Isolated host + real renderer fixture. Synthetic resize/input assertions are NOT device play.
+public partial class HostResponsiveProbe : Node
+{
+ const BindingFlags F=BindingFlags.Instance|BindingFlags.NonPublic;
+ GameHost host; int checks;
+ T Field<T>(string n)=>(T)typeof(GameHost).GetField(n,F).GetValue(host);
+ T UiField<T>(GameUi ui,string n)=>(T)typeof(GameUi).GetField(n,F).GetValue(ui);
+ void Call(string n,params object[] args)=>typeof(GameHost).GetMethod(n,F).Invoke(host,args);
+ void Check(bool b,string why){checks++;if(!b)throw new Exception(why);}
+ async System.Threading.Tasks.Task Flush(){for(int i=0;i<5;i++)await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);}
+ async System.Threading.Tasks.Task Capture(string label)
+ {
+  string arg=OS.GetCmdlineUserArgs().FirstOrDefault(s=>s.StartsWith("--capture-host-responsive="));
+  if(arg==null)return;
+  await ToSignal(RenderingServer.Singleton,RenderingServer.SignalName.FramePostDraw);
+  Check(GetViewport().GetTexture().GetImage().SavePng(arg.Substring("--capture-host-responsive=".Length)+"-"+label+".png")==Error.Ok,"real host capture");
+ }
+ static EntityView Synthetic(int slot=0)=>new(new EntityId(slot,57),EntityKind.Enemy,new Vec2(0,0),new Vec2(0,-1),4,8,"fixture",true);
+ public override async void _Ready(){try{
+  host=new GameHost();AddChild(host);host.SetProcess(false);await Flush();
+  Call("Start",3,(uint)1030);host.SetProcess(false);
+  var sim=Field<GameSimulation>("_sim");var ui=Field<GameUi>("_ui");var camera=Field<Camera3D>("_camera");
+  Check(sim.Phase==RunPhase.Combat,"production Start durable ack begins combat");
+  sim.Enqueue(GameCommand.Pause(true));sim.Step();Call("RefreshUi");ui.ShowPause(false);
+  long tick=sim.Tick;int token=sim.RunToken;int wave=sim.Wave;var playerId=sim.PlayerId;var world=typeof(GameSimulation).GetField("World",F).GetValue(sim);uint seed=Field<uint>("_seed");
+  Basis basis=camera.GlobalBasis;
+  var sizes=new[]{new Vector2I(1280,720),new Vector2I(1560,720),new Vector2I(1600,720),new Vector2I(1024,768),new Vector2I(720,1280),new Vector2I(540,1280),new Vector2I(1280,720)};
+  foreach(var size in sizes)
+  {
+   // A held pointer must not survive a genuinely changed viewport coordinate system.
+   ui.Joystick._GuiInput(new InputEventScreenTouch{Index=7,Pressed=true,Position=ui.Joystick.Size/2+new Vector2(35,0)});
+   var prior=GetWindow().Size;
+   GetWindow().Size=size;await Flush();Call("ApplyViewportLayout");await Flush();
+   Check(ReferenceEquals(sim,Field<GameSimulation>("_sim"))&&ReferenceEquals(world,typeof(GameSimulation).GetField("World",F).GetValue(sim))&&sim.RunToken==token&&sim.PlayerId==playerId&&sim.Wave==wave&&sim.Tick==tick&&sim.Paused&&Field<uint>("_seed")==seed,"resize preserves authority/session/tick/seed");
+   if(prior!=size)Check(ui.Joystick.Direction==Vector2.Zero,"resize releases held joystick");
+   ui.Joystick.ResetInput();
+   Check(camera.GlobalBasis.IsEqualApprox(basis),"resize never rotates screen/world basis");
+   Vector2 logical=GetViewport().GetVisibleRect().Size;
+   Check(Math.Abs(logical.X/logical.Y-(float)size.X/size.Y)<.003f,"actual logical viewport uses Expand not fixed letterbox");
+   Vector3 right=camera.GlobalBasis.X;right.Y=0;right=right.Normalized();
+   Vector3 down=camera.GlobalBasis.Z;down.Y=0;down=down.Normalized();
+   Vector2 center=camera.UnprojectPosition(Vector3.Zero);
+   Vector2 xr=camera.UnprojectPosition(right)-center,yd=camera.UnprojectPosition(down)-center;
+   Check(xr.X>0&&Math.Abs(xr.Y)<.02f&&yd.Y>0&&Math.Abs(yd.X)<.02f,"screen right/down map correctly");
+   Check(Math.Abs((right*.6f+down*.8f).Length()-1)<.0001f,"diagonal screen input preserves magnitude");
+   // Actual joystick local event + host production input mapping, without changing authority while paused.
+   ui.Joystick._GuiInput(new InputEventMouseButton{ButtonIndex=MouseButton.Left,Pressed=true,Position=ui.Joystick.Size/2+new Vector2(ui.Joystick.Size.X,0)});
+   Check(ui.Joystick.Direction.X>.99f&&Math.Abs(ui.Joystick.Direction.Y)<.01f,"joystick right axis");
+   ui.Joystick._Input(new InputEventMouseButton{ButtonIndex=MouseButton.Left,Pressed=false});Check(ui.Joystick.Direction==Vector2.Zero,"pointer release clears movement");
+   Call("RenderEntities",0f);
+   var bars=Field<EnemyHealthVisuals>("_enemyHealth");var visuals=Field<Node3D[]>("_visuals");int checkedBars=0;
+   for(int i=0;i<sim.Capacity;i++)if(bars.TryGetBar(i,out var id,out var ratio,out var point))
+   {
+    Check(sim.TryGetEntityAtSlot(i,out var view)&&view.Kind==EntityKind.Enemy&&view.Id==id,"real bars enemy-only current generation");
+    var expected=camera.UnprojectPosition(visuals[i].GlobalPosition+Vector3.Up*1.12f);
+    var transform=bars.GetGlobalTransformWithCanvas();Check((transform*point).DistanceTo(expected)<.02f,"real host bar projection aligns after resize");
+    Check(GetViewport().GetVisibleRect().Encloses(transform*new Rect2(point-new Vector2(17,3),new Vector2(34,6))),"whole real bar rectangle in viewport");checkedBars++;
+   }
+   Check(checkedBars>0,"actual combat contains visible enemy bars");
+   // Independent transformed overlay tests the inverse-canvas path, not just identity canvas.
+   var layer=new CanvasLayer{Layer=2,Offset=new Vector2(21,13),Scale=new Vector2(.8f,1.2f)};AddChild(layer);
+   var testBars=new EnemyHealthVisuals(1);layer.AddChild(testBars);var actor=new Node3D();host.AddChild(actor);actor.GlobalPosition=Vector3.Zero;
+   Vector2 local=Vector2.Zero;
+   Check(testBars.Update(0,Synthetic(),actor,camera,true)&&testBars.TryGetBar(0,out _,out _,out local),"transformed overlay accepts visible enemy");
+   Check((testBars.GetGlobalTransformWithCanvas()*local).DistanceTo(camera.UnprojectPosition(actor.GlobalPosition+Vector3.Up*1.12f))<.02f,"inverse canvas projection exact");
+   actor.GlobalPosition=camera.ProjectPosition(new Vector2(1,logical.Y/2),10)-Vector3.Up*1.12f;
+   Check(!testBars.Update(0,Synthetic(),actor,camera,true),"partially outside full bar rejected");
+   actor.QueueFree();layer.QueueFree();await Flush();
+   var player=visuals[sim.PlayerId.Index];
+   float nominalHeightPx=camera.UnprojectPosition(player.GlobalPosition+Vector3.Up*1.62f).DistanceTo(camera.UnprojectPosition(player.GlobalPosition));
+   GD.Print($"HOST_RESPONSIVE_SIZE requested={size} actual={GetWindow().Size} logical={logical} cameraSize={camera.Size} nominalVerticalHeroPixels={nominalHeightPx} bars={checkedBars}");
+   await Capture("world-"+size.X+"x"+size.Y);
+   // The same modal objects/intent must survive orientation change, not be recreated or canceled.
+   int confirms=0;ui.ShowReplaceRunConfirmation(()=>confirms++);
+   var overlay=UiField<Control>(ui,"_overlay");var body=overlay.GetChildren().OfType<RichTextLabel>().First();
+   GetWindow().Size=new Vector2I(size.Y,size.X);await Flush();Call("ApplyViewportLayout");await Flush();
+   Check(ui.IsPersistenceModalOpen&&GodotObject.IsInstanceValid(body)&&body.IsInsideTree()&&confirms==0&&sim.Tick==tick,"orientation preserves live modal and authority");
+   Check(ui.TryCancelPersistenceModal()&&confirms==0,"cancel after rotation does not confirm");
+  }
+  // Real authority movement creates nonzero trailing lag before pause; no teleport for this gate.
+  GetWindow().Size=new Vector2I(720,1280);await Flush();Call("ApplyViewportLayout");
+  sim.Enqueue(GameCommand.Pause(false));sim.Step();
+  for(int moving=0;moving<24;moving++){sim.Enqueue(GameCommand.Move(1,0));sim.Step();Call("RenderEntities",1f/60);}
+  var movingNode=Field<Node3D[]>("_visuals")[sim.PlayerId.Index];
+  Check(camera.Position.DistanceTo(movingNode.Position+new Vector3(12,22,18))>.01f,"pause fixture contains real nonzero camera lag");
+  sim.Enqueue(GameCommand.Pause(true));sim.Step();tick=sim.Tick;
+  Vector3 pausedCamera=camera.Position,pausedActor=movingNode.Position;
+  for(int pausedFrame=0;pausedFrame<12;pausedFrame++)Call("RenderEntities",1f/60);
+  Check(camera.Position==pausedCamera,"ordinary pause freezes camera immediately, not after settling");
+  Check(movingNode.Position==pausedActor&&sim.Tick==tick,"pause keeps actor and authority frozen");
+  GetWindow().Size=new Vector2I(540,1280);await Flush();Call("ApplyViewportLayout");await Flush();
+  Check(camera.Position.DistanceTo(movingNode.Position+new Vector3(12,22,18))<.0001f&&sim.Tick==tick,"actual changed viewport explicitly reframes paused actor once");
+  pausedCamera=camera.Position;Call("ApplyViewportLayout");for(int i=0;i<5;i++)Call("RenderEntities",1f/60);
+  Check(camera.Position==pausedCamera&&sim.Tick==tick,"same layout and paused frames do not keep reframing");
+  // Controlled static edge positions: not naturally reached, no survival or input claim.
+  var transforms=(Array)world.GetType().GetField("Transform",F).GetValue(world);
+  foreach(var portraitSize in new[]{new Vector2I(720,1280),new Vector2I(540,1280)})
+  {
+   GetWindow().Size=portraitSize;await Flush();Call("ApplyViewportLayout");await Flush();
+   foreach(var point in new[]{new Vec2(0,0),new Vec2(-8,-6),new Vec2(8,-6),new Vec2(-8,6),new Vec2(8,6)})
+   {
+    object transform=transforms.GetValue(sim.PlayerId.Index);
+    transform.GetType().GetField("Position").SetValue(transform,point);transforms.SetValue(transform,sim.PlayerId.Index);
+    var node=Field<Node3D[]>("_visuals")[sim.PlayerId.Index];
+    node.Position=new Vector3(point.X,0,point.Y); // explicit TEST pose, not paused interpolation
+    Check(sim.TryGetEntity(sim.PlayerId,out var cornerView),"controlled corner entity remains valid");
+    Call("SnapCamera",cornerView); // explicit TEST framing, not permission to drift while paused
+    for(int settle=0;settle<5;settle++)Call("RenderEntities",1f/60);
+    Check(sim.Tick==tick&&sim.Paused,"controlled static positioning never ticks authority");
+    var screen=camera.UnprojectPosition(node.GlobalPosition);
+    Check(GetViewport().GetVisibleRect().HasPoint(screen),"settled portrait player center visible at controlled corner");
+    GD.Print($"HOST_PORTRAIT_CORNER size={portraitSize} point={point.X},{point.Y} screen={screen} camera={camera.Position}");
+    await Capture($"controlled-{portraitSize.X}x{portraitSize.Y}-{point.X}-{point.Y}");
+   }
+  }
+  int oldRun=sim.RunToken;Call("ExitToSelection");ui.ResumeRequested?.Invoke();host.SetProcess(false);Call("RenderEntities",0f);
+  var restoredNode=Field<Node3D[]>("_visuals")[sim.PlayerId.Index];
+  Check(sim.RunToken!=oldRun&&camera.Position.DistanceTo(restoredNode.Position+new Vector3(12,22,18))<.0001f,"restore scope immediately binds camera to restored actor");
+  oldRun=sim.RunToken;camera.Position+=new Vector3(7,0,4);Call("Selection");Call("Start",3,(uint)1031);host.SetProcess(false);Call("RenderEntities",0f);
+  var newNode=Field<Node3D[]>("_visuals")[sim.PlayerId.Index];
+  Check(sim.RunToken!=oldRun&&camera.Position.DistanceTo(newNode.Position+new Vector3(12,22,18))<.0001f,"new run does not retain previous camera focus");
+  host.QueueFree();await Flush();GetWindow().Size=new Vector2I(1024,768);await Flush();
+  Check(!GodotObject.IsInstanceValid(host),"host exit disconnects resize lifecycle");
+  GD.Print("HOST_RESPONSIVE_PROBE PASS checks="+checks);GetTree().Quit();
+ }catch(Exception ex){GD.PushError(ex.ToString());GetTree().Quit(1);}}
+}

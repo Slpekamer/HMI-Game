@@ -19,6 +19,7 @@ public partial class GameHost : Node3D
     private CharacterPresentation[] _presentations;
     private GameEvent?[] _pendingAttacks;
     private Camera3D _camera;
+    private EnemyHealthVisuals _enemyHealth;
     private MeshInstance3D _honey;
     private readonly Node3D[] _orbit = new Node3D[4];
     private readonly MeshInstance3D[] _effects = new MeshInstance3D[64];
@@ -36,6 +37,7 @@ public partial class GameHost : Node3D
     {
         try
         {
+            InitializeViewportLayout();
             byte[] catalogBytes = FileAccess.GetFileAsBytes("res://content/gameplay.json");
             _content = JsonSerializer.Deserialize<GameContent>(catalogBytes, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? throw new InvalidOperationException("Missing game content");
             string catalogHash = Convert.ToHexString(SHA256.HashData(catalogBytes)).ToLowerInvariant();
@@ -45,9 +47,15 @@ public partial class GameHost : Node3D
             _presentations = new CharacterPresentation[_sim.Capacity];
             _pendingAttacks = new GameEvent?[_sim.Capacity];
             BuildArena();
+            var enemyHealthLayer = new CanvasLayer { Name="EnemyHealthLayer", Layer=0 };
+            AddChild(enemyHealthLayer);
+            _enemyHealth = new EnemyHealthVisuals(_sim.Capacity) { Name="EnemyHealthBars" };
+            enemyHealthLayer.AddChild(_enemyHealth);
             InitializePersistence(catalogHash);
             InitializeUi();
             BindPersistenceUi();
+            ApplyViewportLayout();
+            _ui.ShowHome();
             foreach (string arg in OS.GetCmdlineUserArgs())
             {
                 if (arg == "--smoke") _smoke = true;
@@ -65,7 +73,7 @@ public partial class GameHost : Node3D
         AddChild(new DirectionalLight3D { RotationDegrees = new Vector3(-55,-25,0), LightEnergy = .36f, ShadowEnabled = true });
         _camera = new Camera3D { Projection = Camera3D.ProjectionType.Orthogonal, Size = 16.8f, Position = new Vector3(12,22,18), Current = true };
         AddChild(_camera); _camera.LookAt(Vector3.Zero);
-        AddChild(AssetVisuals.Box(new Vector3(80,.3f,80), new Vector3(0,-.2f,0), new Color("f4d8ab")));
+        AddChild(AssetVisuals.Box(new Vector3(80,.3f,80), new Vector3(0,-.15f,0), new Color("f4d8ab")));
         Color[] colors = { new("b9a5dd"), new("83b9da"), new("edb3cb"), new("efd18d") };
         for (int x = -14; x <= 14; x++)
         {
@@ -119,7 +127,7 @@ public partial class GameHost : Node3D
             for(int petal=0;petal<5;petal++)
             {
                 float angle=petal*Mathf.Tau/5;
-                Vector3 position=new(x+Mathf.Cos(angle)*.07f,-.035f,z+Mathf.Sin(angle)*.07f);
+                Vector3 position=new(x+Mathf.Cos(angle)*.07f,.006f,z+Mathf.Sin(angle)*.07f);
                 petalBatches[i%4].SetInstanceTransform(petalIndices[i%4]++,new Transform3D(Basis.Identity,position));
             }
         }
@@ -189,12 +197,15 @@ public partial class GameHost : Node3D
     private static Vector3 ToGodot(Vec2 p,float height=0) => new(p.X,height,p.Y);
     public override void _ExitTree()
     {
+        ReleaseViewportLayout();
         if(_visuals!=null) ClearVisuals();
         _assets.ReleaseCachedReferences();
     }
 
     private void ClearVisuals()
     {
+        _cameraBound=false;
+        _enemyHealth?.Clear();
         for(int i=0;i<_visuals.Length;i++) { _presentations[i]?.Dispose(); _visuals[i]?.QueueFree(); _visuals[i]=null; _presentations[i]=null; _pendingAttacks[i]=null; }
         for(int i=0;i<_effects.Length;i++) { _effectTime[i]=0; if(_effects[i]!=null) _effects[i].Visible=false; }
         if(_honey!=null) _honey.Visible=false; foreach(var orbit in _orbit) if(orbit!=null) orbit.Visible=false;
@@ -238,8 +249,7 @@ public partial class GameHost : Node3D
         bool combat=_sim.Phase==RunPhase.Combat;
         if(_sim.TryGetEntity(_sim.PlayerId,out var player))
         {
-            Vector3 focus = new(Mathf.Clamp(player.Position.X*.32f,-3,3),0,Mathf.Clamp(player.Position.Y*.24f,-1.5f,1.5f));
-            _camera.Position = _camera.Position.Lerp(focus+new Vector3(12,22,18),1-Mathf.Exp(-3*delta));
+            UpdateCameraFollow(player,delta);
             _honey.Visible=combat&&_sim.GetStat(Stat.HoneyEnabled)>0; _honey.Position=ToGodot(player.Position,.015f);
             float radius=_sim.GetStat(Stat.HoneyRadius); _honey.Scale=new Vector3(radius,1,radius);
             int count=(int)_sim.GetStat(Stat.OrbitCount); float orbitRadius=_sim.GetStat(Stat.OrbitRadius);
@@ -250,6 +260,12 @@ public partial class GameHost : Node3D
                 _orbit[i].Position=ToGodot(player.Position+new Vec2(Mathf.Cos(angle),Mathf.Sin(angle))*orbitRadius,.6f);
             }
         }
+        // Project after the camera and interpolated actors have moved; one draw list, never per-enemy UI nodes.
+        _enemyHealth.BeginFrame();
+        for(int slot=0;slot<_visuals.Length;slot++)
+            if(_visuals[slot]!=null && _sim.TryGetEntityAtSlot(slot,out var healthView))
+                _enemyHealth.Update(slot,healthView,_visuals[slot],_camera,combat);
+        _enemyHealth.EndFrame();
     }
     // Preserve authoritative context across catch-up ticks; coalesce to the newest cosmetic gesture.
     private bool QueuePresentationEvent(GameEvent e)

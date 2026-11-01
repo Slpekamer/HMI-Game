@@ -20,17 +20,13 @@ public partial class SelectionPortraitProbe : Node
     private void CheckSelection(GameUi ui,int selected)
     {
         Check(ui.GetViewport().Disable3D,"Selection skips obscured main-world 3D pass");
-        Check(!Walk(ui).Any(n=>n is SubViewport||n is Node3D||n is AnimationPlayer),"Selection must have zero UI model viewports/3D nodes/animation players, including hidden HUD");
-        Check(Walk(ui).OfType<TextureRect>().Count(n=>n.Name=="SelectionPortrait")==5,"Exactly five 2D portraits");
+        Check(Walk(ui).OfType<SubViewport>().Count()==1,"Exactly one selected hero preview, no hidden HUD worlds");
+        var preview=Walk(ui).OfType<HeroSelectionPreview>().Single();
+        Check(preview.HeroId==AssetVisuals.HeroIds[selected],"Preview identity follows chosen hero");
+        Check(Walk(preview).OfType<AnimationPlayer>().Single().CallbackModeProcess==AnimationMixer.AnimationCallbackModeProcess.Manual,"Manual selection Idle clock");
         for(int i=0;i<5;i++)
         {
             var card=Find<Button>(ui,"HeroCard_"+AssetVisuals.HeroIds[i]);
-            var image=Find<TextureRect>(card,"SelectionPortrait");
-            Check(image.Texture is AtlasTexture atlas && atlas.Atlas.ResourcePath.EndsWith("hero_"+AssetVisuals.HeroIds[i]+".png") && atlas.Region.Size.X==(AssetVisuals.HeroIds[i]=="bounce"?750:710) && atlas.Region.Size.Y==700,"Portrait stable ID mapping");
-            Check(image.StretchMode==TextureRect.StretchModeEnum.KeepAspectCentered,"No portrait distortion");
-            Check(image.MouseFilter==Control.MouseFilterEnum.Ignore,"Portrait must not intercept card input");
-            GD.Print($"PORTRAIT_BOUNDS {AssetVisuals.HeroIds[i]} position={image.Position} size={image.Size}");
-            Check(image.Position.X>=19.99f&&image.Position.Y>=21.99f&&image.Position.X+image.Size.X<=220.01f&&image.Position.Y+image.Size.Y<=252.01f,"Portrait stays above nameplate and inside card");
             Check(Find<Label>(card,"SelectedBadge").Visible==(i==selected),"Exactly one matching selected badge");
         }
         Check(Find<Label>(ui,"SelectionSummary").Text==AssetVisuals.HeroNames[selected]+"  ·  "+AssetVisuals.HeroTraits[selected],"Summary follows selected identity/trait");
@@ -44,11 +40,30 @@ public partial class SelectionPortraitProbe : Node
             catch(InvalidOperationException e) { missingRejected=e.Message.Contains("No placeholder"); }
             Check(missingRejected,"Missing required model must fail explicitly, never silently show placeholder/old hero");
             host=new GameHost();AddChild(host);host.SetProcess(false);await Flush();
-            var ui=(GameUi)Field("_ui");CheckSelection(ui,3);
+            var ui=(GameUi)Field("_ui");
+            Check(!Walk(ui).OfType<SubViewport>().Any(),"Home owns no hidden model worlds");
+            var home=Find<Button>(ui,"HomeStart");Press(home);CheckSelection(ui,3);
+            var initial=Walk(ui).OfType<HeroSelectionPreview>().Single();ui.SetProcess(false);
+            double clock=initial.Clock;initial.Advance(.08,false);Check(initial.Clock!=clock,"Actual Idle clock advances");
+            clock=initial.Clock;initial.Advance(.08,true);Check(initial.Clock==clock,"Frozen preview does not advance");
+            ui.Notification((int)Node.NotificationApplicationFocusOut);ui._Process(.08);Check(initial.Clock==clock,"Focus loss freezes selection");ui.Notification((int)Node.NotificationApplicationFocusIn);ui._Process(.08);Check(initial.Clock!=clock,"Focus return resumes selection");
+            ui.ShowHome();Check(initial.Released,"Home releases selected animation references immediately");Press(home);Check(!Walk(ui).OfType<SubViewport>().Any(),"Stale Home navigation callback ignored");
+            Press(Find<Button>(ui,"HomeStart"));await Flush();CheckSelection(ui,3);ui.SetProcess(true);
             for(int cycle=0;cycle<2;cycle++)for(int hero=0;hero<5;hero++)
             {
                 var card=Find<Button>(ui,"HeroCard_"+AssetVisuals.HeroIds[hero]);
                 card.GrabFocus();Check(card.HasFocus(),"Card accepts keyboard focus");Press(card);Press(card);CheckSelection(ui,hero);
+                var live=Walk(ui).OfType<HeroSelectionPreview>().Single();
+                var nodes=Walk(live).OfType<Node3D>().ToArray();var transforms=nodes.Select(n=>n.Transform).ToArray();
+                var bones=Walk(live).OfType<Skeleton3D>().ToArray();var poses=bones.SelectMany(b=>Enumerable.Range(0,b.GetBoneCount()).Select(b.GetBonePose)).ToArray();
+                for(int step=0;step<5;step++)live.Advance(.1,false);
+                bool nodeMotion=nodes.Where((n,k)=>n.Transform!=transforms[k]).Any();
+                var after=bones.SelectMany(b=>Enumerable.Range(0,b.GetBoneCount()).Select(b.GetBonePose)).ToArray();
+                Check(nodeMotion||!poses.SequenceEqual(after),"Actual Idle changes hierarchy/bone pose, not only a reported clock");
+                var imported=new AssetVisuals().Create("hero_"+AssetVisuals.HeroIds[hero]);
+                var original=Walk(imported).OfType<AnimationPlayer>().Single();var local=Walk(live).OfType<AnimationPlayer>().Single();
+                foreach(var name in local.GetAnimationLibraryList())Check(local.GetAnimationLibrary(name).GetInstanceId()!=original.GetAnimationLibrary(name).GetInstanceId(),"Animation library is preview-local");
+                imported.Free();
                 Find<SpinBox>(ui,"SelectionSeed").Value=1030+hero;
                 var start=Find<Button>(ui,"StartAdventure");start.GrabFocus();Check(start.HasFocus(),"Start accepts keyboard focus");Press(start);host.SetProcess(false);await Flush();
                 Check((int)Field("_heroIndex")==hero&&(uint)Field("_seed")==1030+hero,"Start preserves selected hero and seed");
@@ -87,7 +102,7 @@ public partial class SelectionPortraitProbe : Node
             // Re-entering the root menu repeatedly must not create hidden viewport resources.
             for(int i=0;i<3;i++){ui.ShowSelection();await Flush();CheckSelection(ui,4);}
             host.QueueFree();await Flush();Check(!GetViewport().Disable3D,"Freeing UI restores inherited viewport rendering state");
-            GD.Print("SELECTION_PORTRAIT_PROBE PASS all5 / repeat / identity-seed / focus / start / codex-back / restart / zero-selection-viewports");GetTree().Quit();
+            GD.Print("SELECTION_PORTRAIT_PROBE PASS all5 / repeat / identity-seed / focus / start / codex-back / restart / one-live-selection-viewport / Home / manual-Idle / focus-freeze");GetTree().Quit();
         }
         catch(Exception e){GD.PushError(e.ToString());GetTree().Quit(1);}
     }

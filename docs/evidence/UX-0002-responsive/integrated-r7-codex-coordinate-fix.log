@@ -1,0 +1,15 @@
+Codex build: exit 0; log /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-codex-yv13c7ts/build.log
+Codex import: exit 0; log /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-codex-yv13c7ts/import.log
+Codex run: exit 0; log /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-codex-yv13c7ts/run.log
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+HMI_READY reconstruction=2026-10-31 lighting=linear-direct0.36-ambient0.18
+CODEX_DETAIL fusion.sugaring size=(278, 150) min=(1, 150) lineSpacing=0
+CODEX_DETAIL_BOUNDS fusion.sugaring label=(151, 652), (278, 150) button=(151, 810), (278, 56)
+CODEX_DETAIL base.health size=(278, 150) min=(1, 60) lineSpacing=0
+CODEX_DETAIL_BOUNDS base.health label=(501, 652), (278, 150) button=(501, 810), (278, 56)
+CODEX_DETAIL risk.bounty size=(278, 150) min=(1, 120) lineSpacing=0
+CODEX_DETAIL_BOUNDS risk.bounty label=(851, 652), (278, 150) button=(851, 810), (278, 56)
+CODEX_ENGINE_PROBE PASS 26: modal / repeated open-close / focus pause / actual rare-card text bounds
+
+PASS isolated actual-engine codex; evidence /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-codex-yv13c7ts

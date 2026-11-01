@@ -1,0 +1,221 @@
+using Godot;
+using Hmi.Core;
+using Hmi.GodotAdapter;
+using System;
+using System.Linq;
+using System.Collections.Generic;
+
+// Actual five imported GLBs; isolated graph candidate only, not gameplay/visual acceptance.
+public partial class FoodAnimationMixerProbe : Node3D
+{
+    private int checks;
+    private readonly AssetVisuals assets=new();
+    private static readonly HashSet<string> Upper=new(StringComparer.Ordinal)
+    { "Chest","Head","Scarf","UpperArm_L","UpperArm_R","Forearm_L","Forearm_R","Hand_L","Hand_R" };
+    private sealed class Rig
+    {
+        public Node3D Root; public AnimationPlayer Player; public Skeleton3D Skeleton;
+        public FoodAnimationMixer Mixer; public string Idle,Run,Attack;
+    }
+    private void Check(bool ok,string label) { checks++; if(!ok)throw new Exception(label); }
+    private static T Find<T>(Node root) where T:Node
+    {
+        if(root is T found)return found;
+        foreach(Node child in root.GetChildren()) { var value=Find<T>(child);if(value!=null)return value; }
+        return null;
+    }
+    private static string Clip(AnimationPlayer player,string name)
+        => player.GetAnimationList().First(x=>x==name||x.EndsWith("/"+name,StringComparison.Ordinal));
+    private Rig Create(string hero)
+    {
+        var root=assets.Create("hero_"+hero);AddChild(root);
+        var p=Find<AnimationPlayer>(root);var skeleton=Find<Skeleton3D>(root);
+        Check(p!=null&&skeleton!=null,hero+" actual player/skeleton");
+        var idle=Clip(p,"Idle");var run=Clip(p,"Run");var attack=Clip(p,"Attack");
+        p.CallbackModeProcess=AnimationMixer.AnimationCallbackModeProcess.Manual;
+        p.GetAnimation(idle).LoopMode=Animation.LoopModeEnum.Linear;
+        p.GetAnimation(run).LoopMode=Animation.LoopModeEnum.Linear;
+        p.GetAnimation(attack).LoopMode=Animation.LoopModeEnum.None;
+        var mixer=FoodAnimationMixer.TryCreate(p,idle,run,attack);
+        Check(mixer!=null&&mixer.FilteredTracks>=3,hero+" native graph binds actual upper tracks");
+        return new Rig {Root=root,Player=p,Skeleton=skeleton,Mixer=mixer,Idle=idle,Run=run,Attack=attack};
+    }
+    private static Transform3D[] Pose(Rig rig)
+        => Enumerable.Range(0,rig.Skeleton.GetBoneCount()).Select(rig.Skeleton.GetBonePose).ToArray();
+    private static float Difference(Transform3D a,Transform3D b)
+        => Math.Max(a.Origin.DistanceTo(b.Origin),Math.Max(a.Basis.X.DistanceTo(b.Basis.X),
+            Math.Max(a.Basis.Y.DistanceTo(b.Basis.Y),a.Basis.Z.DistanceTo(b.Basis.Z))));
+    private void Equal(Transform3D[] a,Transform3D[] b,string label,float epsilon=.0001f)
+    {
+        Check(a.Length==b.Length,label+" bone count");
+        for(int i=0;i<a.Length;i++)Check(Difference(a[i],b[i])<=epsilon,label+" bone="+i+" diff="+Difference(a[i],b[i]));
+    }
+    private async System.Threading.Tasks.Task Flush()
+    {await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);}
+    private static void Advance(Rig rig,float delta,bool moving,bool fire=false,float rate=1,bool paused=false)
+        => rig.Mixer.Advance(delta,moving,rate,fire,paused);
+    private static void Release(Rig rig) {rig.Mixer.Dispose();rig.Mixer.Dispose();rig.Root.QueueFree();}
+    private async System.Threading.Tasks.Task PresenterCase(string hero)
+    {
+        EntityView View(float x=0)=>new(new EntityId(7,1),EntityKind.Player,new Vec2(x,0),new Vec2(0,-1),100,100,"hero_"+hero);
+        (Rig Rig,CharacterPresentation Presenter) Make(int token=1,int wave=1,long tick=0)
+        {
+            var root=assets.Create("hero_"+hero);AddChild(root);
+            var presenter=new CharacterPresentation(root,View(),tick,token,wave);
+            var player=Find<AnimationPlayer>(root);
+            Check(player.GetParent().GetNodeOrNull<AnimationTree>("FoodLocomotionMixer")!=null,
+                hero+" presenter actually uses native graph not fallback");
+            return(new Rig {Root=root,Player=player,Skeleton=Find<Skeleton3D>(root)},presenter);
+        }
+        var a=Make();var baseline=Make();bool upperChanged=false,feetMoved=false;
+        string[] bones=Enumerable.Range(0,a.Rig.Skeleton.GetBoneCount()).Select(i=>a.Rig.Skeleton.GetBoneName(i).ToString()).ToArray();
+        var previous=Pose(a.Rig);
+        for(int tick=1;tick<=120;tick++)
+        {
+            var view=View(tick*.08f);
+            Check(a.Presenter.Snapshot(view,tick,1,1)&&baseline.Presenter.Snapshot(view,tick,1,1),hero+" presenter snapshots");
+            Check(a.Presenter.Attack(view.Id,1,1,tick),hero+" high-rate authorized cosmetic event");
+            a.Presenter.Advance(1f/60,false);baseline.Presenter.Advance(1f/60,false);
+            var pose=Pose(a.Rig);var reference=Pose(baseline.Rig);
+            for(int b=0;b<bones.Length;b++)
+            {
+                if(!Upper.Contains(bones[b]))Check(Difference(pose[b],reference[b])<=.0001f,
+                    hero+" presenter highattack preserves moving lower/root/tail "+bones[b]);
+                else upperChanged|=Difference(pose[b],reference[b])>.001f;
+                if(bones[b].Contains("Foot"))feetMoved|=Difference(pose[b],previous[b])>.001f;
+            }
+            previous=pose;
+        }
+        Check(upperChanged&&feetMoved,hero+" presenter simultaneous upper attack and foot motion");
+        var paused=Pose(a.Rig);for(int f=0;f<20;f++)a.Presenter.Advance(.2f,true);
+        Equal(paused,Pose(a.Rig),hero+" presenter paused exact",0);
+        foreach(var scope in new[]{(Run:1,Wave:2),(Run:2,Wave:1)})
+        {
+            var fresh=Make(scope.Run,scope.Wave,200);
+            Check(a.Presenter.Snapshot(View(),200,scope.Run,scope.Wave),hero+" presenter scope reset accepted");
+            Check(!a.Presenter.Attack(View().Id,1,1,120),hero+" stale prior attack rejected after scope reset");
+            a.Presenter.Advance(1f/60,false);fresh.Presenter.Advance(1f/60,false);
+            Equal(Pose(a.Rig),Pose(fresh.Rig),hero+" presenter reset equals fresh idle");
+            Check(a.Presenter.Snapshot(View(.08f),201,scope.Run,scope.Wave)
+                &&fresh.Presenter.Snapshot(View(.08f),201,scope.Run,scope.Wave),hero+" reset resumes snapshots");
+            a.Presenter.Advance(.2f,false);fresh.Presenter.Advance(.1f,false);fresh.Presenter.Advance(.1f,false);
+            Equal(Pose(a.Rig),Pose(fresh.Rig),hero+" presenter .2 full locomotion clock after reset");
+            fresh.Presenter.Dispose();fresh.Rig.Root.QueueFree();
+        }
+        a.Presenter.Dispose();baseline.Presenter.Dispose();a.Rig.Root.QueueFree();baseline.Rig.Root.QueueFree();
+        await Flush();
+    }
+    public override async void _Ready()
+    {
+        try
+        {
+            await Flush();
+            Check(FoodAnimationMixer.TryCreate(null,"Idle","Run","Attack")==null,"null player rejected");
+            foreach(string hero in AssetVisuals.HeroIds)
+            {
+                var a=Create(hero);var reference=Create(hero);
+                var tree=a.Player.GetParent().GetNode<AnimationTree>("FoodLocomotionMixer");
+                var shot=(AnimationNodeOneShot)((AnimationNodeBlendTree)tree.TreeRoot).GetNode("UpperAttack");
+                var attack=a.Player.GetAnimation(a.Attack);int expectedFiltered=0;
+                for(int track=0;track<attack.GetTrackCount();track++)
+                {
+                    var path=attack.TrackGetPath(track);
+                    bool allowed=path.GetSubNameCount()==1&&Upper.Contains(path.GetSubName(0))
+                        &&a.Skeleton.FindBone(path.GetSubName(0))>=0;
+                    Check(shot.IsPathFiltered(path)==allowed,hero+" exact imported filter "+path);
+                    if(allowed)expectedFiltered++;
+                }
+                Check(expectedFiltered==a.Mixer.FilteredTracks,hero+" reported filter count exact");
+                string[] bones=Enumerable.Range(0,a.Skeleton.GetBoneCount()).Select(a.Skeleton.GetBoneName).Select(x=>x.ToString()).ToArray();
+                GD.Print("MIXER_BONES "+hero+" "+string.Join(",",bones));
+                Check(bones.Contains("Root")&&bones.Contains("Pelvis")&&bones.Contains("Chest"),hero+" actual root/pelvis/chest");
+                int[] feet=Enumerable.Range(0,bones.Length).Where(i=>bones[i].Contains("Foot")||bones[i].Contains("Leg")||bones[i].Contains("Thigh")||bones[i].Contains("Shin")).ToArray();
+                Check(feet.Length>=2,hero+" actual lower limb tracks");
+                for(int f=0;f<30;f++){Advance(a,1f/60,true);Advance(reference,1f/60,true);}
+                var previous=Pose(a); bool footMoved=false,chestChanged=false,armChanged=false,active=false;
+                for(int f=0;f<80;f++)
+                {
+                    Advance(a,1f/60,true,f==0);Advance(reference,1f/60,true);
+                    var actual=Pose(a);var baseline=Pose(reference);active|=a.Mixer.AttackActive;
+                    for(int bone=0;bone<bones.Length;bone++)
+                    {
+                        float difference=Difference(actual[bone],baseline[bone]);
+                        if(!Upper.Contains(bones[bone]))Check(difference<=.0001f,hero+" attack preserves run lower/root/tail "+bones[bone]+" frame="+f+" diff="+difference);
+                        else if(bones[bone]=="Chest")chestChanged|=difference>.001f;
+                        else if(bones[bone].Contains("Arm")||bones[bone].Contains("Hand"))armChanged|=difference>.001f;
+                    }
+                    foreach(int foot in feet)footMoved|=Difference(actual[foot],previous[foot])>.001f;
+                    previous=actual;
+                }
+                Check(active&&footMoved&&chestChanged&&armChanged,hero+" simultaneous running feet and attacking chest/arms");
+                Check(!a.Mixer.AttackActive,hero+" one-shot ends");
+                Equal(Pose(a),Pose(reference),hero+" full return to synchronized run");
+                var untouched=Pose(reference);Advance(a,.05f,true,true);
+                Equal(untouched,Pose(reference),hero+" another instance remains unchanged");
+                var paused=Pose(a);for(int f=0;f<20;f++)Advance(a,.2f,false,true,3,true);
+                Equal(paused,Pose(a),hero+" paused pose exact",0);
+                Release(a);Release(reference);await Flush();
+                Advance(a,.1f,true,true);Check(!a.Mixer.AttackActive,hero+" disposed graph ignores updates");
+
+                var idle=Create(hero);var idleReference=Create(hero);
+                bool idleUpper=false;
+                for(int f=0;f<60;f++)
+                {
+                    Advance(idle,1f/60,false,f==0);Advance(idleReference,1f/60,false);
+                    var actual=Pose(idle);var baseline=Pose(idleReference);
+                    for(int b=0;b<bones.Length;b++)
+                        if(!Upper.Contains(bones[b]))Check(Difference(actual[b],baseline[b])<=.0001f,hero+" standing attack preserves idle lower body");
+                        else idleUpper|=Difference(actual[b],baseline[b])>.001f;
+                }
+                Check(idleUpper&&!idle.Mixer.AttackActive,hero+" standing idle attack and completion");
+                Equal(Pose(idle),Pose(idleReference),hero+" return to idle");
+                Release(idle);Release(idleReference);await Flush();
+
+                var reset=Create(hero);var fresh=Create(hero);
+                for(int f=0;f<20;f++)Advance(reset,1f/60,true,false,1.6f);
+                Advance(reset,.1f,true,true,1.6f);
+                Check(reset.Mixer.AttackActive,hero+" reset fixture attack is active");
+                reset.Mixer.Reset();
+                Check(!reset.Mixer.AttackActive,hero+" reset immediately aborts attack");
+                Advance(reset,1f/60,false);Advance(fresh,1f/60,false);
+                Equal(Pose(reset),Pose(fresh),hero+" reset next idle first phase equals new instance");
+                for(int f=0;f<30;f++){Advance(reset,1f/60,true);Advance(fresh,1f/60,true);}
+                Equal(Pose(reset),Pose(fresh),hero+" run resumes from reset clock without old phase");
+                Release(reset);Release(fresh);await Flush();
+
+                var slow=Create(hero);var split=Create(hero);
+                for(int f=0;f<10;f++){Advance(slow,.1f,true);Advance(split,.1f,true);}
+                Advance(slow,.2f,true);Advance(split,.1f,true);Advance(split,.1f,true);
+                Equal(Pose(slow),Pose(split),hero+" .2 frame advances full time not .1");
+                Release(slow);Release(split);await Flush();
+                var fast=Create(hero);var normal=Create(hero);
+                for(int f=0;f<10;f++){Advance(fast,.017f,true,false,2);Advance(normal,.017f,true);}
+                var fp=Pose(fast);var np=Pose(normal);
+                Check(feet.Any(i=>Difference(fp[i],np[i])>.001f),hero+" runRate independently changes locomotion phase");
+                Release(fast);Release(normal);await Flush();
+                var shotFast=Create(hero);var shotNormal=Create(hero);
+                for(int f=0;f<30;f++)
+                {
+                    Advance(shotFast,1f/60,false,f==0,2);Advance(shotNormal,1f/60,false,f==0,1);
+                    Equal(Pose(shotFast),Pose(shotNormal),hero+" runRate does not speed idle attack");
+                }
+                shotFast.Root.QueueFree();await Flush();Advance(shotFast,.1f,true,true);
+                Check(!shotFast.Mixer.AttackActive,hero+" externally freed graph ignores update");
+                shotFast.Mixer.Dispose();Release(shotNormal);await Flush();
+                var detached=Create(hero);
+                Advance(detached,.12f,true,true);
+                var beforeDetach=Pose(detached);
+                detached.Root.GetParent().RemoveChild(detached.Root);
+                Check(!detached.Root.IsInsideTree(),hero+" detached fixture is outside scene");
+                detached.Mixer.Reset();Advance(detached,.2f,true,true);
+                Equal(beforeDetach,Pose(detached),hero+" detached reset/update never evaluates skeleton",0);
+                detached.Mixer.Dispose();detached.Root.Free();await Flush();
+                await PresenterCase(hero);
+            }
+            assets.ReleaseCachedReferences();
+            GD.Print($"FOOD_ANIMATION_MIXER_PROBE PASS {checks}: real-five-assets/filter/run-attack/lower-body/pause/isolation/time-rate/lifecycle");
+            GetTree().Quit(0);
+        }
+        catch(Exception error){GD.PushError(error.ToString());GetTree().Quit(1);}
+    }
+}

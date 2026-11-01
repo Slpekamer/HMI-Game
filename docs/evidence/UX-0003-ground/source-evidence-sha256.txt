@@ -1,0 +1,4 @@
+f83946f517892e3b63c56ac45919f860816c544383bdd151e8f293d71cb72d61  HMI-Game-experience-ground-r8/.godot/mono/temp/bin/Debug/HmiGame.dll
+ab531e82815b916a7f08921cfae2295f0904cf7acd8e221255673ac70e81c20a  HMI-Game-experience-ground-r8/src/Adapters/Godot/GameHost.cs
+8fee07d4785121d4f80b78a718c83f57fbefe814b6294839c02f13d91f52547e  /workspace/shared/hmi-experience-review/floor-contact-native.log
+2c66ec77ec68faec3171bf6eb1f61e29e9c550e34506cf625629fcc081b3a58c  /workspace/shared/hmi-experience-review/ground-r8/run-1.log

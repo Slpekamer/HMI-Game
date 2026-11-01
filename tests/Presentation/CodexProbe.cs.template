@@ -44,10 +44,15 @@ public partial class CodexProbe:Node
     GD.Print($"CODEX_DETAIL {offer.Id} size={label.Size} min={label.GetMinimumSize()} lineSpacing={label.GetThemeConstant("line_spacing")}");
     Check(label.Size.X==278&&label.Size.Y==150,"Actual body matches text gate");
     Check(label.GetMinimumSize().Y<=150,"Full detail fits actual control");
-    Check(label.GlobalPosition.Y+label.GetMinimumSize().Y<=530,"Full detail above button");
+    var cardButton=Walk(ui).OfType<Button>().Where(b=>b.IsVisibleInTree()&&b.Text=="选择")
+     .OrderBy(b=>Math.Abs(b.GlobalPosition.X-label.GlobalPosition.X)).First();
+    var labelBounds=label.GetGlobalRect();var buttonBounds=cardButton.GetGlobalRect();
+    GD.Print($"CODEX_DETAIL_BOUNDS {offer.Id} label={labelBounds} button={buttonBounds}");
+    Check(Math.Abs(labelBounds.Position.X-buttonBounds.Position.X)<1,"Detail and choice button share card column");
+    Check(labelBounds.End.Y<=buttonBounds.Position.Y,"Full detail above actual transformed button");
    }
    foreach(var button in Walk(ui).OfType<BaseButton>().Where(b=>b.IsVisibleInTree()))
-   {var bounds=button.GetGlobalRect();Check(bounds.Position.X>=-1&&bounds.Position.Y>=-1&&bounds.End.X<=1281&&bounds.End.Y<=721,"Buttons in viewport");}
+   {var bounds=button.GetGlobalRect();Check(bounds.Position.X>=-1&&bounds.Position.Y>=-1&&bounds.End.X<=GetViewport().GetVisibleRect().Size.X+1&&bounds.End.Y<=GetViewport().GetVisibleRect().Size.Y+1,"Buttons in viewport");}
    foreach(string arg in OS.GetCmdlineUserArgs())
    {
     if(!arg.StartsWith("--capture-codex-offers=",StringComparison.Ordinal))continue;

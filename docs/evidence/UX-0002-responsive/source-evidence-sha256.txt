@@ -1,0 +1,6 @@
+6934d14ddf4c3710050afffad4c978bd68625cdae6644d8c2f1572c3ea6b61df  HMI-Game-experience-integrated-r7/.godot/mono/temp/bin/Debug/HmiGame.dll
+36474267ee8c497c4b43cb6a6e93fe2ebd4cf4c6025850799103a346a894333a  HMI-Game-experience-integrated-r7/src/Adapters/Godot/GameHost.cs
+6362f5e598ede7684477587602488c8c264e9b85b18242b9b4b9a412f3c742c6  HMI-Game-experience-integrated-r7/src/Adapters/Godot/GameHost.Layout.cs
+e89b582dcea00f4d8cad1a7ded2aa30bcdd4704099d59efe1ccec366f277ef5b  HMI-Game-experience-integrated-r7/src/Adapters/Godot/GameUi.cs
+cce8d0c69193ac36abe8c3ead27bc2a34f47776b30b68eecb626428933f82871  HMI-Game-experience-integrated-r7/src/Adapters/Godot/AssetVisuals.cs
+2c66ec77ec68faec3171bf6eb1f61e29e9c550e34506cf625629fcc081b3a58c  /workspace/shared/hmi-experience-review/integrated-r7/run-1.log

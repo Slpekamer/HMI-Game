@@ -1,0 +1,70 @@
+using Godot;
+using Hmi.Core;
+using System;
+using System.Reflection;
+public partial class AttackBoundaryProbe:Node3D
+{
+ static AnimationPlayer Find(Node n){if(n is AnimationPlayer p)return p;foreach(Node c in n.GetChildren()){var p2=Find(c);if(p2!=null)return p2;}return null;}
+ static EntityView View()=>new(new EntityId(1,1),EntityKind.Player,new Vec2(0,0),new Vec2(0,-1),100,100,"fixture");
+ public override async void _Ready()
+ {
+  try{
+   var assets=new AssetVisuals();int suspicious=0,failures=0,checks=0;
+   foreach(string hero in AssetVisuals.HeroIds)foreach(float dt in new[]{1f/60,1f/30,1f/24,.2f})foreach(int pattern in new[]{1,24,0})
+   {
+    var root=assets.Create("hero_"+hero);AddChild(root);var p=new CharacterPresentation(root,View(),0,1,1);
+    var player=Find(root);var tree=player.GetParent().GetNode<AnimationTree>("FoodLocomotionMixer");
+    var remaining=typeof(CharacterPresentation).GetField("_attackRemaining",BindingFlags.NonPublic|BindingFlags.Instance);
+    bool Active()=>tree.Get("parameters/UpperAttack/active").AsBool();
+    double Position()=>tree.Get("parameters/Attack/current_position").AsDouble();
+    int starts=0,events=0,previousTick=0,collision=0;double silent=0,maxSilent=0,eventSilent=0,maxEventSilent=0;bool hadEvent=false;
+    for(int frame=1;frame<=600;frame++)
+    {
+     int tick=(int)Math.Round(frame*dt*60);p.Snapshot(View(),tick,1,1);
+     bool fire=pattern==1|| (pattern==24?tick/24>previousTick/24:tick/11>previousTick/11||tick/23>previousTick/23);
+     bool pre=Active();double before=Position();float timer=(float)remaining.GetValue(p);
+     if(fire){p.Attack(View().Id,1,1,tick);events++;hadEvent=true;}
+     p.Advance(dt,false);bool post=Active();double after=Position();
+     if(!pre&&post){starts++;maxEventSilent=Math.Max(maxEventSilent,eventSilent);eventSilent=0;hadEvent=false;}
+     if(!post){silent+=dt;if(hadEvent)eventSilent+=dt;}else{maxSilent=Math.Max(maxSilent,silent);silent=0;}
+     if(fire&&timer<=0&&pre&&(float)remaining.GetValue(p)>0)
+     {
+      collision++;suspicious++;
+      if(collision<=2)GD.Print($"BOUNDARY_COLLISION hero={hero} dt={dt:R} pattern={pattern} frame={frame} tick={tick} preActive={pre} prePos={before:R} timer={timer:R} postActive={post} postPos={after:R} postTimer={(float)remaining.GetValue(p):R}");
+     }
+     previousTick=tick;
+    }
+    maxSilent=Math.Max(maxSilent,silent);maxEventSilent=Math.Max(maxEventSilent,eventSilent);
+    GD.Print($"BOUNDARY hero={hero} dt={dt:R} pattern={pattern} events={events} actual_starts={starts} max_inactive_seconds={maxSilent:F6} max_inactive_after_event={maxEventSilent:F6} timer_active_collisions={collision}");
+    checks++;
+    if(collision>0){failures++;GD.Print("BOUNDARY_ASSERT_FAIL native-active event rearmed private timer "+hero+" dt="+dt+" pattern="+pattern);}
+    if(pattern==1)
+    {
+     checks++;
+     if(maxSilent>dt+.00001){failures++;GD.Print("BOUNDARY_ASSERT_FAIL continuous event silence exceeds one render step "+hero+" dt="+dt+" silence="+maxSilent);}
+     // A final-step event while the native shot is still active is merged, never queued.
+     p.Dispose();root.QueueFree();await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);
+     root=assets.Create("hero_"+hero);AddChild(root);p=new CharacterPresentation(root,View(),0,1,1);
+     player=Find(root);tree=player.GetParent().GetNode<AnimationTree>("FoodLocomotionMixer");
+     bool merged=false,ended=false,restarted=false;
+     for(int f=1;f<=40;f++)
+     {
+      p.Snapshot(View(),f,1,1);
+      bool pre=Active();double length=tree.Get("parameters/Attack/current_length").AsDouble();
+      bool finalEvent=!merged&&pre&&length>0&&Position()+dt>=length-.000001;
+      if(f==1||finalEvent)p.Attack(View().Id,1,1,f);
+      if(finalEvent)merged=true;
+      p.Advance(dt,false);
+      if(merged&&!Active())ended=true;
+      if(ended&&Active())restarted=true;
+     }
+     checks++;if(!merged||!ended||restarted){failures++;GD.Print("BOUNDARY_ASSERT_FAIL final active-step event backlog "+hero+" dt="+dt);}
+    }
+    p.Dispose();root.QueueFree();await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);
+   }
+   GD.Print("BOUNDARY_MEASUREMENTS_COMPLETE collisions="+suspicious+" failed_assertions="+failures);
+   if(failures>0)throw new Exception("Attack boundary regression failed "+failures+" of "+checks+" assertions");
+   GD.Print("ATTACK_BOUNDARY_PROBE PASS checks="+checks+" real native graph timing; no gameplay claim");GetTree().Quit(0);
+  }catch(Exception e){GD.PushError(e.ToString());GetTree().Quit(1);}
+ }
+}

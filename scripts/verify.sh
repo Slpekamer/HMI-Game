@@ -3,6 +3,7 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 : "${GODOT_NET:?Set GODOT_NET to the Godot 4.6.3 .NET executable}"
 python3 scripts/check_architecture.py
+python3 scripts/check_launcher_icon.py
 python3 tests/Presentation/test_food_contract.py
 python3 scripts/check_notices.py
 python3 tools/ui/validate_runtime_glyphs.py
@@ -26,6 +27,7 @@ fi
 python3 tools/ui/validate_revision_ui.py
 python3 tools/ui/validate_portraits.py "$logs/portraits.json"
 timeout 120 "$GODOT_NET" --headless --editor --path . --import >"$logs/import.log" 2>&1
+timeout 60 "$GODOT_NET" --headless --path . --script tests/Presentation/launcher_icon_probe.gd >"$logs/launcher-icon.log" 2>&1
 timeout 60 "$GODOT_NET" --headless --path . --script tests/Presentation/animation_probe.gd >"$logs/animation.log" 2>&1
 # Every staged food asset gets the actual imported-instance/root/morph gate,
 # even before the optional all-five completion manifest exists.
@@ -44,8 +46,14 @@ timeout 45 "$GODOT_NET" --headless --path . -- --smoke >"$logs/smoke.log" 2>&1
 cat "$logs/smoke.log"
 grep -q HMI_SMOKE "$logs/smoke.log"
 if grep -E 'ERROR:|Exception|SCRIPT ERROR' "$logs"/*.log; then echo 'Engine diagnostics require review'; exit 1; fi
+python3 scripts/test_primitive_ownership.py
+# Headless shape/lifecycle only; actual MultiMesh transforms require separate --native gate.
+python3 scripts/test_floor_contact.py
 python3 scripts/test_host_lifecycle.py
 python3 scripts/test_character_presentation.py
+python3 scripts/test_enemy_health.py
+python3 scripts/test_food_animation_mixer.py
+python3 scripts/test_attack_boundary.py
 python3 scripts/test_attack_cadence.py
 python3 scripts/test_asset_cache_lifecycle.py
 python3 scripts/test_selection_portraits.py
@@ -58,6 +66,8 @@ dotnet run --no-build --project tests/CheckpointStore/CheckpointStore.csproj
 dotnet build -m:1 tests/CheckpointSessionTests/CheckpointSessionTests.csproj -v minimal
 dotnet run --no-build --project tests/CheckpointSessionTests/CheckpointSessionTests.csproj
 python3 scripts/test_opaque_pages.py
-python3 scripts/test_save_notice.py
+# Historical fixed-camera/letterbox BUG4 study remains preserved, superseded by Expand UI contract.
+python3 scripts/test_responsive_ui.py
+python3 scripts/test_host_responsive.py
 echo "PASS build / core / import / smoke / host lifecycle; logs $logs"
 echo 'Native visual/input, exports, real devices and Unity are separate gates.'

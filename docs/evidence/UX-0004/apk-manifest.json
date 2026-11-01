@@ -1,0 +1,129 @@
+{
+  "file": "/workspace/scratch/80f5bc988ef7/godot-toolchain-verification/ux0004-export/android/HmiFoodPreview-UX0004-arm64-debug.apk",
+  "bytes": 119290693,
+  "sha256": "a3920a509088de1bfa3c668b11855a884f26547e2a03cdf28c4b1afd0124bc60",
+  "applicationId": "org.example.hmim2probe.foodpreview",
+  "versionCode": 6,
+  "versionName": "UX0004-foodpreview-debug",
+  "minSDK": 24,
+  "targetSDK": 36,
+  "abi": "arm64-v8a",
+  "certificateSha256": "5159469c18953c52991d0deeb362f3c6416960acd5ad3fa44f2798b843738386",
+  "noticeAndJsonChecks": {
+    "assets/content/fonts/LICENSE-Noto.txt": "849f4ea9c214fa4ac3593b770c699f387534b11ce671264c1b10d85bdcb5997b",
+    "assets/content/licenses/Godot-THIRD-PARTY.json": "cae754a6503506e9242337be345277b1a1a5f537236f42740488ad0a63f90f44",
+    "assets/content/licenses/README.md": "d58c1008fe63263813c26417a82cb72d03e7b97d57ef98bcc18ced76457e1ad3",
+    "assets/content/licenses/Godot-LICENSE.txt": "b0435e3b3e4e55238f05f4b306f30524a1b2e20147810d436eaa554fa6855c80",
+    "assets/content/licenses/DotNet-Android-Bindings-LICENSE.txt": "cfc21f5e8bd655ae997eec916138b707b1d290b83272c02a95c9f821b8c87310",
+    "assets/content/licenses/DotNet-Linux-LICENSE.txt": "cfc21f5e8bd655ae997eec916138b707b1d290b83272c02a95c9f821b8c87310",
+    "assets/content/licenses/DotNet-Linux-THIRD-PARTY.txt": "66f1d4e44973185519bb4aa8a9718eb22fc7af2cc532e3ae9cfc4c127ee7fc54",
+    "assets/content/licenses/DotNet-Mono-Android-LICENSE.txt": "cfc21f5e8bd655ae997eec916138b707b1d290b83272c02a95c9f821b8c87310",
+    "assets/content/licenses/DotNet-Mono-Android-THIRD-PARTY.txt": "66f1d4e44973185519bb4aa8a9718eb22fc7af2cc532e3ae9cfc4c127ee7fc54",
+    "assets/content/licenses/manifest.json": "56678b66b9baa37afdccc6baaba715018d70d88a831d620737ab92bed1726b8a",
+    "assets/content/animated-manifest.json": "e1ebb3249be1252d09455bf7debc72116212a869127977ad1490622ce4c4a310",
+    "assets/content/food-heroes-manifest.json": "f5976dd408de1e698e9c49e54dca9f94d84d04c94e4a9f3fd2825b7940cd67b3",
+    "assets/content/gameplay.json": "30981d16c5c608f70e750bbaf809eb1e811aef34d71f24258fcac852eba0e2de"
+  },
+  "assemblyChecks": {
+    "assets/.godot/mono/publish/arm64/HmiGame.dll": "6c282d9040ac63aa5d6d0965103e110dcf464043011e576f6532cd0457859e46",
+    "assets/.godot/mono/publish/arm64/Hmi.Core.dll": "dfc97d7e0e8dceeff6805a5e45e77aed131bf5c30304f9235342dbe2a9c52ed3",
+    "assets/.godot/mono/publish/arm64/Hmi.Persistence.dll": "e8f9455dafa1ec1bfe609bdcfb58fc2c9a7bf1e34972303b92c0931980008e28"
+  },
+  "nativeLibraries": {
+    "lib/arm64-v8a/libSystem.Globalization.Native.so": {
+      "machine": "AArch64",
+      "loadSegmentAlignment": [
+        16384,
+        16384,
+        16384
+      ]
+    },
+    "lib/arm64-v8a/libSystem.IO.Compression.Native.so": {
+      "machine": "AArch64",
+      "loadSegmentAlignment": [
+        16384,
+        16384,
+        16384
+      ]
+    },
+    "lib/arm64-v8a/libSystem.Native.so": {
+      "machine": "AArch64",
+      "loadSegmentAlignment": [
+        16384,
+        16384,
+        16384
+      ]
+    },
+    "lib/arm64-v8a/libSystem.Security.Cryptography.Native.Android.so": {
+      "machine": "AArch64",
+      "loadSegmentAlignment": [
+        16384,
+        16384,
+        16384
+      ]
+    },
+    "lib/arm64-v8a/libc++_shared.so": {
+      "machine": "AArch64",
+      "loadSegmentAlignment": [
+        16384,
+        16384,
+        16384
+      ]
+    },
+    "lib/arm64-v8a/libgodot_android.so": {
+      "machine": "AArch64",
+      "loadSegmentAlignment": [
+        16384,
+        16384,
+        16384
+      ]
+    },
+    "lib/arm64-v8a/libmono-component-debugger.so": {
+      "machine": "AArch64",
+      "loadSegmentAlignment": [
+        16384,
+        16384,
+        16384
+      ]
+    },
+    "lib/arm64-v8a/libmono-component-diagnostics_tracing.so": {
+      "machine": "AArch64",
+      "loadSegmentAlignment": [
+        16384,
+        16384,
+        16384
+      ]
+    },
+    "lib/arm64-v8a/libmono-component-hot_reload.so": {
+      "machine": "AArch64",
+      "loadSegmentAlignment": [
+        16384,
+        16384,
+        16384
+      ]
+    },
+    "lib/arm64-v8a/libmono-component-marshal-ilgen.so": {
+      "machine": "AArch64",
+      "loadSegmentAlignment": [
+        16384,
+        16384,
+        16384
+      ]
+    },
+    "lib/arm64-v8a/libmonosgen-2.0.so": {
+      "machine": "AArch64",
+      "loadSegmentAlignment": [
+        16384,
+        16384,
+        16384
+      ]
+    }
+  },
+  "zipCRC": "PASS",
+  "signature": "v2 PASS",
+  "alignment": "zipalign -c -P 16 4 PASS",
+  "launcher": "exported activity-alias GodotAppLauncher -> GodotApp,MAIN/LAUNCHER",
+  "deviceRun": false,
+  "permissions": "no uses-permission declarations",
+  "sourceCandidateManifestSha256": "7535a55f1b6f3611d66ffa056c4addcb14f799616de73fea415d72ffdc5393c0"
+}

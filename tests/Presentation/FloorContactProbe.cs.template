@@ -1,0 +1,111 @@
+using Godot;
+using Hmi.Core;
+using Hmi.GodotAdapter;
+using System;
+using System.Linq;
+using System.Reflection;
+
+// Isolated actual-host geometry gate. No shadow, pixel, or all-animation-pose claim.
+public partial class FloorContactProbe : Node
+{
+    private const BindingFlags Flags = BindingFlags.Instance | BindingFlags.NonPublic;
+    private GameHost _host;
+    private int _checks;
+    private bool _native;
+    private ulong _floorId;
+    private ulong[] _batchIds;
+    private void Check(bool value, string message) { _checks++; if (!value) throw new Exception(message); }
+    private object Field(string name) => typeof(GameHost).GetField(name, Flags).GetValue(_host);
+    private void Call(string name, params object[] args) => typeof(GameHost).GetMethod(name, Flags).Invoke(_host, args);
+    private async System.Threading.Tasks.Task Flush()
+    {
+        await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+        await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+    }
+    private static (float Bottom, float Top) Heights(Mesh mesh, Transform3D transform)
+    {
+        var bounds = mesh.GetAabb();
+        float bottom = float.PositiveInfinity, top = float.NegativeInfinity;
+        for (int i = 0; i < 8; i++)
+        {
+            float y = (transform * bounds.GetEndpoint(i)).Y;
+            bottom = Math.Min(bottom, y); top = Math.Max(top, y);
+        }
+        return (bottom, top);
+    }
+    private void CheckFloor(bool initial)
+    {
+        var floors = _host.GetChildren().OfType<MeshInstance3D>()
+            .Where(n => n.Mesh is BoxMesh box && box.Size.IsEqualApprox(new Vector3(80, .3f, 80))).ToArray();
+        Check(floors.Length == 1, "Exactly one actual arena floor");
+        var floor = floors.Single();
+        Check(Math.Abs(Heights(floor.Mesh, floor.GlobalTransform).Top) < .00001f, "Actual floor world top is zero");
+        var batches = _host.GetChildren().OfType<MultiMeshInstance3D>()
+            .Where(n => n.Name.ToString().StartsWith("CandyPetals_", StringComparison.Ordinal)).OrderBy(n => n.Name.ToString()).ToArray();
+        Check(batches.Length == 4, "Exactly four actual petal batches");
+        if (initial) { _floorId = floor.GetInstanceId(); _batchIds = batches.Select(n => n.GetInstanceId()).ToArray(); }
+        Check(floor.GetInstanceId() == _floorId, "Floor node reused across pages and restart");
+        for (int color = 0; color < batches.Length; color++)
+        {
+            Check(batches[color].GetInstanceId() == _batchIds[color], "Petal batch node reused");
+            Check(batches[color].Multimesh.InstanceCount == 55, "Actual batch has 55 instances");
+            var mesh = batches[color].Multimesh.Mesh as CylinderMesh;
+            Check(mesh != null && Math.Abs(mesh.Height - .01f) < .00001f, "Actual petal cylinder height unchanged");
+        }
+    }
+    private void CheckCombatGeometry(bool printInstances)
+    {
+        var sim = (GameSimulation)Field("_sim");
+        var honey = (MeshInstance3D)Field("_honey");
+        Check(sim.CharacterId == "honey" && sim.Phase == RunPhase.Combat, "Real Buding Start entered combat");
+        Check(honey.Visible, "Actual HoneyDisc visible for enabled trait");
+        var cylinder = honey.Mesh as CylinderMesh;
+        Check(cylinder != null && Math.Abs(cylinder.Height - .01f) < .00001f
+            && cylinder.TopRadius == 1 && cylinder.BottomRadius == 1, "HoneyDisc mesh contract unchanged");
+        Check(Math.Abs(honey.GlobalPosition.Y - .015f) < .00001f && Math.Abs(honey.Scale.Y - 1) < .00001f,
+            "HoneyDisc actual center and vertical scale unchanged");
+        var honeyBounds = Heights(honey.Mesh, honey.GlobalTransform);
+        Check(Math.Abs(honeyBounds.Top - .020f) < .00001f, "HoneyDisc actual top remains .020");
+        Check(Math.Abs(honey.Scale.X - sim.GetStat(Stat.HoneyRadius)) < .00001f
+            && Math.Abs(honey.Scale.Z - sim.GetStat(Stat.HoneyRadius)) < .00001f, "Honey radius remains authority-driven");
+        if (!_native) return; // Dummy rendering server cannot retain actual MultiMesh transforms.
+        int count = 0;
+        foreach (var batch in _host.GetChildren().OfType<MultiMeshInstance3D>()
+            .Where(n => n.Name.ToString().StartsWith("CandyPetals_", StringComparison.Ordinal)))
+        {
+            var multi = batch.Multimesh;
+            for (int i = 0; i < multi.InstanceCount; i++)
+            {
+                var world = batch.GlobalTransform * multi.GetInstanceTransform(i);
+                var heights = Heights(multi.Mesh, world);
+                Check(Math.Abs(world.Origin.Y - .006f) < .00001f, "Actual native instance center is .006, not dummy zero");
+                Check(heights.Bottom > 0 && heights.Top < honeyBounds.Top,
+                    "Actual petal surfaces strictly above ground and below actual HoneyDisc top");
+                if (printInstances) GD.Print($"FLOOR_INSTANCE {batch.Name}[{i}] center={world.Origin.Y:R} bottom={heights.Bottom:R} top={heights.Top:R} honey_top={honeyBounds.Top:R}");
+                count++;
+            }
+        }
+        Check(count == 220, "All 220 actual native transforms checked");
+    }
+    public override async void _Ready()
+    {
+        try
+        {
+            _native = OS.GetCmdlineUserArgs().Contains("--floor-native");
+            _host = new GameHost(); AddChild(_host); _host.SetProcess(false); await Flush();
+            Check(((GameSimulation)Field("_sim")).Phase != RunPhase.Combat, "Initial host is genuinely noncombat");
+            CheckFloor(true); // Initial noncombat page.
+            Call("Start", 2, (uint)1030); _host.SetProcess(false); Call("RenderEntities", 1f / 60); await Flush();
+            CheckFloor(false); CheckCombatGeometry(true);
+            var ui = (GameUi)Field("_ui");
+            ui.ShowHome(); await Flush(); Check(GetViewport().Disable3D, "Home is opaque"); CheckFloor(false);
+            ui.ShowSelection(); await Flush(); Check(GetViewport().Disable3D, "Selection is opaque"); CheckFloor(false);
+            Call("Start", 2, (uint)1031); _host.SetProcess(false); Call("RenderEntities", 1f / 60); await Flush();
+            CheckFloor(false); CheckCombatGeometry(false);
+            GD.Print($"FLOOR_CONTACT_PROBE PASS {_checks} mode={(_native ? "native-instance-storage" : "headless-shape-only")}");
+            if (!_native) GD.Print("FLOOR_NATIVE_INSTANCE_CHECK DEFERRED: dummy renderer cannot validate stored transforms; run --native separately.");
+            _host.QueueFree(); await Flush(); GetTree().Quit(0);
+        }
+        catch (Exception error) { GD.PushError(error.ToString()); GetTree().Quit(1); }
+    }
+}

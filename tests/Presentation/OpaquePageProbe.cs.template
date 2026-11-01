@@ -20,7 +20,7 @@ public partial class OpaquePageProbe:Node
  bool initial=GetViewport().Disable3D;var host=new GameHost();AddChild(host);host.SetProcess(false);await Flush();
  object Field(string name)=>typeof(GameHost).GetField(name,Flags).GetValue(host);
  var ui=(GameUi)Field("_ui");var content=(GameContent)Field("_content");var viewport=GetViewport();
- Check(viewport.Disable3D,"Existing selection remains suppressed");Check(!Walk(ui).OfType<SubViewport>().Any(),"Selection retains 2D portraits only");
+ Check(viewport.Disable3D,"Home suppresses main world");Check(!Walk(ui).OfType<SubViewport>().Any(),"Home has no hidden preview worlds");
  typeof(GameHost).GetMethod("Start",Flags).Invoke(host,new object[]{3,(uint)1030});host.SetProcess(false);await Flush();var sim=(GameSimulation)Field("_sim");
  void Render()=>typeof(GameHost).GetMethod("RenderEntities",Flags).Invoke(host,new object[]{1f/60});void Combat(){typeof(GameHost).GetMethod("RefreshUi",Flags).Invoke(host,null);host.SetProcess(false);}Render();
  var actor=((Node3D[])Field("_visuals"))[sim.PlayerId.Index];var player=Walk(actor).OfType<AnimationPlayer>().First();var actorId=actor.GetInstanceId();var animationId=player.GetInstanceId();
@@ -28,9 +28,14 @@ public partial class OpaquePageProbe:Node
  var items=content.Items.Select(i=>new OfferUi(i.Id,i.Name,i.Effect+"\n"+i.Downside,$"{i.Price} 金币 · 已有 0/{i.Cap}")).ToArray();
  void Between(bool shop)=>ui.ShowBetween(offers,12,20,8,false,items,shop);
  void Decision()=>ui.ShowRunEnding(true,false,true,0,42,12,20,8,"");
- void CheckBackdrop(){var texture=Walk(ui).OfType<TextureRect>().First(c=>c.IsVisibleInTree()&&c.Texture?.ResourcePath=="res://content/ui/revision/candy_city_background.png");Check(texture.GetGlobalRect().Encloses(viewport.GetVisibleRect()),"Known opaque backdrop covers actual logical viewport");Check(texture.Modulate==Colors.White&&texture.SelfModulate==Colors.White,"Backdrop opacity modulate unchanged");Check(!texture.Texture.HasAlpha(),"Imported backdrop is opaque RGB");}
+ void CheckBackdrop(){var background=Walk(ui).OfType<ColorRect>().Single(c=>c.Name=="PageBackground");Check(background.GetGlobalRect().Encloses(viewport.GetVisibleRect()),"Known opaque backdrop covers actual logical viewport");Check(background.Color.A==1&&background.Modulate==Colors.White&&background.SelfModulate==Colors.White,"Solid quiet backdrop remains fully opaque");}
+
  Check(!viewport.Disable3D,"Combat main world enabled");Check(Walk(ui).OfType<SubViewport>().Count()==3,"Combat actual hero and companion preview viewports retained");
- sim.Enqueue(GameCommand.Pause(true));sim.Step();ui.ShowPause(true);Render();double pausedClock=player.CurrentAnimationPosition;
+ sim.Enqueue(GameCommand.Pause(true));sim.Step();ui.ShowPause(true);Render();
+ var presentation=((CharacterPresentation[])Field("_presentations"))[sim.PlayerId.Index];
+ float Clock()=>(float)typeof(CharacterPresentation).GetField("_faceClock",Flags).GetValue(presentation);
+ Transform3D[] Poses()=>Walk(actor).OfType<Skeleton3D>().SelectMany(b=>Enumerable.Range(0,b.GetBoneCount()).Select(b.GetBonePose)).ToArray();
+ float pausedClock=Clock();var pausedPoses=Poses();
  for(int cycle=0;cycle<3;cycle++){
   Combat();ui.ShowPause(true);Check(!viewport.Disable3D,"Pause preserves world");ui.ShowPause(false);
   ui.ShowCodex();Check(!viewport.Disable3D,"Combat codex preserves world");Check(viewport.GuiGetFocusOwner() is Button,"Codex close receives focus");ui.CloseCodex();
@@ -40,12 +45,12 @@ public partial class OpaquePageProbe:Node
   ui.ShowSelection();Check(viewport.Disable3D,"Selection remains suppressed");Combat();Check(!viewport.Disable3D,"Same-frame return restores combat before queue flush");await Flush();
   Check(Walk(ui).OfType<SubViewport>().Count()==3,"Repeated page cycles retain exactly live combat previews");Check(GodotObject.IsInstanceValid(actor)&&actor.GetInstanceId()==actorId,"Main actor not destroyed/replaced for render savings");Check(Walk(actor).OfType<AnimationPlayer>().First().GetInstanceId()==animationId,"Actual AnimationPlayer instance preserved");Render();
  }
- typeof(GameUi).GetMethod("SetPage",Flags).Invoke(ui,new object[]{"future-uncovered-page"});Check(!viewport.Disable3D,"Unknown page fails open to world rendering");Combat();await Flush();
- Check(Math.Abs(player.CurrentAnimationPosition-pausedClock)<.00001,"Paused world animation clock not advanced by page changes");
- sim.Enqueue(GameCommand.Pause(false));sim.Step();Render();Check(Math.Abs(player.CurrentAnimationPosition-pausedClock)>.00001,"World animation resumes after returning combat");sim.Enqueue(GameCommand.Pause(true));sim.Step();Render();
+ typeof(GameUi).GetMethod("SetPage",Flags).Invoke(ui,new object[]{"future-uncovered-page"});await Flush();Check(!viewport.Disable3D,"Unknown page fails open to world rendering");Check(!Walk(ui).OfType<ColorRect>().Single(c=>c.Name=="PageBackground").Visible,"Unknown page does not retain opaque menu background");Combat();await Flush();
+ Check(Math.Abs(Clock()-pausedClock)<.00001&&pausedPoses.SequenceEqual(Poses()),"Paused world animation clock not advanced by page changes");
+ sim.Enqueue(GameCommand.Pause(false));sim.Step();Render();Check(Math.Abs(Clock()-pausedClock)>.00001,"World animation resumes after returning combat");sim.Enqueue(GameCommand.Pause(true));sim.Step();Render();
  // Frozen actual world for A/B. Native capture only toggles main viewport, never recreates actors/lights.
  var results=new List<object>();var sizes=new[]{new Vector2I(1280,720),new Vector2I(1600,720),new Vector2I(720,1280),new Vector2I(1024,768)};
- foreach(var size in sizes){GetWindow().Size=size;await Flush();Check(viewport.GetVisibleRect().Size==new Vector2(1280,720),"Current physical resize preserves logical1280x720 letterbox contract");
+ foreach(var size in sizes){GetWindow().Size=size;await Flush();Check(Math.Abs(viewport.GetVisibleRect().Size.X/viewport.GetVisibleRect().Size.Y-(float)GetWindow().Size.X/GetWindow().Size.Y)<.003f,"Expand logical viewport follows actual physical aspect rather than letterbox");
   foreach(string page in new[]{"between","shop","ending","endless"}){
    if(page=="between")Between(false);else if(page=="shop")Between(true);else if(page=="ending")ui.ShowEnding(false,1,12,20,8);else Decision();await Flush();Check(viewport.Disable3D,"Known changed opaque page disables main3D");CheckBackdrop();Check(!Walk(ui).OfType<SubViewport>().Any(),"Opaque page drains HUD preview viewports");
    if(prefix!=null){

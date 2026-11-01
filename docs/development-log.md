@@ -302,3 +302,32 @@ Real third-run fractional HP exposed mixed HUD rounding. Separate one-expression
 
 ## BUG-0004 — Save notice top-gap candidate (2026-10-31 22:30 UTC)
 One presentation rectangle changes; full persistent text/font and authoritative persistence unchanged. Rejected left-top experiment preserved separately. Fresh real-control text/geometry gate and13 native pairs pass sampled scope; dense legal-grid diagnostic bounds remaining risk. Final aggregate exit0, residual-pixel and real-main success-state/pause/restart gates passed. Parent approved adoption; no camera-trial code included. Commit/export remain separate.
+
+## UX-0001 stage1 — real device feedback (2026-11-01 07:02 UTC)
+- Latest owner requirement supersedes old2D choice: Home, single live3D hero chooser with actualIdle, consistent small hero pressed/focus states. Enemy-only canvas healthbars, no companionHP.
+- Native filtered upper-body Attack leaves Run legs and Feiling tail active; entity/run/wave events, pause and instance resource boundaries remain. Timer-vs-OneShot ending conflict had1220 observed conflicts, then0 after active-state coordination; retained red/green evidence.
+- Scope excludes responsive/portrait/floor/quiet-page followups, unchangedCore/gameplay/persistence/GLBs. NoDodge or newmechanics.
+- Full aggregate first failed Mono shutdown resource bindings. Multiple rejected diagnostic variants preserved in Library libfile_988b1839e3888191871092aafa3fed21 v0; not error-filtered or attributed to an unverified source revision.
+- Exclusive Box/Disc newly-created mesh/material wrappers now deterministicallyDispose after nativeRef ownership. Imported/sharedGD.Load and caches untouched. Same-time Codex original6/10fatal versus candidate0/10; combat-layout control didnot reproduce in that sample. Whole candidateaggregate exit0; independent3fresh-XDG normalwindow-close runs exit0, renderedBoxes/HoneyDisc and restart intact. This doesnot prove universalshutdown stability or exactenginerootcause.
+- Permanentfactory256 gate wired and finalwhole aggregate rerun exit0 at07:08; localcommit/Library freeze follow the exact tested source. Remotea77 baseline unchanged.
+
+## UX-0002 — quiet responsive integrated presentation (2026-11-01 07:31 UTC)
+- Six-size UI reflow/scroll/safe-area, transformed joystick and enemy bars, quiet opaque decision backgrounds; old full-width portrait camera rejected for tiny heroes/floor edges. Bounded short-axis follow keeps actors legible, deliberately crops distant arena.
+- Immediate pause/scope camera correction has old-source RED/fixed GREEN290 and actual paused world RGB equality. Explicit genuine viewport resize may reframe once without Core ticking.
+- Coherent r7 final strict aggregate exit0: Core624665, UI893, host290, Codex26, Endless150 and all retained lifecycle/store/session/asset gates. Old fixed globalY530 text assertions updated to actual same-card rectangles, adding alignment checks, not removing text/expiry constraints; red logs retained. One EditorSettings shutdown ERROR was rejected, final fresh-config run passed with strict diagnostics unchanged.
+- Exact DLL6934d14d actual Home→portrait chooser→movement/pause→paused real-window rotation→resume/reversal→restart→Home→normal Alt+F4 exit0. No ERROR/FATAL; only driverVSync warning. Continue entry visible, not reclicked in this short gate. Runtime/source335-file parity with main verified, no authority/model differences.
+- Parent chose Android Sensor Landscape4: no automatic portrait gameplay claim. No new APK/device verification yet. Original Run/floor/shadow retained; targeted floor coplanarity study separate.
+- Local commit/Library update follow this scoped gate; remote publication separate, a77 remains current until independently confirmed.
+
+## UX-0003 — visual ground alignment without coplanar petals (2026-11-01 07:44 UTC)
+- Only two production constants change: floor center-.15 (top0), petals center+.006 (bottom+.001/top+.011); HoneyDisc remains center+.015/top+.020. Core collision, wall positions, models, camera, shadow and Run unchanged.
+- The initial+.015 petals variant produced actual honey/petal stripes and triangle artifacts in same-trace C/D movies; rejected. D lowers petals9mm under honey top. Full study durable Library libfile_e09ff0b2bd7481919270da984ef49b99 v0, not falsely attributed to the original Android shadow report.
+- Actual host shape/lifecycle95 headless plus977 real-renderer instance checks:220 petal transforms measured, restart reuses floor/batches, correct honey authority radius. Dummy renderer limitations explicitly defer instance storage rather than calculating expected transforms as fake observation.
+- Full coherent aggregate exit0, no diagnostic whitelist. One desktop fixture freshbuild hit NU1900 network audit lookup; preserved, then exact already-built/imported fixture ran native with fresh XDG; no audit disable.
+- Normal Buding1030 D/A/W play to4coins/100HP, honey and natural drops/feet/internal-wall roots visible, pause/restart to0coins/100HP with honey retained, actual Alt+F4 exit0/noERROR/FATAL. Finite samples only, not every animation pose/Android flicker or perfect physically locked feet.
+
+## UX-0004 — explicit launcher icon (2026-11-01 08:15 UTC)
+- Corrected actual missing-project-icon export error with unchanged generated Kaotuan foreground and separate native cream background. Original PNG SHA213cc297…81e01c4; official exporter handles platform scaling. No code alpha cleanup or hero redesign.
+- Added public Android Food Preview preset, code6, explicit main/adaptive resources and source/cache packaging exclusions. No credentials. Existing C#/Core/Persistence/model bytes unchanged from UX-0003.
+- Python assets, actual Texture2D probe, build, Linux standalone smoke and Android offline package structure/signature checks pass. Actual No icon ERROR disappeared; separate EditorSettings shutdown ERROR after export DONE persists and is disclosed. No unlimited retry, network exception or diagnostic filter.
+- Source candidate application inputs are reconciled with final docs/evidence additions; final package image review and immutable manifests retained. No Android execution claim, no new remote push, no overwrite of old delivered APK identity.

@@ -1,0 +1,116 @@
+using Godot;
+using Hmi.Core;
+using Hmi.GodotAdapter;
+using System;
+using System.Diagnostics;
+
+// Isolated production-helper behavior probe; synthetic views are not survival evidence.
+public partial class EnemyHealthProbe : Node
+{
+    private int checks;
+    private void Check(bool condition, string message)
+    {
+        checks++;
+        if (!condition) throw new Exception(message);
+    }
+    private static EntityView View(int slot=0, int generation=1, EntityKind kind=EntityKind.Enemy,
+        float health=4, float maximum=8, bool active=true)
+        => new(new EntityId(slot,generation),kind,new Vec2(200,200),new Vec2(0,-1),health,maximum,"fixture",active);
+    private async System.Threading.Tasks.Task Flush()
+    {
+        await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+        await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+    }
+    public override async void _Ready()
+    {
+        try
+        {
+            var viewport=new SubViewport { Size=new Vector2I(800,600), OwnWorld3D=true };
+            AddChild(viewport);
+            var world=new Node3D(); viewport.AddChild(world);
+            var camera=new Camera3D { Position=new Vector3(0,6,10), Current=true };
+            world.AddChild(camera); camera.LookAt(new Vector3(0,1,0),Vector3.Up);
+            var actor=new Node3D(); world.AddChild(actor);
+            var layer=new CanvasLayer(); viewport.AddChild(layer);
+            var bars=new EnemyHealthVisuals(512); layer.AddChild(bars);
+            await Flush();
+            Check(bars.MouseFilter==Control.MouseFilterEnum.Ignore,"overlay never consumes joystick/button input");
+            Check(bars.GetChildCount()==0,"single canvas control starts without per-enemy children");
+            bars.BeginFrame();
+            Check(bars.Update(0,View(),actor,camera,true),"live enemy visible"); bars.EndFrame();
+            EntityId id=default; float ratio=0; Vector2 point=default;
+            Check(bars.VisibleCount==1 && bars.TryGetBar(0,out id,out ratio,out point)
+                && id.Equals(new EntityId(0,1)) && Math.Abs(ratio-.5f)<.00001f,"ratio and stable identity");
+            Vector2 expected=camera.UnprojectPosition(actor.GlobalPosition+Vector3.Up*1.12f);
+            Check(point.DistanceTo(expected)<.001f,"uses actual actor root not stale simulation position");
+            Check(bars.Update(0,View(health:20),actor,camera,true) && bars.VisibleCount==1
+                && bars.TryGetBar(0,out _,out ratio,out _) && ratio==1,"over-max clamped and duplicate update counted once");
+            Check(bars.Update(0,View(generation:2),actor,camera,true)
+                && bars.TryGetBar(0,out id,out _,out _) && id.Generation==2,"reused slot replaces old generation");
+            foreach(EntityKind kind in new[]{EntityKind.Player,EntityKind.Companion,EntityKind.Pickup})
+            {
+                Check(!bars.Update(0,View(kind:kind),actor,camera,true) && bars.VisibleCount==0
+                    && !bars.TryGetBar(0,out _,out _,out _),"non-enemy kind removes old slot bar: "+kind);
+                bars.Update(0,View(),actor,camera,true);
+            }
+            foreach(var invalid in new[]{View(health:0),View(health:-1),View(maximum:0),View(maximum:-1),
+                View(health:float.NaN),View(health:float.PositiveInfinity),View(maximum:float.NaN),
+                View(maximum:float.PositiveInfinity),View(active:false)})
+            {
+                Check(!bars.Update(0,invalid,actor,camera,true) && bars.VisibleCount==0,"dead/inactive/nonfinite views suppressed");
+                bars.Update(0,View(),actor,camera,true);
+            }
+            Check(!bars.Update(0,View(),actor,camera,false) && bars.VisibleCount==0,"selection/noncombat suppression");
+            bars.Update(0,View(),actor,camera,true); actor.Hide();
+            Check(!bars.Update(0,View(),actor,camera,true),"hidden actor suppresses bar"); actor.Show();
+            actor.GlobalPosition=camera.GlobalPosition+camera.GlobalBasis.Z*3;
+            Check(!bars.Update(0,View(),actor,camera,true),"behind camera suppressed");
+            actor.GlobalPosition=new Vector3(1000,0,0);
+            Check(!bars.Update(0,View(),actor,camera,true),"offscreen suppressed");
+            actor.GlobalPosition=new Vector3(1,0,0); bars.Update(0,View(),actor,camera,true);
+            bars.TryGetBar(0,out _,out _,out Vector2 beforeResize);
+            viewport.Size=new Vector2I(1200,800); await Flush();
+            Check(bars.Update(0,View(),actor,camera,true) && bars.TryGetBar(0,out _,out _,out point)
+                && point.DistanceTo(beforeResize)>10
+                && point.DistanceTo(camera.UnprojectPosition(actor.GlobalPosition+Vector3.Up*1.12f))<.001f,
+                "viewport resize reprojection follows actual camera");
+            Check(!bars.Update(0,View(1),actor,camera,true) && !bars.TryGetBar(0,out _,out _,out _),
+                "mismatched identity slot rejects and clears stale bar");
+            camera.Position+=new Vector3(2,0,0);
+            Check(bars.Update(0,View(),actor,camera,true) && bars.TryGetBar(0,out _,out _,out point)
+                && point.DistanceTo(camera.UnprojectPosition(actor.GlobalPosition+Vector3.Up*1.12f))<.001f,
+                "camera movement uses current final camera transform");
+            Check(!bars.Update(-1,View(),actor,camera,true) && !bars.Update(512,View(),actor,camera,true),"slot bounds reject");
+            Check(!bars.Update(0,View(),null,camera,true),"null actor rejected");
+            Check(!bars.Update(0,View(),actor,null,true),"null camera rejected");
+            var queued=new Node3D(); world.AddChild(queued); queued.QueueFree();
+            Check(!bars.Update(0,View(),queued,camera,true),"queued actor rejected before deletion");
+            await Flush();
+            Check(!bars.Update(0,View(),queued,camera,true),"freed actor rejected safely");
+            var views=new EntityView[256];
+            for(int i=0;i<views.Length;i++) views[i]=View(i,3);
+            for(int frame=0;frame<3;frame++)
+            {
+                bars.BeginFrame(); for(int i=0;i<256;i++) bars.Update(i,views[i],actor,camera,true); bars.EndFrame();
+            }
+            Check(bars.VisibleCount==256 && bars.GetChildCount()==0 && layer.GetChildCount()==1,
+                "256 enemies use one canvas node with no per-enemy controls");
+            var timer=new Stopwatch(); long allocated=GC.GetAllocatedBytesForCurrentThread(); timer.Start();
+            for(int frame=0;frame<120;frame++)
+            {
+                bars.BeginFrame(); for(int i=0;i<256;i++) bars.Update(i,views[i],actor,camera,true); bars.EndFrame();
+            }
+            timer.Stop(); allocated=GC.GetAllocatedBytesForCurrentThread()-allocated;
+            GD.Print($"ENEMY_HEALTH_UPDATE_BENCH frames=120 enemies=256 elapsed_ms={timer.Elapsed.TotalMilliseconds:F2} managed_bytes={allocated}; headless CPU only, not GPU/frame-time evidence");
+            bars.BeginFrame(); bars.Update(5,View(5,4),actor,camera,true); bars.EndFrame();
+            Check(bars.VisibleCount==1 && !bars.TryGetBar(4,out _,out _,out _),"unseen slot disappears next frame");
+            bars.Clear();
+            Check(bars.VisibleCount==0 && !bars.TryGetBar(5,out _,out _,out _),"clear/restart removes every prior bar");
+            Check(bars.Update(5,View(5,5),actor,camera,true) && bars.TryGetBar(5,out id,out _,out _) && id.Generation==5,
+                "new-run generation can repopulate clean list");
+            GD.Print($"ENEMY_HEALTH_PROBE PASS {checks}: enemy-only/lifecycle/ratio/projection/input/single-canvas");
+            GetTree().Quit(0);
+        }
+        catch(Exception error) { GD.PushError(error.ToString()); GetTree().Quit(1); }
+    }
+}

@@ -1,0 +1,76 @@
+using Godot;
+using Hmi.GodotAdapter;
+using Hmi.Core;
+using System.Text.Json;
+using System;
+using System.Linq;
+using System.Reflection;
+using System.Collections.Generic;
+public partial class ResponsiveUiProbe:Node
+{
+ int checks;const BindingFlags Flags=BindingFlags.Instance|BindingFlags.NonPublic;
+ void Check(bool ok,string reason){checks++;if(!ok)throw new Exception(reason);}
+ static IEnumerable<Node> Walk(Node n){yield return n;foreach(Node c in n.GetChildren())foreach(var x in Walk(c))yield return x;}
+ async System.Threading.Tasks.Task Flush(){for(int i=0;i<3;i++)await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);}
+ T Field<T>(GameUi ui,string name)=>(T)typeof(GameUi).GetField(name,Flags).GetValue(ui);
+ void Fit(GameUi ui,bool overlay=false)
+ {
+  var scope=Field<Control>(ui,overlay?"_overlay":"_screen");var width=scope.Size.X;
+  foreach(var b in Walk(scope).OfType<Button>().Where(c=>c.IsVisibleInTree()))
+  {
+   Check(b.Position.X>=-1&&b.Position.X+b.Size.X<=width+1,"Button horizontal bounds: "+b.Text+" "+b.Position+" "+b.Size+" width="+width);
+   float text=b.GetThemeFont("font").GetStringSize(b.Text,HorizontalAlignment.Left,-1,b.GetThemeFontSize("font_size")).X;
+   Check(text<=b.Size.X-12,"Full button text fit: "+b.Text);
+  }
+ }
+ async System.Threading.Tasks.Task Capture(string stage)
+ {
+  var arg=OS.GetCmdlineUserArgs().FirstOrDefault(s=>s.StartsWith("--capture-responsive="));if(arg==null)return;
+  await ToSignal(RenderingServer.Singleton,RenderingServer.SignalName.FramePostDraw);
+  Check(GetViewport().GetTexture().GetImage().SavePng(arg.Substring(21)+"-"+stage+".png")==Error.Ok,"Actual capture");
+ }
+ public override async void _Ready(){try{
+  var ui=new GameUi();AddChild(ui);int starts=0,confirms=0;ui.StartRequested=(_,_)=>starts++;await Flush();
+  ui.ExitToSelectionRequested=()=>{};
+  var catalog=JsonSerializer.Deserialize<GameContent>(FileAccess.GetFileAsString("res://content/gameplay.json"),new JsonSerializerOptions{PropertyNameCaseInsensitive=true});
+  OfferUi Card(string id){var c=catalog.Cards.Single(c=>c.Id==id);return new OfferUi(c.Id,c.Name,c.Effect,c.Slot);}
+  var offers=new[]{Card("fusion.sugaring"),Card("base.health"),Card("risk.bounty")};
+  var items=catalog.Items.Select(i=>new OfferUi(i.Id,i.Name,i.Effect+"\n"+i.Downside,i.Price+" 金币",true)).ToArray();
+  foreach(var physical in new[]{new Vector2I(1280,720),new Vector2I(1560,720),new Vector2I(1600,720),new Vector2I(1024,768),new Vector2I(720,1280),new Vector2I(540,1280)})
+  {
+   GetWindow().ContentScaleMode=Window.ContentScaleModeEnum.CanvasItems;GetWindow().ContentScaleAspect=Window.ContentScaleAspectEnum.Expand;GetWindow().ContentScaleSize=physical.Y>physical.X?new Vector2I(720,1280):new Vector2I(1280,720);GetWindow().Size=physical;await Flush();
+   var logical=GetViewport().GetVisibleRect().Size;var safe=new Rect2(new Vector2(16,24),logical-new Vector2(32,48));ui.SetLayoutMetrics(logical,safe);ui.ShowHome();await Flush();Fit(ui);await Capture("home-"+physical.X+"x"+physical.Y);
+   ui.ShowSelection();await Flush();Fit(ui);var preview=Walk(ui).OfType<HeroSelectionPreview>().Single();var seed=Walk(ui).OfType<SpinBox>().Single();seed.Value=777;
+   var start=Walk(ui).OfType<Button>().Single(b=>b.Name=="StartAdventure");start.GrabFocus();
+   ui.SetLayoutMetrics(logical,safe);await Flush();Check(seed.Value==777&&ReferenceEquals(preview,Walk(ui).OfType<HeroSelectionPreview>().Single())&&starts==0,"Reflow retains seed, preview and does not start");await Capture("selection-"+physical.X+"x"+physical.Y);
+   int priorConfirms=confirms;ui.ShowReplaceRunConfirmation(()=>confirms++);await Flush();var message=Walk(ui).OfType<RichTextLabel>().Single();var action=Walk(ui).OfType<Button>().Single(b=>b.Text=="确认开始新局");ui.SetLayoutMetrics(logical,safe);await Flush();Check(ui.IsPersistenceModalOpen&&ReferenceEquals(message,Walk(ui).OfType<RichTextLabel>().Single())&&confirms==priorConfirms,"Reflow preserves modal authority and body");Check(Walk(Field<ScrollContainer>(ui,"_screenScroll")).OfType<Control>().All(c=>c.FocusMode==Control.FocusModeEnum.None),"Modal locks new scroll container and internal scrollbar focus too");Fit(ui,true);action.EmitSignal(BaseButton.SignalName.Pressed);Check(confirms==priorConfirms+1&&!ui.IsPersistenceModalOpen,"Same visible modal callback still works once");
+   ui.ShowBetween(offers,12,20,8,false,items,false);await Flush();Fit(ui);
+   var screen=Field<Control>(ui,"_screen");var coin=screen.GetChildren().OfType<TextureRect>().Single(t=>t.Texture.ResourcePath.EndsWith("icon_coin.svg"));var wallet=screen.GetChildren().OfType<Label>().Single(l=>l.Text.StartsWith("余额 "));Check(!coin.GetGlobalRect().Intersects(wallet.GetGlobalRect()),"Wallet icon never overlaps balance label after reflow");
+   await Capture("cards-"+physical.X+"x"+physical.Y);
+   if(logical.Y>logical.X){var scroll=Field<ScrollContainer>(ui,"_screenScroll");var last=screen.GetChildren().OfType<Button>().Single(b=>b.Text=="去商店补给  ›");scroll.EnsureControlVisible(last);await Flush();Check(scroll.GetGlobalRect().Encloses(last.GetGlobalRect()),"Bottom card CTA reachable by actual scroll");await Capture("cards-bottom-"+physical.X+"x"+physical.Y);}
+   ui.ShowBetween(offers,12,20,8,true,items,true);await Flush();Fit(ui);await Capture("shop-"+physical.X+"x"+physical.Y);
+   if(logical.Y>logical.X){var scroll=Field<ScrollContainer>(ui,"_screenScroll");var next=Field<Control>(ui,"_screen").GetChildren().OfType<Button>().Single(b=>b.Text=="下一波  ›");scroll.EnsureControlVisible(next);await Flush();Check(scroll.GetGlobalRect().Encloses(next.GetGlobalRect()),"Shop next action reachable by actual scroll");await Capture("shop-bottom-"+physical.X+"x"+physical.Y);}
+   var contracts=new[]{"trait","base","risk"}.Select(slot=>catalog.TemporaryContracts.Where(c=>c.Slot==slot).OrderByDescending(c=>c.Description.Length).First()).Select(c=>new OfferUi(c.Id,c.Name,c.Description,c.Slot,true,"仅下一波")).ToArray();ui.ShowBetween(contracts,12,20,8,false,items,false);await Flush();Fit(ui);await Capture("contracts-"+physical.X+"x"+physical.Y);
+   ui.ShowRunEnding(true,false,true,int.MaxValue,int.MaxValue,int.MaxValue,int.MaxValue,0,"");await Flush();Fit(ui);await Capture("ending-stress-"+physical.X+"x"+physical.Y);
+   ui.ShowCombat();ui.UpdateHud("烤团",100,100,7,24,12,"短期效益 · 仅下一波","伙伴游走",true,true);ui.SetResumeState(new ResumeUi(false,"","","本局未保存 · 无可恢复安全点"));await Flush();await Capture("hud-"+physical.X+"x"+physical.Y);
+   ui.Joystick._GuiInput(new InputEventMouseButton{ButtonIndex=MouseButton.Left,Pressed=true,Position=ui.Joystick.Size/2+new Vector2(50,0)});Check(ui.Joystick.Direction.X>.5f,"Controlled held joystick begins moving");var target=ui.Joystick.Size/2+new Vector2(40,-20);var expected=new Vector2(40,-20)/(ui.Joystick.Size.X*.34f);ui.Joystick._Input(new InputEventMouseMotion{Position=ui.Joystick.GetGlobalTransformWithCanvas()*target});Check(ui.Joystick.Direction.DistanceTo(expected)<.0001f,"Mouse drag inversely maps actual scaled canvas transform");ui.SetLayoutMetrics(logical,safe);Check(ui.Joystick.Direction.X>.5f,"Identical layout metrics preserve held input");var altered=new Rect2(safe.Position+new Vector2(1,0),safe.Size-new Vector2(1,0));ui.SetLayoutMetrics(logical,altered);Check(ui.Joystick.Direction==Vector2.Zero,"Changed safe area cancels held pointer direction");ui.Joystick._Input(new InputEventMouseMotion{Position=new Vector2(600,900)});Check(ui.Joystick.Direction==Vector2.Zero,"Old drag cannot revive movement after layout reset");ui.SetLayoutMetrics(logical,safe);await Flush();ui.Joystick._GuiInput(new InputEventScreenTouch{Pressed=true,Index=2,Position=ui.Joystick.Size/2});ui.Joystick._Input(new InputEventScreenDrag{Index=2,Position=ui.Joystick.GetGlobalTransformWithCanvas()*target});Check(ui.Joystick.Direction.DistanceTo(expected)<.0001f,"Touch drag inversely maps actual scaled canvas transform");ui.Joystick._Input(new InputEventScreenTouch{Pressed=false,Index=2});Check(ui.Joystick.Direction==Vector2.Zero,"Touch release recenters");
+   var hud=Field<Control>(ui,"_hud");foreach(var c in hud.GetChildren().OfType<Control>().Where(c=>c.IsVisibleInTree()))Check(c.Position.X>=-1&&c.Position.Y>=-1&&c.Position.X+c.Size.X<=hud.Size.X+1&&c.Position.Y+c.Size.Y<=hud.Size.Y+1,"HUD root bounds "+c.Name+" "+c.Position+" "+c.Size+" in "+hud.Size);
+   foreach(string hero in AssetVisuals.HeroNames)
+   {
+    ui.UpdateHud(hero,100,100,int.MaxValue,24,int.MaxValue,"","",true,true,int.MaxValue);await Flush();
+    foreach(string status in new[]{"已保存波起点","本局未保存 · 无可恢复安全点","新局尚无可恢复安全点"})
+    {
+     ui.SetResumeState(new ResumeUi(saveStatus:status));await Flush();var notice=Field<Label>(ui,"_saveNotice");var nr=notice.GetGlobalRect();
+     Check(notice.Text==status&&!notice.ClipText&&notice.TextOverrunBehavior==TextServer.OverrunBehavior.NoTrimming,"All5 full authoritative save states preserved without truncation");
+     Check(notice.GetMinimumSize().X<=notice.Size.X&&safe.Encloses(nr),"Full save notice actual minimum and safe bounds");
+     Check(!nr.Intersects(Field<Label>(ui,"_wave").GetGlobalRect())&&!nr.Intersects(Field<Label>(ui,"_wallet").GetGlobalRect()),"Responsive save notice does not overlap high-wave/wallet label");
+    }
+   }
+   ui.UpdateHud("烤团",100,100,7,24,12,"","",true,true);ui.SetResumeState(new ResumeUi(saveStatus:"本局未保存 · 无可恢复安全点"));await Flush();
+   ui.ShowPause(true);await Flush();Fit(ui,true);await Capture("pause-"+physical.X+"x"+physical.Y);
+   ui.ShowSaveFailure(string.Join("\n",Enumerable.Repeat("保存失败：不会静默开始新局，完整技术详情可滚动查看。",30)),false);await Flush();ui.SetLayoutMetrics(logical,safe);await Flush();Check(ui.IsPersistenceModalOpen&&!ui.TryCancelPersistenceModal(),"Resize never dismisses blocking failure");Fit(ui,true);Check(Walk(ui).OfType<RichTextLabel>().Single().ScrollActive,"Long warnings stay scrollable");await Capture("failure-"+physical.X+"x"+physical.Y);ui.HideSaveFailure();
+   GD.Print($"RESPONSIVE_SIZE requested={physical} actual={GetWindow().Size} logical={logical} safe={safe}");
+  }
+  ui.SetLayoutMetrics(new Vector2(1281,720),new Rect2(0,0,1281,720));RemoveChild(ui);await Flush();Check(!ui.IsInsideTree(),"Queued reflow focus callback tolerates detached UI without querying dead viewport");ui.QueueFree();await Flush();GD.Print("RESPONSIVE_UI_PROBE PASS checks="+checks);GetTree().Quit();
+ }catch(Exception ex){GD.PushError(ex.ToString());GetTree().Quit(1);}}
+}

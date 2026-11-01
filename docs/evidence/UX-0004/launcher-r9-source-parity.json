@@ -1,0 +1,11 @@
+{
+  "baseline_commit": "1350f81f97a74775147db20fa6edb8b4e69a62f9",
+  "baseline_files": 911,
+  "changed_existing_files": [
+    "export_presets.cfg",
+    "project.godot",
+    "scripts/verify.sh"
+  ],
+  "all_other_existing_authored_files_exact": true,
+  "generated_face_original_sha256": "213cc297853de5d4874bb94bd8e26bc8d9dede1dd9241291548484b5181e01c4"
+}

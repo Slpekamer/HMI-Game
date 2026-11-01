@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "identity": "Kaotuan toasted marshmallow head, user-authorized existing hero",
+  "assets": {
+    "project": {
+      "path": "content/ui/launcher/kaotuan-face.png",
+      "size": [
+        1254,
+        1254
+      ],
+      "sha256": "213cc297853de5d4874bb94bd8e26bc8d9dede1dd9241291548484b5181e01c4"
+    },
+    "main": {
+      "path": "content/ui/launcher/kaotuan-face.png",
+      "size": [
+        1254,
+        1254
+      ],
+      "sha256": "213cc297853de5d4874bb94bd8e26bc8d9dede1dd9241291548484b5181e01c4"
+    },
+    "foreground": {
+      "path": "content/ui/launcher/kaotuan-face.png",
+      "size": [
+        1254,
+        1254
+      ],
+      "sha256": "213cc297853de5d4874bb94bd8e26bc8d9dede1dd9241291548484b5181e01c4"
+    },
+    "background": {
+      "path": "content/ui/launcher/adaptive-background.png",
+      "size": [
+        432,
+        432
+      ],
+      "sha256": "f7df84da781cc2b62b1bfb0a69e29eb5c3b65b7610d516ab78a0718d00317366"
+    }
+  },
+  "generated_original_unmodified": true,
+  "foreground_original_sha256": "213cc297853de5d4874bb94bd8e26bc8d9dede1dd9241291548484b5181e01c4",
+  "safe_circle": "opaque foreground radius <=132/432 of canvas width; raw alpha1 isolated pixels retained, visually invisible in reviewed small previews",
+  "background": "Original code-native solid #f4d8ab SVG, rasterized by Godot; not an edit of generated foreground",
+  "platform_processing": "Only official exporter creates launcher dpi sizes; source foreground retains original1254x1254 bytes",
+  "limits": "No all-device launcher or Android execution approval; actual packaged mipmaps and masks are separate gate"
+}

@@ -17,9 +17,9 @@ public partial class TouchJoystick : Control
     public override void _Input(InputEvent e)
     {
         if (e is InputEventScreenTouch touch && touch.Index == _touch && !touch.Pressed) ResetInput();
-        if (e is InputEventScreenDrag drag && drag.Index == _touch) SetDirection(drag.Position - GlobalPosition);
+        if (e is InputEventScreenDrag drag && drag.Index == _touch) SetDirection(GetGlobalTransformWithCanvas().AffineInverse() * drag.Position);
         if (e is InputEventMouseButton mouse && mouse.ButtonIndex == MouseButton.Left && !mouse.Pressed && _mouse) ResetInput();
-        if (e is InputEventMouseMotion motion && _mouse) SetDirection(motion.Position - GlobalPosition);
+        if (e is InputEventMouseMotion motion && _mouse) SetDirection(GetGlobalTransformWithCanvas().AffineInverse() * motion.Position);
     }
     public override void _Draw()
     {

@@ -2,11 +2,13 @@ config_version=5
 [application]
 config/name="软糖突围 · ECS Prototype"
 run/main_scene="res://scenes/main.tscn"
+config/icon="res://content/ui/launcher/kaotuan-face.png"
 config/features=PackedStringArray("4.6", "C#", "GL Compatibility")
 [display]
 window/size/viewport_width=1280
 window/size/viewport_height=720
 window/stretch/mode="canvas_items"
+window/handheld/orientation=4
 [dotnet]
 project/assembly_name="HmiGame"
 [rendering]

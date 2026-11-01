@@ -10,7 +10,7 @@ shutil.copytree(root,project,ignore=shutil.ignore_patterns('.godot','.git','bin'
 probe=project/'src/Adapters/Godot/PersistenceUiProbe.cs'
 probe.write_text((root/'tests/Presentation/PersistenceUiProbe.cs.template').read_text())
 (project/'scenes/main.tscn').write_text('[gd_scene load_steps=2 format=3]\n[ext_resource type="Script" path="res://src/Adapters/Godot/PersistenceUiProbe.cs" id="1"]\n[node name="PersistenceUiProbe" type="Node"]\nscript = ExtResource("1")\n')
-(project/'HmiGame.csproj').write_text('<Project Sdk="Godot.NET.Sdk/4.6.3"><PropertyGroup><TargetFramework>net10.0</TargetFramework><EnableDynamicLoading>true</EnableDynamicLoading><EnableDefaultCompileItems>false</EnableDefaultCompileItems></PropertyGroup><ItemGroup>'+''.join('<Compile Include="src/Adapters/Godot/'+name+'.cs" />' for name in ['GameUi','ResumeUi','CandyTheme','TouchJoystick','AssetVisuals','PersistenceUiProbe'])+'</ItemGroup></Project>')
+(project/'HmiGame.csproj').write_text('<Project Sdk="Godot.NET.Sdk/4.6.3"><PropertyGroup><TargetFramework>net10.0</TargetFramework><EnableDynamicLoading>true</EnableDynamicLoading><EnableDefaultCompileItems>false</EnableDefaultCompileItems></PropertyGroup><ItemGroup>'+''.join('<Compile Include="src/Adapters/Godot/'+name+'.cs" />' for name in ['GameUi','GameUi.Layout','ResumeUi','CandyTheme','TouchJoystick','AssetVisuals','HeroSelectionPreview','PersistenceUiProbe'])+'</ItemGroup></Project>')
 engine=os.environ['GODOT_NET']
 env=os.environ.copy();env['XDG_CONFIG_HOME']=str(work/'editor-config')
 Path(env['XDG_CONFIG_HOME']).mkdir()

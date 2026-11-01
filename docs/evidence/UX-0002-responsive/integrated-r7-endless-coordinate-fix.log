@@ -1,0 +1,21 @@
+Endless build: exit 0; log /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-endless-9y2m26te/build.log
+Endless import: exit 0; log /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-endless-9y2m26te/import.log
+Endless run: exit 0; log /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-endless-9y2m26te/run.log
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+HMI_READY reconstruction=2026-10-31 lighting=linear-direct0.36-ambient0.18
+ENDLESS_DETAIL temp.trait.protection size=(278, 190) minimum=(1, 120)
+ENDLESS_DETAIL_BOUNDS temp.trait.protection label=(151, 614), (278, 190) button=(151, 810), (278, 56)
+ENDLESS_DETAIL temp.base.rate size=(278, 190) minimum=(1, 90)
+ENDLESS_DETAIL_BOUNDS temp.base.rate label=(501, 614), (278, 190) button=(501, 810), (278, 56)
+ENDLESS_DETAIL temp.risk.slowreach size=(278, 190) minimum=(1, 120)
+ENDLESS_DETAIL_BOUNDS temp.risk.slowreach label=(851, 614), (278, 190) button=(851, 810), (278, 56)
+ENDLESS_DETAIL temp.trait.scouting size=(278, 190) minimum=(1, 120)
+ENDLESS_DETAIL_BOUNDS temp.trait.scouting label=(151, 614), (278, 190) button=(151, 810), (278, 56)
+ENDLESS_DETAIL temp.base.reach size=(278, 190) minimum=(1, 90)
+ENDLESS_DETAIL_BOUNDS temp.base.reach label=(501, 614), (278, 190) button=(501, 810), (278, 56)
+ENDLESS_DETAIL temp.risk.fragile size=(278, 190) minimum=(1, 120)
+ENDLESS_DETAIL_BOUNDS temp.risk.fragile label=(851, 614), (278, 190) button=(851, 810), (278, 56)
+ENDLESS_UI_PROBE PASS 150: actual ending/scoped commands/ledger/contract text/disabled slots
+
+PASS isolated actual-engine endless; evidence /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-endless-9y2m26te

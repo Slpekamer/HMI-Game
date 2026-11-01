@@ -1,0 +1,345 @@
+PASS architectural dependency boundary
+.................
+----------------------------------------------------------------------
+Ran 17 tests in 0.014s
+
+OK
+PASS 9 preserved notice files and Linux/Android inclusion filters
+{"font_sha256": "a1af181b8b8a55095190dc12cc296811f1702e6c3a8cb539ae303240855352e5", "required_codepoints": 577, "mapped_codepoints": 1336, "missing": []}
+RUNTIME_FONT_GLYPHS_PASS all adapter/catalog characters and preserved subset codepoints
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  Hmi.Core -> /workspace/scratch/80f5bc988ef7/HMI-Game-experience-r1/src/Core/bin/Release/netstandard2.1/Hmi.Core.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:01.64
+  Determining projects to restore...
+  Restored /workspace/scratch/80f5bc988ef7/HMI-Game-experience-r1/tests/CoreTests/Hmi.CoreTests.csproj (in 113 ms).
+  1 of 2 projects are up-to-date for restore.
+  Hmi.Core -> /workspace/scratch/80f5bc988ef7/HMI-Game-experience-r1/src/Core/bin/Release/netstandard2.1/Hmi.Core.dll
+  Hmi.CoreTests -> /workspace/scratch/80f5bc988ef7/HMI-Game-experience-r1/tests/CoreTests/bin/Release/net10.0/Hmi.CoreTests.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:02.76
+SCHEMA2_LOAD cards=256 assignments=65536 elapsed_ms=741.36 allocated_bytes=103712
+SCHEMA2_QUERY calls=10000 available=10000 allocated_bytes=0
+C2_DEEP_OFFER id=orbit.outer count=12
+C2_DEEP_OFFER id=orbit.inner count=5
+C2_DEEP_OFFER id=crit.longwatch count=4
+C2_DEEP_OFFER id=crit.skirmish count=5
+C2_DEEP_OFFER id=bounce.longpush count=9
+C2_DEEP_OFFER id=bounce.heavy count=5
+C2_DEEP_OFFER id=fusion.sugaring count=1
+C2_DEEP_OFFER id=fusion.relaypush count=1
+C2_SYNTHETIC finite_runs=250 heroes=5 seeds_per_hero=50 deep_offer_count=42; combat survival not exercised by this probe
+D_PERF enemies=256 ticks=300 elapsed_ms=30.92 allocated_bytes=0 dropped_cosmetic_events=0
+D_SYNTHETIC runs=15 waves_per_run=1000 menus=15000 singleton_menus=14340 supply_picks=14369; selection/init simulation only, not combat survival
+D2_CONTRACT id=temp.trait.protection selections=2530
+D2_CONTRACT id=temp.trait.scouting selections=2470
+D2_CONTRACT id=temp.base.rate selections=2525
+D2_CONTRACT id=temp.base.reach selections=2475
+D2_CONTRACT id=temp.risk.slowreach selections=2485
+D2_CONTRACT id=temp.risk.fragile selections=2515
+D2_PERF enemies=256 ticks=300 elapsed_ms=30.76 allocated_bytes=0
+D2_SYNTHETIC runs=15 waves_per_run=1000 menus=15000 singleton_menus=0; menu/init only, not survival
+E_VALIDATE capacity=512 count=50 elapsed_ms=3.41 allocated_bytes=9439888; deliberate staging allocation, not a tick hot path
+E_CORE prepared/capture/validate/restore tests exercised; semantic digests exclude runtime handles and inactive storage; no file crash guarantee claimed
+PERF honey enemies=32 ticks=300 ms=2.49 allocated_bytes=0 dropped_cosmetic_events=0
+PERF honey enemies=128 ticks=300 ms=8.54 allocated_bytes=0 dropped_cosmetic_events=0
+PERF honey enemies=512 ticks=300 ms=31.77 allocated_bytes=0 dropped_cosmetic_events=0
+PERF mixed_all_traits enemies=128 ticks=300 ms=14.13 allocated_bytes=0 dropped_cosmetic_events=2895
+PASS 624665 freshly executed assertions; reconstructed core netstandard2.1; host net10.0.
+  Determining projects to restore...
+  Restored /workspace/scratch/80f5bc988ef7/HMI-Game-experience-r1/tests/CodexTests/Hmi.CodexTests.csproj (in 106 ms).
+  1 of 2 projects are up-to-date for restore.
+  Hmi.Core -> /workspace/scratch/80f5bc988ef7/HMI-Game-experience-r1/src/Core/bin/Debug/netstandard2.1/Hmi.Core.dll
+  Hmi.CodexTests -> /workspace/scratch/80f5bc988ef7/HMI-Game-experience-r1/tests/CodexTests/bin/Debug/net10.0/Hmi.CodexTests.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:02.64
+PASS CodexFormatter 655 assertions: schema1/schema2, authoritative status, all/any/rank/exclusive/cap, five heroes, repeated read-only formatting
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  Hmi.Core -> /workspace/scratch/80f5bc988ef7/HMI-Game-experience-r1/src/Core/bin/Debug/netstandard2.1/Hmi.Core.dll
+  Hmi.Persistence -> /workspace/scratch/80f5bc988ef7/HMI-Game-experience-r1/src/Adapters/Persistence/bin/Debug/net10.0/Hmi.Persistence.dll
+  HmiGame -> /workspace/scratch/80f5bc988ef7/HMI-Game-experience-r1/.godot/mono/temp/bin/Debug/HmiGame.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:03.24
+PASS: 2 GLBs, 20 SVGs; pivots,dimensions,topology,opaque PBR,root transforms,hashes
+PASS 8 animated GLB assets: legacy hierarchy validation or explicit food-hero static contract; actual imported skeletal motion/root checks run separately
+FOOD_HERO_GLTF_CONTRACT_PASS {"scope": "all five heroes", "assets": [{"path": "content/models/hero_orbit.glb", "sha256": "4f33b8e613e761352881ff6246a2c0949303fe2b7c750e73ae846f434ed7369f", "bytes": 4601244, "triangles": 29066, "surfaces": 2, "mesh_instances": 2, "unreachable_meshes": [], "materials": 1, "bones": 22, "morphs": ["Blink", "Smile", "Surprise"], "textures": [{"size": [1024, 1024], "decoded_rgba_bytes": 4194304, "sha256": "7ea0d93727b4249dc7fa177267b295d6443ccc4301ec7e35e41ecfca7a0d0cef"}, {"size": [1024, 1024], "decoded_rgba_bytes": 4194304, "sha256": "44686c2f9eab7cbf0cfa5a6f633497cf365293627d58d8bf9ff2bbca29a7bf37"}, {"size": [1024, 1024], "decoded_rgba_bytes": 4194304, "sha256": "0fdb380022a2ddd1044f2fb8eca860560cbf62a08eb9c060f4739281a7956074"}], "clips": {"Attack": {"target_nodes": 22, "channels": 66}, "Idle": {"target_nodes": 22, "channels": 66}, "Run": {"target_nodes": 22, "channels": 66}}}, {"path": "content/models/hero_crit.glb", "sha256": "38d76d5fe62ecd39c0b4506672c31038f62a797dc493dcbc72ede3f609d916bb", "bytes": 3734124, "triangles": 29924, "surfaces": 2, "mesh_instances": 2, "unreachable_meshes": [], "materials": 1, "bones": 17, "morphs": ["Blink", "Smile", "Surprise"], "textures": [{"size": [1024, 1024], "decoded_rgba_bytes": 4194304, "sha256": "4fd37d9beb714e861dd8802cb2c14f1829a1e00a0129e38c9d2c4f782d4ecc90"}, {"size": [1024, 1024], "decoded_rgba_bytes": 4194304, "sha256": "18a60b23995cf72f467efd70e47875dce85d9c553628b362c9a0500794752be5"}, {"size": [1024, 1024], "decoded_rgba_bytes": 4194304, "sha256": "8e6dc2bfb22278c5f594c53985ff26c3357e84826bef0ddd240b40eb0e7b49e2"}], "clips": {"Attack": {"target_nodes": 17, "channels": 51}, "Idle": {"target_nodes": 17, "channels": 51}, "Run": {"target_nodes": 17, "channels": 51}}}, {"path": "content/models/hero_honey.glb", "sha256": "21f6e09fcc624e4c8c85a496bd6b63191ed8ffb1b657a5ecdd86afe261721b54", "bytes": 3324300, "triangles": 29510, "surfaces": 2, "mesh_instances": 2, "unreachable_meshes": [], "materials": 1, "bones": 17, "morphs": ["Blink", "Smile", "Surprise"], "textures": [{"size": [1024, 1024], "decoded_rgba_bytes": 4194304, "sha256": "398916400db022973d75da7146c24eaea74ef2b59ea1803fe7c485a363d38189"}, {"size": [1024, 1024], "decoded_rgba_bytes": 4194304, "sha256": "2594eb7e3ee66c8aa57ff8289e6669a0eddf0120e8a1ea7c162197154da82773"}, {"size": [1024, 1024], "decoded_rgba_bytes": 4194304, "sha256": "16c63efc6b26022348cd7906baf631f653234d29db4cf5deeca891a70f65d6e9"}], "clips": {"Attack": {"target_nodes": 17, "channels": 51}, "Idle": {"target_nodes": 17, "channels": 51}, "Run": {"target_nodes": 17, "channels": 51}}}, {"path": "content/models/hero_summon.glb", "sha256": "e55155cc991c1f7ce7cf0229c765a8f706efd9a7a4be362f44a55c7bbd66a7b9", "bytes": 4619136, "triangles": 29849, "surfaces": 2, "mesh_instances": 2, "unreachable_meshes": [], "materials": 1, "bones": 17, "morphs": ["Blink", "Smile", "Surprise"], "textures": [{"size": [1024, 1024], "decoded_rgba_bytes": 4194304, "sha256": "2317d23fa1119464f67106e8e60354b8e55822e38a3039db01ea83278a4089ab"}, {"size": [1024, 1024], "decoded_rgba_bytes": 4194304, "sha256": "353d40a959bc9d5151a2598b2bce5312581de31500d241b3f54a968f0ab9d850"}, {"size": [1024, 1024], "decoded_rgba_bytes": 4194304, "sha256": "ab54f8c0b1321fde5e0c8114e1de2b96684da03552d8f662e3ca2e5421119c81"}], "clips": {"Attack": {"target_nodes": 17, "channels": 51}, "Idle": {"target_nodes": 17, "channels": 51}, "Run": {"target_nodes": 17, "channels": 51}}}, {"path": "content/models/hero_bounce.glb", "sha256": "2c9180243a92973ff64f80f574349430a4aa9bc5b91a6708529f4dfc0eb62a51", "bytes": 4234800, "triangles": 28964, "surfaces": 2, "mesh_instances": 2, "unreachable_meshes": [], "materials": 1, "bones": 17, "morphs": ["Blink", "Smile", "Surprise"], "textures": [{"size": [1024, 1024], "decoded_rgba_bytes": 4194304, "sha256": "00db7748d8cd649add6da18c7067d5b34895fa3d2bdc6c0a2a0a0793d88e373f"}, {"size": [1024, 1024], "decoded_rgba_bytes": 4194304, "sha256": "5dedcddc49afdb3a11c695f6759cc8aed3f163072f5d1a5f08212873013b4733"}, {"size": [1024, 1024], "decoded_rgba_bytes": 4194304, "sha256": "d535edcadcf5a978068b615d4c8939f0b78b39cdcce43247c09a8d3581736fdb"}], "clips": {"Attack": {"target_nodes": 17, "channels": 51}, "Idle": {"target_nodes": 17, "channels": 51}, "Run": {"target_nodes": 17, "channels": 51}}}], "limits": "Static glTF contract only; actual imported axis/pose/morph fidelity and inner skeleton root drift, native gameplay, draw calls, GPU memory and mobile performance are separate gates."}
+PASS authored UI SVGs: 21 hashes, XML, no external resources
+PASS raster UI assets: 1 hashes, PNG dimensions, provenance
+PORTRAIT_ASSETS_PASS {"passed": true, "portraits": [{"id": "hero_summon", "sha256": "9e5e728f41fc3cb6e64783309ca1ad249aacff36c19c02267a481b8c6f5cab5a", "size": [2027, 776], "region": [0, 0, 710, 700], "decoded_rgba_bytes": 6291808}, {"id": "hero_orbit", "sha256": "2096a1975cade73863c2283bdc0703ebebb4e9b1777aa2464a0bdebe3cc7655e", "size": [2027, 776], "region": [0, 0, 710, 700], "decoded_rgba_bytes": 6291808}, {"id": "hero_honey", "sha256": "2bc2595b6d90c03c0680a758decbc03a4d5fd93bb40f522b86a3778d2d9f9d76", "size": [2027, 776], "region": [0, 0, 710, 700], "decoded_rgba_bytes": 6291808}, {"id": "hero_crit", "sha256": "aed09c1ea337d866eb2d1f6785274f5014afbed6e90b2db80a96e94b37ab6e8f", "size": [2027, 776], "region": [0, 0, 710, 700], "decoded_rgba_bytes": 6291808}, {"id": "hero_bounce", "sha256": "5fc405dd5f5009184db36aed5a84ca0e7d21cbab97183fc6cd085c1024dd39f1", "size": [2027, 776], "region": [0, 0, 750, 700], "decoded_rgba_bytes": 6291808}], "total_full_atlas_decoded_rgba_bytes": 31459040, "limits": "Non-destructive cream-background concept atlas, not transparent cutout. Atlas region does not reduce full texture memory; actual native framing/identity and GPU/device memory are separate gates."}
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+HMI_READY reconstruction=2026-10-31 lighting=linear-direct0.36-ambient0.18
+HMI_SMOKE phase=Combat wave=1 entities=16 tick=59
+Primitive ownership build: exit 0; log /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-primitive-ownership-lfxt7lye/build.log
+Primitive ownership import: exit 0; log /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-primitive-ownership-lfxt7lye/import.log
+Primitive ownership run: exit 0; log /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-primitive-ownership-lfxt7lye/run.log
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+PRIMITIVE_OWNERSHIP PASS 256 headless native identity only
+
+PASS isolated actual-engine primitive ownership behavior; evidence /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-primitive-ownership-lfxt7lye
+Host lifecycle build: exit 0; log /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-host-lifecycle-guiruv5s/build.log
+Host lifecycle import: exit 0; log /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-host-lifecycle-guiruv5s/import.log
+Host lifecycle run: exit 0; log /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-host-lifecycle-guiruv5s/run.log
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+HMI_READY reconstruction=2026-10-31 lighting=linear-direct0.36-ambient0.18
+HOST_LIFECYCLE animated -> pickup after actual queued free PASS
+HOST_LIFECYCLE pickup -> animated / generation replacement / stale event PASS
+HOST_LIFECYCLE preserved catch-up tick / run-wave context / future rejection PASS
+HOST_LIFECYCLE expanded-companion wave1 -> wave2 / moving-idle / pause PASS
+HOST_LIFECYCLE actual scene exit disposes retained presenters PASS
+HOST_LIFECYCLE_PROBE PASS
+
+PASS isolated actual-engine host lifecycle; evidence /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-host-lifecycle-guiruv5s
+Presentation build: exit 0; log /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-character-presentation-cup6q19n/build.log
+Presentation import: exit 0; log /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-character-presentation-cup6q19n/import.log
+Presentation run: exit 0; log /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-character-presentation-cup6q19n/run.log
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+CHARACTER_PRESENTATION_PROBE PASS 1450 checks (synthetic actual-engine adapter fixture; not production asset/visual proof)
+
+PASS isolated actual-engine presentation behavior; evidence /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-character-presentation-cup6q19n
+Presentation build: exit 0; log /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-enemy-health-9su1_do6/build.log
+Presentation import: exit 0; log /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-enemy-health-9su1_do6/import.log
+Presentation run: exit 0; log /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-enemy-health-9su1_do6/run.log
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+ENEMY_HEALTH_UPDATE_BENCH frames=120 enemies=256 elapsed_ms=16.72 managed_bytes=0; headless CPU only, not GPU/frame-time evidence
+ENEMY_HEALTH_PROBE PASS 35: enemy-only/lifecycle/ratio/projection/input/single-canvas
+
+PASS isolated actual-engine presentation behavior; evidence /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-enemy-health-9su1_do6
+Presentation build: exit 0; log /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-food-animation-mixer-uqko9g3s/build.log
+Presentation import: exit 0; log /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-food-animation-mixer-uqko9g3s/import.log
+Presentation run: exit 0; log /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-food-animation-mixer-uqko9g3s/run.log
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+MIXER_BONES orbit Root,Pelvis,Chest,Head,Tail_L_1,Tail_L_2,Tail_L_3,Tail_R_1,Tail_R_2,Tail_R_3,UpperArm_L,Forearm_L,Hand_L,UpperArm_R,Forearm_R,Hand_R,Thigh_L,Shin_L,Foot_L,Thigh_R,Shin_R,Foot_R
+MIXER_BONES crit Root,Pelvis,Chest,Head,Scarf,UpperArm_L,Forearm_L,Hand_L,UpperArm_R,Forearm_R,Hand_R,Thigh_L,Shin_L,Foot_L,Thigh_R,Shin_R,Foot_R
+MIXER_BONES honey Root,Pelvis,Chest,Head,Scarf,UpperArm_L,Forearm_L,Hand_L,UpperArm_R,Forearm_R,Hand_R,Thigh_L,Shin_L,Foot_L,Thigh_R,Shin_R,Foot_R
+MIXER_BONES summon Root,Pelvis,Chest,Head,Scarf,UpperArm_L,Forearm_L,Hand_L,UpperArm_R,Forearm_R,Hand_R,Thigh_L,Shin_L,Foot_L,Thigh_R,Shin_R,Foot_R
+MIXER_BONES bounce Root,Pelvis,Chest,Head,Scarf,UpperArm_L,Forearm_L,Hand_L,UpperArm_R,Forearm_R,Hand_R,Thigh_L,Shin_L,Foot_L,Thigh_R,Shin_R,Foot_R
+FOOD_ANIMATION_MIXER_PROBE PASS 17590: real-five-assets/filter/run-attack/lower-body/pause/isolation/time-rate/lifecycle
+
+PASS isolated actual-engine presentation behavior; evidence /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-food-animation-mixer-uqko9g3s
+Presentation build: exit 0; log /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-attack-boundary-jsfxg7m6/build.log
+Presentation import: exit 0; log /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-attack-boundary-jsfxg7m6/import.log
+Presentation run: exit 0; log /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-attack-boundary-jsfxg7m6/run.log
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+BOUNDARY hero=orbit dt=0.016666668 pattern=1 events=600 actual_starts=23 max_inactive_seconds=0.016667 max_inactive_after_event=0.016667 timer_active_collisions=0
+BOUNDARY hero=orbit dt=0.016666668 pattern=24 events=25 actual_starts=13 max_inactive_seconds=0.383333 max_inactive_after_event=0.366667 timer_active_collisions=0
+BOUNDARY hero=orbit dt=0.016666668 pattern=0 events=78 actual_starts=19 max_inactive_seconds=0.166667 max_inactive_after_event=0.133333 timer_active_collisions=0
+BOUNDARY hero=orbit dt=0.033333335 pattern=1 events=600 actual_starts=43 max_inactive_seconds=0.033333 max_inactive_after_event=0.033333 timer_active_collisions=0
+BOUNDARY hero=orbit dt=0.033333335 pattern=24 events=50 actual_starts=25 max_inactive_seconds=0.366667 max_inactive_after_event=0.366667 timer_active_collisions=0
+BOUNDARY hero=orbit dt=0.033333335 pattern=0 events=153 actual_starts=37 max_inactive_seconds=0.200000 max_inactive_after_event=0.200000 timer_active_collisions=0
+BOUNDARY hero=orbit dt=0.041666668 pattern=1 events=600 actual_starts=50 max_inactive_seconds=0.041667 max_inactive_after_event=0.041667 timer_active_collisions=0
+BOUNDARY hero=orbit dt=0.041666668 pattern=24 events=62 actual_starts=31 max_inactive_seconds=0.375000 max_inactive_after_event=0.375000 timer_active_collisions=0
+BOUNDARY hero=orbit dt=0.041666668 pattern=0 events=187 actual_starts=46 max_inactive_seconds=0.166667 max_inactive_after_event=0.166667 timer_active_collisions=0
+BOUNDARY hero=orbit dt=0.2 pattern=1 events=600 actual_starts=150 max_inactive_seconds=0.200000 max_inactive_after_event=0.200000 timer_active_collisions=0
+BOUNDARY hero=orbit dt=0.2 pattern=24 events=300 actual_starts=150 max_inactive_seconds=0.200000 max_inactive_after_event=0.200000 timer_active_collisions=0
+BOUNDARY hero=orbit dt=0.2 pattern=0 events=600 actual_starts=150 max_inactive_seconds=0.200000 max_inactive_after_event=0.200000 timer_active_collisions=0
+BOUNDARY hero=crit dt=0.016666668 pattern=1 events=600 actual_starts=23 max_inactive_seconds=0.016667 max_inactive_after_event=0.016667 timer_active_collisions=0
+BOUNDARY hero=crit dt=0.016666668 pattern=24 events=25 actual_starts=13 max_inactive_seconds=0.383333 max_inactive_after_event=0.366667 timer_active_collisions=0
+BOUNDARY hero=crit dt=0.016666668 pattern=0 events=78 actual_starts=19 max_inactive_seconds=0.166667 max_inactive_after_event=0.133333 timer_active_collisions=0
+BOUNDARY hero=crit dt=0.033333335 pattern=1 events=600 actual_starts=43 max_inactive_seconds=0.033333 max_inactive_after_event=0.033333 timer_active_collisions=0
+BOUNDARY hero=crit dt=0.033333335 pattern=24 events=50 actual_starts=25 max_inactive_seconds=0.366667 max_inactive_after_event=0.366667 timer_active_collisions=0
+BOUNDARY hero=crit dt=0.033333335 pattern=0 events=153 actual_starts=37 max_inactive_seconds=0.200000 max_inactive_after_event=0.200000 timer_active_collisions=0
+BOUNDARY hero=crit dt=0.041666668 pattern=1 events=600 actual_starts=50 max_inactive_seconds=0.041667 max_inactive_after_event=0.041667 timer_active_collisions=0
+BOUNDARY hero=crit dt=0.041666668 pattern=24 events=62 actual_starts=31 max_inactive_seconds=0.375000 max_inactive_after_event=0.375000 timer_active_collisions=0
+BOUNDARY hero=crit dt=0.041666668 pattern=0 events=187 actual_starts=46 max_inactive_seconds=0.166667 max_inactive_after_event=0.166667 timer_active_collisions=0
+BOUNDARY hero=crit dt=0.2 pattern=1 events=600 actual_starts=150 max_inactive_seconds=0.200000 max_inactive_after_event=0.200000 timer_active_collisions=0
+BOUNDARY hero=crit dt=0.2 pattern=24 events=300 actual_starts=150 max_inactive_seconds=0.200000 max_inactive_after_event=0.200000 timer_active_collisions=0
+BOUNDARY hero=crit dt=0.2 pattern=0 events=600 actual_starts=150 max_inactive_seconds=0.200000 max_inactive_after_event=0.200000 timer_active_collisions=0
+BOUNDARY hero=honey dt=0.016666668 pattern=1 events=600 actual_starts=23 max_inactive_seconds=0.016667 max_inactive_after_event=0.016667 timer_active_collisions=0
+BOUNDARY hero=honey dt=0.016666668 pattern=24 events=25 actual_starts=13 max_inactive_seconds=0.383333 max_inactive_after_event=0.366667 timer_active_collisions=0
+BOUNDARY hero=honey dt=0.016666668 pattern=0 events=78 actual_starts=19 max_inactive_seconds=0.166667 max_inactive_after_event=0.133333 timer_active_collisions=0
+BOUNDARY hero=honey dt=0.033333335 pattern=1 events=600 actual_starts=43 max_inactive_seconds=0.033333 max_inactive_after_event=0.033333 timer_active_collisions=0
+BOUNDARY hero=honey dt=0.033333335 pattern=24 events=50 actual_starts=25 max_inactive_seconds=0.366667 max_inactive_after_event=0.366667 timer_active_collisions=0
+BOUNDARY hero=honey dt=0.033333335 pattern=0 events=153 actual_starts=37 max_inactive_seconds=0.200000 max_inactive_after_event=0.200000 timer_active_collisions=0
+BOUNDARY hero=honey dt=0.041666668 pattern=1 events=600 actual_starts=50 max_inactive_seconds=0.041667 max_inactive_after_event=0.041667 timer_active_collisions=0
+BOUNDARY hero=honey dt=0.041666668 pattern=24 events=62 actual_starts=31 max_inactive_seconds=0.375000 max_inactive_after_event=0.375000 timer_active_collisions=0
+BOUNDARY hero=honey dt=0.041666668 pattern=0 events=187 actual_starts=46 max_inactive_seconds=0.166667 max_inactive_after_event=0.166667 timer_active_collisions=0
+BOUNDARY hero=honey dt=0.2 pattern=1 events=600 actual_starts=150 max_inactive_seconds=0.200000 max_inactive_after_event=0.200000 timer_active_collisions=0
+BOUNDARY hero=honey dt=0.2 pattern=24 events=300 actual_starts=150 max_inactive_seconds=0.200000 max_inactive_after_event=0.200000 timer_active_collisions=0
+BOUNDARY hero=honey dt=0.2 pattern=0 events=600 actual_starts=150 max_inactive_seconds=0.200000 max_inactive_after_event=0.200000 timer_active_collisions=0
+BOUNDARY hero=summon dt=0.016666668 pattern=1 events=600 actual_starts=23 max_inactive_seconds=0.016667 max_inactive_after_event=0.016667 timer_active_collisions=0
+BOUNDARY hero=summon dt=0.016666668 pattern=24 events=25 actual_starts=13 max_inactive_seconds=0.383333 max_inactive_after_event=0.366667 timer_active_collisions=0
+BOUNDARY hero=summon dt=0.016666668 pattern=0 events=78 actual_starts=19 max_inactive_seconds=0.166667 max_inactive_after_event=0.133333 timer_active_collisions=0
+BOUNDARY hero=summon dt=0.033333335 pattern=1 events=600 actual_starts=43 max_inactive_seconds=0.033333 max_inactive_after_event=0.033333 timer_active_collisions=0
+BOUNDARY hero=summon dt=0.033333335 pattern=24 events=50 actual_starts=25 max_inactive_seconds=0.366667 max_inactive_after_event=0.366667 timer_active_collisions=0
+BOUNDARY hero=summon dt=0.033333335 pattern=0 events=153 actual_starts=37 max_inactive_seconds=0.200000 max_inactive_after_event=0.200000 timer_active_collisions=0
+BOUNDARY hero=summon dt=0.041666668 pattern=1 events=600 actual_starts=50 max_inactive_seconds=0.041667 max_inactive_after_event=0.041667 timer_active_collisions=0
+BOUNDARY hero=summon dt=0.041666668 pattern=24 events=62 actual_starts=31 max_inactive_seconds=0.375000 max_inactive_after_event=0.375000 timer_active_collisions=0
+BOUNDARY hero=summon dt=0.041666668 pattern=0 events=187 actual_starts=46 max_inactive_seconds=0.166667 max_inactive_after_event=0.166667 timer_active_collisions=0
+BOUNDARY hero=summon dt=0.2 pattern=1 events=600 actual_starts=150 max_inactive_seconds=0.200000 max_inactive_after_event=0.200000 timer_active_collisions=0
+BOUNDARY hero=summon dt=0.2 pattern=24 events=300 actual_starts=150 max_inactive_seconds=0.200000 max_inactive_after_event=0.200000 timer_active_collisions=0
+BOUNDARY hero=summon dt=0.2 pattern=0 events=600 actual_starts=150 max_inactive_seconds=0.200000 max_inactive_after_event=0.200000 timer_active_collisions=0
+BOUNDARY hero=bounce dt=0.016666668 pattern=1 events=600 actual_starts=23 max_inactive_seconds=0.016667 max_inactive_after_event=0.016667 timer_active_collisions=0
+BOUNDARY hero=bounce dt=0.016666668 pattern=24 events=25 actual_starts=13 max_inactive_seconds=0.383333 max_inactive_after_event=0.366667 timer_active_collisions=0
+BOUNDARY hero=bounce dt=0.016666668 pattern=0 events=78 actual_starts=19 max_inactive_seconds=0.166667 max_inactive_after_event=0.133333 timer_active_collisions=0
+BOUNDARY hero=bounce dt=0.033333335 pattern=1 events=600 actual_starts=43 max_inactive_seconds=0.033333 max_inactive_after_event=0.033333 timer_active_collisions=0
+BOUNDARY hero=bounce dt=0.033333335 pattern=24 events=50 actual_starts=25 max_inactive_seconds=0.366667 max_inactive_after_event=0.366667 timer_active_collisions=0
+BOUNDARY hero=bounce dt=0.033333335 pattern=0 events=153 actual_starts=37 max_inactive_seconds=0.200000 max_inactive_after_event=0.200000 timer_active_collisions=0
+BOUNDARY hero=bounce dt=0.041666668 pattern=1 events=600 actual_starts=50 max_inactive_seconds=0.041667 max_inactive_after_event=0.041667 timer_active_collisions=0
+BOUNDARY hero=bounce dt=0.041666668 pattern=24 events=62 actual_starts=31 max_inactive_seconds=0.375000 max_inactive_after_event=0.375000 timer_active_collisions=0
+BOUNDARY hero=bounce dt=0.041666668 pattern=0 events=187 actual_starts=46 max_inactive_seconds=0.166667 max_inactive_after_event=0.166667 timer_active_collisions=0
+BOUNDARY hero=bounce dt=0.2 pattern=1 events=600 actual_starts=150 max_inactive_seconds=0.200000 max_inactive_after_event=0.200000 timer_active_collisions=0
+BOUNDARY hero=bounce dt=0.2 pattern=24 events=300 actual_starts=150 max_inactive_seconds=0.200000 max_inactive_after_event=0.200000 timer_active_collisions=0
+BOUNDARY hero=bounce dt=0.2 pattern=0 events=600 actual_starts=150 max_inactive_seconds=0.200000 max_inactive_after_event=0.200000 timer_active_collisions=0
+BOUNDARY_MEASUREMENTS_COMPLETE collisions=0 failed_assertions=0
+ATTACK_BOUNDARY_PROBE PASS checks=100 real native graph timing; no gameplay claim
+
+PASS isolated actual-engine presentation behavior; evidence /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-attack-boundary-jsfxg7m6
+Presentation build: exit 0; log /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-attack-cadence-syq4q337/build.log
+Presentation import: exit 0; log /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-attack-cadence-syq4q337/import.log
+Presentation run: exit 0; log /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-attack-cadence-syq4q337/run.log
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+CADENCE hero=orbit interval=33 accepted=7 peak=0.416667 normalized=0.961539
+CADENCE hero=orbit interval=3 accepted=80 peak=0.416667 normalized=0.961539
+CADENCE hero=orbit interval=1 accepted=240 peak=0.416667 normalized=0.961539
+CADENCE hero=orbit interval=0 accepted=31 peak=0.416667 normalized=0.961539
+CADENCE hero=crit interval=33 accepted=7 peak=0.416667 normalized=0.961539
+CADENCE hero=crit interval=3 accepted=80 peak=0.416667 normalized=0.961539
+CADENCE hero=crit interval=1 accepted=240 peak=0.416667 normalized=0.961539
+CADENCE hero=crit interval=0 accepted=31 peak=0.416667 normalized=0.961539
+CADENCE hero=honey interval=33 accepted=7 peak=0.416667 normalized=0.961539
+CADENCE hero=honey interval=3 accepted=80 peak=0.416667 normalized=0.961539
+CADENCE hero=honey interval=1 accepted=240 peak=0.416667 normalized=0.961539
+CADENCE hero=honey interval=0 accepted=31 peak=0.416667 normalized=0.961539
+CADENCE hero=summon interval=33 accepted=7 peak=0.416667 normalized=0.961539
+CADENCE hero=summon interval=3 accepted=80 peak=0.416667 normalized=0.961539
+CADENCE hero=summon interval=1 accepted=240 peak=0.416667 normalized=0.961539
+CADENCE hero=summon interval=0 accepted=31 peak=0.416667 normalized=0.961539
+CADENCE hero=bounce interval=33 accepted=7 peak=0.416667 normalized=0.961539
+CADENCE hero=bounce interval=3 accepted=80 peak=0.416667 normalized=0.961539
+CADENCE hero=bounce interval=1 accepted=240 peak=0.416667 normalized=0.961539
+CADENCE hero=bounce interval=0 accepted=31 peak=0.416667 normalized=0.961539
+ATTACK_CADENCE_PROBE PASS checks=5980 actual imported clips; no gameplay/performance claim
+
+PASS isolated actual-engine presentation behavior; evidence /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-attack-cadence-syq4q337
+Asset cache lifecycle build: exit 0; log /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-asset-cache-lifecycle-zy17xm_4/build.log
+Asset cache lifecycle import: exit 0; log /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-asset-cache-lifecycle-zy17xm_4/import.log
+Asset cache lifecycle run: exit 0; log /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-asset-cache-lifecycle-zy17xm_4/run.log
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+ASSET_CACHE_LIFECYCLE_PROBE PASS checks=366 behavior only, not visual/performance certification
+
+PASS isolated actual-engine asset cache lifecycle behavior; evidence /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-asset-cache-lifecycle-zy17xm_4
+Selection portrait build: exit 0; log /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-selection-portraits-klwz569a/build.log
+Selection portrait import: exit 0; log /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-selection-portraits-klwz569a/import.log
+Selection portrait run: exit 0; log /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-selection-portraits-klwz569a/run.log
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+HMI_READY reconstruction=2026-10-31 lighting=linear-direct0.36-ambient0.18
+HEALTH_DISPLAY_PROBE PASS fractional full/damaged/sub-one/zero/integer and raw bar values
+SELECTION_PORTRAIT_PROBE PASS all5 / repeat / identity-seed / focus / start / codex-back / restart / one-live-selection-viewport / Home / manual-Idle / focus-freeze
+
+PASS isolated actual-engine selection portrait; evidence /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-selection-portraits-klwz569a
+Codex build: exit 0; log /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-codex-48emab0z/build.log
+Codex import: exit 0; log /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-codex-48emab0z/import.log
+Codex run: exit 0; log /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-codex-48emab0z/run.log
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+HMI_READY reconstruction=2026-10-31 lighting=linear-direct0.36-ambient0.18
+CODEX_DETAIL fusion.sugaring size=(278, 150) min=(1, 150) lineSpacing=0
+CODEX_DETAIL base.health size=(278, 150) min=(1, 60) lineSpacing=0
+CODEX_DETAIL risk.bounty size=(278, 150) min=(1, 120) lineSpacing=0
+CODEX_ENGINE_PROBE PASS 23: modal / repeated open-close / focus pause / actual rare-card text bounds
+
+PASS isolated actual-engine codex; evidence /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-codex-48emab0z
+Endless build: exit 0; log /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-endless-ss_6i9ck/build.log
+Endless import: exit 0; log /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-endless-ss_6i9ck/import.log
+Endless run: exit 0; log /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-endless-ss_6i9ck/run.log
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+HMI_READY reconstruction=2026-10-31 lighting=linear-direct0.36-ambient0.18
+ENDLESS_DETAIL temp.trait.protection size=(278, 190) minimum=(1, 120)
+ENDLESS_DETAIL temp.base.rate size=(278, 190) minimum=(1, 90)
+ENDLESS_DETAIL temp.risk.slowreach size=(278, 190) minimum=(1, 120)
+ENDLESS_DETAIL temp.trait.scouting size=(278, 190) minimum=(1, 120)
+ENDLESS_DETAIL temp.base.reach size=(278, 190) minimum=(1, 90)
+ENDLESS_DETAIL temp.risk.fragile size=(278, 190) minimum=(1, 120)
+ENDLESS_UI_PROBE PASS 144: actual ending/scoped commands/ledger/contract text/disabled slots
+
+PASS isolated actual-engine endless; evidence /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-endless-ss_6i9ck
+PersistenceUi build: exit 0; log /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-persistence-ui-cs5y9jja/build.log
+PersistenceUi import: exit 0; log /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-persistence-ui-cs5y9jja/import.log
+PersistenceUi run: exit 0; log /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-persistence-ui-cs5y9jja/run.log
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+PERSISTENCE_UI_PROBE PASS 100: pure modal/state/one-shot/focus/bounds semantics; no durable-write claim
+
+PASS isolated actual-engine persistence-ui; evidence /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-persistence-ui-cs5y9jja
+Checkpoint host build: exit 0; log /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-checkpoint-host-u805lcbk/build.log
+Checkpoint host import: exit 0; log /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-checkpoint-host-u805lcbk/import.log
+Checkpoint host run: exit 0; log /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-checkpoint-host-u805lcbk/run.log
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+HMI_READY reconstruction=2026-10-31 lighting=linear-direct0.36-ambient0.18
+CHECKPOINT_HOST_PROBE PASS 31
+
+PASS isolated actual-engine checkpoint host; evidence /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-checkpoint-host-u805lcbk
+  Determining projects to restore...
+  Restored /workspace/scratch/80f5bc988ef7/HMI-Game-experience-r1/tests/CheckpointStore/CheckpointStore.csproj (in 67 ms).
+  CheckpointStore -> /workspace/scratch/80f5bc988ef7/HMI-Game-experience-r1/tests/CheckpointStore/bin/Debug/net10.0/CheckpointStore.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:02.73
+INDEPENDENT_STORE oversize_read_allocated=3176
+CHECKPOINT_STORE PASS 112 checks; process-crash model, not power-loss/mobile certification
+  Determining projects to restore...
+  Restored /workspace/scratch/80f5bc988ef7/HMI-Game-experience-r1/tests/CheckpointSessionTests/CheckpointSessionTests.csproj (in 110 ms).
+  2 of 3 projects are up-to-date for restore.
+  Hmi.Core -> /workspace/scratch/80f5bc988ef7/HMI-Game-experience-r1/src/Core/bin/Debug/netstandard2.1/Hmi.Core.dll
+  Hmi.Persistence -> /workspace/scratch/80f5bc988ef7/HMI-Game-experience-r1/src/Adapters/Persistence/bin/Debug/net10.0/Hmi.Persistence.dll
+  CheckpointSessionTests -> /workspace/scratch/80f5bc988ef7/HMI-Game-experience-r1/tests/CheckpointSessionTests/bin/Debug/net10.0/Hmi.CoreTests.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:02.78
+PASS CheckpointSession 144
+HudSafeView build: exit 0; log /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-opaque-pages-znhzqaw0/build.log
+HudSafeView import: exit 0; log /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-opaque-pages-znhzqaw0/import.log
+HudSafeView run: exit 0; log /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-opaque-pages-znhzqaw0/run.log
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+HMI_READY reconstruction=2026-10-31 lighting=linear-direct0.36-ambient0.18
+OPAQUE_PAGE_PROBE PASS checks=144 pairs=0 sameframe / clocks / resources / exit / physical-resize-contract
+
+PASS isolated actual-engine opaque-pages; evidence /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-opaque-pages-znhzqaw0
+SaveNotice build: exit 0; log /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-save-top-gap-mx4_tf7y/build.log
+SaveNotice import: exit 0; log /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-save-top-gap-mx4_tf7y/import.log
+SaveNotice run: exit 0; log /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-save-top-gap-mx4_tf7y/run.log
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+HMI_READY reconstruction=2026-10-31 lighting=linear-direct0.36-ambient0.18
+SAVE_NOTICE_PROBE MEASURED rows=180 checks=444 textFit=True
+
+MEASURED isolated actual-engine save-notice layout; inspect textFit and overlap results, not an acceptance pass; evidence /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-save-top-gap-mx4_tf7y
+PASS build / core / import / smoke / host lifecycle; logs /tmp/hmi-verify.4ot3ZO
+Native visual/input, exports, real devices and Unity are separate gates.

@@ -1,0 +1,13 @@
+Presentation build: exit 0; log /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-food-animation-mixer-0b2w4i6y/build.log
+Presentation import: exit 0; log /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-food-animation-mixer-0b2w4i6y/import.log
+Presentation run: exit 0; log /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-food-animation-mixer-0b2w4i6y/run.log
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+MIXER_BONES orbit Root,Pelvis,Chest,Head,Tail_L_1,Tail_L_2,Tail_L_3,Tail_R_1,Tail_R_2,Tail_R_3,UpperArm_L,Forearm_L,Hand_L,UpperArm_R,Forearm_R,Hand_R,Thigh_L,Shin_L,Foot_L,Thigh_R,Shin_R,Foot_R
+MIXER_BONES crit Root,Pelvis,Chest,Head,Scarf,UpperArm_L,Forearm_L,Hand_L,UpperArm_R,Forearm_R,Hand_R,Thigh_L,Shin_L,Foot_L,Thigh_R,Shin_R,Foot_R
+MIXER_BONES honey Root,Pelvis,Chest,Head,Scarf,UpperArm_L,Forearm_L,Hand_L,UpperArm_R,Forearm_R,Hand_R,Thigh_L,Shin_L,Foot_L,Thigh_R,Shin_R,Foot_R
+MIXER_BONES summon Root,Pelvis,Chest,Head,Scarf,UpperArm_L,Forearm_L,Hand_L,UpperArm_R,Forearm_R,Hand_R,Thigh_L,Shin_L,Foot_L,Thigh_R,Shin_R,Foot_R
+MIXER_BONES bounce Root,Pelvis,Chest,Head,Scarf,UpperArm_L,Forearm_L,Hand_L,UpperArm_R,Forearm_R,Hand_R,Thigh_L,Shin_L,Foot_L,Thigh_R,Shin_R,Foot_R
+FOOD_ANIMATION_MIXER_PROBE PASS 17590: real-five-assets/filter/run-attack/lower-body/pause/isolation/time-rate/lifecycle
+
+PASS isolated actual-engine presentation behavior; evidence /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-food-animation-mixer-0b2w4i6y

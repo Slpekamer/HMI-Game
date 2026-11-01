@@ -1,0 +1,6 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+LAUNCHER_SOURCE main_192x192 1254x1254
+LAUNCHER_SOURCE adaptive_foreground_432x432 1254x1254
+LAUNCHER_SOURCE adaptive_background_432x432 432x432
+LAUNCHER_ENGINE_PROBE PASS actual project icon import and configured source images; exported dpi/device separate

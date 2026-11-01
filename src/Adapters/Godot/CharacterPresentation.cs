@@ -1,5 +1,6 @@
 using Godot;
 using Hmi.Core;
+using Hmi.GodotAdapter;
 using System;
 using System.Collections.Generic;
 
@@ -8,6 +9,7 @@ public sealed class CharacterPresentation : IDisposable
 {
     private readonly Node3D _root;
     private readonly AnimationPlayer _player;
+    private readonly FoodAnimationMixer _mixer;
     private readonly EntityId _entity;
     private readonly string _idle, _run, _attack;
     private readonly FacialBinding[] _face;
@@ -51,6 +53,7 @@ public sealed class CharacterPresentation : IDisposable
         _target = _previousSample = new Vector3(view.Position.X, 0, view.Position.Y);
         _root.Position = _target; _tick = tick; _health = view.Health;
         SetFacing(view.Facing); _root.Rotation = new Vector3(0, _facing, 0);
+        _mixer=FoodAnimationMixer.TryCreate(_player,_idle,_run,_attack);
         ResetTransient();
     }
 
@@ -89,27 +92,34 @@ public sealed class CharacterPresentation : IDisposable
     {
         if (!Alive() || paused || delta <= 0 || !float.IsFinite(delta)) return;
         // Defensive presentation clamp only; no simulation time or stats are changed.
-        delta = Math.Min(delta, .1f);
+        delta = Math.Min(delta, .25f);
         _root.Position = _root.Position.Lerp(_target, 1 - Mathf.Exp(-22 * delta));
         _root.Rotation = new Vector3(0, Mathf.LerpAngle(_root.Rotation.Y, _facing, 1 - Mathf.Exp(-14 * delta)), 0);
+        bool fireLayer=false;
         if (_attackQueued)
         {
             _attackQueued = false; _smileRemaining = .24f;
             // Coalesce events received while the current gesture is active, including its final step.
             // No delayed gesture backlog; authority hits are never changed here.
-            if (_attackRemaining <= 0 && _player != null && _attack.Length > 0)
+            if ((_mixer != null ? !_mixer.AttackActive : _attackRemaining <= 0) && _player != null && _attack.Length > 0)
             {
                 _attackRemaining = (float)_player.GetAnimation(_attack).Length;
-                Play(_attack, .06, true);
+                if(_mixer!=null) { fireLayer=true; _current=_attack; }
+                else Play(_attack, .06, true);
             }
         }
         if (_attackRemaining <= 0)
         {
             string next = _speed > .08f && _run.Length > 0 ? _run : _idle;
-            if (next.Length > 0 && next != _current) Play(next, .12, false);
+            if (next.Length > 0 && next != _current)
+            { if(_mixer!=null) _current=next; else Play(next, .12, false); }
         }
-        _player?.Advance(delta);
+        if(_mixer!=null) _mixer.Advance(delta,_speed>.08f,Math.Clamp(_speed/4.8f,.65f,1.6f),fireLayer,false);
+        else _player?.Advance(delta);
         _attackRemaining = Math.Max(0, _attackRemaining - delta);
+        // The native graph owns layered gesture lifetime; float countdown must not invent
+        // an extra silent clip when an event arrives on the final active render step.
+        if(_mixer!=null) _current=_mixer.AttackActive?_attack:(_speed>.08f&&_run.Length>0?_run:_idle);
         _faceClock += delta;
         float cycle = 3.1f + (_entity.Index % 7) * .13f;
         float t = (_faceClock + .5f) % cycle;
@@ -125,6 +135,7 @@ public sealed class CharacterPresentation : IDisposable
     {
         if (_disposed) return;
         if (GodotObject.IsInstanceValid(_root)) ResetTransient();
+        _mixer?.Dispose();
         _disposed = true;
     }
 
@@ -138,7 +149,8 @@ public sealed class CharacterPresentation : IDisposable
     {
         _attackRemaining = _smileRemaining = _surpriseRemaining = _faceClock = 0;
         _attackQueued = false; _lastAttackTick = -1; _current = "";
-        if (_player != null && GodotObject.IsInstanceValid(_player))
+        if(_mixer!=null) _mixer.Reset();
+        else if (_player != null && GodotObject.IsInstanceValid(_player))
         {
             _player.Stop();
             if (_idle.Length > 0) { _player.Play(_idle); _player.Seek(0, true); _player.Advance(0); }
