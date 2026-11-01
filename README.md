@@ -1,51 +1,53 @@
-# HMI-Game
+# 软糖突围 / HMI-Game
 
-空白 Godot 3D 工程，替代原来的 Unity / 团结引擎占位工程。
+Godot 4.6.3 **.NET** / Compatibility 原型，纯 C# ECS 核心与引擎表现层分离。标准版 Godot 不能编译本项目。
 
-## 环境
+> **当前为新版食物英雄接入中的分阶段原型，不是商业化完成版。** 五角色2D选人已换为获准概念形象：绯绫、卷卷、布叮、烤团、脆蓝；稳定技能ID、纯C#核心规则和无闪避约束保留。适配层的暂停/动作/表情与实体生命周期回归、选人实际窗口审查已通过。**五位新版食物英雄已接入局内3D，伙伴和敌人仍为原有资产。** 五位逐一开始/移动/暂停/重开、布叮正常前两波、选卡/商店/第三波和重开切烤团已通过实际窗口检查；最终资源/表情与取景修复另有独立证据。结构导入通过不等于手机性能或完整美术验收。见 [FEAT-0004](docs/features/FEAT-0004-food-heroes.md)、[资源合同](docs/food-hero-runtime-contract.md) 和 [B1范围/证据](docs/evidence/FEAT-0004/stageB-preasset/README.md)。
+>
+> 当前开发增量已加入8个分支/融合节点、6波后继续无尽、封顶后的6种单波临时契约，以及本机波起点恢复。E存档整合已通过最终总测与实际跨进程恢复/故障提示门（见[E里程碑](docs/features/E-host-integration.md)），仍不表示已远端发布；手机与长期无尽体验另验。旧动物角色、旧APK和棉队离线动画的历史证据不代表当前用户美术验收。历史2D修订记录见 [FEAT-0003](docs/features/FEAT-0003-2d-character-selection.md)。
 
-- 创建和无界面验证版本：**Godot 4.6.3 stable**（`4.6.3.stable.official.7d41c59c4`），标准版。
-- 渲染器：**Compatibility**（`gl_compatibility`）。
-- 无脚本、无模型、无玩法，也没有第三方资源或插件；打开当前空工程不需要 .NET SDK。未来纯 C# ECS 核心路线见 [AGENTS.md](AGENTS.md)。
-- 仓库外已完成隔离 Godot .NET 工具链的 C# / Linux 运行及 Android ARM64 调试 APK 构建验证，详见 [工具链记录](docs/toolchain.md)。本工程尚未转换为 C# 项目；系统 `godot` 仍是标准版。
-- Godot 编辑器不依赖 Unity Hub，也无需激活 Unity / 团结引擎许可证。
+## 运行
 
-## 打开与运行
-
-1. 使用 Godot 4.6.3 标准版，在项目管理器中导入仓库根目录的 `project.godot`。
-2. 打开项目；主场景为 `scenes/main.tscn`，仅含一个空的 `Node3D` 根节点。
-3. 按 **F6** 运行当前场景，或按 **F5** 运行工程。
-
-场景未添加相机、灯光或物体，因此运行窗口为空白是预期行为，并非已有可玩的游戏。
-
-也可在安装并配置好 Godot 命令行后，从项目根目录运行：
+安装 Godot 4.6.3 .NET 和 .NET SDK 10.0.403，从仓库根目录执行：
 
 ```sh
-godot --editor --path .
-godot --path .
+dotnet build -m:1 HmiGame.csproj
+godot-net --editor --path .
 ```
 
-## 验证
+`godot-net` 指你的 Godot .NET 可执行文件，不是系统标准版。编辑器导入后 F5。命令行可用 `godot-net --path .`。
 
-已在云端使用上述实际 Godot 版本通过以下检查（退出码均为 0）：
+- WASD / 方向键或左下摇杆移动；自动攻击。
+- 闪避已按最新要求移除：空格不触发加速或无敌。Esc 暂停；图鉴内 Esc 仅关闭图鉴。
+- 五角色起点，共同基础近战；可跨角色学习特性。
+- 波末免费三选一，然后可用击杀金币购买道具；必须选牌，但不强制购买。
+- 伙伴可驻守或自主游走，不跟随主角、不受怪物攻击、不显示血条。
+- 重开清空本局金币与构筑；“退出至选人”保留最近波起点。恢复会整体回滚本波进度；正式死亡/结束不会提供正常复活。详见[本机存档与失败边界](docs/checkpoints.md)。
+- 有限六波完成后可明确结束或继续无尽。封顶类别提供明示单波契约，不是永久无限叠加。10–30波实际体验/平衡门尚未完成。
+
+## 验证与边界
 
 ```sh
-godot --headless --editor --path . --import
-godot --headless --path . --quit-after 5
+dotnet run --project tests/CoreTests/Hmi.CoreTests.csproj -c Release
 ```
 
-这些检查覆盖工程导入和空主场景初始化，不代表已验证图形窗口、GPU 渲染、导出包或其他操作系统。
+[架构 ADR](docs/architecture/ADR-0001-portable-ecs.md) · [决策逐项 Review](docs/overnight-decisions-2026-10-30.md) · [设计](docs/game-design.md) · [开发日志](docs/development-log.md)
 
-`.godot/` 是可重建的本地缓存，不纳入版本控制；导出产物放在 `exports/` 或 `builds/` 中，也不提交。不要提交导出凭据。
+2026-10-31 云端工作区重置后，历史M2重建基线曾完成核心回归、原生桌面关键流程和 Linux 导出验证；这些导出不包含当前2D选人改动。之前未完整发布的 M1 源码、导出和截图已丢失，旧测试数量不能证明新代码通过。M2是历史证据，不代表当前增量。当前按 [E整合范围](docs/features/E-host-integration.md)、各阶段evidence与开发日志区分通过/未测；远端发布状态另行核验。
 
-## 开发规范
+范围为六个24秒原型波次、一种追击敌人、五特性、21卡、4道具。数值非最终平衡；完整敌人阵容、声音、存档、Unity/团结迁移、Android真机和硬件GPU性能尚未验证。不要把 headless 运行当作画面或真机验证。
 
-后续设计、ECS 实现和变更追溯遵循 [AGENTS.md](AGENTS.md)；开发记录见 [docs/development-log.md](docs/development-log.md)。
+## 当前2D选人实机候选（用户视觉验收待确认）
 
-## 游戏设计（尚未实现）
+![五角色2D选人实际Godot画面](docs/evidence/FEAT-0003/selection-2d-cotton.jpg)
 
-完整文字设计入口：[docs/game-design.md](docs/game-design.md)，其中链接机制、技能/道具/敌人目录及原型参数附录。
-HTML 讨论稿用于展示和讨论；开发以文字记录中区分的已确认要求、提案及待决问题为依据，不把原型等同游戏成品。
-技能树、道具机制与角色的解耦扩展及回归门槛见 [AGENTS.md 第 3.4 节](AGENTS.md#34-技能树道具机制角色扩展与回归门槛)。
+[本次测试范围与已知限制](docs/evidence/FEAT-0003/validation-status.md)。截图为软件渲染桌面实际窗口，不是AI界面概念图，也不是手机性能证明。
 
-局内与 UI 的四张最新 AI 概念图：[美术参考索引](docs/art-reference/README.md)。UI 布局提案已通过，非实机截图；包含最新远镜头、无网格地面与伙伴不被攻击的说明，机制数值仍待确认。
+## 历史 M2 云端运行画面（已被用户要求改进）
+
+以下保留 M2 历史 Godot 原生截图，不代表当前修订候选画面或用户验收。修订说明见 [FEAT-0002](docs/features/FEAT-0002-visual-fidelity.md)。使用软件渲染，不能代表手机性能。
+
+![五角色选择实机画面](docs/evidence/FEAT-0001/final-selection-palette.jpg)
+![战斗实机画面](docs/evidence/FEAT-0001/final-combat.jpg)
+
+后续补充：[原生六波正常操作通关及桌面窗口缩放记录](docs/evidence/FEAT-0001/followups/native-full-run-20261031.md)。此证据不改变已交付M2源码包。

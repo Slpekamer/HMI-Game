@@ -1,0 +1,12 @@
+{
+  "schema": 1,
+  "scope": "All five runtime food heroes present; native/performance gates separate",
+  "hero_ids": [
+    "orbit",
+    "crit",
+    "honey",
+    "summon",
+    "bounce"
+  ],
+  "runtime_contract": "food-hero-v1"
+}

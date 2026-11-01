@@ -1,0 +1,8549 @@
+{
+  "scope": "Controlled actual original camera/rest-mesh envelopes. Not natural play, alpha silhouette or animated bound. No camera correction.",
+  "checks": 470,
+  "textFit": true,
+  "textRows": [
+    {
+      "hero": 0,
+      "physical": "(1280, 720)",
+      "text": "\u5DF2\u4FDD\u5B58\u6CE2\u8D77\u70B9",
+      "textWidth": 98,
+      "minimum": "(122, 40)",
+      "actual": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "fitsRequested": true
+    },
+    {
+      "hero": 0,
+      "physical": "(1280, 720)",
+      "text": "\u672C\u5C40\u672A\u4FDD\u5B58 \u00B7 \u65E0\u53EF\u6062\u590D\u5B89\u5168\u70B9",
+      "textWidth": 218,
+      "minimum": "(242, 40)",
+      "actual": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "fitsRequested": true
+    },
+    {
+      "hero": 0,
+      "physical": "(1280, 720)",
+      "text": "\u65B0\u5C40\u5C1A\u65E0\u53EF\u6062\u590D\u5B89\u5168\u70B9",
+      "textWidth": 162,
+      "minimum": "(186, 40)",
+      "actual": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "fitsRequested": true
+    },
+    {
+      "dynamicWave": 7,
+      "wallet": 2147483647,
+      "notice": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "waveRect": {
+        "x": 550,
+        "y": 15,
+        "width": 180,
+        "height": 42
+      },
+      "walletRect": {
+        "x": 1098,
+        "y": 23,
+        "width": 164,
+        "height": 48
+      }
+    },
+    {
+      "dynamicWave": 1000,
+      "wallet": 2147483647,
+      "notice": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "waveRect": {
+        "x": 550,
+        "y": 15,
+        "width": 180,
+        "height": 42
+      },
+      "walletRect": {
+        "x": 1098,
+        "y": 23,
+        "width": 164,
+        "height": 48
+      }
+    },
+    {
+      "dynamicWave": 10000,
+      "wallet": 2147483647,
+      "notice": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "waveRect": {
+        "x": 550,
+        "y": 15,
+        "width": 180,
+        "height": 42
+      },
+      "walletRect": {
+        "x": 1098,
+        "y": 23,
+        "width": 164,
+        "height": 48
+      }
+    },
+    {
+      "dynamicWave": 2147483647,
+      "wallet": 2147483647,
+      "notice": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "waveRect": {
+        "x": 550,
+        "y": 15,
+        "width": 180,
+        "height": 42
+      },
+      "walletRect": {
+        "x": 1098,
+        "y": 23,
+        "width": 164,
+        "height": 48
+      }
+    },
+    {
+      "hero": 1,
+      "physical": "(1280, 720)",
+      "text": "\u5DF2\u4FDD\u5B58\u6CE2\u8D77\u70B9",
+      "textWidth": 98,
+      "minimum": "(122, 40)",
+      "actual": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "fitsRequested": true
+    },
+    {
+      "hero": 1,
+      "physical": "(1280, 720)",
+      "text": "\u672C\u5C40\u672A\u4FDD\u5B58 \u00B7 \u65E0\u53EF\u6062\u590D\u5B89\u5168\u70B9",
+      "textWidth": 218,
+      "minimum": "(242, 40)",
+      "actual": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "fitsRequested": true
+    },
+    {
+      "hero": 1,
+      "physical": "(1280, 720)",
+      "text": "\u65B0\u5C40\u5C1A\u65E0\u53EF\u6062\u590D\u5B89\u5168\u70B9",
+      "textWidth": 162,
+      "minimum": "(186, 40)",
+      "actual": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "fitsRequested": true
+    },
+    {
+      "dynamicWave": 7,
+      "wallet": 2147483647,
+      "notice": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "waveRect": {
+        "x": 550,
+        "y": 15,
+        "width": 180,
+        "height": 42
+      },
+      "walletRect": {
+        "x": 1098,
+        "y": 23,
+        "width": 164,
+        "height": 48
+      }
+    },
+    {
+      "dynamicWave": 1000,
+      "wallet": 2147483647,
+      "notice": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "waveRect": {
+        "x": 550,
+        "y": 15,
+        "width": 180,
+        "height": 42
+      },
+      "walletRect": {
+        "x": 1098,
+        "y": 23,
+        "width": 164,
+        "height": 48
+      }
+    },
+    {
+      "dynamicWave": 10000,
+      "wallet": 2147483647,
+      "notice": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "waveRect": {
+        "x": 550,
+        "y": 15,
+        "width": 180,
+        "height": 42
+      },
+      "walletRect": {
+        "x": 1098,
+        "y": 23,
+        "width": 164,
+        "height": 48
+      }
+    },
+    {
+      "dynamicWave": 2147483647,
+      "wallet": 2147483647,
+      "notice": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "waveRect": {
+        "x": 550,
+        "y": 15,
+        "width": 180,
+        "height": 42
+      },
+      "walletRect": {
+        "x": 1098,
+        "y": 23,
+        "width": 164,
+        "height": 48
+      }
+    },
+    {
+      "hero": 2,
+      "physical": "(1280, 720)",
+      "text": "\u5DF2\u4FDD\u5B58\u6CE2\u8D77\u70B9",
+      "textWidth": 98,
+      "minimum": "(122, 40)",
+      "actual": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "fitsRequested": true
+    },
+    {
+      "hero": 2,
+      "physical": "(1280, 720)",
+      "text": "\u672C\u5C40\u672A\u4FDD\u5B58 \u00B7 \u65E0\u53EF\u6062\u590D\u5B89\u5168\u70B9",
+      "textWidth": 218,
+      "minimum": "(242, 40)",
+      "actual": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "fitsRequested": true
+    },
+    {
+      "hero": 2,
+      "physical": "(1280, 720)",
+      "text": "\u65B0\u5C40\u5C1A\u65E0\u53EF\u6062\u590D\u5B89\u5168\u70B9",
+      "textWidth": 162,
+      "minimum": "(186, 40)",
+      "actual": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "fitsRequested": true
+    },
+    {
+      "dynamicWave": 7,
+      "wallet": 2147483647,
+      "notice": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "waveRect": {
+        "x": 550,
+        "y": 15,
+        "width": 180,
+        "height": 42
+      },
+      "walletRect": {
+        "x": 1098,
+        "y": 23,
+        "width": 164,
+        "height": 48
+      }
+    },
+    {
+      "dynamicWave": 1000,
+      "wallet": 2147483647,
+      "notice": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "waveRect": {
+        "x": 550,
+        "y": 15,
+        "width": 180,
+        "height": 42
+      },
+      "walletRect": {
+        "x": 1098,
+        "y": 23,
+        "width": 164,
+        "height": 48
+      }
+    },
+    {
+      "dynamicWave": 10000,
+      "wallet": 2147483647,
+      "notice": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "waveRect": {
+        "x": 550,
+        "y": 15,
+        "width": 180,
+        "height": 42
+      },
+      "walletRect": {
+        "x": 1098,
+        "y": 23,
+        "width": 164,
+        "height": 48
+      }
+    },
+    {
+      "dynamicWave": 2147483647,
+      "wallet": 2147483647,
+      "notice": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "waveRect": {
+        "x": 550,
+        "y": 15,
+        "width": 180,
+        "height": 42
+      },
+      "walletRect": {
+        "x": 1098,
+        "y": 23,
+        "width": 164,
+        "height": 48
+      }
+    },
+    {
+      "hero": 3,
+      "physical": "(1280, 720)",
+      "text": "\u5DF2\u4FDD\u5B58\u6CE2\u8D77\u70B9",
+      "textWidth": 98,
+      "minimum": "(122, 40)",
+      "actual": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "fitsRequested": true
+    },
+    {
+      "hero": 3,
+      "physical": "(1280, 720)",
+      "text": "\u672C\u5C40\u672A\u4FDD\u5B58 \u00B7 \u65E0\u53EF\u6062\u590D\u5B89\u5168\u70B9",
+      "textWidth": 218,
+      "minimum": "(242, 40)",
+      "actual": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "fitsRequested": true
+    },
+    {
+      "hero": 3,
+      "physical": "(1280, 720)",
+      "text": "\u65B0\u5C40\u5C1A\u65E0\u53EF\u6062\u590D\u5B89\u5168\u70B9",
+      "textWidth": 162,
+      "minimum": "(186, 40)",
+      "actual": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "fitsRequested": true
+    },
+    {
+      "dynamicWave": 7,
+      "wallet": 2147483647,
+      "notice": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "waveRect": {
+        "x": 550,
+        "y": 15,
+        "width": 180,
+        "height": 42
+      },
+      "walletRect": {
+        "x": 1098,
+        "y": 23,
+        "width": 164,
+        "height": 48
+      }
+    },
+    {
+      "dynamicWave": 1000,
+      "wallet": 2147483647,
+      "notice": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "waveRect": {
+        "x": 550,
+        "y": 15,
+        "width": 180,
+        "height": 42
+      },
+      "walletRect": {
+        "x": 1098,
+        "y": 23,
+        "width": 164,
+        "height": 48
+      }
+    },
+    {
+      "dynamicWave": 10000,
+      "wallet": 2147483647,
+      "notice": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "waveRect": {
+        "x": 550,
+        "y": 15,
+        "width": 180,
+        "height": 42
+      },
+      "walletRect": {
+        "x": 1098,
+        "y": 23,
+        "width": 164,
+        "height": 48
+      }
+    },
+    {
+      "dynamicWave": 2147483647,
+      "wallet": 2147483647,
+      "notice": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "waveRect": {
+        "x": 550,
+        "y": 15,
+        "width": 180,
+        "height": 42
+      },
+      "walletRect": {
+        "x": 1098,
+        "y": 23,
+        "width": 164,
+        "height": 48
+      }
+    },
+    {
+      "hero": 4,
+      "physical": "(1280, 720)",
+      "text": "\u5DF2\u4FDD\u5B58\u6CE2\u8D77\u70B9",
+      "textWidth": 98,
+      "minimum": "(122, 40)",
+      "actual": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "fitsRequested": true
+    },
+    {
+      "hero": 4,
+      "physical": "(1280, 720)",
+      "text": "\u672C\u5C40\u672A\u4FDD\u5B58 \u00B7 \u65E0\u53EF\u6062\u590D\u5B89\u5168\u70B9",
+      "textWidth": 218,
+      "minimum": "(242, 40)",
+      "actual": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "fitsRequested": true
+    },
+    {
+      "hero": 4,
+      "physical": "(1280, 720)",
+      "text": "\u65B0\u5C40\u5C1A\u65E0\u53EF\u6062\u590D\u5B89\u5168\u70B9",
+      "textWidth": 162,
+      "minimum": "(186, 40)",
+      "actual": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "fitsRequested": true
+    },
+    {
+      "dynamicWave": 7,
+      "wallet": 2147483647,
+      "notice": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "waveRect": {
+        "x": 550,
+        "y": 15,
+        "width": 180,
+        "height": 42
+      },
+      "walletRect": {
+        "x": 1098,
+        "y": 23,
+        "width": 164,
+        "height": 48
+      }
+    },
+    {
+      "dynamicWave": 1000,
+      "wallet": 2147483647,
+      "notice": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "waveRect": {
+        "x": 550,
+        "y": 15,
+        "width": 180,
+        "height": 42
+      },
+      "walletRect": {
+        "x": 1098,
+        "y": 23,
+        "width": 164,
+        "height": 48
+      }
+    },
+    {
+      "dynamicWave": 10000,
+      "wallet": 2147483647,
+      "notice": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "waveRect": {
+        "x": 550,
+        "y": 15,
+        "width": 180,
+        "height": 42
+      },
+      "walletRect": {
+        "x": 1098,
+        "y": 23,
+        "width": 164,
+        "height": 48
+      }
+    },
+    {
+      "dynamicWave": 2147483647,
+      "wallet": 2147483647,
+      "notice": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "waveRect": {
+        "x": 550,
+        "y": 15,
+        "width": 180,
+        "height": 42
+      },
+      "walletRect": {
+        "x": 1098,
+        "y": 23,
+        "width": 164,
+        "height": 48
+      }
+    },
+    {
+      "hero": 0,
+      "physical": "(1600, 720)",
+      "text": "\u5DF2\u4FDD\u5B58\u6CE2\u8D77\u70B9",
+      "textWidth": 98,
+      "minimum": "(122, 40)",
+      "actual": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "fitsRequested": true
+    },
+    {
+      "hero": 0,
+      "physical": "(1600, 720)",
+      "text": "\u672C\u5C40\u672A\u4FDD\u5B58 \u00B7 \u65E0\u53EF\u6062\u590D\u5B89\u5168\u70B9",
+      "textWidth": 218,
+      "minimum": "(242, 40)",
+      "actual": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "fitsRequested": true
+    },
+    {
+      "hero": 0,
+      "physical": "(1600, 720)",
+      "text": "\u65B0\u5C40\u5C1A\u65E0\u53EF\u6062\u590D\u5B89\u5168\u70B9",
+      "textWidth": 162,
+      "minimum": "(186, 40)",
+      "actual": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "fitsRequested": true
+    },
+    {
+      "dynamicWave": 7,
+      "wallet": 2147483647,
+      "notice": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "waveRect": {
+        "x": 550,
+        "y": 15,
+        "width": 180,
+        "height": 42
+      },
+      "walletRect": {
+        "x": 1098,
+        "y": 23,
+        "width": 164,
+        "height": 48
+      }
+    },
+    {
+      "dynamicWave": 1000,
+      "wallet": 2147483647,
+      "notice": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "waveRect": {
+        "x": 550,
+        "y": 15,
+        "width": 180,
+        "height": 42
+      },
+      "walletRect": {
+        "x": 1098,
+        "y": 23,
+        "width": 164,
+        "height": 48
+      }
+    },
+    {
+      "dynamicWave": 10000,
+      "wallet": 2147483647,
+      "notice": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "waveRect": {
+        "x": 550,
+        "y": 15,
+        "width": 180,
+        "height": 42
+      },
+      "walletRect": {
+        "x": 1098,
+        "y": 23,
+        "width": 164,
+        "height": 48
+      }
+    },
+    {
+      "dynamicWave": 2147483647,
+      "wallet": 2147483647,
+      "notice": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "waveRect": {
+        "x": 550,
+        "y": 15,
+        "width": 180,
+        "height": 42
+      },
+      "walletRect": {
+        "x": 1098,
+        "y": 23,
+        "width": 164,
+        "height": 48
+      }
+    },
+    {
+      "hero": 1,
+      "physical": "(1600, 720)",
+      "text": "\u5DF2\u4FDD\u5B58\u6CE2\u8D77\u70B9",
+      "textWidth": 98,
+      "minimum": "(122, 40)",
+      "actual": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "fitsRequested": true
+    },
+    {
+      "hero": 1,
+      "physical": "(1600, 720)",
+      "text": "\u672C\u5C40\u672A\u4FDD\u5B58 \u00B7 \u65E0\u53EF\u6062\u590D\u5B89\u5168\u70B9",
+      "textWidth": 218,
+      "minimum": "(242, 40)",
+      "actual": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "fitsRequested": true
+    },
+    {
+      "hero": 1,
+      "physical": "(1600, 720)",
+      "text": "\u65B0\u5C40\u5C1A\u65E0\u53EF\u6062\u590D\u5B89\u5168\u70B9",
+      "textWidth": 162,
+      "minimum": "(186, 40)",
+      "actual": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "fitsRequested": true
+    },
+    {
+      "dynamicWave": 7,
+      "wallet": 2147483647,
+      "notice": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "waveRect": {
+        "x": 550,
+        "y": 15,
+        "width": 180,
+        "height": 42
+      },
+      "walletRect": {
+        "x": 1098,
+        "y": 23,
+        "width": 164,
+        "height": 48
+      }
+    },
+    {
+      "dynamicWave": 1000,
+      "wallet": 2147483647,
+      "notice": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "waveRect": {
+        "x": 550,
+        "y": 15,
+        "width": 180,
+        "height": 42
+      },
+      "walletRect": {
+        "x": 1098,
+        "y": 23,
+        "width": 164,
+        "height": 48
+      }
+    },
+    {
+      "dynamicWave": 10000,
+      "wallet": 2147483647,
+      "notice": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "waveRect": {
+        "x": 550,
+        "y": 15,
+        "width": 180,
+        "height": 42
+      },
+      "walletRect": {
+        "x": 1098,
+        "y": 23,
+        "width": 164,
+        "height": 48
+      }
+    },
+    {
+      "dynamicWave": 2147483647,
+      "wallet": 2147483647,
+      "notice": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "waveRect": {
+        "x": 550,
+        "y": 15,
+        "width": 180,
+        "height": 42
+      },
+      "walletRect": {
+        "x": 1098,
+        "y": 23,
+        "width": 164,
+        "height": 48
+      }
+    },
+    {
+      "hero": 2,
+      "physical": "(1600, 720)",
+      "text": "\u5DF2\u4FDD\u5B58\u6CE2\u8D77\u70B9",
+      "textWidth": 98,
+      "minimum": "(122, 40)",
+      "actual": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "fitsRequested": true
+    },
+    {
+      "hero": 2,
+      "physical": "(1600, 720)",
+      "text": "\u672C\u5C40\u672A\u4FDD\u5B58 \u00B7 \u65E0\u53EF\u6062\u590D\u5B89\u5168\u70B9",
+      "textWidth": 218,
+      "minimum": "(242, 40)",
+      "actual": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "fitsRequested": true
+    },
+    {
+      "hero": 2,
+      "physical": "(1600, 720)",
+      "text": "\u65B0\u5C40\u5C1A\u65E0\u53EF\u6062\u590D\u5B89\u5168\u70B9",
+      "textWidth": 162,
+      "minimum": "(186, 40)",
+      "actual": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "fitsRequested": true
+    },
+    {
+      "dynamicWave": 7,
+      "wallet": 2147483647,
+      "notice": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "waveRect": {
+        "x": 550,
+        "y": 15,
+        "width": 180,
+        "height": 42
+      },
+      "walletRect": {
+        "x": 1098,
+        "y": 23,
+        "width": 164,
+        "height": 48
+      }
+    },
+    {
+      "dynamicWave": 1000,
+      "wallet": 2147483647,
+      "notice": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "waveRect": {
+        "x": 550,
+        "y": 15,
+        "width": 180,
+        "height": 42
+      },
+      "walletRect": {
+        "x": 1098,
+        "y": 23,
+        "width": 164,
+        "height": 48
+      }
+    },
+    {
+      "dynamicWave": 10000,
+      "wallet": 2147483647,
+      "notice": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "waveRect": {
+        "x": 550,
+        "y": 15,
+        "width": 180,
+        "height": 42
+      },
+      "walletRect": {
+        "x": 1098,
+        "y": 23,
+        "width": 164,
+        "height": 48
+      }
+    },
+    {
+      "dynamicWave": 2147483647,
+      "wallet": 2147483647,
+      "notice": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "waveRect": {
+        "x": 550,
+        "y": 15,
+        "width": 180,
+        "height": 42
+      },
+      "walletRect": {
+        "x": 1098,
+        "y": 23,
+        "width": 164,
+        "height": 48
+      }
+    },
+    {
+      "hero": 3,
+      "physical": "(1600, 720)",
+      "text": "\u5DF2\u4FDD\u5B58\u6CE2\u8D77\u70B9",
+      "textWidth": 98,
+      "minimum": "(122, 40)",
+      "actual": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "fitsRequested": true
+    },
+    {
+      "hero": 3,
+      "physical": "(1600, 720)",
+      "text": "\u672C\u5C40\u672A\u4FDD\u5B58 \u00B7 \u65E0\u53EF\u6062\u590D\u5B89\u5168\u70B9",
+      "textWidth": 218,
+      "minimum": "(242, 40)",
+      "actual": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "fitsRequested": true
+    },
+    {
+      "hero": 3,
+      "physical": "(1600, 720)",
+      "text": "\u65B0\u5C40\u5C1A\u65E0\u53EF\u6062\u590D\u5B89\u5168\u70B9",
+      "textWidth": 162,
+      "minimum": "(186, 40)",
+      "actual": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "fitsRequested": true
+    },
+    {
+      "dynamicWave": 7,
+      "wallet": 2147483647,
+      "notice": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "waveRect": {
+        "x": 550,
+        "y": 15,
+        "width": 180,
+        "height": 42
+      },
+      "walletRect": {
+        "x": 1098,
+        "y": 23,
+        "width": 164,
+        "height": 48
+      }
+    },
+    {
+      "dynamicWave": 1000,
+      "wallet": 2147483647,
+      "notice": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "waveRect": {
+        "x": 550,
+        "y": 15,
+        "width": 180,
+        "height": 42
+      },
+      "walletRect": {
+        "x": 1098,
+        "y": 23,
+        "width": 164,
+        "height": 48
+      }
+    },
+    {
+      "dynamicWave": 10000,
+      "wallet": 2147483647,
+      "notice": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "waveRect": {
+        "x": 550,
+        "y": 15,
+        "width": 180,
+        "height": 42
+      },
+      "walletRect": {
+        "x": 1098,
+        "y": 23,
+        "width": 164,
+        "height": 48
+      }
+    },
+    {
+      "dynamicWave": 2147483647,
+      "wallet": 2147483647,
+      "notice": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "waveRect": {
+        "x": 550,
+        "y": 15,
+        "width": 180,
+        "height": 42
+      },
+      "walletRect": {
+        "x": 1098,
+        "y": 23,
+        "width": 164,
+        "height": 48
+      }
+    },
+    {
+      "hero": 4,
+      "physical": "(1600, 720)",
+      "text": "\u5DF2\u4FDD\u5B58\u6CE2\u8D77\u70B9",
+      "textWidth": 98,
+      "minimum": "(122, 40)",
+      "actual": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "fitsRequested": true
+    },
+    {
+      "hero": 4,
+      "physical": "(1600, 720)",
+      "text": "\u672C\u5C40\u672A\u4FDD\u5B58 \u00B7 \u65E0\u53EF\u6062\u590D\u5B89\u5168\u70B9",
+      "textWidth": 218,
+      "minimum": "(242, 40)",
+      "actual": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "fitsRequested": true
+    },
+    {
+      "hero": 4,
+      "physical": "(1600, 720)",
+      "text": "\u65B0\u5C40\u5C1A\u65E0\u53EF\u6062\u590D\u5B89\u5168\u70B9",
+      "textWidth": 162,
+      "minimum": "(186, 40)",
+      "actual": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "fitsRequested": true
+    },
+    {
+      "dynamicWave": 7,
+      "wallet": 2147483647,
+      "notice": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "waveRect": {
+        "x": 550,
+        "y": 15,
+        "width": 180,
+        "height": 42
+      },
+      "walletRect": {
+        "x": 1098,
+        "y": 23,
+        "width": 164,
+        "height": 48
+      }
+    },
+    {
+      "dynamicWave": 1000,
+      "wallet": 2147483647,
+      "notice": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "waveRect": {
+        "x": 550,
+        "y": 15,
+        "width": 180,
+        "height": 42
+      },
+      "walletRect": {
+        "x": 1098,
+        "y": 23,
+        "width": 164,
+        "height": 48
+      }
+    },
+    {
+      "dynamicWave": 10000,
+      "wallet": 2147483647,
+      "notice": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "waveRect": {
+        "x": 550,
+        "y": 15,
+        "width": 180,
+        "height": 42
+      },
+      "walletRect": {
+        "x": 1098,
+        "y": 23,
+        "width": 164,
+        "height": 48
+      }
+    },
+    {
+      "dynamicWave": 2147483647,
+      "wallet": 2147483647,
+      "notice": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "waveRect": {
+        "x": 550,
+        "y": 15,
+        "width": 180,
+        "height": 42
+      },
+      "walletRect": {
+        "x": 1098,
+        "y": 23,
+        "width": 164,
+        "height": 48
+      }
+    },
+    {
+      "hero": 0,
+      "physical": "(720, 1280)",
+      "text": "\u5DF2\u4FDD\u5B58\u6CE2\u8D77\u70B9",
+      "textWidth": 98,
+      "minimum": "(122, 40)",
+      "actual": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "fitsRequested": true
+    },
+    {
+      "hero": 0,
+      "physical": "(720, 1280)",
+      "text": "\u672C\u5C40\u672A\u4FDD\u5B58 \u00B7 \u65E0\u53EF\u6062\u590D\u5B89\u5168\u70B9",
+      "textWidth": 218,
+      "minimum": "(242, 40)",
+      "actual": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "fitsRequested": true
+    },
+    {
+      "hero": 0,
+      "physical": "(720, 1280)",
+      "text": "\u65B0\u5C40\u5C1A\u65E0\u53EF\u6062\u590D\u5B89\u5168\u70B9",
+      "textWidth": 162,
+      "minimum": "(186, 40)",
+      "actual": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "fitsRequested": true
+    },
+    {
+      "dynamicWave": 7,
+      "wallet": 2147483647,
+      "notice": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "waveRect": {
+        "x": 550,
+        "y": 15,
+        "width": 180,
+        "height": 42
+      },
+      "walletRect": {
+        "x": 1098,
+        "y": 23,
+        "width": 164,
+        "height": 48
+      }
+    },
+    {
+      "dynamicWave": 1000,
+      "wallet": 2147483647,
+      "notice": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "waveRect": {
+        "x": 550,
+        "y": 15,
+        "width": 180,
+        "height": 42
+      },
+      "walletRect": {
+        "x": 1098,
+        "y": 23,
+        "width": 164,
+        "height": 48
+      }
+    },
+    {
+      "dynamicWave": 10000,
+      "wallet": 2147483647,
+      "notice": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "waveRect": {
+        "x": 550,
+        "y": 15,
+        "width": 180,
+        "height": 42
+      },
+      "walletRect": {
+        "x": 1098,
+        "y": 23,
+        "width": 164,
+        "height": 48
+      }
+    },
+    {
+      "dynamicWave": 2147483647,
+      "wallet": 2147483647,
+      "notice": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "waveRect": {
+        "x": 550,
+        "y": 15,
+        "width": 180,
+        "height": 42
+      },
+      "walletRect": {
+        "x": 1098,
+        "y": 23,
+        "width": 164,
+        "height": 48
+      }
+    },
+    {
+      "hero": 1,
+      "physical": "(720, 1280)",
+      "text": "\u5DF2\u4FDD\u5B58\u6CE2\u8D77\u70B9",
+      "textWidth": 98,
+      "minimum": "(122, 40)",
+      "actual": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "fitsRequested": true
+    },
+    {
+      "hero": 1,
+      "physical": "(720, 1280)",
+      "text": "\u672C\u5C40\u672A\u4FDD\u5B58 \u00B7 \u65E0\u53EF\u6062\u590D\u5B89\u5168\u70B9",
+      "textWidth": 218,
+      "minimum": "(242, 40)",
+      "actual": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "fitsRequested": true
+    },
+    {
+      "hero": 1,
+      "physical": "(720, 1280)",
+      "text": "\u65B0\u5C40\u5C1A\u65E0\u53EF\u6062\u590D\u5B89\u5168\u70B9",
+      "textWidth": 162,
+      "minimum": "(186, 40)",
+      "actual": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "fitsRequested": true
+    },
+    {
+      "dynamicWave": 7,
+      "wallet": 2147483647,
+      "notice": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "waveRect": {
+        "x": 550,
+        "y": 15,
+        "width": 180,
+        "height": 42
+      },
+      "walletRect": {
+        "x": 1098,
+        "y": 23,
+        "width": 164,
+        "height": 48
+      }
+    },
+    {
+      "dynamicWave": 1000,
+      "wallet": 2147483647,
+      "notice": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "waveRect": {
+        "x": 550,
+        "y": 15,
+        "width": 180,
+        "height": 42
+      },
+      "walletRect": {
+        "x": 1098,
+        "y": 23,
+        "width": 164,
+        "height": 48
+      }
+    },
+    {
+      "dynamicWave": 10000,
+      "wallet": 2147483647,
+      "notice": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "waveRect": {
+        "x": 550,
+        "y": 15,
+        "width": 180,
+        "height": 42
+      },
+      "walletRect": {
+        "x": 1098,
+        "y": 23,
+        "width": 164,
+        "height": 48
+      }
+    },
+    {
+      "dynamicWave": 2147483647,
+      "wallet": 2147483647,
+      "notice": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "waveRect": {
+        "x": 550,
+        "y": 15,
+        "width": 180,
+        "height": 42
+      },
+      "walletRect": {
+        "x": 1098,
+        "y": 23,
+        "width": 164,
+        "height": 48
+      }
+    },
+    {
+      "hero": 2,
+      "physical": "(720, 1280)",
+      "text": "\u5DF2\u4FDD\u5B58\u6CE2\u8D77\u70B9",
+      "textWidth": 98,
+      "minimum": "(122, 40)",
+      "actual": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "fitsRequested": true
+    },
+    {
+      "hero": 2,
+      "physical": "(720, 1280)",
+      "text": "\u672C\u5C40\u672A\u4FDD\u5B58 \u00B7 \u65E0\u53EF\u6062\u590D\u5B89\u5168\u70B9",
+      "textWidth": 218,
+      "minimum": "(242, 40)",
+      "actual": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "fitsRequested": true
+    },
+    {
+      "hero": 2,
+      "physical": "(720, 1280)",
+      "text": "\u65B0\u5C40\u5C1A\u65E0\u53EF\u6062\u590D\u5B89\u5168\u70B9",
+      "textWidth": 162,
+      "minimum": "(186, 40)",
+      "actual": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "fitsRequested": true
+    },
+    {
+      "dynamicWave": 7,
+      "wallet": 2147483647,
+      "notice": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "waveRect": {
+        "x": 550,
+        "y": 15,
+        "width": 180,
+        "height": 42
+      },
+      "walletRect": {
+        "x": 1098,
+        "y": 23,
+        "width": 164,
+        "height": 48
+      }
+    },
+    {
+      "dynamicWave": 1000,
+      "wallet": 2147483647,
+      "notice": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "waveRect": {
+        "x": 550,
+        "y": 15,
+        "width": 180,
+        "height": 42
+      },
+      "walletRect": {
+        "x": 1098,
+        "y": 23,
+        "width": 164,
+        "height": 48
+      }
+    },
+    {
+      "dynamicWave": 10000,
+      "wallet": 2147483647,
+      "notice": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "waveRect": {
+        "x": 550,
+        "y": 15,
+        "width": 180,
+        "height": 42
+      },
+      "walletRect": {
+        "x": 1098,
+        "y": 23,
+        "width": 164,
+        "height": 48
+      }
+    },
+    {
+      "dynamicWave": 2147483647,
+      "wallet": 2147483647,
+      "notice": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "waveRect": {
+        "x": 550,
+        "y": 15,
+        "width": 180,
+        "height": 42
+      },
+      "walletRect": {
+        "x": 1098,
+        "y": 23,
+        "width": 164,
+        "height": 48
+      }
+    },
+    {
+      "hero": 3,
+      "physical": "(720, 1280)",
+      "text": "\u5DF2\u4FDD\u5B58\u6CE2\u8D77\u70B9",
+      "textWidth": 98,
+      "minimum": "(122, 40)",
+      "actual": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "fitsRequested": true
+    },
+    {
+      "hero": 3,
+      "physical": "(720, 1280)",
+      "text": "\u672C\u5C40\u672A\u4FDD\u5B58 \u00B7 \u65E0\u53EF\u6062\u590D\u5B89\u5168\u70B9",
+      "textWidth": 218,
+      "minimum": "(242, 40)",
+      "actual": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "fitsRequested": true
+    },
+    {
+      "hero": 3,
+      "physical": "(720, 1280)",
+      "text": "\u65B0\u5C40\u5C1A\u65E0\u53EF\u6062\u590D\u5B89\u5168\u70B9",
+      "textWidth": 162,
+      "minimum": "(186, 40)",
+      "actual": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "fitsRequested": true
+    },
+    {
+      "dynamicWave": 7,
+      "wallet": 2147483647,
+      "notice": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "waveRect": {
+        "x": 550,
+        "y": 15,
+        "width": 180,
+        "height": 42
+      },
+      "walletRect": {
+        "x": 1098,
+        "y": 23,
+        "width": 164,
+        "height": 48
+      }
+    },
+    {
+      "dynamicWave": 1000,
+      "wallet": 2147483647,
+      "notice": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "waveRect": {
+        "x": 550,
+        "y": 15,
+        "width": 180,
+        "height": 42
+      },
+      "walletRect": {
+        "x": 1098,
+        "y": 23,
+        "width": 164,
+        "height": 48
+      }
+    },
+    {
+      "dynamicWave": 10000,
+      "wallet": 2147483647,
+      "notice": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "waveRect": {
+        "x": 550,
+        "y": 15,
+        "width": 180,
+        "height": 42
+      },
+      "walletRect": {
+        "x": 1098,
+        "y": 23,
+        "width": 164,
+        "height": 48
+      }
+    },
+    {
+      "dynamicWave": 2147483647,
+      "wallet": 2147483647,
+      "notice": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "waveRect": {
+        "x": 550,
+        "y": 15,
+        "width": 180,
+        "height": 42
+      },
+      "walletRect": {
+        "x": 1098,
+        "y": 23,
+        "width": 164,
+        "height": 48
+      }
+    },
+    {
+      "hero": 4,
+      "physical": "(720, 1280)",
+      "text": "\u5DF2\u4FDD\u5B58\u6CE2\u8D77\u70B9",
+      "textWidth": 98,
+      "minimum": "(122, 40)",
+      "actual": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "fitsRequested": true
+    },
+    {
+      "hero": 4,
+      "physical": "(720, 1280)",
+      "text": "\u672C\u5C40\u672A\u4FDD\u5B58 \u00B7 \u65E0\u53EF\u6062\u590D\u5B89\u5168\u70B9",
+      "textWidth": 218,
+      "minimum": "(242, 40)",
+      "actual": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "fitsRequested": true
+    },
+    {
+      "hero": 4,
+      "physical": "(720, 1280)",
+      "text": "\u65B0\u5C40\u5C1A\u65E0\u53EF\u6062\u590D\u5B89\u5168\u70B9",
+      "textWidth": 162,
+      "minimum": "(186, 40)",
+      "actual": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "fitsRequested": true
+    },
+    {
+      "dynamicWave": 7,
+      "wallet": 2147483647,
+      "notice": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "waveRect": {
+        "x": 550,
+        "y": 15,
+        "width": 180,
+        "height": 42
+      },
+      "walletRect": {
+        "x": 1098,
+        "y": 23,
+        "width": 164,
+        "height": 48
+      }
+    },
+    {
+      "dynamicWave": 1000,
+      "wallet": 2147483647,
+      "notice": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "waveRect": {
+        "x": 550,
+        "y": 15,
+        "width": 180,
+        "height": 42
+      },
+      "walletRect": {
+        "x": 1098,
+        "y": 23,
+        "width": 164,
+        "height": 48
+      }
+    },
+    {
+      "dynamicWave": 10000,
+      "wallet": 2147483647,
+      "notice": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "waveRect": {
+        "x": 550,
+        "y": 15,
+        "width": 180,
+        "height": 42
+      },
+      "walletRect": {
+        "x": 1098,
+        "y": 23,
+        "width": 164,
+        "height": 48
+      }
+    },
+    {
+      "dynamicWave": 2147483647,
+      "wallet": 2147483647,
+      "notice": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "waveRect": {
+        "x": 550,
+        "y": 15,
+        "width": 180,
+        "height": 42
+      },
+      "walletRect": {
+        "x": 1098,
+        "y": 23,
+        "width": 164,
+        "height": 48
+      }
+    },
+    {
+      "hero": 0,
+      "physical": "(1024, 768)",
+      "text": "\u5DF2\u4FDD\u5B58\u6CE2\u8D77\u70B9",
+      "textWidth": 98,
+      "minimum": "(122, 40)",
+      "actual": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "fitsRequested": true
+    },
+    {
+      "hero": 0,
+      "physical": "(1024, 768)",
+      "text": "\u672C\u5C40\u672A\u4FDD\u5B58 \u00B7 \u65E0\u53EF\u6062\u590D\u5B89\u5168\u70B9",
+      "textWidth": 218,
+      "minimum": "(242, 40)",
+      "actual": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "fitsRequested": true
+    },
+    {
+      "hero": 0,
+      "physical": "(1024, 768)",
+      "text": "\u65B0\u5C40\u5C1A\u65E0\u53EF\u6062\u590D\u5B89\u5168\u70B9",
+      "textWidth": 162,
+      "minimum": "(186, 40)",
+      "actual": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "fitsRequested": true
+    },
+    {
+      "dynamicWave": 7,
+      "wallet": 2147483647,
+      "notice": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "waveRect": {
+        "x": 550,
+        "y": 15,
+        "width": 180,
+        "height": 42
+      },
+      "walletRect": {
+        "x": 1098,
+        "y": 23,
+        "width": 164,
+        "height": 48
+      }
+    },
+    {
+      "dynamicWave": 1000,
+      "wallet": 2147483647,
+      "notice": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "waveRect": {
+        "x": 550,
+        "y": 15,
+        "width": 180,
+        "height": 42
+      },
+      "walletRect": {
+        "x": 1098,
+        "y": 23,
+        "width": 164,
+        "height": 48
+      }
+    },
+    {
+      "dynamicWave": 10000,
+      "wallet": 2147483647,
+      "notice": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "waveRect": {
+        "x": 550,
+        "y": 15,
+        "width": 180,
+        "height": 42
+      },
+      "walletRect": {
+        "x": 1098,
+        "y": 23,
+        "width": 164,
+        "height": 48
+      }
+    },
+    {
+      "dynamicWave": 2147483647,
+      "wallet": 2147483647,
+      "notice": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "waveRect": {
+        "x": 550,
+        "y": 15,
+        "width": 180,
+        "height": 42
+      },
+      "walletRect": {
+        "x": 1098,
+        "y": 23,
+        "width": 164,
+        "height": 48
+      }
+    },
+    {
+      "hero": 1,
+      "physical": "(1024, 768)",
+      "text": "\u5DF2\u4FDD\u5B58\u6CE2\u8D77\u70B9",
+      "textWidth": 98,
+      "minimum": "(122, 40)",
+      "actual": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "fitsRequested": true
+    },
+    {
+      "hero": 1,
+      "physical": "(1024, 768)",
+      "text": "\u672C\u5C40\u672A\u4FDD\u5B58 \u00B7 \u65E0\u53EF\u6062\u590D\u5B89\u5168\u70B9",
+      "textWidth": 218,
+      "minimum": "(242, 40)",
+      "actual": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "fitsRequested": true
+    },
+    {
+      "hero": 1,
+      "physical": "(1024, 768)",
+      "text": "\u65B0\u5C40\u5C1A\u65E0\u53EF\u6062\u590D\u5B89\u5168\u70B9",
+      "textWidth": 162,
+      "minimum": "(186, 40)",
+      "actual": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "fitsRequested": true
+    },
+    {
+      "dynamicWave": 7,
+      "wallet": 2147483647,
+      "notice": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "waveRect": {
+        "x": 550,
+        "y": 15,
+        "width": 180,
+        "height": 42
+      },
+      "walletRect": {
+        "x": 1098,
+        "y": 23,
+        "width": 164,
+        "height": 48
+      }
+    },
+    {
+      "dynamicWave": 1000,
+      "wallet": 2147483647,
+      "notice": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "waveRect": {
+        "x": 550,
+        "y": 15,
+        "width": 180,
+        "height": 42
+      },
+      "walletRect": {
+        "x": 1098,
+        "y": 23,
+        "width": 164,
+        "height": 48
+      }
+    },
+    {
+      "dynamicWave": 10000,
+      "wallet": 2147483647,
+      "notice": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "waveRect": {
+        "x": 550,
+        "y": 15,
+        "width": 180,
+        "height": 42
+      },
+      "walletRect": {
+        "x": 1098,
+        "y": 23,
+        "width": 164,
+        "height": 48
+      }
+    },
+    {
+      "dynamicWave": 2147483647,
+      "wallet": 2147483647,
+      "notice": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "waveRect": {
+        "x": 550,
+        "y": 15,
+        "width": 180,
+        "height": 42
+      },
+      "walletRect": {
+        "x": 1098,
+        "y": 23,
+        "width": 164,
+        "height": 48
+      }
+    },
+    {
+      "hero": 2,
+      "physical": "(1024, 768)",
+      "text": "\u5DF2\u4FDD\u5B58\u6CE2\u8D77\u70B9",
+      "textWidth": 98,
+      "minimum": "(122, 40)",
+      "actual": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "fitsRequested": true
+    },
+    {
+      "hero": 2,
+      "physical": "(1024, 768)",
+      "text": "\u672C\u5C40\u672A\u4FDD\u5B58 \u00B7 \u65E0\u53EF\u6062\u590D\u5B89\u5168\u70B9",
+      "textWidth": 218,
+      "minimum": "(242, 40)",
+      "actual": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "fitsRequested": true
+    },
+    {
+      "hero": 2,
+      "physical": "(1024, 768)",
+      "text": "\u65B0\u5C40\u5C1A\u65E0\u53EF\u6062\u590D\u5B89\u5168\u70B9",
+      "textWidth": 162,
+      "minimum": "(186, 40)",
+      "actual": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "fitsRequested": true
+    },
+    {
+      "dynamicWave": 7,
+      "wallet": 2147483647,
+      "notice": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "waveRect": {
+        "x": 550,
+        "y": 15,
+        "width": 180,
+        "height": 42
+      },
+      "walletRect": {
+        "x": 1098,
+        "y": 23,
+        "width": 164,
+        "height": 48
+      }
+    },
+    {
+      "dynamicWave": 1000,
+      "wallet": 2147483647,
+      "notice": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "waveRect": {
+        "x": 550,
+        "y": 15,
+        "width": 180,
+        "height": 42
+      },
+      "walletRect": {
+        "x": 1098,
+        "y": 23,
+        "width": 164,
+        "height": 48
+      }
+    },
+    {
+      "dynamicWave": 10000,
+      "wallet": 2147483647,
+      "notice": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "waveRect": {
+        "x": 550,
+        "y": 15,
+        "width": 180,
+        "height": 42
+      },
+      "walletRect": {
+        "x": 1098,
+        "y": 23,
+        "width": 164,
+        "height": 48
+      }
+    },
+    {
+      "dynamicWave": 2147483647,
+      "wallet": 2147483647,
+      "notice": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "waveRect": {
+        "x": 550,
+        "y": 15,
+        "width": 180,
+        "height": 42
+      },
+      "walletRect": {
+        "x": 1098,
+        "y": 23,
+        "width": 164,
+        "height": 48
+      }
+    },
+    {
+      "hero": 3,
+      "physical": "(1024, 768)",
+      "text": "\u5DF2\u4FDD\u5B58\u6CE2\u8D77\u70B9",
+      "textWidth": 98,
+      "minimum": "(122, 40)",
+      "actual": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "fitsRequested": true
+    },
+    {
+      "hero": 3,
+      "physical": "(1024, 768)",
+      "text": "\u672C\u5C40\u672A\u4FDD\u5B58 \u00B7 \u65E0\u53EF\u6062\u590D\u5B89\u5168\u70B9",
+      "textWidth": 218,
+      "minimum": "(242, 40)",
+      "actual": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "fitsRequested": true
+    },
+    {
+      "hero": 3,
+      "physical": "(1024, 768)",
+      "text": "\u65B0\u5C40\u5C1A\u65E0\u53EF\u6062\u590D\u5B89\u5168\u70B9",
+      "textWidth": 162,
+      "minimum": "(186, 40)",
+      "actual": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "fitsRequested": true
+    },
+    {
+      "dynamicWave": 7,
+      "wallet": 2147483647,
+      "notice": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "waveRect": {
+        "x": 550,
+        "y": 15,
+        "width": 180,
+        "height": 42
+      },
+      "walletRect": {
+        "x": 1098,
+        "y": 23,
+        "width": 164,
+        "height": 48
+      }
+    },
+    {
+      "dynamicWave": 1000,
+      "wallet": 2147483647,
+      "notice": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "waveRect": {
+        "x": 550,
+        "y": 15,
+        "width": 180,
+        "height": 42
+      },
+      "walletRect": {
+        "x": 1098,
+        "y": 23,
+        "width": 164,
+        "height": 48
+      }
+    },
+    {
+      "dynamicWave": 10000,
+      "wallet": 2147483647,
+      "notice": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "waveRect": {
+        "x": 550,
+        "y": 15,
+        "width": 180,
+        "height": 42
+      },
+      "walletRect": {
+        "x": 1098,
+        "y": 23,
+        "width": 164,
+        "height": 48
+      }
+    },
+    {
+      "dynamicWave": 2147483647,
+      "wallet": 2147483647,
+      "notice": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "waveRect": {
+        "x": 550,
+        "y": 15,
+        "width": 180,
+        "height": 42
+      },
+      "walletRect": {
+        "x": 1098,
+        "y": 23,
+        "width": 164,
+        "height": 48
+      }
+    },
+    {
+      "hero": 4,
+      "physical": "(1024, 768)",
+      "text": "\u5DF2\u4FDD\u5B58\u6CE2\u8D77\u70B9",
+      "textWidth": 98,
+      "minimum": "(122, 40)",
+      "actual": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "fitsRequested": true
+    },
+    {
+      "hero": 4,
+      "physical": "(1024, 768)",
+      "text": "\u672C\u5C40\u672A\u4FDD\u5B58 \u00B7 \u65E0\u53EF\u6062\u590D\u5B89\u5168\u70B9",
+      "textWidth": 218,
+      "minimum": "(242, 40)",
+      "actual": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "fitsRequested": true
+    },
+    {
+      "hero": 4,
+      "physical": "(1024, 768)",
+      "text": "\u65B0\u5C40\u5C1A\u65E0\u53EF\u6062\u590D\u5B89\u5168\u70B9",
+      "textWidth": 162,
+      "minimum": "(186, 40)",
+      "actual": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "fitsRequested": true
+    },
+    {
+      "dynamicWave": 7,
+      "wallet": 2147483647,
+      "notice": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "waveRect": {
+        "x": 550,
+        "y": 15,
+        "width": 180,
+        "height": 42
+      },
+      "walletRect": {
+        "x": 1098,
+        "y": 23,
+        "width": 164,
+        "height": 48
+      }
+    },
+    {
+      "dynamicWave": 1000,
+      "wallet": 2147483647,
+      "notice": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "waveRect": {
+        "x": 550,
+        "y": 15,
+        "width": 180,
+        "height": 42
+      },
+      "walletRect": {
+        "x": 1098,
+        "y": 23,
+        "width": 164,
+        "height": 48
+      }
+    },
+    {
+      "dynamicWave": 10000,
+      "wallet": 2147483647,
+      "notice": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "waveRect": {
+        "x": 550,
+        "y": 15,
+        "width": 180,
+        "height": 42
+      },
+      "walletRect": {
+        "x": 1098,
+        "y": 23,
+        "width": 164,
+        "height": 48
+      }
+    },
+    {
+      "dynamicWave": 2147483647,
+      "wallet": 2147483647,
+      "notice": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "waveRect": {
+        "x": 550,
+        "y": 15,
+        "width": 180,
+        "height": 42
+      },
+      "walletRect": {
+        "x": 1098,
+        "y": 23,
+        "width": 164,
+        "height": 48
+      }
+    }
+  ],
+  "rows": [
+    {
+      "hero": "orbit",
+      "requestedPhysical": "(1280, 720)",
+      "actualWindow": "(1280, 720)",
+      "logical": "(1280, 720)",
+      "point": "(-13.4, 0, -7.4)",
+      "radius": 0.72578526,
+      "restMin": 0,
+      "restMax": 1.6199999,
+      "bounds": {
+        "x": 366.26825,
+        "y": -45.734924,
+        "width": 86.27002,
+        "height": 110.19169
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(9, 22, 16.5)"
+    },
+    {
+      "hero": "orbit",
+      "requestedPhysical": "(1280, 720)",
+      "actualWindow": "(1280, 720)",
+      "logical": "(1280, 720)",
+      "point": "(13.4, 0, -7.4)",
+      "radius": 0.72578526,
+      "restMin": 0,
+      "restMax": 1.6199999,
+      "bounds": {
+        "x": 1107.9817,
+        "y": 306.83813,
+        "width": 86.2699,
+        "height": 110.19162
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(15, 22, 16.5)"
+    },
+    {
+      "hero": "orbit",
+      "requestedPhysical": "(1280, 720)",
+      "actualWindow": "(1280, 720)",
+      "logical": "(1280, 720)",
+      "point": "(-13.4, 0, 7.4)",
+      "radius": 0.72578526,
+      "restMin": 0,
+      "restMax": 1.6199999,
+      "bounds": {
+        "x": 85.74837,
+        "y": 254.2912,
+        "width": 86.270065,
+        "height": 110.19171
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(9, 22, 19.5)"
+    },
+    {
+      "hero": "orbit",
+      "requestedPhysical": "(1280, 720)",
+      "actualWindow": "(1280, 720)",
+      "logical": "(1280, 720)",
+      "point": "(13.4, 0, 7.4)",
+      "radius": 0.72578526,
+      "restMin": 0,
+      "restMax": 1.6199999,
+      "bounds": {
+        "x": 827.4618,
+        "y": 606.86426,
+        "width": 86.27002,
+        "height": 110.19171
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(15, 22, 19.5)"
+    },
+    {
+      "hero": "orbit",
+      "requestedPhysical": "(1280, 720)",
+      "actualWindow": "(1280, 720)",
+      "logical": "(1280, 720)",
+      "point": "(-13.4, 0, 0)",
+      "radius": 0.72578526,
+      "restMin": 0,
+      "restMax": 1.6199999,
+      "bounds": {
+        "x": 226.00833,
+        "y": 104.27815,
+        "width": 86.26999,
+        "height": 110.19165
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(9, 22, 18)"
+    },
+    {
+      "hero": "orbit",
+      "requestedPhysical": "(1280, 720)",
+      "actualWindow": "(1280, 720)",
+      "logical": "(1280, 720)",
+      "point": "(13.4, 0, 0)",
+      "radius": 0.72578526,
+      "restMin": 0,
+      "restMax": 1.6199999,
+      "bounds": {
+        "x": 967.72174,
+        "y": 456.85123,
+        "width": 86.26996,
+        "height": 110.19156
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(15, 22, 18)"
+    },
+    {
+      "hero": "orbit",
+      "requestedPhysical": "(1280, 720)",
+      "actualWindow": "(1280, 720)",
+      "logical": "(1280, 720)",
+      "point": "(-8.2, 0, -4.5)",
+      "radius": 0.72578526,
+      "restMin": 0,
+      "restMax": 1.6199999,
+      "bounds": {
+        "x": 479.33197,
+        "y": 99.09127,
+        "width": 86.26996,
+        "height": 110.19166
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 3450.7983,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 3480,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(9.376, 22, 16.92)"
+    },
+    {
+      "hero": "orbit",
+      "requestedPhysical": "(1280, 720)",
+      "actualWindow": "(1280, 720)",
+      "logical": "(1280, 720)",
+      "point": "(8.2, 0, 4.5)",
+      "radius": 0.72578526,
+      "restMin": 0,
+      "restMax": 1.6199999,
+      "bounds": {
+        "x": 714.3981,
+        "y": 462.03812,
+        "width": 86.26996,
+        "height": 110.19162
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(14.624, 22, 19.08)"
+    },
+    {
+      "hero": "orbit",
+      "requestedPhysical": "(1280, 720)",
+      "actualWindow": "(1280, 720)",
+      "logical": "(1280, 720)",
+      "point": "(0, 0, 0)",
+      "radius": 0.72578526,
+      "restMin": 0,
+      "restMax": 1.6199999,
+      "bounds": {
+        "x": 596.86505,
+        "y": 280.56467,
+        "width": 86.26996,
+        "height": 110.19162
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(12, 22, 18)"
+    },
+    {
+      "hero": "crit",
+      "requestedPhysical": "(1280, 720)",
+      "actualWindow": "(1280, 720)",
+      "logical": "(1280, 720)",
+      "point": "(-13.4, 0, -7.4)",
+      "radius": 0.7022925,
+      "restMin": 0,
+      "restMax": 1.6199999,
+      "bounds": {
+        "x": 367.66452,
+        "y": -44.739334,
+        "width": 83.47748,
+        "height": 108.20055
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(9, 22, 16.5)"
+    },
+    {
+      "hero": "crit",
+      "requestedPhysical": "(1280, 720)",
+      "actualWindow": "(1280, 720)",
+      "logical": "(1280, 720)",
+      "point": "(13.4, 0, -7.4)",
+      "radius": 0.7022925,
+      "restMin": 0,
+      "restMax": 1.6199999,
+      "bounds": {
+        "x": 1109.3778,
+        "y": 307.8337,
+        "width": 83.47766,
+        "height": 108.20053
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(15, 22, 16.5)"
+    },
+    {
+      "hero": "crit",
+      "requestedPhysical": "(1280, 720)",
+      "actualWindow": "(1280, 720)",
+      "logical": "(1280, 720)",
+      "point": "(-13.4, 0, 7.4)",
+      "radius": 0.7022925,
+      "restMin": 0,
+      "restMax": 1.6199999,
+      "bounds": {
+        "x": 87.14466,
+        "y": 255.28677,
+        "width": 83.47747,
+        "height": 108.20056
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(9, 22, 19.5)"
+    },
+    {
+      "hero": "crit",
+      "requestedPhysical": "(1280, 720)",
+      "actualWindow": "(1280, 720)",
+      "logical": "(1280, 720)",
+      "point": "(13.4, 0, 7.4)",
+      "radius": 0.7022925,
+      "restMin": 0,
+      "restMax": 1.6199999,
+      "bounds": {
+        "x": 828.85803,
+        "y": 607.8598,
+        "width": 83.47754,
+        "height": 108.20056
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(15, 22, 19.5)"
+    },
+    {
+      "hero": "crit",
+      "requestedPhysical": "(1280, 720)",
+      "actualWindow": "(1280, 720)",
+      "logical": "(1280, 720)",
+      "point": "(-13.4, 0, 0)",
+      "radius": 0.7022925,
+      "restMin": 0,
+      "restMax": 1.6199999,
+      "bounds": {
+        "x": 227.40456,
+        "y": 105.27368,
+        "width": 83.47752,
+        "height": 108.20061
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(9, 22, 18)"
+    },
+    {
+      "hero": "crit",
+      "requestedPhysical": "(1280, 720)",
+      "actualWindow": "(1280, 720)",
+      "logical": "(1280, 720)",
+      "point": "(13.4, 0, 0)",
+      "radius": 0.7022925,
+      "restMin": 0,
+      "restMax": 1.6199999,
+      "bounds": {
+        "x": 969.1179,
+        "y": 457.8467,
+        "width": 83.47754,
+        "height": 108.20065
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(15, 22, 18)"
+    },
+    {
+      "hero": "crit",
+      "requestedPhysical": "(1280, 720)",
+      "actualWindow": "(1280, 720)",
+      "logical": "(1280, 720)",
+      "point": "(-8.2, 0, -4.5)",
+      "radius": 0.7022925,
+      "restMin": 0,
+      "restMax": 1.6199999,
+      "bounds": {
+        "x": 480.72818,
+        "y": 100.0868,
+        "width": 83.47757,
+        "height": 108.20054
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 3339.1028,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 3400,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(9.376, 22, 16.92)"
+    },
+    {
+      "hero": "crit",
+      "requestedPhysical": "(1280, 720)",
+      "actualWindow": "(1280, 720)",
+      "logical": "(1280, 720)",
+      "point": "(8.2, 0, 4.5)",
+      "radius": 0.7022925,
+      "restMin": 0,
+      "restMax": 1.6199999,
+      "bounds": {
+        "x": 715.7943,
+        "y": 463.03363,
+        "width": 83.47754,
+        "height": 108.20056
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(14.624, 22, 19.08)"
+    },
+    {
+      "hero": "crit",
+      "requestedPhysical": "(1280, 720)",
+      "actualWindow": "(1280, 720)",
+      "logical": "(1280, 720)",
+      "point": "(0, 0, 0)",
+      "radius": 0.7022925,
+      "restMin": 0,
+      "restMax": 1.6199999,
+      "bounds": {
+        "x": 598.2612,
+        "y": 281.56018,
+        "width": 83.47754,
+        "height": 108.20062
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(12, 22, 18)"
+    },
+    {
+      "hero": "honey",
+      "requestedPhysical": "(1280, 720)",
+      "actualWindow": "(1280, 720)",
+      "logical": "(1280, 720)",
+      "point": "(-13.4, 0, -7.4)",
+      "radius": 0.9625135,
+      "restMin": 0,
+      "restMax": 1.6200001,
+      "bounds": {
+        "x": 352.19897,
+        "y": -55.76673,
+        "width": 114.4086,
+        "height": 130.25525
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 741,
+      "allHudCandidatePixelArea": 741,
+      "camera": "(9, 22, 16.5)"
+    },
+    {
+      "hero": "honey",
+      "requestedPhysical": "(1280, 720)",
+      "actualWindow": "(1280, 720)",
+      "logical": "(1280, 720)",
+      "point": "(13.4, 0, -7.4)",
+      "radius": 0.9625135,
+      "restMin": 0,
+      "restMax": 1.6200001,
+      "bounds": {
+        "x": 1093.9124,
+        "y": 296.8063,
+        "width": 114.40857,
+        "height": 130.25522
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(15, 22, 16.5)"
+    },
+    {
+      "hero": "honey",
+      "requestedPhysical": "(1280, 720)",
+      "actualWindow": "(1280, 720)",
+      "logical": "(1280, 720)",
+      "point": "(-13.4, 0, 7.4)",
+      "radius": 0.9625135,
+      "restMin": 0,
+      "restMax": 1.6200001,
+      "bounds": {
+        "x": 71.679115,
+        "y": 244.2594,
+        "width": 114.40861,
+        "height": 130.25525
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(9, 22, 19.5)"
+    },
+    {
+      "hero": "honey",
+      "requestedPhysical": "(1280, 720)",
+      "actualWindow": "(1280, 720)",
+      "logical": "(1280, 720)",
+      "point": "(13.4, 0, 7.4)",
+      "radius": 0.9625135,
+      "restMin": 0,
+      "restMax": 1.6200001,
+      "bounds": {
+        "x": 813.3925,
+        "y": 596.8324,
+        "width": 114.40857,
+        "height": 130.25525
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 399,
+      "allHudCandidatePixelArea": 399,
+      "camera": "(15, 22, 19.5)"
+    },
+    {
+      "hero": "honey",
+      "requestedPhysical": "(1280, 720)",
+      "actualWindow": "(1280, 720)",
+      "logical": "(1280, 720)",
+      "point": "(-13.4, 0, 0)",
+      "radius": 0.9625135,
+      "restMin": 0,
+      "restMax": 1.6200001,
+      "bounds": {
+        "x": 211.93901,
+        "y": 94.246346,
+        "width": 114.408615,
+        "height": 130.25525
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 1044,
+      "allHudCandidatePixelArea": 1044,
+      "camera": "(9, 22, 18)"
+    },
+    {
+      "hero": "honey",
+      "requestedPhysical": "(1280, 720)",
+      "actualWindow": "(1280, 720)",
+      "logical": "(1280, 720)",
+      "point": "(13.4, 0, 0)",
+      "radius": 0.9625135,
+      "restMin": 0,
+      "restMax": 1.6200001,
+      "bounds": {
+        "x": 953.65247,
+        "y": 446.8194,
+        "width": 114.40857,
+        "height": 130.25519
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(15, 22, 18)"
+    },
+    {
+      "hero": "honey",
+      "requestedPhysical": "(1280, 720)",
+      "actualWindow": "(1280, 720)",
+      "logical": "(1280, 720)",
+      "point": "(-8.2, 0, -4.5)",
+      "radius": 0.9625135,
+      "restMin": 0,
+      "restMax": 1.6200001,
+      "bounds": {
+        "x": 465.26273,
+        "y": 89.05945,
+        "width": 114.40848,
+        "height": 130.25517
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 4576.339,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 4924,
+      "allHudCandidatePixelArea": 324,
+      "camera": "(9.376, 22, 16.92)"
+    },
+    {
+      "hero": "honey",
+      "requestedPhysical": "(1280, 720)",
+      "actualWindow": "(1280, 720)",
+      "logical": "(1280, 720)",
+      "point": "(8.2, 0, 4.5)",
+      "radius": 0.9625135,
+      "restMin": 0,
+      "restMax": 1.6200001,
+      "bounds": {
+        "x": 700.3288,
+        "y": 452.0063,
+        "width": 114.40857,
+        "height": 130.25519
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 920,
+      "allHudCandidatePixelArea": 920,
+      "camera": "(14.624, 22, 19.08)"
+    },
+    {
+      "hero": "honey",
+      "requestedPhysical": "(1280, 720)",
+      "actualWindow": "(1280, 720)",
+      "logical": "(1280, 720)",
+      "point": "(0, 0, 0)",
+      "radius": 0.9625135,
+      "restMin": 0,
+      "restMax": 1.6200001,
+      "bounds": {
+        "x": 582.7957,
+        "y": 270.53287,
+        "width": 114.40857,
+        "height": 130.25519
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(12, 22, 18)"
+    },
+    {
+      "hero": "summon",
+      "requestedPhysical": "(1280, 720)",
+      "actualWindow": "(1280, 720)",
+      "logical": "(1280, 720)",
+      "point": "(-13.4, 0, -7.4)",
+      "radius": 0.81046426,
+      "restMin": -3.7587727E-06,
+      "restMax": 1.6200173,
+      "bounds": {
+        "x": 361.23557,
+        "y": -49.32389,
+        "width": 96.33539,
+        "height": 117.369194
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 204,
+      "allHudCandidatePixelArea": 204,
+      "camera": "(9, 22, 16.5)"
+    },
+    {
+      "hero": "summon",
+      "requestedPhysical": "(1280, 720)",
+      "actualWindow": "(1280, 720)",
+      "logical": "(1280, 720)",
+      "point": "(13.4, 0, -7.4)",
+      "radius": 0.81046426,
+      "restMin": -3.7587727E-06,
+      "restMax": 1.6200173,
+      "bounds": {
+        "x": 1102.949,
+        "y": 303.24915,
+        "width": 96.33533,
+        "height": 117.3692
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(15, 22, 16.5)"
+    },
+    {
+      "hero": "summon",
+      "requestedPhysical": "(1280, 720)",
+      "actualWindow": "(1280, 720)",
+      "logical": "(1280, 720)",
+      "point": "(-13.4, 0, 7.4)",
+      "radius": 0.81046426,
+      "restMin": -3.7587727E-06,
+      "restMax": 1.6200173,
+      "bounds": {
+        "x": 80.71575,
+        "y": 250.70224,
+        "width": 96.335335,
+        "height": 117.36917
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(9, 22, 19.5)"
+    },
+    {
+      "hero": "summon",
+      "requestedPhysical": "(1280, 720)",
+      "actualWindow": "(1280, 720)",
+      "logical": "(1280, 720)",
+      "point": "(13.4, 0, 7.4)",
+      "radius": 0.81046426,
+      "restMin": -3.7587727E-06,
+      "restMax": 1.6200173,
+      "bounds": {
+        "x": 822.4292,
+        "y": 603.27527,
+        "width": 96.335266,
+        "height": 117.36914
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 2730,
+      "allHudCandidatePixelArea": 2730,
+      "camera": "(15, 22, 19.5)"
+    },
+    {
+      "hero": "summon",
+      "requestedPhysical": "(1280, 720)",
+      "actualWindow": "(1280, 720)",
+      "logical": "(1280, 720)",
+      "point": "(-13.4, 0, 0)",
+      "radius": 0.81046426,
+      "restMin": -3.7587727E-06,
+      "restMax": 1.6200173,
+      "bounds": {
+        "x": 220.97565,
+        "y": 100.68916,
+        "width": 96.33542,
+        "height": 117.36919
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 294,
+      "allHudCandidatePixelArea": 294,
+      "camera": "(9, 22, 18)"
+    },
+    {
+      "hero": "summon",
+      "requestedPhysical": "(1280, 720)",
+      "actualWindow": "(1280, 720)",
+      "logical": "(1280, 720)",
+      "point": "(13.4, 0, 0)",
+      "radius": 0.81046426,
+      "restMin": -3.7587727E-06,
+      "restMax": 1.6200173,
+      "bounds": {
+        "x": 962.6891,
+        "y": 453.2622,
+        "width": 96.33533,
+        "height": 117.3692
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(15, 22, 18)"
+    },
+    {
+      "hero": "summon",
+      "requestedPhysical": "(1280, 720)",
+      "actualWindow": "(1280, 720)",
+      "logical": "(1280, 720)",
+      "point": "(-8.2, 0, -4.5)",
+      "radius": 0.81046426,
+      "restMin": -3.7587727E-06,
+      "restMax": 1.6200173,
+      "bounds": {
+        "x": 474.29935,
+        "y": 95.50228,
+        "width": 96.3353,
+        "height": 117.369194
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 3853.4119,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 3943,
+      "allHudCandidatePixelArea": 63,
+      "camera": "(9.376, 22, 16.92)"
+    },
+    {
+      "hero": "summon",
+      "requestedPhysical": "(1280, 720)",
+      "actualWindow": "(1280, 720)",
+      "logical": "(1280, 720)",
+      "point": "(8.2, 0, 4.5)",
+      "radius": 0.81046426,
+      "restMin": -3.7587727E-06,
+      "restMax": 1.6200173,
+      "bounds": {
+        "x": 709.3654,
+        "y": 458.44907,
+        "width": 96.33533,
+        "height": 117.36917
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 97,
+      "allHudCandidatePixelArea": 97,
+      "camera": "(14.624, 22, 19.08)"
+    },
+    {
+      "hero": "summon",
+      "requestedPhysical": "(1280, 720)",
+      "actualWindow": "(1280, 720)",
+      "logical": "(1280, 720)",
+      "point": "(0, 0, 0)",
+      "radius": 0.81046426,
+      "restMin": -3.7587727E-06,
+      "restMax": 1.6200173,
+      "bounds": {
+        "x": 591.8324,
+        "y": 276.97568,
+        "width": 96.33533,
+        "height": 117.3692
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(12, 22, 18)"
+    },
+    {
+      "hero": "bounce",
+      "requestedPhysical": "(1280, 720)",
+      "actualWindow": "(1280, 720)",
+      "logical": "(1280, 720)",
+      "point": "(-13.4, 0, -7.4)",
+      "radius": 1.0952492,
+      "restMin": 0,
+      "restMax": 1.6200001,
+      "bounds": {
+        "x": 344.31015,
+        "y": -61.3916,
+        "width": 130.18607,
+        "height": 141.50497
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 1323,
+      "allHudCandidatePixelArea": 1323,
+      "camera": "(9, 22, 16.5)"
+    },
+    {
+      "hero": "bounce",
+      "requestedPhysical": "(1280, 720)",
+      "actualWindow": "(1280, 720)",
+      "logical": "(1280, 720)",
+      "point": "(13.4, 0, -7.4)",
+      "radius": 1.0952492,
+      "restMin": 0,
+      "restMax": 1.6200001,
+      "bounds": {
+        "x": 1086.0236,
+        "y": 291.18143,
+        "width": 130.18604,
+        "height": 141.50497
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(15, 22, 16.5)"
+    },
+    {
+      "hero": "bounce",
+      "requestedPhysical": "(1280, 720)",
+      "actualWindow": "(1280, 720)",
+      "logical": "(1280, 720)",
+      "point": "(-13.4, 0, 7.4)",
+      "radius": 1.0952492,
+      "restMin": 0,
+      "restMax": 1.6200001,
+      "bounds": {
+        "x": 63.79036,
+        "y": 238.63449,
+        "width": 130.18605,
+        "height": 141.50497
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(9, 22, 19.5)"
+    },
+    {
+      "hero": "bounce",
+      "requestedPhysical": "(1280, 720)",
+      "actualWindow": "(1280, 720)",
+      "logical": "(1280, 720)",
+      "point": "(13.4, 0, 7.4)",
+      "radius": 1.0952492,
+      "restMin": 0,
+      "restMax": 1.6200001,
+      "bounds": {
+        "x": 805.5038,
+        "y": 591.2075,
+        "width": 130.18604,
+        "height": 141.505
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 780,
+      "allHudCandidatePixelArea": 780,
+      "camera": "(15, 22, 19.5)"
+    },
+    {
+      "hero": "bounce",
+      "requestedPhysical": "(1280, 720)",
+      "actualWindow": "(1280, 720)",
+      "logical": "(1280, 720)",
+      "point": "(-13.4, 0, 0)",
+      "radius": 1.0952492,
+      "restMin": 0,
+      "restMax": 1.6200001,
+      "bounds": {
+        "x": 204.05026,
+        "y": 88.62145,
+        "width": 130.18607,
+        "height": 141.50497
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 1965,
+      "allHudCandidatePixelArea": 1965,
+      "camera": "(9, 22, 18)"
+    },
+    {
+      "hero": "bounce",
+      "requestedPhysical": "(1280, 720)",
+      "actualWindow": "(1280, 720)",
+      "logical": "(1280, 720)",
+      "point": "(13.4, 0, 0)",
+      "radius": 1.0952492,
+      "restMin": 0,
+      "restMax": 1.6200001,
+      "bounds": {
+        "x": 945.7637,
+        "y": 441.1945,
+        "width": 130.18604,
+        "height": 141.50497
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(15, 22, 18)"
+    },
+    {
+      "hero": "bounce",
+      "requestedPhysical": "(1280, 720)",
+      "actualWindow": "(1280, 720)",
+      "logical": "(1280, 720)",
+      "point": "(-8.2, 0, -4.5)",
+      "radius": 1.0952492,
+      "restMin": 0,
+      "restMax": 1.6200001,
+      "bounds": {
+        "x": 457.37393,
+        "y": 83.434555,
+        "width": 130.18607,
+        "height": 141.50496
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 5207.4424,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 5900,
+      "allHudCandidatePixelArea": 660,
+      "camera": "(9.376, 22, 16.92)"
+    },
+    {
+      "hero": "bounce",
+      "requestedPhysical": "(1280, 720)",
+      "actualWindow": "(1280, 720)",
+      "logical": "(1280, 720)",
+      "point": "(8.2, 0, 4.5)",
+      "radius": 1.0952492,
+      "restMin": 0,
+      "restMax": 1.6200001,
+      "bounds": {
+        "x": 692.44006,
+        "y": 446.3814,
+        "width": 130.18604,
+        "height": 141.50494
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 1703,
+      "allHudCandidatePixelArea": 1703,
+      "camera": "(14.624, 22, 19.08)"
+    },
+    {
+      "hero": "bounce",
+      "requestedPhysical": "(1280, 720)",
+      "actualWindow": "(1280, 720)",
+      "logical": "(1280, 720)",
+      "point": "(0, 0, 0)",
+      "radius": 1.0952492,
+      "restMin": 0,
+      "restMax": 1.6200001,
+      "bounds": {
+        "x": 574.907,
+        "y": 264.90796,
+        "width": 130.1861,
+        "height": 141.505
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(12, 22, 18)"
+    },
+    {
+      "hero": "orbit",
+      "requestedPhysical": "(1600, 720)",
+      "actualWindow": "(1600, 720)",
+      "logical": "(1280, 720)",
+      "point": "(-13.4, 0, -7.4)",
+      "radius": 0.72578526,
+      "restMin": 0,
+      "restMax": 1.6199999,
+      "bounds": {
+        "x": 366.26825,
+        "y": -45.734924,
+        "width": 86.27002,
+        "height": 110.19169
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(9, 22, 16.5)"
+    },
+    {
+      "hero": "orbit",
+      "requestedPhysical": "(1600, 720)",
+      "actualWindow": "(1600, 720)",
+      "logical": "(1280, 720)",
+      "point": "(13.4, 0, -7.4)",
+      "radius": 0.72578526,
+      "restMin": 0,
+      "restMax": 1.6199999,
+      "bounds": {
+        "x": 1107.9817,
+        "y": 306.83813,
+        "width": 86.2699,
+        "height": 110.19162
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(15, 22, 16.5)"
+    },
+    {
+      "hero": "orbit",
+      "requestedPhysical": "(1600, 720)",
+      "actualWindow": "(1600, 720)",
+      "logical": "(1280, 720)",
+      "point": "(-13.4, 0, 7.4)",
+      "radius": 0.72578526,
+      "restMin": 0,
+      "restMax": 1.6199999,
+      "bounds": {
+        "x": 85.74837,
+        "y": 254.2912,
+        "width": 86.270065,
+        "height": 110.19171
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(9, 22, 19.5)"
+    },
+    {
+      "hero": "orbit",
+      "requestedPhysical": "(1600, 720)",
+      "actualWindow": "(1600, 720)",
+      "logical": "(1280, 720)",
+      "point": "(13.4, 0, 7.4)",
+      "radius": 0.72578526,
+      "restMin": 0,
+      "restMax": 1.6199999,
+      "bounds": {
+        "x": 827.4618,
+        "y": 606.86426,
+        "width": 86.27002,
+        "height": 110.19171
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(15, 22, 19.5)"
+    },
+    {
+      "hero": "orbit",
+      "requestedPhysical": "(1600, 720)",
+      "actualWindow": "(1600, 720)",
+      "logical": "(1280, 720)",
+      "point": "(-13.4, 0, 0)",
+      "radius": 0.72578526,
+      "restMin": 0,
+      "restMax": 1.6199999,
+      "bounds": {
+        "x": 226.00833,
+        "y": 104.27815,
+        "width": 86.26999,
+        "height": 110.19165
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(9, 22, 18)"
+    },
+    {
+      "hero": "orbit",
+      "requestedPhysical": "(1600, 720)",
+      "actualWindow": "(1600, 720)",
+      "logical": "(1280, 720)",
+      "point": "(13.4, 0, 0)",
+      "radius": 0.72578526,
+      "restMin": 0,
+      "restMax": 1.6199999,
+      "bounds": {
+        "x": 967.72174,
+        "y": 456.85123,
+        "width": 86.26996,
+        "height": 110.19156
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(15, 22, 18)"
+    },
+    {
+      "hero": "orbit",
+      "requestedPhysical": "(1600, 720)",
+      "actualWindow": "(1600, 720)",
+      "logical": "(1280, 720)",
+      "point": "(-8.2, 0, -4.5)",
+      "radius": 0.72578526,
+      "restMin": 0,
+      "restMax": 1.6199999,
+      "bounds": {
+        "x": 479.33197,
+        "y": 99.09127,
+        "width": 86.26996,
+        "height": 110.19166
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 3450.7983,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 3480,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(9.376, 22, 16.92)"
+    },
+    {
+      "hero": "orbit",
+      "requestedPhysical": "(1600, 720)",
+      "actualWindow": "(1600, 720)",
+      "logical": "(1280, 720)",
+      "point": "(8.2, 0, 4.5)",
+      "radius": 0.72578526,
+      "restMin": 0,
+      "restMax": 1.6199999,
+      "bounds": {
+        "x": 714.3981,
+        "y": 462.03812,
+        "width": 86.26996,
+        "height": 110.19162
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(14.624, 22, 19.08)"
+    },
+    {
+      "hero": "orbit",
+      "requestedPhysical": "(1600, 720)",
+      "actualWindow": "(1600, 720)",
+      "logical": "(1280, 720)",
+      "point": "(0, 0, 0)",
+      "radius": 0.72578526,
+      "restMin": 0,
+      "restMax": 1.6199999,
+      "bounds": {
+        "x": 596.86505,
+        "y": 280.56467,
+        "width": 86.26996,
+        "height": 110.19162
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(12, 22, 18)"
+    },
+    {
+      "hero": "crit",
+      "requestedPhysical": "(1600, 720)",
+      "actualWindow": "(1600, 720)",
+      "logical": "(1280, 720)",
+      "point": "(-13.4, 0, -7.4)",
+      "radius": 0.7022925,
+      "restMin": 0,
+      "restMax": 1.6199999,
+      "bounds": {
+        "x": 367.66452,
+        "y": -44.739334,
+        "width": 83.47748,
+        "height": 108.20055
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(9, 22, 16.5)"
+    },
+    {
+      "hero": "crit",
+      "requestedPhysical": "(1600, 720)",
+      "actualWindow": "(1600, 720)",
+      "logical": "(1280, 720)",
+      "point": "(13.4, 0, -7.4)",
+      "radius": 0.7022925,
+      "restMin": 0,
+      "restMax": 1.6199999,
+      "bounds": {
+        "x": 1109.3778,
+        "y": 307.8337,
+        "width": 83.47766,
+        "height": 108.20053
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(15, 22, 16.5)"
+    },
+    {
+      "hero": "crit",
+      "requestedPhysical": "(1600, 720)",
+      "actualWindow": "(1600, 720)",
+      "logical": "(1280, 720)",
+      "point": "(-13.4, 0, 7.4)",
+      "radius": 0.7022925,
+      "restMin": 0,
+      "restMax": 1.6199999,
+      "bounds": {
+        "x": 87.14466,
+        "y": 255.28677,
+        "width": 83.47747,
+        "height": 108.20056
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(9, 22, 19.5)"
+    },
+    {
+      "hero": "crit",
+      "requestedPhysical": "(1600, 720)",
+      "actualWindow": "(1600, 720)",
+      "logical": "(1280, 720)",
+      "point": "(13.4, 0, 7.4)",
+      "radius": 0.7022925,
+      "restMin": 0,
+      "restMax": 1.6199999,
+      "bounds": {
+        "x": 828.85803,
+        "y": 607.8598,
+        "width": 83.47754,
+        "height": 108.20056
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(15, 22, 19.5)"
+    },
+    {
+      "hero": "crit",
+      "requestedPhysical": "(1600, 720)",
+      "actualWindow": "(1600, 720)",
+      "logical": "(1280, 720)",
+      "point": "(-13.4, 0, 0)",
+      "radius": 0.7022925,
+      "restMin": 0,
+      "restMax": 1.6199999,
+      "bounds": {
+        "x": 227.40456,
+        "y": 105.27368,
+        "width": 83.47752,
+        "height": 108.20061
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(9, 22, 18)"
+    },
+    {
+      "hero": "crit",
+      "requestedPhysical": "(1600, 720)",
+      "actualWindow": "(1600, 720)",
+      "logical": "(1280, 720)",
+      "point": "(13.4, 0, 0)",
+      "radius": 0.7022925,
+      "restMin": 0,
+      "restMax": 1.6199999,
+      "bounds": {
+        "x": 969.1179,
+        "y": 457.8467,
+        "width": 83.47754,
+        "height": 108.20065
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(15, 22, 18)"
+    },
+    {
+      "hero": "crit",
+      "requestedPhysical": "(1600, 720)",
+      "actualWindow": "(1600, 720)",
+      "logical": "(1280, 720)",
+      "point": "(-8.2, 0, -4.5)",
+      "radius": 0.7022925,
+      "restMin": 0,
+      "restMax": 1.6199999,
+      "bounds": {
+        "x": 480.72818,
+        "y": 100.0868,
+        "width": 83.47757,
+        "height": 108.20054
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 3339.1028,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 3400,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(9.376, 22, 16.92)"
+    },
+    {
+      "hero": "crit",
+      "requestedPhysical": "(1600, 720)",
+      "actualWindow": "(1600, 720)",
+      "logical": "(1280, 720)",
+      "point": "(8.2, 0, 4.5)",
+      "radius": 0.7022925,
+      "restMin": 0,
+      "restMax": 1.6199999,
+      "bounds": {
+        "x": 715.7943,
+        "y": 463.03363,
+        "width": 83.47754,
+        "height": 108.20056
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(14.624, 22, 19.08)"
+    },
+    {
+      "hero": "crit",
+      "requestedPhysical": "(1600, 720)",
+      "actualWindow": "(1600, 720)",
+      "logical": "(1280, 720)",
+      "point": "(0, 0, 0)",
+      "radius": 0.7022925,
+      "restMin": 0,
+      "restMax": 1.6199999,
+      "bounds": {
+        "x": 598.2612,
+        "y": 281.56018,
+        "width": 83.47754,
+        "height": 108.20062
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(12, 22, 18)"
+    },
+    {
+      "hero": "honey",
+      "requestedPhysical": "(1600, 720)",
+      "actualWindow": "(1600, 720)",
+      "logical": "(1280, 720)",
+      "point": "(-13.4, 0, -7.4)",
+      "radius": 0.9625135,
+      "restMin": 0,
+      "restMax": 1.6200001,
+      "bounds": {
+        "x": 352.19897,
+        "y": -55.76673,
+        "width": 114.4086,
+        "height": 130.25525
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 741,
+      "allHudCandidatePixelArea": 741,
+      "camera": "(9, 22, 16.5)"
+    },
+    {
+      "hero": "honey",
+      "requestedPhysical": "(1600, 720)",
+      "actualWindow": "(1600, 720)",
+      "logical": "(1280, 720)",
+      "point": "(13.4, 0, -7.4)",
+      "radius": 0.9625135,
+      "restMin": 0,
+      "restMax": 1.6200001,
+      "bounds": {
+        "x": 1093.9124,
+        "y": 296.8063,
+        "width": 114.40857,
+        "height": 130.25522
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(15, 22, 16.5)"
+    },
+    {
+      "hero": "honey",
+      "requestedPhysical": "(1600, 720)",
+      "actualWindow": "(1600, 720)",
+      "logical": "(1280, 720)",
+      "point": "(-13.4, 0, 7.4)",
+      "radius": 0.9625135,
+      "restMin": 0,
+      "restMax": 1.6200001,
+      "bounds": {
+        "x": 71.679115,
+        "y": 244.2594,
+        "width": 114.40861,
+        "height": 130.25525
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(9, 22, 19.5)"
+    },
+    {
+      "hero": "honey",
+      "requestedPhysical": "(1600, 720)",
+      "actualWindow": "(1600, 720)",
+      "logical": "(1280, 720)",
+      "point": "(13.4, 0, 7.4)",
+      "radius": 0.9625135,
+      "restMin": 0,
+      "restMax": 1.6200001,
+      "bounds": {
+        "x": 813.3925,
+        "y": 596.8324,
+        "width": 114.40857,
+        "height": 130.25525
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 399,
+      "allHudCandidatePixelArea": 399,
+      "camera": "(15, 22, 19.5)"
+    },
+    {
+      "hero": "honey",
+      "requestedPhysical": "(1600, 720)",
+      "actualWindow": "(1600, 720)",
+      "logical": "(1280, 720)",
+      "point": "(-13.4, 0, 0)",
+      "radius": 0.9625135,
+      "restMin": 0,
+      "restMax": 1.6200001,
+      "bounds": {
+        "x": 211.93901,
+        "y": 94.246346,
+        "width": 114.408615,
+        "height": 130.25525
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 1044,
+      "allHudCandidatePixelArea": 1044,
+      "camera": "(9, 22, 18)"
+    },
+    {
+      "hero": "honey",
+      "requestedPhysical": "(1600, 720)",
+      "actualWindow": "(1600, 720)",
+      "logical": "(1280, 720)",
+      "point": "(13.4, 0, 0)",
+      "radius": 0.9625135,
+      "restMin": 0,
+      "restMax": 1.6200001,
+      "bounds": {
+        "x": 953.65247,
+        "y": 446.8194,
+        "width": 114.40857,
+        "height": 130.25519
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(15, 22, 18)"
+    },
+    {
+      "hero": "honey",
+      "requestedPhysical": "(1600, 720)",
+      "actualWindow": "(1600, 720)",
+      "logical": "(1280, 720)",
+      "point": "(-8.2, 0, -4.5)",
+      "radius": 0.9625135,
+      "restMin": 0,
+      "restMax": 1.6200001,
+      "bounds": {
+        "x": 465.26273,
+        "y": 89.05945,
+        "width": 114.40848,
+        "height": 130.25517
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 4576.339,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 4924,
+      "allHudCandidatePixelArea": 324,
+      "camera": "(9.376, 22, 16.92)"
+    },
+    {
+      "hero": "honey",
+      "requestedPhysical": "(1600, 720)",
+      "actualWindow": "(1600, 720)",
+      "logical": "(1280, 720)",
+      "point": "(8.2, 0, 4.5)",
+      "radius": 0.9625135,
+      "restMin": 0,
+      "restMax": 1.6200001,
+      "bounds": {
+        "x": 700.3288,
+        "y": 452.0063,
+        "width": 114.40857,
+        "height": 130.25519
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 920,
+      "allHudCandidatePixelArea": 920,
+      "camera": "(14.624, 22, 19.08)"
+    },
+    {
+      "hero": "honey",
+      "requestedPhysical": "(1600, 720)",
+      "actualWindow": "(1600, 720)",
+      "logical": "(1280, 720)",
+      "point": "(0, 0, 0)",
+      "radius": 0.9625135,
+      "restMin": 0,
+      "restMax": 1.6200001,
+      "bounds": {
+        "x": 582.7957,
+        "y": 270.53287,
+        "width": 114.40857,
+        "height": 130.25519
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(12, 22, 18)"
+    },
+    {
+      "hero": "summon",
+      "requestedPhysical": "(1600, 720)",
+      "actualWindow": "(1600, 720)",
+      "logical": "(1280, 720)",
+      "point": "(-13.4, 0, -7.4)",
+      "radius": 0.81046426,
+      "restMin": -3.7587727E-06,
+      "restMax": 1.6200173,
+      "bounds": {
+        "x": 361.23557,
+        "y": -49.32389,
+        "width": 96.33539,
+        "height": 117.369194
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 204,
+      "allHudCandidatePixelArea": 204,
+      "camera": "(9, 22, 16.5)"
+    },
+    {
+      "hero": "summon",
+      "requestedPhysical": "(1600, 720)",
+      "actualWindow": "(1600, 720)",
+      "logical": "(1280, 720)",
+      "point": "(13.4, 0, -7.4)",
+      "radius": 0.81046426,
+      "restMin": -3.7587727E-06,
+      "restMax": 1.6200173,
+      "bounds": {
+        "x": 1102.949,
+        "y": 303.24915,
+        "width": 96.33533,
+        "height": 117.3692
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(15, 22, 16.5)"
+    },
+    {
+      "hero": "summon",
+      "requestedPhysical": "(1600, 720)",
+      "actualWindow": "(1600, 720)",
+      "logical": "(1280, 720)",
+      "point": "(-13.4, 0, 7.4)",
+      "radius": 0.81046426,
+      "restMin": -3.7587727E-06,
+      "restMax": 1.6200173,
+      "bounds": {
+        "x": 80.71575,
+        "y": 250.70224,
+        "width": 96.335335,
+        "height": 117.36917
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(9, 22, 19.5)"
+    },
+    {
+      "hero": "summon",
+      "requestedPhysical": "(1600, 720)",
+      "actualWindow": "(1600, 720)",
+      "logical": "(1280, 720)",
+      "point": "(13.4, 0, 7.4)",
+      "radius": 0.81046426,
+      "restMin": -3.7587727E-06,
+      "restMax": 1.6200173,
+      "bounds": {
+        "x": 822.4292,
+        "y": 603.27527,
+        "width": 96.335266,
+        "height": 117.36914
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 2730,
+      "allHudCandidatePixelArea": 2730,
+      "camera": "(15, 22, 19.5)"
+    },
+    {
+      "hero": "summon",
+      "requestedPhysical": "(1600, 720)",
+      "actualWindow": "(1600, 720)",
+      "logical": "(1280, 720)",
+      "point": "(-13.4, 0, 0)",
+      "radius": 0.81046426,
+      "restMin": -3.7587727E-06,
+      "restMax": 1.6200173,
+      "bounds": {
+        "x": 220.97565,
+        "y": 100.68916,
+        "width": 96.33542,
+        "height": 117.36919
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 294,
+      "allHudCandidatePixelArea": 294,
+      "camera": "(9, 22, 18)"
+    },
+    {
+      "hero": "summon",
+      "requestedPhysical": "(1600, 720)",
+      "actualWindow": "(1600, 720)",
+      "logical": "(1280, 720)",
+      "point": "(13.4, 0, 0)",
+      "radius": 0.81046426,
+      "restMin": -3.7587727E-06,
+      "restMax": 1.6200173,
+      "bounds": {
+        "x": 962.6891,
+        "y": 453.2622,
+        "width": 96.33533,
+        "height": 117.3692
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(15, 22, 18)"
+    },
+    {
+      "hero": "summon",
+      "requestedPhysical": "(1600, 720)",
+      "actualWindow": "(1600, 720)",
+      "logical": "(1280, 720)",
+      "point": "(-8.2, 0, -4.5)",
+      "radius": 0.81046426,
+      "restMin": -3.7587727E-06,
+      "restMax": 1.6200173,
+      "bounds": {
+        "x": 474.29935,
+        "y": 95.50228,
+        "width": 96.3353,
+        "height": 117.369194
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 3853.4119,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 3943,
+      "allHudCandidatePixelArea": 63,
+      "camera": "(9.376, 22, 16.92)"
+    },
+    {
+      "hero": "summon",
+      "requestedPhysical": "(1600, 720)",
+      "actualWindow": "(1600, 720)",
+      "logical": "(1280, 720)",
+      "point": "(8.2, 0, 4.5)",
+      "radius": 0.81046426,
+      "restMin": -3.7587727E-06,
+      "restMax": 1.6200173,
+      "bounds": {
+        "x": 709.3654,
+        "y": 458.44907,
+        "width": 96.33533,
+        "height": 117.36917
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 97,
+      "allHudCandidatePixelArea": 97,
+      "camera": "(14.624, 22, 19.08)"
+    },
+    {
+      "hero": "summon",
+      "requestedPhysical": "(1600, 720)",
+      "actualWindow": "(1600, 720)",
+      "logical": "(1280, 720)",
+      "point": "(0, 0, 0)",
+      "radius": 0.81046426,
+      "restMin": -3.7587727E-06,
+      "restMax": 1.6200173,
+      "bounds": {
+        "x": 591.8324,
+        "y": 276.97568,
+        "width": 96.33533,
+        "height": 117.3692
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(12, 22, 18)"
+    },
+    {
+      "hero": "bounce",
+      "requestedPhysical": "(1600, 720)",
+      "actualWindow": "(1600, 720)",
+      "logical": "(1280, 720)",
+      "point": "(-13.4, 0, -7.4)",
+      "radius": 1.0952492,
+      "restMin": 0,
+      "restMax": 1.6200001,
+      "bounds": {
+        "x": 344.31015,
+        "y": -61.3916,
+        "width": 130.18607,
+        "height": 141.50497
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 1323,
+      "allHudCandidatePixelArea": 1323,
+      "camera": "(9, 22, 16.5)"
+    },
+    {
+      "hero": "bounce",
+      "requestedPhysical": "(1600, 720)",
+      "actualWindow": "(1600, 720)",
+      "logical": "(1280, 720)",
+      "point": "(13.4, 0, -7.4)",
+      "radius": 1.0952492,
+      "restMin": 0,
+      "restMax": 1.6200001,
+      "bounds": {
+        "x": 1086.0236,
+        "y": 291.18143,
+        "width": 130.18604,
+        "height": 141.50497
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(15, 22, 16.5)"
+    },
+    {
+      "hero": "bounce",
+      "requestedPhysical": "(1600, 720)",
+      "actualWindow": "(1600, 720)",
+      "logical": "(1280, 720)",
+      "point": "(-13.4, 0, 7.4)",
+      "radius": 1.0952492,
+      "restMin": 0,
+      "restMax": 1.6200001,
+      "bounds": {
+        "x": 63.79036,
+        "y": 238.63449,
+        "width": 130.18605,
+        "height": 141.50497
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(9, 22, 19.5)"
+    },
+    {
+      "hero": "bounce",
+      "requestedPhysical": "(1600, 720)",
+      "actualWindow": "(1600, 720)",
+      "logical": "(1280, 720)",
+      "point": "(13.4, 0, 7.4)",
+      "radius": 1.0952492,
+      "restMin": 0,
+      "restMax": 1.6200001,
+      "bounds": {
+        "x": 805.5038,
+        "y": 591.2075,
+        "width": 130.18604,
+        "height": 141.505
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 780,
+      "allHudCandidatePixelArea": 780,
+      "camera": "(15, 22, 19.5)"
+    },
+    {
+      "hero": "bounce",
+      "requestedPhysical": "(1600, 720)",
+      "actualWindow": "(1600, 720)",
+      "logical": "(1280, 720)",
+      "point": "(-13.4, 0, 0)",
+      "radius": 1.0952492,
+      "restMin": 0,
+      "restMax": 1.6200001,
+      "bounds": {
+        "x": 204.05026,
+        "y": 88.62145,
+        "width": 130.18607,
+        "height": 141.50497
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 1965,
+      "allHudCandidatePixelArea": 1965,
+      "camera": "(9, 22, 18)"
+    },
+    {
+      "hero": "bounce",
+      "requestedPhysical": "(1600, 720)",
+      "actualWindow": "(1600, 720)",
+      "logical": "(1280, 720)",
+      "point": "(13.4, 0, 0)",
+      "radius": 1.0952492,
+      "restMin": 0,
+      "restMax": 1.6200001,
+      "bounds": {
+        "x": 945.7637,
+        "y": 441.1945,
+        "width": 130.18604,
+        "height": 141.50497
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(15, 22, 18)"
+    },
+    {
+      "hero": "bounce",
+      "requestedPhysical": "(1600, 720)",
+      "actualWindow": "(1600, 720)",
+      "logical": "(1280, 720)",
+      "point": "(-8.2, 0, -4.5)",
+      "radius": 1.0952492,
+      "restMin": 0,
+      "restMax": 1.6200001,
+      "bounds": {
+        "x": 457.37393,
+        "y": 83.434555,
+        "width": 130.18607,
+        "height": 141.50496
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 5207.4424,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 5900,
+      "allHudCandidatePixelArea": 660,
+      "camera": "(9.376, 22, 16.92)"
+    },
+    {
+      "hero": "bounce",
+      "requestedPhysical": "(1600, 720)",
+      "actualWindow": "(1600, 720)",
+      "logical": "(1280, 720)",
+      "point": "(8.2, 0, 4.5)",
+      "radius": 1.0952492,
+      "restMin": 0,
+      "restMax": 1.6200001,
+      "bounds": {
+        "x": 692.44006,
+        "y": 446.3814,
+        "width": 130.18604,
+        "height": 141.50494
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 1703,
+      "allHudCandidatePixelArea": 1703,
+      "camera": "(14.624, 22, 19.08)"
+    },
+    {
+      "hero": "bounce",
+      "requestedPhysical": "(1600, 720)",
+      "actualWindow": "(1600, 720)",
+      "logical": "(1280, 720)",
+      "point": "(0, 0, 0)",
+      "radius": 1.0952492,
+      "restMin": 0,
+      "restMax": 1.6200001,
+      "bounds": {
+        "x": 574.907,
+        "y": 264.90796,
+        "width": 130.1861,
+        "height": 141.505
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(12, 22, 18)"
+    },
+    {
+      "hero": "orbit",
+      "requestedPhysical": "(720, 1280)",
+      "actualWindow": "(720, 1280)",
+      "logical": "(1280, 720)",
+      "point": "(-13.4, 0, -7.4)",
+      "radius": 0.72578526,
+      "restMin": 0,
+      "restMax": 1.6199999,
+      "bounds": {
+        "x": 366.26825,
+        "y": -45.734924,
+        "width": 86.27002,
+        "height": 110.19169
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(9, 22, 16.5)"
+    },
+    {
+      "hero": "orbit",
+      "requestedPhysical": "(720, 1280)",
+      "actualWindow": "(720, 1280)",
+      "logical": "(1280, 720)",
+      "point": "(13.4, 0, -7.4)",
+      "radius": 0.72578526,
+      "restMin": 0,
+      "restMax": 1.6199999,
+      "bounds": {
+        "x": 1107.9817,
+        "y": 306.83813,
+        "width": 86.2699,
+        "height": 110.19162
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(15, 22, 16.5)"
+    },
+    {
+      "hero": "orbit",
+      "requestedPhysical": "(720, 1280)",
+      "actualWindow": "(720, 1280)",
+      "logical": "(1280, 720)",
+      "point": "(-13.4, 0, 7.4)",
+      "radius": 0.72578526,
+      "restMin": 0,
+      "restMax": 1.6199999,
+      "bounds": {
+        "x": 85.74837,
+        "y": 254.2912,
+        "width": 86.270065,
+        "height": 110.19171
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(9, 22, 19.5)"
+    },
+    {
+      "hero": "orbit",
+      "requestedPhysical": "(720, 1280)",
+      "actualWindow": "(720, 1280)",
+      "logical": "(1280, 720)",
+      "point": "(13.4, 0, 7.4)",
+      "radius": 0.72578526,
+      "restMin": 0,
+      "restMax": 1.6199999,
+      "bounds": {
+        "x": 827.4618,
+        "y": 606.86426,
+        "width": 86.27002,
+        "height": 110.19171
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(15, 22, 19.5)"
+    },
+    {
+      "hero": "orbit",
+      "requestedPhysical": "(720, 1280)",
+      "actualWindow": "(720, 1280)",
+      "logical": "(1280, 720)",
+      "point": "(-13.4, 0, 0)",
+      "radius": 0.72578526,
+      "restMin": 0,
+      "restMax": 1.6199999,
+      "bounds": {
+        "x": 226.00833,
+        "y": 104.27815,
+        "width": 86.26999,
+        "height": 110.19165
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(9, 22, 18)"
+    },
+    {
+      "hero": "orbit",
+      "requestedPhysical": "(720, 1280)",
+      "actualWindow": "(720, 1280)",
+      "logical": "(1280, 720)",
+      "point": "(13.4, 0, 0)",
+      "radius": 0.72578526,
+      "restMin": 0,
+      "restMax": 1.6199999,
+      "bounds": {
+        "x": 967.72174,
+        "y": 456.85123,
+        "width": 86.26996,
+        "height": 110.19156
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(15, 22, 18)"
+    },
+    {
+      "hero": "orbit",
+      "requestedPhysical": "(720, 1280)",
+      "actualWindow": "(720, 1280)",
+      "logical": "(1280, 720)",
+      "point": "(-8.2, 0, -4.5)",
+      "radius": 0.72578526,
+      "restMin": 0,
+      "restMax": 1.6199999,
+      "bounds": {
+        "x": 479.33197,
+        "y": 99.09127,
+        "width": 86.26996,
+        "height": 110.19166
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 3450.7983,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 3480,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(9.376, 22, 16.92)"
+    },
+    {
+      "hero": "orbit",
+      "requestedPhysical": "(720, 1280)",
+      "actualWindow": "(720, 1280)",
+      "logical": "(1280, 720)",
+      "point": "(8.2, 0, 4.5)",
+      "radius": 0.72578526,
+      "restMin": 0,
+      "restMax": 1.6199999,
+      "bounds": {
+        "x": 714.3981,
+        "y": 462.03812,
+        "width": 86.26996,
+        "height": 110.19162
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(14.624, 22, 19.08)"
+    },
+    {
+      "hero": "orbit",
+      "requestedPhysical": "(720, 1280)",
+      "actualWindow": "(720, 1280)",
+      "logical": "(1280, 720)",
+      "point": "(0, 0, 0)",
+      "radius": 0.72578526,
+      "restMin": 0,
+      "restMax": 1.6199999,
+      "bounds": {
+        "x": 596.86505,
+        "y": 280.56467,
+        "width": 86.26996,
+        "height": 110.19162
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(12, 22, 18)"
+    },
+    {
+      "hero": "crit",
+      "requestedPhysical": "(720, 1280)",
+      "actualWindow": "(720, 1280)",
+      "logical": "(1280, 720)",
+      "point": "(-13.4, 0, -7.4)",
+      "radius": 0.7022925,
+      "restMin": 0,
+      "restMax": 1.6199999,
+      "bounds": {
+        "x": 367.66452,
+        "y": -44.739334,
+        "width": 83.47748,
+        "height": 108.20055
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(9, 22, 16.5)"
+    },
+    {
+      "hero": "crit",
+      "requestedPhysical": "(720, 1280)",
+      "actualWindow": "(720, 1280)",
+      "logical": "(1280, 720)",
+      "point": "(13.4, 0, -7.4)",
+      "radius": 0.7022925,
+      "restMin": 0,
+      "restMax": 1.6199999,
+      "bounds": {
+        "x": 1109.3778,
+        "y": 307.8337,
+        "width": 83.47766,
+        "height": 108.20053
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(15, 22, 16.5)"
+    },
+    {
+      "hero": "crit",
+      "requestedPhysical": "(720, 1280)",
+      "actualWindow": "(720, 1280)",
+      "logical": "(1280, 720)",
+      "point": "(-13.4, 0, 7.4)",
+      "radius": 0.7022925,
+      "restMin": 0,
+      "restMax": 1.6199999,
+      "bounds": {
+        "x": 87.14466,
+        "y": 255.28677,
+        "width": 83.47747,
+        "height": 108.20056
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(9, 22, 19.5)"
+    },
+    {
+      "hero": "crit",
+      "requestedPhysical": "(720, 1280)",
+      "actualWindow": "(720, 1280)",
+      "logical": "(1280, 720)",
+      "point": "(13.4, 0, 7.4)",
+      "radius": 0.7022925,
+      "restMin": 0,
+      "restMax": 1.6199999,
+      "bounds": {
+        "x": 828.85803,
+        "y": 607.8598,
+        "width": 83.47754,
+        "height": 108.20056
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(15, 22, 19.5)"
+    },
+    {
+      "hero": "crit",
+      "requestedPhysical": "(720, 1280)",
+      "actualWindow": "(720, 1280)",
+      "logical": "(1280, 720)",
+      "point": "(-13.4, 0, 0)",
+      "radius": 0.7022925,
+      "restMin": 0,
+      "restMax": 1.6199999,
+      "bounds": {
+        "x": 227.40456,
+        "y": 105.27368,
+        "width": 83.47752,
+        "height": 108.20061
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(9, 22, 18)"
+    },
+    {
+      "hero": "crit",
+      "requestedPhysical": "(720, 1280)",
+      "actualWindow": "(720, 1280)",
+      "logical": "(1280, 720)",
+      "point": "(13.4, 0, 0)",
+      "radius": 0.7022925,
+      "restMin": 0,
+      "restMax": 1.6199999,
+      "bounds": {
+        "x": 969.1179,
+        "y": 457.8467,
+        "width": 83.47754,
+        "height": 108.20065
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(15, 22, 18)"
+    },
+    {
+      "hero": "crit",
+      "requestedPhysical": "(720, 1280)",
+      "actualWindow": "(720, 1280)",
+      "logical": "(1280, 720)",
+      "point": "(-8.2, 0, -4.5)",
+      "radius": 0.7022925,
+      "restMin": 0,
+      "restMax": 1.6199999,
+      "bounds": {
+        "x": 480.72818,
+        "y": 100.0868,
+        "width": 83.47757,
+        "height": 108.20054
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 3339.1028,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 3400,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(9.376, 22, 16.92)"
+    },
+    {
+      "hero": "crit",
+      "requestedPhysical": "(720, 1280)",
+      "actualWindow": "(720, 1280)",
+      "logical": "(1280, 720)",
+      "point": "(8.2, 0, 4.5)",
+      "radius": 0.7022925,
+      "restMin": 0,
+      "restMax": 1.6199999,
+      "bounds": {
+        "x": 715.7943,
+        "y": 463.03363,
+        "width": 83.47754,
+        "height": 108.20056
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(14.624, 22, 19.08)"
+    },
+    {
+      "hero": "crit",
+      "requestedPhysical": "(720, 1280)",
+      "actualWindow": "(720, 1280)",
+      "logical": "(1280, 720)",
+      "point": "(0, 0, 0)",
+      "radius": 0.7022925,
+      "restMin": 0,
+      "restMax": 1.6199999,
+      "bounds": {
+        "x": 598.2612,
+        "y": 281.56018,
+        "width": 83.47754,
+        "height": 108.20062
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(12, 22, 18)"
+    },
+    {
+      "hero": "honey",
+      "requestedPhysical": "(720, 1280)",
+      "actualWindow": "(720, 1280)",
+      "logical": "(1280, 720)",
+      "point": "(-13.4, 0, -7.4)",
+      "radius": 0.9625135,
+      "restMin": 0,
+      "restMax": 1.6200001,
+      "bounds": {
+        "x": 352.19897,
+        "y": -55.76673,
+        "width": 114.4086,
+        "height": 130.25525
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 741,
+      "allHudCandidatePixelArea": 741,
+      "camera": "(9, 22, 16.5)"
+    },
+    {
+      "hero": "honey",
+      "requestedPhysical": "(720, 1280)",
+      "actualWindow": "(720, 1280)",
+      "logical": "(1280, 720)",
+      "point": "(13.4, 0, -7.4)",
+      "radius": 0.9625135,
+      "restMin": 0,
+      "restMax": 1.6200001,
+      "bounds": {
+        "x": 1093.9124,
+        "y": 296.8063,
+        "width": 114.40857,
+        "height": 130.25522
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(15, 22, 16.5)"
+    },
+    {
+      "hero": "honey",
+      "requestedPhysical": "(720, 1280)",
+      "actualWindow": "(720, 1280)",
+      "logical": "(1280, 720)",
+      "point": "(-13.4, 0, 7.4)",
+      "radius": 0.9625135,
+      "restMin": 0,
+      "restMax": 1.6200001,
+      "bounds": {
+        "x": 71.679115,
+        "y": 244.2594,
+        "width": 114.40861,
+        "height": 130.25525
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(9, 22, 19.5)"
+    },
+    {
+      "hero": "honey",
+      "requestedPhysical": "(720, 1280)",
+      "actualWindow": "(720, 1280)",
+      "logical": "(1280, 720)",
+      "point": "(13.4, 0, 7.4)",
+      "radius": 0.9625135,
+      "restMin": 0,
+      "restMax": 1.6200001,
+      "bounds": {
+        "x": 813.3925,
+        "y": 596.8324,
+        "width": 114.40857,
+        "height": 130.25525
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 399,
+      "allHudCandidatePixelArea": 399,
+      "camera": "(15, 22, 19.5)"
+    },
+    {
+      "hero": "honey",
+      "requestedPhysical": "(720, 1280)",
+      "actualWindow": "(720, 1280)",
+      "logical": "(1280, 720)",
+      "point": "(-13.4, 0, 0)",
+      "radius": 0.9625135,
+      "restMin": 0,
+      "restMax": 1.6200001,
+      "bounds": {
+        "x": 211.93901,
+        "y": 94.246346,
+        "width": 114.408615,
+        "height": 130.25525
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 1044,
+      "allHudCandidatePixelArea": 1044,
+      "camera": "(9, 22, 18)"
+    },
+    {
+      "hero": "honey",
+      "requestedPhysical": "(720, 1280)",
+      "actualWindow": "(720, 1280)",
+      "logical": "(1280, 720)",
+      "point": "(13.4, 0, 0)",
+      "radius": 0.9625135,
+      "restMin": 0,
+      "restMax": 1.6200001,
+      "bounds": {
+        "x": 953.65247,
+        "y": 446.8194,
+        "width": 114.40857,
+        "height": 130.25519
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(15, 22, 18)"
+    },
+    {
+      "hero": "honey",
+      "requestedPhysical": "(720, 1280)",
+      "actualWindow": "(720, 1280)",
+      "logical": "(1280, 720)",
+      "point": "(-8.2, 0, -4.5)",
+      "radius": 0.9625135,
+      "restMin": 0,
+      "restMax": 1.6200001,
+      "bounds": {
+        "x": 465.26273,
+        "y": 89.05945,
+        "width": 114.40848,
+        "height": 130.25517
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 4576.339,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 4924,
+      "allHudCandidatePixelArea": 324,
+      "camera": "(9.376, 22, 16.92)"
+    },
+    {
+      "hero": "honey",
+      "requestedPhysical": "(720, 1280)",
+      "actualWindow": "(720, 1280)",
+      "logical": "(1280, 720)",
+      "point": "(8.2, 0, 4.5)",
+      "radius": 0.9625135,
+      "restMin": 0,
+      "restMax": 1.6200001,
+      "bounds": {
+        "x": 700.3288,
+        "y": 452.0063,
+        "width": 114.40857,
+        "height": 130.25519
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 920,
+      "allHudCandidatePixelArea": 920,
+      "camera": "(14.624, 22, 19.08)"
+    },
+    {
+      "hero": "honey",
+      "requestedPhysical": "(720, 1280)",
+      "actualWindow": "(720, 1280)",
+      "logical": "(1280, 720)",
+      "point": "(0, 0, 0)",
+      "radius": 0.9625135,
+      "restMin": 0,
+      "restMax": 1.6200001,
+      "bounds": {
+        "x": 582.7957,
+        "y": 270.53287,
+        "width": 114.40857,
+        "height": 130.25519
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(12, 22, 18)"
+    },
+    {
+      "hero": "summon",
+      "requestedPhysical": "(720, 1280)",
+      "actualWindow": "(720, 1280)",
+      "logical": "(1280, 720)",
+      "point": "(-13.4, 0, -7.4)",
+      "radius": 0.81046426,
+      "restMin": -3.7587727E-06,
+      "restMax": 1.6200173,
+      "bounds": {
+        "x": 361.23557,
+        "y": -49.32389,
+        "width": 96.33539,
+        "height": 117.369194
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 204,
+      "allHudCandidatePixelArea": 204,
+      "camera": "(9, 22, 16.5)"
+    },
+    {
+      "hero": "summon",
+      "requestedPhysical": "(720, 1280)",
+      "actualWindow": "(720, 1280)",
+      "logical": "(1280, 720)",
+      "point": "(13.4, 0, -7.4)",
+      "radius": 0.81046426,
+      "restMin": -3.7587727E-06,
+      "restMax": 1.6200173,
+      "bounds": {
+        "x": 1102.949,
+        "y": 303.24915,
+        "width": 96.33533,
+        "height": 117.3692
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(15, 22, 16.5)"
+    },
+    {
+      "hero": "summon",
+      "requestedPhysical": "(720, 1280)",
+      "actualWindow": "(720, 1280)",
+      "logical": "(1280, 720)",
+      "point": "(-13.4, 0, 7.4)",
+      "radius": 0.81046426,
+      "restMin": -3.7587727E-06,
+      "restMax": 1.6200173,
+      "bounds": {
+        "x": 80.71575,
+        "y": 250.70224,
+        "width": 96.335335,
+        "height": 117.36917
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(9, 22, 19.5)"
+    },
+    {
+      "hero": "summon",
+      "requestedPhysical": "(720, 1280)",
+      "actualWindow": "(720, 1280)",
+      "logical": "(1280, 720)",
+      "point": "(13.4, 0, 7.4)",
+      "radius": 0.81046426,
+      "restMin": -3.7587727E-06,
+      "restMax": 1.6200173,
+      "bounds": {
+        "x": 822.4292,
+        "y": 603.27527,
+        "width": 96.335266,
+        "height": 117.36914
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 2730,
+      "allHudCandidatePixelArea": 2730,
+      "camera": "(15, 22, 19.5)"
+    },
+    {
+      "hero": "summon",
+      "requestedPhysical": "(720, 1280)",
+      "actualWindow": "(720, 1280)",
+      "logical": "(1280, 720)",
+      "point": "(-13.4, 0, 0)",
+      "radius": 0.81046426,
+      "restMin": -3.7587727E-06,
+      "restMax": 1.6200173,
+      "bounds": {
+        "x": 220.97565,
+        "y": 100.68916,
+        "width": 96.33542,
+        "height": 117.36919
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 294,
+      "allHudCandidatePixelArea": 294,
+      "camera": "(9, 22, 18)"
+    },
+    {
+      "hero": "summon",
+      "requestedPhysical": "(720, 1280)",
+      "actualWindow": "(720, 1280)",
+      "logical": "(1280, 720)",
+      "point": "(13.4, 0, 0)",
+      "radius": 0.81046426,
+      "restMin": -3.7587727E-06,
+      "restMax": 1.6200173,
+      "bounds": {
+        "x": 962.6891,
+        "y": 453.2622,
+        "width": 96.33533,
+        "height": 117.3692
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(15, 22, 18)"
+    },
+    {
+      "hero": "summon",
+      "requestedPhysical": "(720, 1280)",
+      "actualWindow": "(720, 1280)",
+      "logical": "(1280, 720)",
+      "point": "(-8.2, 0, -4.5)",
+      "radius": 0.81046426,
+      "restMin": -3.7587727E-06,
+      "restMax": 1.6200173,
+      "bounds": {
+        "x": 474.29935,
+        "y": 95.50228,
+        "width": 96.3353,
+        "height": 117.369194
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 3853.4119,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 3943,
+      "allHudCandidatePixelArea": 63,
+      "camera": "(9.376, 22, 16.92)"
+    },
+    {
+      "hero": "summon",
+      "requestedPhysical": "(720, 1280)",
+      "actualWindow": "(720, 1280)",
+      "logical": "(1280, 720)",
+      "point": "(8.2, 0, 4.5)",
+      "radius": 0.81046426,
+      "restMin": -3.7587727E-06,
+      "restMax": 1.6200173,
+      "bounds": {
+        "x": 709.3654,
+        "y": 458.44907,
+        "width": 96.33533,
+        "height": 117.36917
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 97,
+      "allHudCandidatePixelArea": 97,
+      "camera": "(14.624, 22, 19.08)"
+    },
+    {
+      "hero": "summon",
+      "requestedPhysical": "(720, 1280)",
+      "actualWindow": "(720, 1280)",
+      "logical": "(1280, 720)",
+      "point": "(0, 0, 0)",
+      "radius": 0.81046426,
+      "restMin": -3.7587727E-06,
+      "restMax": 1.6200173,
+      "bounds": {
+        "x": 591.8324,
+        "y": 276.97568,
+        "width": 96.33533,
+        "height": 117.3692
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(12, 22, 18)"
+    },
+    {
+      "hero": "bounce",
+      "requestedPhysical": "(720, 1280)",
+      "actualWindow": "(720, 1280)",
+      "logical": "(1280, 720)",
+      "point": "(-13.4, 0, -7.4)",
+      "radius": 1.0952492,
+      "restMin": 0,
+      "restMax": 1.6200001,
+      "bounds": {
+        "x": 344.31015,
+        "y": -61.3916,
+        "width": 130.18607,
+        "height": 141.50497
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 1323,
+      "allHudCandidatePixelArea": 1323,
+      "camera": "(9, 22, 16.5)"
+    },
+    {
+      "hero": "bounce",
+      "requestedPhysical": "(720, 1280)",
+      "actualWindow": "(720, 1280)",
+      "logical": "(1280, 720)",
+      "point": "(13.4, 0, -7.4)",
+      "radius": 1.0952492,
+      "restMin": 0,
+      "restMax": 1.6200001,
+      "bounds": {
+        "x": 1086.0236,
+        "y": 291.18143,
+        "width": 130.18604,
+        "height": 141.50497
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(15, 22, 16.5)"
+    },
+    {
+      "hero": "bounce",
+      "requestedPhysical": "(720, 1280)",
+      "actualWindow": "(720, 1280)",
+      "logical": "(1280, 720)",
+      "point": "(-13.4, 0, 7.4)",
+      "radius": 1.0952492,
+      "restMin": 0,
+      "restMax": 1.6200001,
+      "bounds": {
+        "x": 63.79036,
+        "y": 238.63449,
+        "width": 130.18605,
+        "height": 141.50497
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(9, 22, 19.5)"
+    },
+    {
+      "hero": "bounce",
+      "requestedPhysical": "(720, 1280)",
+      "actualWindow": "(720, 1280)",
+      "logical": "(1280, 720)",
+      "point": "(13.4, 0, 7.4)",
+      "radius": 1.0952492,
+      "restMin": 0,
+      "restMax": 1.6200001,
+      "bounds": {
+        "x": 805.5038,
+        "y": 591.2075,
+        "width": 130.18604,
+        "height": 141.505
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 780,
+      "allHudCandidatePixelArea": 780,
+      "camera": "(15, 22, 19.5)"
+    },
+    {
+      "hero": "bounce",
+      "requestedPhysical": "(720, 1280)",
+      "actualWindow": "(720, 1280)",
+      "logical": "(1280, 720)",
+      "point": "(-13.4, 0, 0)",
+      "radius": 1.0952492,
+      "restMin": 0,
+      "restMax": 1.6200001,
+      "bounds": {
+        "x": 204.05026,
+        "y": 88.62145,
+        "width": 130.18607,
+        "height": 141.50497
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 1965,
+      "allHudCandidatePixelArea": 1965,
+      "camera": "(9, 22, 18)"
+    },
+    {
+      "hero": "bounce",
+      "requestedPhysical": "(720, 1280)",
+      "actualWindow": "(720, 1280)",
+      "logical": "(1280, 720)",
+      "point": "(13.4, 0, 0)",
+      "radius": 1.0952492,
+      "restMin": 0,
+      "restMax": 1.6200001,
+      "bounds": {
+        "x": 945.7637,
+        "y": 441.1945,
+        "width": 130.18604,
+        "height": 141.50497
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(15, 22, 18)"
+    },
+    {
+      "hero": "bounce",
+      "requestedPhysical": "(720, 1280)",
+      "actualWindow": "(720, 1280)",
+      "logical": "(1280, 720)",
+      "point": "(-8.2, 0, -4.5)",
+      "radius": 1.0952492,
+      "restMin": 0,
+      "restMax": 1.6200001,
+      "bounds": {
+        "x": 457.37393,
+        "y": 83.434555,
+        "width": 130.18607,
+        "height": 141.50496
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 5207.4424,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 5900,
+      "allHudCandidatePixelArea": 660,
+      "camera": "(9.376, 22, 16.92)"
+    },
+    {
+      "hero": "bounce",
+      "requestedPhysical": "(720, 1280)",
+      "actualWindow": "(720, 1280)",
+      "logical": "(1280, 720)",
+      "point": "(8.2, 0, 4.5)",
+      "radius": 1.0952492,
+      "restMin": 0,
+      "restMax": 1.6200001,
+      "bounds": {
+        "x": 692.44006,
+        "y": 446.3814,
+        "width": 130.18604,
+        "height": 141.50494
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 1703,
+      "allHudCandidatePixelArea": 1703,
+      "camera": "(14.624, 22, 19.08)"
+    },
+    {
+      "hero": "bounce",
+      "requestedPhysical": "(720, 1280)",
+      "actualWindow": "(720, 1280)",
+      "logical": "(1280, 720)",
+      "point": "(0, 0, 0)",
+      "radius": 1.0952492,
+      "restMin": 0,
+      "restMax": 1.6200001,
+      "bounds": {
+        "x": 574.907,
+        "y": 264.90796,
+        "width": 130.1861,
+        "height": 141.505
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(12, 22, 18)"
+    },
+    {
+      "hero": "orbit",
+      "requestedPhysical": "(1024, 768)",
+      "actualWindow": "(1024, 768)",
+      "logical": "(1280, 720)",
+      "point": "(-13.4, 0, -7.4)",
+      "radius": 0.72578526,
+      "restMin": 0,
+      "restMax": 1.6199999,
+      "bounds": {
+        "x": 366.26825,
+        "y": -45.734924,
+        "width": 86.27002,
+        "height": 110.19169
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(9, 22, 16.5)"
+    },
+    {
+      "hero": "orbit",
+      "requestedPhysical": "(1024, 768)",
+      "actualWindow": "(1024, 768)",
+      "logical": "(1280, 720)",
+      "point": "(13.4, 0, -7.4)",
+      "radius": 0.72578526,
+      "restMin": 0,
+      "restMax": 1.6199999,
+      "bounds": {
+        "x": 1107.9817,
+        "y": 306.83813,
+        "width": 86.2699,
+        "height": 110.19162
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(15, 22, 16.5)"
+    },
+    {
+      "hero": "orbit",
+      "requestedPhysical": "(1024, 768)",
+      "actualWindow": "(1024, 768)",
+      "logical": "(1280, 720)",
+      "point": "(-13.4, 0, 7.4)",
+      "radius": 0.72578526,
+      "restMin": 0,
+      "restMax": 1.6199999,
+      "bounds": {
+        "x": 85.74837,
+        "y": 254.2912,
+        "width": 86.270065,
+        "height": 110.19171
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(9, 22, 19.5)"
+    },
+    {
+      "hero": "orbit",
+      "requestedPhysical": "(1024, 768)",
+      "actualWindow": "(1024, 768)",
+      "logical": "(1280, 720)",
+      "point": "(13.4, 0, 7.4)",
+      "radius": 0.72578526,
+      "restMin": 0,
+      "restMax": 1.6199999,
+      "bounds": {
+        "x": 827.4618,
+        "y": 606.86426,
+        "width": 86.27002,
+        "height": 110.19171
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(15, 22, 19.5)"
+    },
+    {
+      "hero": "orbit",
+      "requestedPhysical": "(1024, 768)",
+      "actualWindow": "(1024, 768)",
+      "logical": "(1280, 720)",
+      "point": "(-13.4, 0, 0)",
+      "radius": 0.72578526,
+      "restMin": 0,
+      "restMax": 1.6199999,
+      "bounds": {
+        "x": 226.00833,
+        "y": 104.27815,
+        "width": 86.26999,
+        "height": 110.19165
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(9, 22, 18)"
+    },
+    {
+      "hero": "orbit",
+      "requestedPhysical": "(1024, 768)",
+      "actualWindow": "(1024, 768)",
+      "logical": "(1280, 720)",
+      "point": "(13.4, 0, 0)",
+      "radius": 0.72578526,
+      "restMin": 0,
+      "restMax": 1.6199999,
+      "bounds": {
+        "x": 967.72174,
+        "y": 456.85123,
+        "width": 86.26996,
+        "height": 110.19156
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(15, 22, 18)"
+    },
+    {
+      "hero": "orbit",
+      "requestedPhysical": "(1024, 768)",
+      "actualWindow": "(1024, 768)",
+      "logical": "(1280, 720)",
+      "point": "(-8.2, 0, -4.5)",
+      "radius": 0.72578526,
+      "restMin": 0,
+      "restMax": 1.6199999,
+      "bounds": {
+        "x": 479.33197,
+        "y": 99.09127,
+        "width": 86.26996,
+        "height": 110.19166
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 3450.7983,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 3480,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(9.376, 22, 16.92)"
+    },
+    {
+      "hero": "orbit",
+      "requestedPhysical": "(1024, 768)",
+      "actualWindow": "(1024, 768)",
+      "logical": "(1280, 720)",
+      "point": "(8.2, 0, 4.5)",
+      "radius": 0.72578526,
+      "restMin": 0,
+      "restMax": 1.6199999,
+      "bounds": {
+        "x": 714.3981,
+        "y": 462.03812,
+        "width": 86.26996,
+        "height": 110.19162
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(14.624, 22, 19.08)"
+    },
+    {
+      "hero": "orbit",
+      "requestedPhysical": "(1024, 768)",
+      "actualWindow": "(1024, 768)",
+      "logical": "(1280, 720)",
+      "point": "(0, 0, 0)",
+      "radius": 0.72578526,
+      "restMin": 0,
+      "restMax": 1.6199999,
+      "bounds": {
+        "x": 596.86505,
+        "y": 280.56467,
+        "width": 86.26996,
+        "height": 110.19162
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(12, 22, 18)"
+    },
+    {
+      "hero": "crit",
+      "requestedPhysical": "(1024, 768)",
+      "actualWindow": "(1024, 768)",
+      "logical": "(1280, 720)",
+      "point": "(-13.4, 0, -7.4)",
+      "radius": 0.7022925,
+      "restMin": 0,
+      "restMax": 1.6199999,
+      "bounds": {
+        "x": 367.66452,
+        "y": -44.739334,
+        "width": 83.47748,
+        "height": 108.20055
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(9, 22, 16.5)"
+    },
+    {
+      "hero": "crit",
+      "requestedPhysical": "(1024, 768)",
+      "actualWindow": "(1024, 768)",
+      "logical": "(1280, 720)",
+      "point": "(13.4, 0, -7.4)",
+      "radius": 0.7022925,
+      "restMin": 0,
+      "restMax": 1.6199999,
+      "bounds": {
+        "x": 1109.3778,
+        "y": 307.8337,
+        "width": 83.47766,
+        "height": 108.20053
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(15, 22, 16.5)"
+    },
+    {
+      "hero": "crit",
+      "requestedPhysical": "(1024, 768)",
+      "actualWindow": "(1024, 768)",
+      "logical": "(1280, 720)",
+      "point": "(-13.4, 0, 7.4)",
+      "radius": 0.7022925,
+      "restMin": 0,
+      "restMax": 1.6199999,
+      "bounds": {
+        "x": 87.14466,
+        "y": 255.28677,
+        "width": 83.47747,
+        "height": 108.20056
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(9, 22, 19.5)"
+    },
+    {
+      "hero": "crit",
+      "requestedPhysical": "(1024, 768)",
+      "actualWindow": "(1024, 768)",
+      "logical": "(1280, 720)",
+      "point": "(13.4, 0, 7.4)",
+      "radius": 0.7022925,
+      "restMin": 0,
+      "restMax": 1.6199999,
+      "bounds": {
+        "x": 828.85803,
+        "y": 607.8598,
+        "width": 83.47754,
+        "height": 108.20056
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(15, 22, 19.5)"
+    },
+    {
+      "hero": "crit",
+      "requestedPhysical": "(1024, 768)",
+      "actualWindow": "(1024, 768)",
+      "logical": "(1280, 720)",
+      "point": "(-13.4, 0, 0)",
+      "radius": 0.7022925,
+      "restMin": 0,
+      "restMax": 1.6199999,
+      "bounds": {
+        "x": 227.40456,
+        "y": 105.27368,
+        "width": 83.47752,
+        "height": 108.20061
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(9, 22, 18)"
+    },
+    {
+      "hero": "crit",
+      "requestedPhysical": "(1024, 768)",
+      "actualWindow": "(1024, 768)",
+      "logical": "(1280, 720)",
+      "point": "(13.4, 0, 0)",
+      "radius": 0.7022925,
+      "restMin": 0,
+      "restMax": 1.6199999,
+      "bounds": {
+        "x": 969.1179,
+        "y": 457.8467,
+        "width": 83.47754,
+        "height": 108.20065
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(15, 22, 18)"
+    },
+    {
+      "hero": "crit",
+      "requestedPhysical": "(1024, 768)",
+      "actualWindow": "(1024, 768)",
+      "logical": "(1280, 720)",
+      "point": "(-8.2, 0, -4.5)",
+      "radius": 0.7022925,
+      "restMin": 0,
+      "restMax": 1.6199999,
+      "bounds": {
+        "x": 480.72818,
+        "y": 100.0868,
+        "width": 83.47757,
+        "height": 108.20054
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 3339.1028,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 3400,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(9.376, 22, 16.92)"
+    },
+    {
+      "hero": "crit",
+      "requestedPhysical": "(1024, 768)",
+      "actualWindow": "(1024, 768)",
+      "logical": "(1280, 720)",
+      "point": "(8.2, 0, 4.5)",
+      "radius": 0.7022925,
+      "restMin": 0,
+      "restMax": 1.6199999,
+      "bounds": {
+        "x": 715.7943,
+        "y": 463.03363,
+        "width": 83.47754,
+        "height": 108.20056
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(14.624, 22, 19.08)"
+    },
+    {
+      "hero": "crit",
+      "requestedPhysical": "(1024, 768)",
+      "actualWindow": "(1024, 768)",
+      "logical": "(1280, 720)",
+      "point": "(0, 0, 0)",
+      "radius": 0.7022925,
+      "restMin": 0,
+      "restMax": 1.6199999,
+      "bounds": {
+        "x": 598.2612,
+        "y": 281.56018,
+        "width": 83.47754,
+        "height": 108.20062
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(12, 22, 18)"
+    },
+    {
+      "hero": "honey",
+      "requestedPhysical": "(1024, 768)",
+      "actualWindow": "(1024, 768)",
+      "logical": "(1280, 720)",
+      "point": "(-13.4, 0, -7.4)",
+      "radius": 0.9625135,
+      "restMin": 0,
+      "restMax": 1.6200001,
+      "bounds": {
+        "x": 352.19897,
+        "y": -55.76673,
+        "width": 114.4086,
+        "height": 130.25525
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 741,
+      "allHudCandidatePixelArea": 741,
+      "camera": "(9, 22, 16.5)"
+    },
+    {
+      "hero": "honey",
+      "requestedPhysical": "(1024, 768)",
+      "actualWindow": "(1024, 768)",
+      "logical": "(1280, 720)",
+      "point": "(13.4, 0, -7.4)",
+      "radius": 0.9625135,
+      "restMin": 0,
+      "restMax": 1.6200001,
+      "bounds": {
+        "x": 1093.9124,
+        "y": 296.8063,
+        "width": 114.40857,
+        "height": 130.25522
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(15, 22, 16.5)"
+    },
+    {
+      "hero": "honey",
+      "requestedPhysical": "(1024, 768)",
+      "actualWindow": "(1024, 768)",
+      "logical": "(1280, 720)",
+      "point": "(-13.4, 0, 7.4)",
+      "radius": 0.9625135,
+      "restMin": 0,
+      "restMax": 1.6200001,
+      "bounds": {
+        "x": 71.679115,
+        "y": 244.2594,
+        "width": 114.40861,
+        "height": 130.25525
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(9, 22, 19.5)"
+    },
+    {
+      "hero": "honey",
+      "requestedPhysical": "(1024, 768)",
+      "actualWindow": "(1024, 768)",
+      "logical": "(1280, 720)",
+      "point": "(13.4, 0, 7.4)",
+      "radius": 0.9625135,
+      "restMin": 0,
+      "restMax": 1.6200001,
+      "bounds": {
+        "x": 813.3925,
+        "y": 596.8324,
+        "width": 114.40857,
+        "height": 130.25525
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 399,
+      "allHudCandidatePixelArea": 399,
+      "camera": "(15, 22, 19.5)"
+    },
+    {
+      "hero": "honey",
+      "requestedPhysical": "(1024, 768)",
+      "actualWindow": "(1024, 768)",
+      "logical": "(1280, 720)",
+      "point": "(-13.4, 0, 0)",
+      "radius": 0.9625135,
+      "restMin": 0,
+      "restMax": 1.6200001,
+      "bounds": {
+        "x": 211.93901,
+        "y": 94.246346,
+        "width": 114.408615,
+        "height": 130.25525
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 1044,
+      "allHudCandidatePixelArea": 1044,
+      "camera": "(9, 22, 18)"
+    },
+    {
+      "hero": "honey",
+      "requestedPhysical": "(1024, 768)",
+      "actualWindow": "(1024, 768)",
+      "logical": "(1280, 720)",
+      "point": "(13.4, 0, 0)",
+      "radius": 0.9625135,
+      "restMin": 0,
+      "restMax": 1.6200001,
+      "bounds": {
+        "x": 953.65247,
+        "y": 446.8194,
+        "width": 114.40857,
+        "height": 130.25519
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(15, 22, 18)"
+    },
+    {
+      "hero": "honey",
+      "requestedPhysical": "(1024, 768)",
+      "actualWindow": "(1024, 768)",
+      "logical": "(1280, 720)",
+      "point": "(-8.2, 0, -4.5)",
+      "radius": 0.9625135,
+      "restMin": 0,
+      "restMax": 1.6200001,
+      "bounds": {
+        "x": 465.26273,
+        "y": 89.05945,
+        "width": 114.40848,
+        "height": 130.25517
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 4576.339,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 4924,
+      "allHudCandidatePixelArea": 324,
+      "camera": "(9.376, 22, 16.92)"
+    },
+    {
+      "hero": "honey",
+      "requestedPhysical": "(1024, 768)",
+      "actualWindow": "(1024, 768)",
+      "logical": "(1280, 720)",
+      "point": "(8.2, 0, 4.5)",
+      "radius": 0.9625135,
+      "restMin": 0,
+      "restMax": 1.6200001,
+      "bounds": {
+        "x": 700.3288,
+        "y": 452.0063,
+        "width": 114.40857,
+        "height": 130.25519
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 920,
+      "allHudCandidatePixelArea": 920,
+      "camera": "(14.624, 22, 19.08)"
+    },
+    {
+      "hero": "honey",
+      "requestedPhysical": "(1024, 768)",
+      "actualWindow": "(1024, 768)",
+      "logical": "(1280, 720)",
+      "point": "(0, 0, 0)",
+      "radius": 0.9625135,
+      "restMin": 0,
+      "restMax": 1.6200001,
+      "bounds": {
+        "x": 582.7957,
+        "y": 270.53287,
+        "width": 114.40857,
+        "height": 130.25519
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(12, 22, 18)"
+    },
+    {
+      "hero": "summon",
+      "requestedPhysical": "(1024, 768)",
+      "actualWindow": "(1024, 768)",
+      "logical": "(1280, 720)",
+      "point": "(-13.4, 0, -7.4)",
+      "radius": 0.81046426,
+      "restMin": -3.7587727E-06,
+      "restMax": 1.6200173,
+      "bounds": {
+        "x": 361.23557,
+        "y": -49.32389,
+        "width": 96.33539,
+        "height": 117.369194
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 204,
+      "allHudCandidatePixelArea": 204,
+      "camera": "(9, 22, 16.5)"
+    },
+    {
+      "hero": "summon",
+      "requestedPhysical": "(1024, 768)",
+      "actualWindow": "(1024, 768)",
+      "logical": "(1280, 720)",
+      "point": "(13.4, 0, -7.4)",
+      "radius": 0.81046426,
+      "restMin": -3.7587727E-06,
+      "restMax": 1.6200173,
+      "bounds": {
+        "x": 1102.949,
+        "y": 303.24915,
+        "width": 96.33533,
+        "height": 117.3692
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(15, 22, 16.5)"
+    },
+    {
+      "hero": "summon",
+      "requestedPhysical": "(1024, 768)",
+      "actualWindow": "(1024, 768)",
+      "logical": "(1280, 720)",
+      "point": "(-13.4, 0, 7.4)",
+      "radius": 0.81046426,
+      "restMin": -3.7587727E-06,
+      "restMax": 1.6200173,
+      "bounds": {
+        "x": 80.71575,
+        "y": 250.70224,
+        "width": 96.335335,
+        "height": 117.36917
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(9, 22, 19.5)"
+    },
+    {
+      "hero": "summon",
+      "requestedPhysical": "(1024, 768)",
+      "actualWindow": "(1024, 768)",
+      "logical": "(1280, 720)",
+      "point": "(13.4, 0, 7.4)",
+      "radius": 0.81046426,
+      "restMin": -3.7587727E-06,
+      "restMax": 1.6200173,
+      "bounds": {
+        "x": 822.4292,
+        "y": 603.27527,
+        "width": 96.335266,
+        "height": 117.36914
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 2730,
+      "allHudCandidatePixelArea": 2730,
+      "camera": "(15, 22, 19.5)"
+    },
+    {
+      "hero": "summon",
+      "requestedPhysical": "(1024, 768)",
+      "actualWindow": "(1024, 768)",
+      "logical": "(1280, 720)",
+      "point": "(-13.4, 0, 0)",
+      "radius": 0.81046426,
+      "restMin": -3.7587727E-06,
+      "restMax": 1.6200173,
+      "bounds": {
+        "x": 220.97565,
+        "y": 100.68916,
+        "width": 96.33542,
+        "height": 117.36919
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 294,
+      "allHudCandidatePixelArea": 294,
+      "camera": "(9, 22, 18)"
+    },
+    {
+      "hero": "summon",
+      "requestedPhysical": "(1024, 768)",
+      "actualWindow": "(1024, 768)",
+      "logical": "(1280, 720)",
+      "point": "(13.4, 0, 0)",
+      "radius": 0.81046426,
+      "restMin": -3.7587727E-06,
+      "restMax": 1.6200173,
+      "bounds": {
+        "x": 962.6891,
+        "y": 453.2622,
+        "width": 96.33533,
+        "height": 117.3692
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(15, 22, 18)"
+    },
+    {
+      "hero": "summon",
+      "requestedPhysical": "(1024, 768)",
+      "actualWindow": "(1024, 768)",
+      "logical": "(1280, 720)",
+      "point": "(-8.2, 0, -4.5)",
+      "radius": 0.81046426,
+      "restMin": -3.7587727E-06,
+      "restMax": 1.6200173,
+      "bounds": {
+        "x": 474.29935,
+        "y": 95.50228,
+        "width": 96.3353,
+        "height": 117.369194
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 3853.4119,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 3943,
+      "allHudCandidatePixelArea": 63,
+      "camera": "(9.376, 22, 16.92)"
+    },
+    {
+      "hero": "summon",
+      "requestedPhysical": "(1024, 768)",
+      "actualWindow": "(1024, 768)",
+      "logical": "(1280, 720)",
+      "point": "(8.2, 0, 4.5)",
+      "radius": 0.81046426,
+      "restMin": -3.7587727E-06,
+      "restMax": 1.6200173,
+      "bounds": {
+        "x": 709.3654,
+        "y": 458.44907,
+        "width": 96.33533,
+        "height": 117.36917
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 97,
+      "allHudCandidatePixelArea": 97,
+      "camera": "(14.624, 22, 19.08)"
+    },
+    {
+      "hero": "summon",
+      "requestedPhysical": "(1024, 768)",
+      "actualWindow": "(1024, 768)",
+      "logical": "(1280, 720)",
+      "point": "(0, 0, 0)",
+      "radius": 0.81046426,
+      "restMin": -3.7587727E-06,
+      "restMax": 1.6200173,
+      "bounds": {
+        "x": 591.8324,
+        "y": 276.97568,
+        "width": 96.33533,
+        "height": 117.3692
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(12, 22, 18)"
+    },
+    {
+      "hero": "bounce",
+      "requestedPhysical": "(1024, 768)",
+      "actualWindow": "(1024, 768)",
+      "logical": "(1280, 720)",
+      "point": "(-13.4, 0, -7.4)",
+      "radius": 1.0952492,
+      "restMin": 0,
+      "restMax": 1.6200001,
+      "bounds": {
+        "x": 344.31015,
+        "y": -61.3916,
+        "width": 130.18607,
+        "height": 141.50497
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 1323,
+      "allHudCandidatePixelArea": 1323,
+      "camera": "(9, 22, 16.5)"
+    },
+    {
+      "hero": "bounce",
+      "requestedPhysical": "(1024, 768)",
+      "actualWindow": "(1024, 768)",
+      "logical": "(1280, 720)",
+      "point": "(13.4, 0, -7.4)",
+      "radius": 1.0952492,
+      "restMin": 0,
+      "restMax": 1.6200001,
+      "bounds": {
+        "x": 1086.0236,
+        "y": 291.18143,
+        "width": 130.18604,
+        "height": 141.50497
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(15, 22, 16.5)"
+    },
+    {
+      "hero": "bounce",
+      "requestedPhysical": "(1024, 768)",
+      "actualWindow": "(1024, 768)",
+      "logical": "(1280, 720)",
+      "point": "(-13.4, 0, 7.4)",
+      "radius": 1.0952492,
+      "restMin": 0,
+      "restMax": 1.6200001,
+      "bounds": {
+        "x": 63.79036,
+        "y": 238.63449,
+        "width": 130.18605,
+        "height": 141.50497
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(9, 22, 19.5)"
+    },
+    {
+      "hero": "bounce",
+      "requestedPhysical": "(1024, 768)",
+      "actualWindow": "(1024, 768)",
+      "logical": "(1280, 720)",
+      "point": "(13.4, 0, 7.4)",
+      "radius": 1.0952492,
+      "restMin": 0,
+      "restMax": 1.6200001,
+      "bounds": {
+        "x": 805.5038,
+        "y": 591.2075,
+        "width": 130.18604,
+        "height": 141.505
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 780,
+      "allHudCandidatePixelArea": 780,
+      "camera": "(15, 22, 19.5)"
+    },
+    {
+      "hero": "bounce",
+      "requestedPhysical": "(1024, 768)",
+      "actualWindow": "(1024, 768)",
+      "logical": "(1280, 720)",
+      "point": "(-13.4, 0, 0)",
+      "radius": 1.0952492,
+      "restMin": 0,
+      "restMax": 1.6200001,
+      "bounds": {
+        "x": 204.05026,
+        "y": 88.62145,
+        "width": 130.18607,
+        "height": 141.50497
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 1965,
+      "allHudCandidatePixelArea": 1965,
+      "camera": "(9, 22, 18)"
+    },
+    {
+      "hero": "bounce",
+      "requestedPhysical": "(1024, 768)",
+      "actualWindow": "(1024, 768)",
+      "logical": "(1280, 720)",
+      "point": "(13.4, 0, 0)",
+      "radius": 1.0952492,
+      "restMin": 0,
+      "restMax": 1.6200001,
+      "bounds": {
+        "x": 945.7637,
+        "y": 441.1945,
+        "width": 130.18604,
+        "height": 141.50497
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(15, 22, 18)"
+    },
+    {
+      "hero": "bounce",
+      "requestedPhysical": "(1024, 768)",
+      "actualWindow": "(1024, 768)",
+      "logical": "(1280, 720)",
+      "point": "(-8.2, 0, -4.5)",
+      "radius": 1.0952492,
+      "restMin": 0,
+      "restMax": 1.6200001,
+      "bounds": {
+        "x": 457.37393,
+        "y": 83.434555,
+        "width": 130.18607,
+        "height": 141.50496
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 5207.4424,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 5900,
+      "allHudCandidatePixelArea": 660,
+      "camera": "(9.376, 22, 16.92)"
+    },
+    {
+      "hero": "bounce",
+      "requestedPhysical": "(1024, 768)",
+      "actualWindow": "(1024, 768)",
+      "logical": "(1280, 720)",
+      "point": "(8.2, 0, 4.5)",
+      "radius": 1.0952492,
+      "restMin": 0,
+      "restMax": 1.6200001,
+      "bounds": {
+        "x": 692.44006,
+        "y": 446.3814,
+        "width": 130.18604,
+        "height": 141.50494
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 1703,
+      "allHudCandidatePixelArea": 1703,
+      "camera": "(14.624, 22, 19.08)"
+    },
+    {
+      "hero": "bounce",
+      "requestedPhysical": "(1024, 768)",
+      "actualWindow": "(1024, 768)",
+      "logical": "(1280, 720)",
+      "point": "(0, 0, 0)",
+      "radius": 1.0952492,
+      "restMin": 0,
+      "restMax": 1.6200001,
+      "bounds": {
+        "x": 574.907,
+        "y": 264.90796,
+        "width": 130.1861,
+        "height": 141.505
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 0,
+      "noticeCandidateArea": 0,
+      "allHudBaselinePixelArea": 0,
+      "allHudCandidatePixelArea": 0,
+      "camera": "(12, 22, 18)"
+    }
+  ]
+}

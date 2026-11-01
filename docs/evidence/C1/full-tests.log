@@ -1,0 +1,6 @@
+SCHEMA2_LOAD cards=256 assignments=65536 elapsed_ms=795.62 allocated_bytes=103616
+PERF honey enemies=32 ticks=300 ms=4.87 allocated_bytes=0 dropped_cosmetic_events=0
+PERF honey enemies=128 ticks=300 ms=8.45 allocated_bytes=0 dropped_cosmetic_events=0
+PERF honey enemies=512 ticks=300 ms=30.82 allocated_bytes=0 dropped_cosmetic_events=0
+PERF mixed_all_traits enemies=128 ticks=300 ms=13.13 allocated_bytes=0 dropped_cosmetic_events=2895
+PASS 538393 freshly executed assertions; reconstructed core netstandard2.1; host net10.0.

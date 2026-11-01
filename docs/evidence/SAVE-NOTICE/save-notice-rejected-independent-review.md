@@ -1,0 +1,17 @@
+# Save notice left relocation — rejected isolated layout
+2026-10-31. Parent rejected adoption before this capture; this run records visual counterevidence, not a search for a passing position.
+
+Matched GameUi f29c42b133cea5171fabb5997907a75d6801479c5b4b51d82fd00e34adb67de2 and probe cdd5873fc8dc609c43eefa2fcc9bb925c524ec2616739ecda0cc237214274764. Only trial runtime delta is original full notice moving from (390,145,500) to (20,108,345). Actual styled label minimum height is40px, not the requested28. Camera/persistence/error modal/companion tray unchanged. Native uses fresh isolated XDG and actual Godot4.6.3 Compatibility llvmpipe.
+
+Read fixture: actual five imported rest meshes, conservative all-yaw bounds, nine controlled actor positions, four requested physical sizes. These are rendered teleports, not player movement or animated silhouette bounds. Long unsaved state is intentionally displayed through UI for layout stress, not evidence of an actual failed disk write.
+
+Independent visual observations on actual Feiling and Kaotuan left-edge pairs: baseline exposes the head/upper body below health card; candidate new left notice covers the head/top ribbons or toasted head. Feiling inner-wall pair does reveal more upper body after moving the central notice, but this is relocation of obstruction, not an unqualified improvement.
+
+Important fixture limitation: sim is paused and RefreshUi leaves the pause modal visible over the middle of every capture. The paired modal is unchanged, so the new left obstruction is still clear; however full central hero/arena visibility cannot be certified from these pictures, and HUD union measurements exclude this overlay. Do not call these unobstructed active-combat A/B shots. This limitation does not justify adopting the already rejected placement or silently altering its source.
+
+First capture terminal: MEASURED180rows/310checks/textFit=true, exit0;26 PNGs/13pairs saved. Actual window sizes equal all requests;portrait720×1280 still captures720×405 landscape framebuffer. Native recomputation confirms summed all-HUD overlap135388→135548, not a net reduction. Numbers are geometric fixture coverage, not perceived obstruction area. Native log only environment VSync warning. First captures are SUPERSEDED-FIXTURE / pause-overlay-contaminated for full combat visibility. Preserve them as discovered-test-defect evidence; corrected minimal pairs will have separate names and assertions.
+
+## Corrected no-modal capture
+Second isolated fixture explicitly calls ShowPause(false) after RefreshUi while leaving Core paused, with overlay-child-count0 assertion. Source diff confirms this is the only fixture correction; no model/camera/material/lighting changed. Historical output prefix `save-notice-unshaded` is a naming misnomer: it means no pause shade, NOT an Unshaded material/render mode.
+Actual corrected Feiling paired images now show both outcomes clearly: inner-wall hero formerly hidden by the central strip becomes exposed, while left-edge head/ribbons newly disappear under the moved strip. Corrected left candidate images for Juanjuan/Buding/Cuilan also visibly hide upper head detail. Thus the original rejection is supported by actual unoccluded-scene screenshots, not only conservative rectangles. This is a fixed-pose sample and not dynamic gameplay acceptance.
+Corrected no-modal terminal:180rows/330checks/textFitTrue, process exit0,13pairs. Original first26images retained. Production disposition remains REJECTED; no position changes made to turn this candidate green.

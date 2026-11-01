@@ -1,0 +1,13 @@
+  Determining projects to restore...
+  Restored /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-endless-4db41t9e/project/src/Adapters/Persistence/Hmi.Persistence.csproj (in 266 ms).
+  Restored /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-endless-4db41t9e/project/src/Core/Hmi.Core.csproj (in 3.4 sec).
+  Restored /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-endless-4db41t9e/project/HmiGame.csproj (in 3.44 sec).
+  Hmi.Core -> /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-endless-4db41t9e/project/src/Core/bin/Debug/netstandard2.1/Hmi.Core.dll
+  Hmi.Persistence -> /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-endless-4db41t9e/project/src/Adapters/Persistence/bin/Debug/net10.0/Hmi.Persistence.dll
+  HmiGame -> /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-endless-4db41t9e/project/.godot/mono/temp/bin/Debug/HmiGame.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:12.68

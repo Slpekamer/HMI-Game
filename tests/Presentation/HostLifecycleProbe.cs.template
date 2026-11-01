@@ -1,0 +1,92 @@
+using Godot;
+using Hmi.Core;
+using System;
+using System.Reflection;
+
+// Test-only file injected into an isolated copied project; never compiled into shipped host.
+public partial class HostLifecycleProbe : Node
+{
+    private GameHost host;
+    private static readonly BindingFlags Flags=BindingFlags.Instance|BindingFlags.NonPublic;
+    private object Field(string name)=>typeof(GameHost).GetField(name,Flags).GetValue(host);
+    private void Call(string name,params object[] args)=>typeof(GameHost).GetMethod(name,Flags).Invoke(host,args);
+    private void Check(bool ok,string message){if(!ok)throw new Exception(message);}
+    private void Render()=>Call("RenderEntities",1f/60);
+    private async System.Threading.Tasks.Task Flush(){await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);}
+    public override async void _Ready()
+    {
+        try
+        {
+            host=new GameHost();AddChild(host);host.SetProcess(false);Call("Start",3,(uint)1030);
+            var g=(GameSimulation)Field("_sim");
+            for(int i=0;i<g.Capacity;i++)if(i!=g.PlayerId.Index)g.World.Destroy(i);
+            var actor=g.World.Create(Components.Enemy|Components.Health,new Vec2(4,4),.44f,"enemy_chaser",100);
+            Render();await Flush();
+            var old=((Node3D[])Field("_visuals"))[actor.Index];
+            g.World.Destroy(actor.Index);
+            var pickup=g.World.Create(Components.Pickup,new Vec2(5,4),.3f,"candy_pickup");
+            Check(pickup.Index==actor.Index,"Fixture must reuse animated slot for pickup");
+            Render();await Flush();Render();
+            Check(!GodotObject.IsInstanceValid(old),"Queued old actor must actually be freed");
+            Check(((CharacterPresentation[])Field("_presentations"))[pickup.Index]==null,"Pickup must not retain animated presenter");
+            GD.Print("HOST_LIFECYCLE animated -> pickup after actual queued free PASS");
+            g.World.Destroy(pickup.Index);
+            var next=g.World.Create(Components.Enemy|Components.Health,new Vec2(6,4),.44f,"enemy_chaser",100);
+            Render();await Flush();Render();
+            Check(((CharacterPresentation[])Field("_presentations"))[next.Index]!=null,"Pickup -> actor needs fresh presenter");
+            var pending=(GameEvent?[])Field("_pendingAttacks");pending[next.Index]=new GameEvent(EventKind.Melee,next,EntityId.None,new Vec2(0,0),new Vec2(1,0),1,g.Tick,g.RunToken,g.Wave);
+            g.World.Destroy(next.Index);
+            var newer=g.World.Create(Components.Enemy|Components.Health,new Vec2(7,4),.44f,"enemy_chaser",100);
+            Render();await Flush();Render();
+            Check(!pending[newer.Index].HasValue,"Old generation attack must be removed");
+            GD.Print("HOST_LIFECYCLE pickup -> animated / generation replacement / stale event PASS");
+            // Test the actual event intake before injecting the pending buffer boundary cases.
+            var badScope=new GameEvent(EventKind.Melee,g.PlayerId,EntityId.None,new Vec2(0,0),new Vec2(1,0),1,g.Tick,g.RunToken-1,g.Wave);
+            Check(!(bool)typeof(GameHost).GetMethod("QueuePresentationEvent",Flags).Invoke(host,new object[]{badScope}),"Host intake rejects old run");
+            var badGeneration=new GameEvent(EventKind.Melee,new EntityId(g.PlayerId.Index,g.PlayerId.Generation-1),EntityId.None,new Vec2(0,0),new Vec2(1,0),1,g.Tick,g.RunToken,g.Wave);
+            Check(!(bool)typeof(GameHost).GetMethod("QueuePresentationEvent",Flags).Invoke(host,new object[]{badGeneration}),"Host intake rejects freed generation");
+            // Simulate a coalesced event received several fixed steps before the current render.
+            for(int i=0;i<5;i++)g.Step();Render();
+            var presenter=((CharacterPresentation[])Field("_presentations"))[g.PlayerId.Index];
+            pending[g.PlayerId.Index]=new GameEvent(EventKind.Melee,g.PlayerId,EntityId.None,new Vec2(0,0),new Vec2(1,0),1,g.Tick-2,g.RunToken,g.Wave);
+            Render();Check(presenter.CurrentClip.EndsWith("Attack"),"Original catch-up tick must render, not be discarded");
+            // A context reset clears action; old queued metadata must not be stamped current.
+            presenter.Snapshot(new EntityView(g.PlayerId,EntityKind.Player,g.PlayerPosition,new Vec2(0,-1),100,100,"fixture"),g.Tick,g.RunToken,g.Wave+1);
+            presenter.Snapshot(new EntityView(g.PlayerId,EntityKind.Player,g.PlayerPosition,new Vec2(0,-1),100,100,"fixture"),g.Tick,g.RunToken,g.Wave);
+            pending[g.PlayerId.Index]=new GameEvent(EventKind.Melee,g.PlayerId,EntityId.None,new Vec2(0,0),new Vec2(1,0),1,g.Tick,g.RunToken-1,g.Wave);
+            Render();Check(!presenter.CurrentClip.EndsWith("Attack"),"Old run event must retain scope and be rejected");
+            pending[g.PlayerId.Index]=new GameEvent(EventKind.Melee,g.PlayerId,EntityId.None,new Vec2(0,0),new Vec2(1,0),1,g.Tick,g.RunToken,g.Wave+1);
+            Render();Check(!presenter.CurrentClip.EndsWith("Attack"),"Other wave event must retain scope and be rejected");
+            pending[g.PlayerId.Index]=new GameEvent(EventKind.Melee,g.PlayerId,EntityId.None,new Vec2(0,0),new Vec2(1,0),1,g.Tick+1,g.RunToken,g.Wave);
+            Render();Check(!presenter.CurrentClip.EndsWith("Attack"),"Future event must not be re-stamped at render");
+            GD.Print("HOST_LIFECYCLE preserved catch-up tick / run-wave context / future rejection PASS");
+
+            Call("Start",3,(uint)1030);
+            g=(GameSimulation)Field("_sim");
+            // Explicit test fixture: keep player alive, remove enemies and advance real fixed ticks.
+            for(int i=0;i<g.Capacity;i++)if(g.World.Has(i,Components.Enemy))g.World.Destroy(i);
+            g.SpawnTimer=999;
+            for(int i=0;i<1500&&g.Phase==RunPhase.Combat;i++) {g.World.Health[g.PlayerId.Index].Current=10000;g.Step();if(i%30==0){Render();await Flush();}}
+            Check(g.Phase==RunPhase.Between,"Wave one must finish");
+            g.Enqueue(GameCommand.Choose(g.GetOffers()[0].Id));g.Step();
+            // Companion expansion fixture isolates renderer lifecycle regardless of randomized card offer.
+            g.Loadout.Levels[g.Catalog.CardIndex["summon.team"]]=1;
+            g.Enqueue(GameCommand.NextWave());g.Step();Render();await Flush();
+            for(int i=0;i<120;i++){g.Enqueue(GameCommand.Move(i<60?1:0,0));g.Step();Render();if(i%10==0)await Flush();}
+            Check(g.Wave==2&&g.Tick>=120,"Wave two must continue after expanded companions");
+            g.Enqueue(GameCommand.Pause(true));g.Step();long paused=g.Tick;Render();await Flush();g.Step();Check(g.Tick==paused,"Pause must still work");
+            GD.Print("HOST_LIFECYCLE expanded-companion wave1 -> wave2 / moving-idle / pause PASS");
+            Call("Start",2,(uint)1030);Render();await Flush();Render();
+            Check(((GameSimulation)Field("_sim")).Wave==1,"Restart must reset run");
+            var presenters=(CharacterPresentation[])Field("_presentations");
+            var saved=new System.Collections.Generic.List<CharacterPresentation>();
+            foreach(var item in presenters)if(item!=null)saved.Add(item);
+            host.QueueFree();await Flush();
+            Check(!GodotObject.IsInstanceValid(host),"Host queued-free must complete");
+            foreach(var item in saved){Check(item.IsDisposed,"Scene exit must dispose every retained presenter");item.Advance(.1f,false);item.Dispose();}
+            GD.Print("HOST_LIFECYCLE actual scene exit disposes retained presenters PASS");
+            GD.Print("HOST_LIFECYCLE_PROBE PASS");GetTree().Quit();
+        }
+        catch(Exception e){GD.PushError(e.ToString());GetTree().Quit(1);}
+    }
+}

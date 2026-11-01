@@ -1,0 +1,755 @@
+{
+  "schemaVersion": 2,
+  "balanceVersion": "prototype-3-d2-wave-contracts",
+  "characters": [
+    {
+      "id": "orbit",
+      "name": "绯绫",
+      "root": "orbit.root",
+      "visualId": "hero_orbit",
+      "initialCompanions": 1
+    },
+    {
+      "id": "crit",
+      "name": "卷卷",
+      "root": "crit.root",
+      "visualId": "hero_crit",
+      "initialCompanions": 1
+    },
+    {
+      "id": "honey",
+      "name": "布叮",
+      "root": "honey.root",
+      "visualId": "hero_honey",
+      "initialCompanions": 1
+    },
+    {
+      "id": "summon",
+      "name": "烤团",
+      "root": "summon.root",
+      "visualId": "hero_summon",
+      "initialCompanions": 2
+    },
+    {
+      "id": "bounce",
+      "name": "脆蓝",
+      "root": "bounce.root",
+      "visualId": "hero_bounce",
+      "initialCompanions": 1
+    }
+  ],
+  "cards": [
+    {
+      "id": "orbit.root",
+      "slot": "trait",
+      "name": "糖果星环",
+      "effect": "增加 2 颗随主角转动的糖果；有独立命中冷却。",
+      "cap": 1,
+      "parent": null,
+      "effects": [
+        {
+          "stat": "OrbitEnabled",
+          "operation": "add",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "id": "crit.root",
+      "slot": "trait",
+      "name": "有限弹射",
+      "effect": "增加射击；命中后最多反射 1 次，仅搜寻 120 示意单位内未命中过的敌人。",
+      "cap": 1,
+      "parent": null,
+      "effects": [
+        {
+          "stat": "RicochetEnabled",
+          "operation": "add",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "id": "honey.root",
+      "slot": "trait",
+      "name": "蜂蜜领域",
+      "effect": "增加半径 103 的蜂蜜圈；圈内敌人速度为 45%，并受持续伤害。",
+      "cap": 1,
+      "parent": null,
+      "effects": [
+        {
+          "stat": "HoneyEnabled",
+          "operation": "add",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "id": "summon.root",
+      "slot": "trait",
+      "name": "独立伙伴",
+      "effect": "增加独立地图伙伴：烤团初始 2 位，跨角色新学 1 位；可游走或驻守。",
+      "cap": 1,
+      "parent": null,
+      "effects": [
+        {
+          "stat": "CompanionEnabled",
+          "operation": "add",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "id": "bounce.root",
+      "slot": "trait",
+      "name": "近距冲击",
+      "effect": "增加 68 距离的小扇形击退；撞怪范围伤害、撞墙反弹，有次数与冷却上限。",
+      "cap": 1,
+      "parent": null,
+      "effects": [
+        {
+          "stat": "ImpactEnabled",
+          "operation": "add",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "id": "orbit.more",
+      "slot": "trait",
+      "name": "多一颗星糖",
+      "effect": "每级糖果 +1，最多 4 颗；共享单目标命中冷却，不代表伤害线性翻倍。",
+      "cap": 2,
+      "parent": "orbit.root",
+      "effects": [
+        {
+          "stat": "OrbitCount",
+          "operation": "add",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "id": "orbit.wide",
+      "slot": "trait",
+      "name": "外轨拓展",
+      "effect": "每级轨道半径 +12；初始 76，最多 100。离得太近仍有轨道空隙。",
+      "cap": 2,
+      "parent": "orbit.root",
+      "effects": [
+        {
+          "stat": "OrbitRadius",
+          "operation": "add",
+          "value": 0.48
+        }
+      ]
+    },
+    {
+      "id": "crit.chain",
+      "slot": "trait",
+      "name": "接力弹射",
+      "effect": "每级多反射 1 个目标；最多 3 次。每跳仍受搜寻距离限制，不重复命中同一目标。",
+      "cap": 2,
+      "parent": "crit.root",
+      "effects": [
+        {
+          "stat": "RicochetBounces",
+          "operation": "add",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "id": "crit.reach",
+      "slot": "trait",
+      "name": "远距寻路",
+      "effect": "每级反射搜寻距离 +45；120 → 165 → 210。只扩每跳搜寻距离，不加反射次数。",
+      "cap": 2,
+      "parent": "crit.root",
+      "effects": [
+        {
+          "stat": "RicochetRange",
+          "operation": "add",
+          "value": 1.8
+        }
+      ]
+    },
+    {
+      "id": "crit.relay",
+      "slot": "trait",
+      "name": "终段接力",
+      "effect": "前置接力弹射 2 级；再增加 1 次反射，总上限 4 次，仍受每跳距离与不重复目标限制。",
+      "cap": 1,
+      "parent": "crit.chain",
+      "parentLevel": 2,
+      "effects": [
+        {
+          "stat": "RicochetBounces",
+          "operation": "add",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "id": "honey.wide",
+      "slot": "trait",
+      "name": "蜜圈扩展",
+      "effect": "每级蜂蜜半径 +14；103 → 117 → 131。",
+      "cap": 2,
+      "parent": "honey.root",
+      "effects": [
+        {
+          "stat": "HoneyRadius",
+          "operation": "add",
+          "value": 0.56
+        }
+      ]
+    },
+    {
+      "id": "honey.sticky",
+      "slot": "trait",
+      "name": "浓蜜配方",
+      "effect": "每级圈内敌人速度系数 −0.10；45% → 35% → 25%，不无限叠加。",
+      "cap": 2,
+      "parent": "honey.root",
+      "effects": [
+        {
+          "stat": "HoneySlow",
+          "operation": "add",
+          "value": -0.1
+        }
+      ]
+    },
+    {
+      "id": "summon.team",
+      "slot": "trait",
+      "name": "伙伴扩编",
+      "effect": "每级新增 1 位伙伴，上限 4 位；每位都有独立位置、索敌和攻击冷却。",
+      "cap": 2,
+      "parent": "summon.root",
+      "effects": [
+        {
+          "stat": "CompanionCount",
+          "operation": "add",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "id": "bounce.reach",
+      "slot": "trait",
+      "name": "短冲延伸",
+      "effect": "每级冲击距离 +6；68 → 74 → 80。扇形角度保持约 51°，不会变成大扫屏。",
+      "cap": 2,
+      "parent": "bounce.root",
+      "effects": [
+        {
+          "stat": "ImpactRange",
+          "operation": "add",
+          "value": 0.24
+        }
+      ]
+    },
+    {
+      "id": "bounce.force",
+      "slot": "trait",
+      "name": "弹性填充",
+      "effect": "每级击退初速度 +35；220 → 255 → 290。仍限制反弹次数与碰撞连锁。",
+      "cap": 2,
+      "parent": "bounce.root",
+      "effects": [
+        {
+          "stat": "ImpactForce",
+          "operation": "add",
+          "value": 1.4
+        }
+      ]
+    },
+    {
+      "id": "base.health",
+      "slot": "base",
+      "name": "厚实绒面",
+      "effect": "最大生命 +10% 基准值；不改变任何技能伤害。",
+      "cap": 5,
+      "parent": null,
+      "effects": [
+        {
+          "stat": "MaxHealth",
+          "operation": "add",
+          "value": 10
+        }
+      ]
+    },
+    {
+      "id": "base.speed",
+      "slot": "base",
+      "name": "轻快连击",
+      "effect": "统一基础近战攻击速度 +10% 基准值；星环、弹射、领域、伙伴与冲击冷却不变。",
+      "cap": 5,
+      "parent": null,
+      "effects": [
+        {
+          "stat": "BasicRate",
+          "operation": "add",
+          "value": 0.1
+        }
+      ]
+    },
+    {
+      "id": "base.range",
+      "slot": "base",
+      "name": "伸展挥击",
+      "effect": "统一基础近战范围 +10% 基准值；不扩大任何角色特性范围。",
+      "cap": 5,
+      "parent": null,
+      "effects": [
+        {
+          "stat": "BasicRange",
+          "operation": "add",
+          "value": 0.184
+        }
+      ]
+    },
+    {
+      "id": "risk.bounty",
+      "slot": "risk",
+      "name": "悬赏加码",
+      "effect": "每级敌人最大生命 +50% 基准值；每次击杀金币 +100% 基准值。更难清怪；额外金币可在波末商店兑换道具。",
+      "cap": 2,
+      "parent": null,
+      "effects": [
+        {
+          "stat": "EnemyHealth",
+          "operation": "add",
+          "value": 0.5
+        },
+        {
+          "stat": "KillReward",
+          "operation": "add",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "id": "risk.glass",
+      "slot": "risk",
+      "name": "脆壳利刃",
+      "effect": "仅基础近战伤害 ×1.60；最大生命 ×0.65。角色特性不增伤；更容易失误。",
+      "cap": 1,
+      "parent": null,
+      "effects": [
+        {
+          "stat": "BasicDamage",
+          "operation": "multiply",
+          "value": 1.6
+        },
+        {
+          "stat": "MaxHealth",
+          "operation": "multiply",
+          "value": 0.65
+        }
+      ]
+    },
+    {
+      "id": "risk.fleet",
+      "slot": "risk",
+      "name": "加速齿轮",
+      "effect": "每级玩家移动速度 +20% 基准值；敌人移动速度也 +20%。更易转场，但追兵更快。",
+      "cap": 2,
+      "parent": null,
+      "effects": [
+        {
+          "stat": "PlayerRiskSpeed",
+          "operation": "add",
+          "value": 0.2
+        },
+        {
+          "stat": "EnemySpeed",
+          "operation": "add",
+          "value": 0.2
+        }
+      ]
+    },
+    {
+      "id": "orbit.outer",
+      "slot": "trait",
+      "name": "外沿守望",
+      "effect": "需外轨拓展1级；每级星环半径+0.70米，近身空隙更大。与内环护身互斥，最多2级。",
+      "cap": 2,
+      "requiresAll": [
+        {
+          "id": "orbit.wide",
+          "rank": 1
+        }
+      ],
+      "effects": [
+        {
+          "stat": "OrbitRadius",
+          "operation": "add",
+          "value": 0.7
+        }
+      ],
+      "exclusiveGroup": "orbit.geometry"
+    },
+    {
+      "id": "orbit.inner",
+      "slot": "trait",
+      "name": "内环护身",
+      "effect": "需外轨拓展1级；每级星环半径−0.55米，近身覆盖更密、外沿覆盖更小。与外沿守望互斥，最多2级。",
+      "cap": 2,
+      "requiresAll": [
+        {
+          "id": "orbit.wide",
+          "rank": 1
+        }
+      ],
+      "effects": [
+        {
+          "stat": "OrbitRadius",
+          "operation": "add",
+          "value": -0.55
+        }
+      ],
+      "exclusiveGroup": "orbit.geometry"
+    },
+    {
+      "id": "crit.longwatch",
+      "slot": "trait",
+      "name": "长线瞄准",
+      "effect": "需远距寻路1级；每跳搜寻距离+1.20米，移动速度基准−4%。与近线游击互斥。",
+      "cap": 1,
+      "requiresAll": [
+        {
+          "id": "crit.reach",
+          "rank": 1
+        }
+      ],
+      "effects": [
+        {
+          "stat": "RicochetRange",
+          "operation": "add",
+          "value": 1.2
+        },
+        {
+          "stat": "PlayerSpeed",
+          "operation": "add",
+          "value": -0.04
+        }
+      ],
+      "exclusiveGroup": "crit.mobility"
+    },
+    {
+      "id": "crit.skirmish",
+      "slot": "trait",
+      "name": "近线游击",
+      "effect": "需远距寻路1级；移动速度基准+6%，每跳搜寻距离−0.70米。与长线瞄准互斥。",
+      "cap": 1,
+      "requiresAll": [
+        {
+          "id": "crit.reach",
+          "rank": 1
+        }
+      ],
+      "effects": [
+        {
+          "stat": "RicochetRange",
+          "operation": "add",
+          "value": -0.7
+        },
+        {
+          "stat": "PlayerSpeed",
+          "operation": "add",
+          "value": 0.06
+        }
+      ],
+      "exclusiveGroup": "crit.mobility"
+    },
+    {
+      "id": "bounce.longpush",
+      "slot": "trait",
+      "name": "长臂推移",
+      "effect": "需弹性填充1级；冲击范围+0.30米，击退初速度−1.00米/秒。与短距重推互斥。",
+      "cap": 1,
+      "requiresAll": [
+        {
+          "id": "bounce.force",
+          "rank": 1
+        }
+      ],
+      "effects": [
+        {
+          "stat": "ImpactRange",
+          "operation": "add",
+          "value": 0.3
+        },
+        {
+          "stat": "ImpactForce",
+          "operation": "add",
+          "value": -1
+        }
+      ],
+      "exclusiveGroup": "bounce.leverage"
+    },
+    {
+      "id": "bounce.heavy",
+      "slot": "trait",
+      "name": "短距重推",
+      "effect": "需弹性填充1级；击退初速度+1.60米/秒，冲击范围−0.25米。与长臂推移互斥。",
+      "cap": 1,
+      "requiresAll": [
+        {
+          "id": "bounce.force",
+          "rank": 1
+        }
+      ],
+      "effects": [
+        {
+          "stat": "ImpactRange",
+          "operation": "add",
+          "value": -0.25
+        },
+        {
+          "stat": "ImpactForce",
+          "operation": "add",
+          "value": 1.6
+        }
+      ],
+      "exclusiveGroup": "bounce.leverage"
+    },
+    {
+      "id": "fusion.sugaring",
+      "slot": "trait",
+      "name": "蜜环协防",
+      "effect": "需星环与蜂蜜领域，且蜜圈扩展或外轨拓展1级；蜂蜜半径+0.30米，星环半径−0.25米。内圈防守更密，外轨覆盖变小。",
+      "cap": 1,
+      "requiresAll": [
+        {
+          "id": "orbit.root",
+          "rank": 1
+        },
+        {
+          "id": "honey.root",
+          "rank": 1
+        }
+      ],
+      "effects": [
+        {
+          "stat": "HoneyRadius",
+          "operation": "add",
+          "value": 0.3
+        },
+        {
+          "stat": "OrbitRadius",
+          "operation": "add",
+          "value": -0.25
+        }
+      ],
+      "requiresAny": [
+        {
+          "id": "honey.wide",
+          "rank": 1
+        },
+        {
+          "id": "orbit.wide",
+          "rank": 1
+        }
+      ]
+    },
+    {
+      "id": "fusion.relaypush",
+      "slot": "trait",
+      "name": "弹冲接驳",
+      "effect": "需有限弹射与近距冲击、接力弹射2级；每跳搜寻距离+0.60米，击退初速度−0.60米/秒。不增加命中次数或连锁预算。",
+      "cap": 1,
+      "requiresAll": [
+        {
+          "id": "crit.root",
+          "rank": 1
+        },
+        {
+          "id": "bounce.root",
+          "rank": 1
+        },
+        {
+          "id": "crit.chain",
+          "rank": 2
+        }
+      ],
+      "effects": [
+        {
+          "stat": "RicochetRange",
+          "operation": "add",
+          "value": 0.6
+        },
+        {
+          "stat": "ImpactForce",
+          "operation": "add",
+          "value": -0.6
+        }
+      ]
+    }
+  ],
+  "items": [
+    {
+      "id": "shield",
+      "name": "绒垫护符",
+      "price": 2,
+      "cap": 1,
+      "effect": "下一波最大生命 ×1.25；进入下一波时消耗，不叠加。",
+      "downside": "不提高攻击或金币收益。",
+      "lifetime": "wave",
+      "duration": 0,
+      "effects": [
+        {
+          "stat": "MaxHealth",
+          "operation": "multiply",
+          "value": 1.25
+        }
+      ]
+    },
+    {
+      "id": "tonic",
+      "name": "轻击汽水",
+      "price": 3,
+      "cap": 1,
+      "effect": "下一波前 10 秒，基础近战攻速 ×1.20；暂停时不计时，不提高特性频率。",
+      "downside": "第 10 秒自动失效；不会保留到再下一波。",
+      "lifetime": "wave",
+      "duration": 10,
+      "effects": [
+        {
+          "stat": "BasicRate",
+          "operation": "multiply",
+          "value": 1.2
+        }
+      ]
+    },
+    {
+      "id": "shoes",
+      "name": "弹性鞋垫",
+      "price": 5,
+      "cap": 2,
+      "effect": "每件移动速度 +8% 基准值；最多 2 件，从下一波生效。",
+      "downside": "不增加生命、普攻或特性伤害；新局清空。",
+      "lifetime": "run",
+      "duration": 0,
+      "effects": [
+        {
+          "stat": "PlayerSpeed",
+          "operation": "add",
+          "value": 0.08
+        }
+      ]
+    },
+    {
+      "id": "gloves",
+      "name": "软拳护套",
+      "price": 5,
+      "cap": 2,
+      "effect": "每件基础近战伤害 +8% 基准值；最多 2 件，从下一波生效。",
+      "downside": "不强化星环、弹射、蜂蜜、伙伴或冲击伤害；新局清空。",
+      "lifetime": "run",
+      "duration": 0,
+      "effects": [
+        {
+          "stat": "BasicDamage",
+          "operation": "add",
+          "value": 0.12
+        }
+      ]
+    }
+  ],
+  "temporaryContracts": [
+    {
+      "id": "temp.trait.protection",
+      "slot": "trait",
+      "name": "临时·护体补给",
+      "description": "仅下一波：增加永久最大生命的10%至最大与当前生命一次。波末撤销并钳制当前生命，不治疗、不叠加。",
+      "effects": [
+        {
+          "stat": "MaxHealth",
+          "permanentFraction": 0.1
+        }
+      ]
+    },
+    {
+      "id": "temp.trait.scouting",
+      "slot": "trait",
+      "name": "临时·范围侦查",
+      "description": "仅下一波：已启用弹射的每跳范围+永久值15%，已启用蜂蜜/冲击范围各+永久值10%。不增加命中次数；波末清除。",
+      "effects": [
+        {
+          "stat": "RicochetRange",
+          "permanentFraction": 0.15,
+          "requiredEnabledStat": "RicochetEnabled"
+        },
+        {
+          "stat": "HoneyRadius",
+          "permanentFraction": 0.1,
+          "requiredEnabledStat": "HoneyEnabled"
+        },
+        {
+          "stat": "ImpactRange",
+          "permanentFraction": 0.1,
+          "requiredEnabledStat": "ImpactEnabled"
+        }
+      ]
+    },
+    {
+      "id": "temp.base.rate",
+      "slot": "base",
+      "name": "临时·轻击节奏",
+      "description": "仅下一波：基础近战频率+永久值10%；不影响角色特性频率，波末清除。",
+      "effects": [
+        {
+          "stat": "BasicRate",
+          "permanentFraction": 0.1
+        }
+      ]
+    },
+    {
+      "id": "temp.base.reach",
+      "slot": "base",
+      "name": "临时·伸展挥击",
+      "description": "仅下一波：基础近战范围+永久值10%；不影响角色特性范围，波末清除。",
+      "effects": [
+        {
+          "stat": "BasicRange",
+          "permanentFraction": 0.1
+        }
+      ]
+    },
+    {
+      "id": "temp.risk.slowreach",
+      "slot": "risk",
+      "name": "临时·沉步长击",
+      "description": "仅下一波：移动速度−永久值10%，基础近战范围+永久值15%。减速是真实代价；波末清除，不叠加。",
+      "effects": [
+        {
+          "stat": "PlayerSpeed",
+          "permanentFraction": -0.1
+        },
+        {
+          "stat": "BasicRange",
+          "permanentFraction": 0.15
+        }
+      ]
+    },
+    {
+      "id": "temp.risk.fragile",
+      "slot": "risk",
+      "name": "临时·脆壳重击",
+      "description": "仅下一波：最大生命−永久值15%，基础近战伤害+永久值15%。当前生命受新上限约束；波末还原上限但不治疗。",
+      "effects": [
+        {
+          "stat": "MaxHealth",
+          "permanentFraction": -0.15
+        },
+        {
+          "stat": "BasicDamage",
+          "permanentFraction": 0.15
+        }
+      ]
+    }
+  ]
+}

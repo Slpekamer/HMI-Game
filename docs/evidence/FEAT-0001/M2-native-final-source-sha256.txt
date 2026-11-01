@@ -1,0 +1,5 @@
+510538650578ecd8e4ce42831de622ca1c976170407a5262da501c3b5a0c856e  HMI-Game-reconstruction/src/Adapters/Godot/GameUi.cs
+541b4f0b477b9f4c3b8647e13436c74e8e49c48e31b72efc5c1cb34e02eea4dc  HMI-Game-reconstruction/src/Adapters/Godot/GameHost.cs
+7656a1a1de358a9a54d63e147b775fcbb4a3e3b98dccd427b3537673dfffe793  HMI-Game-reconstruction/src/Adapters/Godot/AssetVisuals.cs
+d66d5f9a99560db4202467f9f0022c079bbbf70bf5aac5e3363aa96420c5f5db  HMI-Game-reconstruction/src/Adapters/Godot/CandyTheme.cs
+45ba4d9f5c86f0fe0abd1c20e6901a0686d4241a6c3f0e0207397b47233fd642  HMI-Game-reconstruction/src/Adapters/Godot/TouchJoystick.cs

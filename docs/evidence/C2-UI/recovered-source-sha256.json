@@ -1,0 +1,12 @@
+{
+  "base_commit": "3c96388931607ef633226fd2842c0774faab0ecf",
+  "runtime_files": {
+    "src/Adapters/Godot/GameHost.cs": "2ae5432114f466b3ee385a23f9d3c560e8c7804493eaed5be0a32951bd8074cb",
+    "src/Adapters/Godot/GameUi.cs": "2b7955649845a947121720c79b8223b0b008e6da104a020b78d6acf35ab7cb11",
+    "src/Adapters/Godot/CodexFormatter.cs": "edd92136a5be8b6dbdb933e0c0bd6ae4fb0956632d8af24d88fea8cadf6ff9e4",
+    "content/fonts/CandySans.otf": "17750bad1351e67b2334f247ad7211c77185e6c2ca5180d4540c1699096cb1cc",
+    "content/fonts/glyph-coverage.json": "0e3671d05723e61c89a2639e11b63007bcea1673a831dc6d419e84f0ef50363d",
+    "content/gameplay.json": "7e584dad143fbd1dc4987c041d84a88424b4ecbfde7924cf612024f39062f5fd"
+  },
+  "scope": "fresh reconstructed C2 codex presentation, approved layout/font; no Core/catalog rule change"
+}

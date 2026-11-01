@@ -1,0 +1,47 @@
+[
+  {
+    "path": "content/fonts/LICENSE-Noto.txt",
+    "bytes": 14712,
+    "sha256": "849f4ea9c214fa4ac3593b770c699f387534b11ce671264c1b10d85bdcb5997b"
+  },
+  {
+    "path": "content/licenses/DotNet-Android-Bindings-LICENSE.txt",
+    "bytes": 1116,
+    "sha256": "cfc21f5e8bd655ae997eec916138b707b1d290b83272c02a95c9f821b8c87310"
+  },
+  {
+    "path": "content/licenses/DotNet-Linux-LICENSE.txt",
+    "bytes": 1116,
+    "sha256": "cfc21f5e8bd655ae997eec916138b707b1d290b83272c02a95c9f821b8c87310"
+  },
+  {
+    "path": "content/licenses/DotNet-Linux-THIRD-PARTY.txt",
+    "bytes": 76623,
+    "sha256": "66f1d4e44973185519bb4aa8a9718eb22fc7af2cc532e3ae9cfc4c127ee7fc54"
+  },
+  {
+    "path": "content/licenses/DotNet-Mono-Android-LICENSE.txt",
+    "bytes": 1116,
+    "sha256": "cfc21f5e8bd655ae997eec916138b707b1d290b83272c02a95c9f821b8c87310"
+  },
+  {
+    "path": "content/licenses/DotNet-Mono-Android-THIRD-PARTY.txt",
+    "bytes": 76623,
+    "sha256": "66f1d4e44973185519bb4aa8a9718eb22fc7af2cc532e3ae9cfc4c127ee7fc54"
+  },
+  {
+    "path": "content/licenses/Godot-LICENSE.txt",
+    "bytes": 1149,
+    "sha256": "b0435e3b3e4e55238f05f4b306f30524a1b2e20147810d436eaa554fa6855c80"
+  },
+  {
+    "path": "content/licenses/Godot-THIRD-PARTY.json",
+    "bytes": 114383,
+    "sha256": "cae754a6503506e9242337be345277b1a1a5f537236f42740488ad0a63f90f44"
+  },
+  {
+    "path": "content/licenses/README.md",
+    "bytes": 1431,
+    "sha256": "d58c1008fe63263813c26417a82cb72d03e7b97d57ef98bcc18ced76457e1ad3"
+  }
+]

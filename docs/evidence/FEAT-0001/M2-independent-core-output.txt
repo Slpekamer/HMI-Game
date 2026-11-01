@@ -1,0 +1,5 @@
+PERF honey enemies=32 ticks=300 ms=3.82 allocated_bytes=0 dropped_cosmetic_events=0
+PERF honey enemies=128 ticks=300 ms=12.06 allocated_bytes=0 dropped_cosmetic_events=0
+PERF honey enemies=512 ticks=300 ms=46.60 allocated_bytes=0 dropped_cosmetic_events=0
+PERF mixed_all_traits enemies=128 ticks=300 ms=19.42 allocated_bytes=0 dropped_cosmetic_events=2895
+PASS 538761 freshly executed assertions; reconstructed core netstandard2.1; host net10.0.

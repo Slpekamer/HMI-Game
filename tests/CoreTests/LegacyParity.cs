@@ -1,0 +1,54 @@
+using System;
+using System.Text.Json;
+using Hmi.Core;
+
+internal static class LegacyParity
+{
+    internal static ulong Digest(GameContent content)
+    {
+        ulong hash = 14695981039346656037;
+        void Add(long value) { unchecked { hash ^= (ulong)value; hash *= 1099511628211; } }
+        void Text(string value) { foreach (char c in value) Add(c); Add(-1); }
+        void Float(float value) => Add(BitConverter.SingleToInt32Bits(value));
+        foreach (var hero in content.Characters)
+        {
+            var g = new GameSimulation(content);
+            g.StartRun(hero.Id, 1030);
+            for (int tick = 0; tick < 900; tick++)
+            {
+                g.Enqueue(GameCommand.Move((float)Math.Cos(tick * .02), (float)Math.Sin(tick * .02)));
+                g.Step();
+                Add(g.Tick); Add(g.Wave); Add((int)g.Phase); Add(g.Coins); Add(g.Kills);
+                for (int slot = 0; slot < g.Capacity; slot++)
+                {
+                    if (!g.TryGetEntityAtSlot(slot, out var entity)) continue;
+                    Add(slot); Add(entity.Id.Generation); Add((int)entity.Kind);
+                    Float(entity.Position.X); Float(entity.Position.Y); Float(entity.Health); Float(entity.MaxHealth);
+                    Float(entity.Facing.X); Float(entity.Facing.Y); Add(entity.Active ? 1 : 0);
+                }
+                for (int i = 0; i < g.EventCount; i++)
+                {
+                    var ev = g.GetEvent(i);
+                    Add((int)ev.Kind); Add(ev.Source.Index); Add(ev.Target.Index); Float(ev.Value);
+                }
+            }
+            // Menu/stock progression through five independent original choices; synthetic no-enemy fixture.
+            g.StartRun(hero.Id, 1030);
+            for (int wave = 1; wave < 6; wave++)
+            {
+                for (int i = 0; i < g.Capacity; i++) if (g.World.Has(i, Components.Enemy)) g.World.Destroy(i);
+                g.SpawnTimer = 999;
+                while (g.Phase == RunPhase.Combat) g.Step();
+                var offers = g.GetOffers();
+                foreach (var offer in offers) Text(offer.Id);
+                string chosen = offers[wave % 3].Id;
+                g.Enqueue(GameCommand.Choose(chosen)); g.Step();
+                foreach (var card in content.Cards) Add(g.GetLevel(card.Id));
+                g.Enqueue(GameCommand.NextWave()); g.Step();
+                Add(g.Wave); Add(g.Coins);
+                foreach (Stat stat in Enum.GetValues<Stat>()) Float(g.GetStat(stat));
+            }
+        }
+        return hash;
+    }
+}

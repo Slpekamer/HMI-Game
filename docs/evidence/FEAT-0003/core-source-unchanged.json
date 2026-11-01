@@ -1,0 +1,21 @@
+{
+  "passed": true,
+  "baseline": "HMI-Game-visual-revision",
+  "files": {
+    ".gdignore": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "Hmi.Core.csproj": "9386c2d05518d31df3a593cd1d0525e52b576de0bff02a26c3d9be9ea59ad8ea",
+    "AssemblyInfo.cs": "3cf3cbc1ed33af345948fd62440d610be1098c2d9184c6e5714ec5523737a78c",
+    "StatSystems.cs": "8fde32755094cf54158d000c3e7393b2e0d29f0c1b6e0c981aa60985c8969e7e",
+    "README.md": "79665ea6aeb4794fdbfc66f32f235e595f89c330a4538ee39fcf30fd35c3f6eb",
+    "RunProgressionSystem.cs": "42d731766a12bce2375110fa643aa119e9590d019821a68f459714d548930367",
+    "Catalog.cs": "a0d1cbbf32e02e7a6e77f66c89099e9f7036a37736d7ba2ede8dd3267b90898f",
+    "GameSimulation.cs": "b1389823fea20a5b520b2ea0f13a501df1e34086b3d8c7726bb124f1cd506918",
+    "EntityLifecycleSystem.cs": "097e70bba67af2925570d4b045dd7d3e4136043f414098989ddf734f3e922437",
+    "Contracts.cs": "71a5611656c928c28b9755431f274ea4ea60d9739e57dfb2770f26a6fbac23b6",
+    "CombatSystems.cs": "bb2892b10515271dec1712e7c7e775f8f68f1b3116a37b74008f37ce3806623a",
+    "Geometry.cs": "d884b53c50025d1165d2326ca545e6d37e424a844eb3b2fb7ae81304dff9d922",
+    "World.cs": "e42c94a6470ee71b0e94b4730bdec723ea4a7abe2c0edb3ea141d46b78a80989",
+    ".editorconfig": "c87c803125007036a90700004617cdb31960bc6ad12bfba3f57c2c35c6a3d54f",
+    "MovementSystems.cs": "3eacdff80f5f8b89d69e62252c01fafab570ce4232c509e97345c895d040dab7"
+  }
+}

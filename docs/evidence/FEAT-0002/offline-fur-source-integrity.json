@@ -1,0 +1,23 @@
+{
+  "scope": "Independent read-only OFFLINE Blender source integrity; not aesthetic approval, animation, engine export or mobile performance",
+  "blender_version": "4.3.2",
+  "corrected_source_sha256": "733ff20ddf90c0c5510f95cd6da62db006953cefe18605cedad4142fbee30c18",
+  "fourview_source_sha256": "d708fc92dde29bef011e3283adf3804d546db61449e149a0048165123e25214e",
+  "fur_manifest_sha256": "64454871a2be7b222ba81d71e151fb6025498d24729260082da09d8f95b482b7",
+  "corrected_integrity_passed": true,
+  "native_curve_objects": 10,
+  "curves": 537200,
+  "points": 2686000,
+  "counts_match_manifest": true,
+  "animation_actions": 0,
+  "armatures": [],
+  "animation_blocks": [],
+  "open_surface_warnings": [
+    "Open/nonmanifold surface; global outward orientation not certified: Plane",
+    "Open/nonmanifold surface; global outward orientation not certified: Small soft smile",
+    "Open/nonmanifold surface; global outward orientation not certified: Subtle smile tongue"
+  ],
+  "source_unchanged_after_probe": true,
+  "earlier_views_exact_geometry_consistency": false,
+  "consistency_findings": "Mesh vertex positions and world matrices equal; face tessellation differs for tail, glints and cloth knot; expected nose winding correction; tail fur point layout differs while other9 grooms match. Same-index delta is not whole-tail displacement. Render final angles from one saved source for exact consistency."
+}

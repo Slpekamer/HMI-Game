@@ -1,0 +1,97 @@
+using Godot;
+using System;
+using System.Collections.Generic;
+
+// Isolated actual-engine lifetime test. Forced GC is diagnostic only, never product policy.
+public partial class AssetCacheLifecycleProbe : Node
+{
+    private int _checks;
+    private void Check(bool ok, string reason) { _checks++; if (!ok) throw new Exception(reason); }
+    private async System.Threading.Tasks.Task Flush()
+    {
+        for (int i = 0; i < 4; i++) await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+    }
+    private static T Find<T>(Node node) where T : Node
+    {
+        if (node is T match) return match;
+        foreach (Node child in node.GetChildren()) { var found = Find<T>(child); if (found != null) return found; }
+        return null;
+    }
+    private static MeshInstance3D Face(Node node)
+    {
+        if (node is MeshInstance3D mesh && mesh.FindBlendShapeByName("Smile") >= 0) return mesh;
+        foreach (Node child in node.GetChildren()) { var found = Face(child); if (found != null) return found; }
+        return null;
+    }
+    private void ValidateMeshes(Node node)
+    {
+        if (node is MeshInstance3D mesh)
+        {
+            Check(GodotObject.IsInstanceValid(mesh.Mesh), "Live mesh resource survives cache release");
+            Check(mesh.Mesh.GetSurfaceCount() > 0, "Live mesh retains surfaces");
+            for (int i = 0; i < mesh.Mesh.GetSurfaceCount(); i++)
+                Check(GodotObject.IsInstanceValid(mesh.Mesh.SurfaceGetMaterial(i)), "Shared material survives cache release");
+        }
+        foreach (Node child in node.GetChildren()) ValidateMeshes(child);
+    }
+    private void Animate(Node node)
+    {
+        var player = Find<AnimationPlayer>(node);
+        Check(player != null, "Real hero AnimationPlayer exists");
+        player.CallbackModeProcess = AnimationMixer.AnimationCallbackModeProcess.Manual;
+        foreach (string suffix in new[] { "Idle", "Run", "Attack" })
+        {
+            string clip = null;
+            foreach (string name in player.GetAnimationList()) if (name.EndsWith(suffix, StringComparison.Ordinal)) clip = name;
+            Check(clip != null, "Required real body clip " + suffix);
+            player.Play(clip); player.Advance(.1);
+            Check(player.CurrentAnimation == clip && player.CurrentAnimationPosition > 0,
+                "Real clip advances after reference release: " + suffix);
+        }
+        ValidateMeshes(node);
+    }
+    public override async void _Ready()
+    {
+        try
+        {
+            var owner = new Node3D(); AddChild(owner);
+            var hostCache = new AssetVisuals(); var hudCache = new AssetVisuals();
+            foreach (string id in AssetVisuals.HeroIds)
+            {
+                var a = hostCache.Create("hero_" + id); var b = hudCache.Create("hero_" + id);
+                owner.AddChild(a); owner.AddChild(b); await Flush();
+                var fa = Face(a); var fb = Face(b);
+                Check(fa != null && fb != null, id + " actual imported facial meshes present");
+                int ia = fa.FindBlendShapeByName("Smile"), ib = fb.FindBlendShapeByName("Smile");
+                fa.SetBlendShapeValue(ia, .6f); fb.SetBlendShapeValue(ib, .2f);
+                hostCache.ReleaseCachedReferences(); hudCache.ReleaseCachedReferences();
+                // Repeat clear is intentionally harmless, including before queued deletion drains.
+                hostCache.ReleaseCachedReferences(); hudCache.ReleaseCachedReferences();
+                GC.Collect(); GC.WaitForPendingFinalizers(); GC.Collect(); await Flush();
+                Animate(a); Animate(b);
+                Check(Math.Abs(fa.GetBlendShapeValue(ia) - .6f) < .0001f && Math.Abs(fb.GetBlendShapeValue(ib) - .2f) < .0001f,
+                    id + " live morph state survives clear/GC independently");
+                var c = hostCache.Create("hero_" + id); owner.AddChild(c); await Flush();
+                var fc = Face(c); int ic = fc.FindBlendShapeByName("Smile");
+                Check(Math.Abs(fc.GetBlendShapeValue(ic)) < .0001f, id + " reload starts with default zero morph");
+                fc.SetBlendShapeValue(ic, .9f);
+                Check(Math.Abs(fa.GetBlendShapeValue(ia) - .6f) < .0001f && Math.Abs(fb.GetBlendShapeValue(ib) - .2f) < .0001f,
+                    id + " reload does not mutate live shared-mesh instances");
+                a.QueueFree(); await Flush(); Check(!GodotObject.IsInstanceValid(a), id + " first instance actually freed");
+                Animate(b); Animate(c);
+                b.QueueFree(); hostCache.ReleaseCachedReferences(); hudCache.ReleaseCachedReferences();
+                await Flush(); Check(!GodotObject.IsInstanceValid(b), id + " second instance actually freed");
+                GC.Collect(); GC.WaitForPendingFinalizers(); GC.Collect(); await Flush(); Animate(c);
+                Check(Math.Abs(fc.GetBlendShapeValue(ic) - .9f) < .0001f, id + " final survivor retains own morph");
+                c.QueueFree(); await Flush(); Check(!GodotObject.IsInstanceValid(c), id + " reloaded instance actually freed");
+            }
+            // A whole owner scene can exit while cache references have already been released.
+            var last = hostCache.Create("hero_summon"); owner.AddChild(last); await Flush();
+            hostCache.ReleaseCachedReferences(); hudCache.ReleaseCachedReferences(); owner.QueueFree(); await Flush();
+            Check(!GodotObject.IsInstanceValid(owner) && !GodotObject.IsInstanceValid(last), "Owner teardown drains descendants");
+            GD.Print("ASSET_CACHE_LIFECYCLE_PROBE PASS checks=" + _checks + " behavior only, not visual/performance certification");
+            GetTree().Quit();
+        }
+        catch (Exception error) { GD.PushError(error.ToString()); GetTree().Quit(1); }
+    }
+}

@@ -1,0 +1,27 @@
+# Save notice top-gap placement — independent isolated trial
+2026-10-31. Not production adoption; separate from rejected left-below-health placement.
+
+Read the same-scene fixture and matched UI SHA46ea8cd98dac552d60ebbc81fcb955fdcfbd10949c6ce4ffe6723e4e7faf5dc7 / probe a76090f61672fb7aabfbc0c4940ff2698d75615abaa83f3129117fea6ae69b23. Full original status text/font/style retained, rectangle moved to(748,28,272), actual style minimum height40. No camera movement policy, collision, persistence/error semantics or companion tray changes. Corrected fixture hides pause overlay while Core remains paused and asserts overlay empty; no shader/material changes.
+
+Actual controlled engine A/B: same original camera, rest pose/model/light, teleported points; not natural play or all animated silhouette coverage. Long unsaved state is presentation stress text, not an actual save failure. Four physical window sizes retain1280×720 logical letterbox rather than portrait redesign.
+
+Initial viewed pixels show a clear improvement at the sampled inner-wall point: previously central strip covered Feiling/Juanjuan/Buding/Kaotuan head/body, now the entire character is visible. Full warning fits between wave and wallet panels with separation and no overlapping text at this ordinary wave1 balance0 sample. This does not establish every legal field position is safe; denser geometric diagnostics remain separate and pending. No font reduction or hidden warning used to achieve the change.
+
+## Native terminal and scoped outcome
+Native completed180rows/470checks/textFitTrue,13pairs,exit0. Independently parsed JSON: notice-overlap cases20→0 in these180 samples, summed conservative all-HUD pixel overlap135388→52988. Actual physical windows match all four requested sizes; framebuffer remains1280×720 for wide,720×405 for portrait and1024×576 for4:3. These are explicitly sampled rest-envelope results, not a universal zero-obstruction guarantee.
+
+Viewed all five candidate inner-wall states, Feiling baseline counterpart, and longest-warning Kaotuan720×1280/1024×768 images. Warning remains complete and separated from wave/wallet labels. Smaller content scales text down with existing letterbox behavior; no claim of mobile-size readability certification. Existing actors/scene camera remain unchanged; center opened without new left-under-health bar. Source also checks long wave/wallet control rectangles, but those extreme numbers are not in these ordinary screenshot states.
+
+Native log only environment VSync warning; actual desktop inventory after exit has no Godot window. Desktop released. Evidence includes26 save-notice-top-gap PNGs, save-notice-top-gap-native-results.json, save-notice-top-gap-native.log and top-gap-evidence hashes.
+
+UI author separately reports7845 legal dense-grid points with no new overlap/no worsened all-HUD bound, but one residual Cuilan(-4,0,-7.5)4.80px² conservative overlap (down from5207.44). This is not independently pixel-checked here yet. Recommend inspect that worst residual point before final scope decision; current results support a bounded improvement candidate, not full animated/whole-field immunity or production adoption.
+
+## Dense-grid residual actual pixel closure —22:31 UTC
+Separate minimal hmi-save-top-residual-rprvk5y4 fixture uses the exact same UI SHA, Cuilan(-4,0,-7.5),1280×720, same original camera/light/pose. Actual terminal1row/17checks/textFitTrue/exit0. Both saved PNGs independently viewed: original central notice cuts across Cuilan's lower head/body; top-gap candidate exposes body/feet and does not visibly touch this actual pose. Existing timer still overlaps the top of the hero/nearby enemy at this north-edge location, so total HUD obstruction is NOT solved. The conservative all-yaw box still touches new notice by4.7989px² versus5207.4414 old; do not erase that numeric residual because the sampled visible mesh misses it. Raster all-HUD area at this point9840→4606 is separate from dense-grid exact-union metric.
+
+Scoped recommendation: top-gap is a justified smaller presentation improvement for owner/lead consideration, with clear sampled net benefit and no new blocker found in these images. It is not proof of continuous movement, all attack poses, every pixel/location or phone readability. Preserve fixed camera and existing full save/error text. Production adoption/final aggregate remains parent-owned; left-below-health alternative remains rejected. Actual window inventory confirmed final fixture exited, desktop released.
+
+## Actual production main status seam —22:35 UTC
+Lead/UI confirmed final main DLL ready/frozen before launch. Exact source UI46ea8cd… and DLL1a3983cb9c2e2078a3f69072434145695ab84afec0cc0fd53bcba70edb784093 matched. Fresh separate XDG; normal main, Kaotuan seed1030. Started normally, moved right, actual successful save displayed full“已保存波起点”in the top gap. Esc pause retained the text/world; resumed and moved left, paused again and chose Restart. Selection returned, new adventure started again, normal upward movement and pause showed the newly recreated full saved-success notice. No injected DTO or disk failure in this main run; no wave-completion/balance claim.
+
+Saved actual save-top-main-{saved,paused,restart,second-start}.jpg, native.log and source-sha256. Long unsaved warnings remain controlled-fixture evidence, not real I/O failures in this short run. Main log contains only VSync environment warning, no ERROR. Terminal Ctrl+C and actual window inventory confirmed exit; desktop released.

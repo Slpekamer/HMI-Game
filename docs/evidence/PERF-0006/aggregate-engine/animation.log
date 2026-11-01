@@ -1,0 +1,27 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+ANIMATION_SAMPLE hero_orbit Idle articulated_nodes=8
+ANIMATION_SAMPLE hero_orbit Run articulated_nodes=19
+ANIMATION_SAMPLE hero_orbit Attack articulated_nodes=12
+ANIMATION_SAMPLE hero_crit Idle articulated_nodes=3
+ANIMATION_SAMPLE hero_crit Run articulated_nodes=15
+ANIMATION_SAMPLE hero_crit Attack articulated_nodes=7
+ANIMATION_SAMPLE hero_honey Idle articulated_nodes=3
+ANIMATION_SAMPLE hero_honey Run articulated_nodes=15
+ANIMATION_SAMPLE hero_honey Attack articulated_nodes=7
+ANIMATION_SAMPLE hero_summon Idle articulated_nodes=3
+ANIMATION_SAMPLE hero_summon Run articulated_nodes=15
+ANIMATION_SAMPLE hero_summon Attack articulated_nodes=7
+ANIMATION_SAMPLE hero_bounce Idle articulated_nodes=3
+ANIMATION_SAMPLE hero_bounce Run articulated_nodes=15
+ANIMATION_SAMPLE hero_bounce Attack articulated_nodes=7
+ANIMATION_SAMPLE enemy_chaser Idle articulated_nodes=9
+ANIMATION_SAMPLE enemy_chaser Run articulated_nodes=11
+ANIMATION_SAMPLE enemy_chaser Attack articulated_nodes=11
+ANIMATION_SAMPLE companion_shooter Idle articulated_nodes=9
+ANIMATION_SAMPLE companion_shooter Run articulated_nodes=11
+ANIMATION_SAMPLE companion_shooter Attack articulated_nodes=11
+ANIMATION_SAMPLE companion_support Idle articulated_nodes=9
+ANIMATION_SAMPLE companion_support Run articulated_nodes=11
+ANIMATION_SAMPLE companion_support Attack articulated_nodes=11
+ANIMATION_PROBE failures=0

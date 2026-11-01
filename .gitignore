@@ -9,3 +9,24 @@ export_credentials.cfg
 # OS metadata
 .DS_Store
 Thumbs.db
+
+# .NET generated outputs
+**/bin/
+**/obj/
+*.user
+*.suo
+/.local/
+
+# Local Android template and crash dumps
+/android/
+core
+core.*
+
+# Python test helper caches
+__pycache__/
+*.pyc
+
+# Recreated by Godot from the embedded food-hero GLB atlas; never hand-edit.
+/content/models/hero_*_basecolor.png*
+/content/models/hero_*_normal.png*
+/content/models/hero_*_orm.png*

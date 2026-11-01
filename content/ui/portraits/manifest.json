@@ -1,0 +1,96 @@
+{
+  "format": "approved-turnaround-atlas-v1",
+  "scope": "Owner-approved food concepts, front panel shown through non-destructive Godot AtlasTexture; cream background, not transparent RGBA",
+  "portraits": [
+    {
+      "id": "hero_summon",
+      "name": "烤团",
+      "file": "hero_summon.png",
+      "texture": "hero_summon_portrait.tres",
+      "sha256": "9e5e728f41fc3cb6e64783309ca1ad249aacff36c19c02267a481b8c6f5cab5a",
+      "image_size": [
+        2027,
+        776
+      ],
+      "region_xywh": [
+        0,
+        0,
+        710,
+        700
+      ],
+      "source_filename": "toasted-scout-turnaround-r1.png"
+    },
+    {
+      "id": "hero_orbit",
+      "name": "绯绫",
+      "file": "hero_orbit.png",
+      "texture": "hero_orbit_portrait.tres",
+      "sha256": "2096a1975cade73863c2283bdc0703ebebb4e9b1777aa2464a0bdebe3cc7655e",
+      "image_size": [
+        2027,
+        776
+      ],
+      "region_xywh": [
+        0,
+        0,
+        710,
+        700
+      ],
+      "source_filename": "feiling-turnaround-r1.png"
+    },
+    {
+      "id": "hero_honey",
+      "name": "布叮",
+      "file": "hero_honey.png",
+      "texture": "hero_honey_portrait.tres",
+      "sha256": "2bc2595b6d90c03c0680a758decbc03a4d5fd93bb40f522b86a3778d2d9f9d76",
+      "image_size": [
+        2027,
+        776
+      ],
+      "region_xywh": [
+        0,
+        0,
+        710,
+        700
+      ],
+      "source_filename": "buding-turnaround-r3.png"
+    },
+    {
+      "id": "hero_crit",
+      "name": "卷卷",
+      "file": "hero_crit.png",
+      "texture": "hero_crit_portrait.tres",
+      "sha256": "aed09c1ea337d866eb2d1f6785274f5014afbed6e90b2db80a96e94b37ab6e8f",
+      "image_size": [
+        2027,
+        776
+      ],
+      "region_xywh": [
+        0,
+        0,
+        710,
+        700
+      ],
+      "source_filename": "juanjuan-turnaround-r2.png"
+    },
+    {
+      "id": "hero_bounce",
+      "name": "脆蓝",
+      "file": "hero_bounce.png",
+      "texture": "hero_bounce_portrait.tres",
+      "sha256": "5fc405dd5f5009184db36aed5a84ca0e7d21cbab97183fc6cd085c1024dd39f1",
+      "image_size": [
+        2027,
+        776
+      ],
+      "region_xywh": [
+        0,
+        0,
+        750,
+        700
+      ],
+      "source_filename": "cuilan-turnaround-r1.png"
+    }
+  ]
+}

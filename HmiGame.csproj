@@ -1,0 +1,12 @@
+<Project Sdk="Godot.NET.Sdk/4.6.3">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <EnableDynamicLoading>true</EnableDynamicLoading>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="src/Adapters/Godot/**/*.cs" />
+    <ProjectReference Include="src/Core/Hmi.Core.csproj" />
+    <ProjectReference Include="src/Adapters/Persistence/Hmi.Persistence.csproj" />
+  </ItemGroup>
+</Project>

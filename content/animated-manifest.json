@@ -1,0 +1,529 @@
+{
+  "version": "v02-animated",
+  "source": "Original segmented Blender toy models; no external assets",
+  "coordinate_system": "metres,Y-up,forward-Z,ground root",
+  "root_motion": false,
+  "clips": {
+    "Idle": [
+      1.6,
+      true
+    ],
+    "Run": [
+      0.64,
+      true
+    ],
+    "Attack": [
+      0.36,
+      false
+    ]
+  },
+  "assets": [
+    {
+      "id": "hero_summon",
+      "runtime_contract": "food-hero-v1",
+      "height_m": 1.2,
+      "triangles": 29849,
+      "meshes": 2,
+      "surface_count": 2,
+      "animation": "skinned body clips and instance facial morphs; no root motion or gameplay callbacks",
+      "clips": {
+        "Attack": {
+          "duration_seconds": 0.4333333373069763,
+          "loop": false
+        },
+        "Idle": {
+          "duration_seconds": 1.6333333253860474,
+          "loop": true
+        },
+        "Run": {
+          "duration_seconds": 0.8333333134651184,
+          "loop": true
+        }
+      },
+      "sha256": "e55155cc991c1f7ce7cf0229c765a8f706efd9a7a4be362f44a55c7bbd66a7b9",
+      "provenance": "content/models/food-heroes-provenance.json"
+    },
+    {
+      "id": "hero_honey",
+      "runtime_contract": "food-hero-v1",
+      "height_m": 1.2,
+      "triangles": 29510,
+      "meshes": 2,
+      "surface_count": 2,
+      "animation": "skinned body clips and instance facial morphs; no root motion or gameplay callbacks",
+      "clips": {
+        "Attack": {
+          "duration_seconds": 0.4333333373069763,
+          "loop": false
+        },
+        "Idle": {
+          "duration_seconds": 1.6333333253860474,
+          "loop": true
+        },
+        "Run": {
+          "duration_seconds": 0.8333333134651184,
+          "loop": true
+        }
+      },
+      "sha256": "21f6e09fcc624e4c8c85a496bd6b63191ed8ffb1b657a5ecdd86afe261721b54",
+      "provenance": "content/models/food-heroes-provenance.json"
+    },
+    {
+      "id": "hero_orbit",
+      "runtime_contract": "food-hero-v1",
+      "height_m": 1.2,
+      "triangles": 29066,
+      "meshes": 2,
+      "surface_count": 2,
+      "animation": "skinned body clips and instance facial morphs; no root motion or gameplay callbacks",
+      "clips": {
+        "Attack": {
+          "duration_seconds": 0.4333333373069763,
+          "loop": false
+        },
+        "Idle": {
+          "duration_seconds": 1.6333333253860474,
+          "loop": true
+        },
+        "Run": {
+          "duration_seconds": 0.8333333134651184,
+          "loop": true
+        }
+      },
+      "sha256": "4f33b8e613e761352881ff6246a2c0949303fe2b7c750e73ae846f434ed7369f",
+      "provenance": "content/models/food-heroes-provenance.json"
+    },
+    {
+      "id": "hero_crit",
+      "runtime_contract": "food-hero-v1",
+      "height_m": 1.2,
+      "triangles": 29924,
+      "meshes": 2,
+      "surface_count": 2,
+      "animation": "skinned body clips and instance facial morphs; no root motion or gameplay callbacks",
+      "clips": {
+        "Attack": {
+          "duration_seconds": 0.4333333373069763,
+          "loop": false
+        },
+        "Idle": {
+          "duration_seconds": 1.6333333253860474,
+          "loop": true
+        },
+        "Run": {
+          "duration_seconds": 0.8333333134651184,
+          "loop": true
+        }
+      },
+      "sha256": "38d76d5fe62ecd39c0b4506672c31038f62a797dc493dcbc72ede3f609d916bb",
+      "provenance": "content/models/food-heroes-provenance.json"
+    },
+    {
+      "id": "hero_bounce",
+      "runtime_contract": "food-hero-v1",
+      "height_m": 1.2,
+      "triangles": 28964,
+      "meshes": 2,
+      "surface_count": 2,
+      "animation": "skinned body clips and instance facial morphs; no root motion or gameplay callbacks",
+      "clips": {
+        "Attack": {
+          "duration_seconds": 0.4333333373069763,
+          "loop": false
+        },
+        "Idle": {
+          "duration_seconds": 1.6333333253860474,
+          "loop": true
+        },
+        "Run": {
+          "duration_seconds": 0.8333333134651184,
+          "loop": true
+        }
+      },
+      "sha256": "2c9180243a92973ff64f80f574349430a4aa9bc5b91a6708529f4dfc0eb62a51",
+      "provenance": "content/models/food-heroes-provenance.json"
+    },
+    {
+      "id": "companion_shooter",
+      "height_m": 0.7,
+      "triangles": 17896,
+      "meshes": 8,
+      "animation": "segmented node animation; no skin; root stationary",
+      "clips": {
+        "Idle": {
+          "duration_seconds": 1.6,
+          "loop": true
+        },
+        "Run": {
+          "duration_seconds": 0.64,
+          "loop": true
+        },
+        "Attack": {
+          "duration_seconds": 0.36,
+          "loop": false
+        }
+      },
+      "sha256": "9a9d7da98bba59643d84d06005e1a38092663b3289f0b359c02cc49f9c84e04f",
+      "rest_world_min": [
+        -0.23635289072990417,
+        0.0,
+        -0.33611026406288147
+      ],
+      "rest_world_max": [
+        0.23635292053222656,
+        0.699999988079071,
+        0.16470582783222198
+      ],
+      "surface_count": 25,
+      "clip_validation": {
+        "Idle": {
+          "duration_seconds": 1.600000023841858,
+          "loop_policy": true,
+          "track_count": 10,
+          "animated_nodes": [
+            "ArmL",
+            "ArmR",
+            "Body",
+            "EarL",
+            "EarR",
+            "Head",
+            "Tail",
+            "WingL",
+            "WingR"
+          ],
+          "changing_nodes": [
+            "ArmL",
+            "ArmR",
+            "Body",
+            "EarL",
+            "EarR",
+            "Head",
+            "Tail",
+            "WingL",
+            "WingR"
+          ],
+          "root_channels": 0
+        },
+        "Run": {
+          "duration_seconds": 0.6399999856948853,
+          "loop_policy": true,
+          "track_count": 16,
+          "animated_nodes": [
+            "ArmL",
+            "ArmR",
+            "Body",
+            "EarL",
+            "EarR",
+            "FootL",
+            "FootR",
+            "Head",
+            "Tail",
+            "WingL",
+            "WingR"
+          ],
+          "changing_nodes": [
+            "ArmL",
+            "ArmR",
+            "Body",
+            "EarL",
+            "EarR",
+            "FootL",
+            "FootR",
+            "Head",
+            "Tail",
+            "WingL",
+            "WingR"
+          ],
+          "root_channels": 0
+        },
+        "Attack": {
+          "duration_seconds": 0.36000001430511475,
+          "loop_policy": false,
+          "track_count": 14,
+          "animated_nodes": [
+            "ArmL",
+            "ArmR",
+            "Body",
+            "EarL",
+            "EarR",
+            "FootL",
+            "FootR",
+            "Head",
+            "Tail",
+            "WingL",
+            "WingR"
+          ],
+          "changing_nodes": [
+            "ArmL",
+            "ArmR",
+            "Body",
+            "EarL",
+            "EarR",
+            "FootL",
+            "FootR",
+            "Head",
+            "Tail",
+            "WingL",
+            "WingR"
+          ],
+          "root_channels": 0
+        }
+      }
+    },
+    {
+      "id": "companion_support",
+      "height_m": 0.7,
+      "triangles": 18292,
+      "meshes": 6,
+      "animation": "segmented node animation; no skin; root stationary",
+      "clips": {
+        "Idle": {
+          "duration_seconds": 1.6,
+          "loop": true
+        },
+        "Run": {
+          "duration_seconds": 0.64,
+          "loop": true
+        },
+        "Attack": {
+          "duration_seconds": 0.36,
+          "loop": false
+        }
+      },
+      "sha256": "dccf8ccd12cad96493c614517193072b19df70aecf8a9844ca4b9e76bca411fb",
+      "rest_world_min": [
+        -0.2318076342344284,
+        0.0,
+        -0.2126922905445099
+      ],
+      "rest_world_max": [
+        0.28717947006225586,
+        0.699999988079071,
+        0.16153840720653534
+      ],
+      "surface_count": 17,
+      "clip_validation": {
+        "Idle": {
+          "duration_seconds": 1.600000023841858,
+          "loop_policy": true,
+          "track_count": 10,
+          "animated_nodes": [
+            "ArmL",
+            "ArmR",
+            "Body",
+            "EarL",
+            "EarR",
+            "Head",
+            "Tail",
+            "WingL",
+            "WingR"
+          ],
+          "changing_nodes": [
+            "ArmL",
+            "ArmR",
+            "Body",
+            "EarL",
+            "EarR",
+            "Head",
+            "Tail",
+            "WingL",
+            "WingR"
+          ],
+          "root_channels": 0
+        },
+        "Run": {
+          "duration_seconds": 0.6399999856948853,
+          "loop_policy": true,
+          "track_count": 16,
+          "animated_nodes": [
+            "ArmL",
+            "ArmR",
+            "Body",
+            "EarL",
+            "EarR",
+            "FootL",
+            "FootR",
+            "Head",
+            "Tail",
+            "WingL",
+            "WingR"
+          ],
+          "changing_nodes": [
+            "ArmL",
+            "ArmR",
+            "Body",
+            "EarL",
+            "EarR",
+            "FootL",
+            "FootR",
+            "Head",
+            "Tail",
+            "WingL",
+            "WingR"
+          ],
+          "root_channels": 0
+        },
+        "Attack": {
+          "duration_seconds": 0.36000001430511475,
+          "loop_policy": false,
+          "track_count": 14,
+          "animated_nodes": [
+            "ArmL",
+            "ArmR",
+            "Body",
+            "EarL",
+            "EarR",
+            "FootL",
+            "FootR",
+            "Head",
+            "Tail",
+            "WingL",
+            "WingR"
+          ],
+          "changing_nodes": [
+            "ArmL",
+            "ArmR",
+            "Body",
+            "EarL",
+            "EarR",
+            "FootL",
+            "FootR",
+            "Head",
+            "Tail",
+            "WingL",
+            "WingR"
+          ],
+          "root_channels": 0
+        }
+      }
+    },
+    {
+      "id": "enemy_chaser",
+      "height_m": 0.9,
+      "triangles": 2748,
+      "meshes": 3,
+      "animation": "segmented node animation; no skin; root stationary",
+      "clips": {
+        "Idle": {
+          "duration_seconds": 1.6,
+          "loop": true
+        },
+        "Run": {
+          "duration_seconds": 0.64,
+          "loop": true
+        },
+        "Attack": {
+          "duration_seconds": 0.36,
+          "loop": false
+        }
+      },
+      "sha256": "15369930f954a47c8472652ff7b052f4096951d2cd902cc14edc7a2af8003244",
+      "rest_world_min": [
+        -0.40230414271354675,
+        0.0,
+        -0.3089861571788788
+      ],
+      "rest_world_max": [
+        0.40230414271354675,
+        0.8999999761581421,
+        0.43755754828453064
+      ],
+      "surface_count": 8,
+      "clip_validation": {
+        "Idle": {
+          "duration_seconds": 1.600000023841858,
+          "loop_policy": true,
+          "track_count": 10,
+          "animated_nodes": [
+            "ArmL",
+            "ArmR",
+            "Body",
+            "EarL",
+            "EarR",
+            "Head",
+            "Tail",
+            "WingL",
+            "WingR"
+          ],
+          "changing_nodes": [
+            "ArmL",
+            "ArmR",
+            "Body",
+            "EarL",
+            "EarR",
+            "Head",
+            "Tail",
+            "WingL",
+            "WingR"
+          ],
+          "root_channels": 0
+        },
+        "Run": {
+          "duration_seconds": 0.6399999856948853,
+          "loop_policy": true,
+          "track_count": 16,
+          "animated_nodes": [
+            "ArmL",
+            "ArmR",
+            "Body",
+            "EarL",
+            "EarR",
+            "FootL",
+            "FootR",
+            "Head",
+            "Tail",
+            "WingL",
+            "WingR"
+          ],
+          "changing_nodes": [
+            "ArmL",
+            "ArmR",
+            "Body",
+            "EarL",
+            "EarR",
+            "FootL",
+            "FootR",
+            "Head",
+            "Tail",
+            "WingL",
+            "WingR"
+          ],
+          "root_channels": 0
+        },
+        "Attack": {
+          "duration_seconds": 0.36000001430511475,
+          "loop_policy": false,
+          "track_count": 14,
+          "animated_nodes": [
+            "ArmL",
+            "ArmR",
+            "Body",
+            "EarL",
+            "EarR",
+            "FootL",
+            "FootR",
+            "Head",
+            "Tail",
+            "WingL",
+            "WingR"
+          ],
+          "changing_nodes": [
+            "ArmL",
+            "ArmR",
+            "Body",
+            "EarL",
+            "EarR",
+            "FootL",
+            "FootR",
+            "Head",
+            "Tail",
+            "WingL",
+            "WingR"
+          ],
+          "root_channels": 0
+        }
+      }
+    }
+  ],
+  "animation": "All five hero models use skinned clips and facial morphs; companions and enemies retain their explicitly recorded legacy contracts."
+}

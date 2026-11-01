@@ -1,22 +1,7 @@
-# 需求与功能记录
+# Features
 
-目前尚无玩法需求实现。新增功能/问题时复制以下模板；简单维护可只写开发日志。
-文件名：`FEAT-0001-<slug>.md` 或 `BUG-0001-<slug>.md`，ID 不重复使用。
+[FEAT-0001: portable playable slice](FEAT-0001-playable-slice.md). Requirements trace to the approved design and art-reference documents; fresh test evidence is in `../evidence/FEAT-0001/`.
 
-```markdown
-# <ID> <名称>
-- 状态：提议 / 已确认 / 实现中 / 已验证 / 阻塞 / 取消
-- 来源与日期：<用户请求或已授权任务；避免敏感信息>
-- 目标与非目标：
-- 验收标准：<可观察、可测试>
-- 设计：<流程、数据、ECS 组件/系统、适配边界>
-- 迁移影响：<复用部分、引擎差异、验证条件>
-- 关联 ADR：<链接或不适用及理由>
-- 实现位置：<代码、配置、资源路径；未实现则明示>
-- 测试与证据：<命令、环境、输入、结果、证据链接>
-- 提交/PR：<真实链接；待发布时标待补或通过提交消息 ID 反查>
-- 风险、假设、遗留项：
-- 变更记录：<日期、改变了什么、为什么>
-```
+- [PERF-0006 — Opaque menu render suppression](PERF-0006-opaque-pages.md): exact native pixel parity and measured hidden draw reduction; no camera or gameplay change.
 
-Bug 额外记录：最小复现、预期/实际、根因、修复和回归测试。
+- [BUG-0004 — Save-notice top-gap trial](BUG-0004-save-notice-occlusion.md): isolated full-text relocation; numerical/native sampled benefit, scoped gates passed; parent approved adoption, commit/export separate.

@@ -1,0 +1,87 @@
+{
+  "version": "v01-recovered-20261031",
+  "format": "SVG,128x128,transparent,original vector assets",
+  "nine_patch_margin": 32,
+  "files": [
+    {
+      "name": "button_disabled.svg",
+      "sha256": "d7a4b3ce12d2d1a56f4fc8ed85ce0843bab98a667779206e5bfa63427d457677"
+    },
+    {
+      "name": "button_primary.svg",
+      "sha256": "f9b68c459a39b7a7fb8f49e1ff9d50e230d2402356fa01edc3bb31ba8062b988"
+    },
+    {
+      "name": "button_secondary.svg",
+      "sha256": "f71e004d26dee0db3751221e00b393c7dcc05a1ac8eafba493067e81c5c186b7"
+    },
+    {
+      "name": "icon_bounce.svg",
+      "sha256": "52825b1c8562451b0ea111126110eac5e97ec44040e106c5123c121f9b7aa206"
+    },
+    {
+      "name": "icon_coin.svg",
+      "sha256": "28f6acce8bf6e5b0a9ad5c19166a0f1baca2167641d3fab40d5fb7d9010dd37f"
+    },
+    {
+      "name": "icon_crit.svg",
+      "sha256": "f7c6c90a26b0ae1f9ba96fd86195eb55c0c8218914fe0731e20cdd1d9bcdf211"
+    },
+    {
+      "name": "icon_glove.svg",
+      "sha256": "47c6bb988f09b751b837be86858824e23657000a907af7feab60e8596ee749c1"
+    },
+    {
+      "name": "icon_heart.svg",
+      "sha256": "d00c25d451fe718ca5ae3b75de99724052bd0daa582a7120db1ac08bf4d1132f"
+    },
+    {
+      "name": "icon_honey.svg",
+      "sha256": "0963c9d3925a23416e9a5f529986c872cbb94c3dd551f499da24e8b0c900bc14"
+    },
+    {
+      "name": "icon_insoles.svg",
+      "sha256": "2325e4179ed15be3c10a9f0c5a2855267c60d4c6522aa6d37013cb56c07f611b"
+    },
+    {
+      "name": "icon_orbit.svg",
+      "sha256": "fb6af1e2a0495bbb5b74206852d843df825aa5fa441eebe65d1f02cb3ff423bc"
+    },
+    {
+      "name": "icon_risk.svg",
+      "sha256": "f2efa7126503fa9338dc0e02c2bd01f87c6bf06f42cb5e091b128c7b8f590630"
+    },
+    {
+      "name": "icon_shield.svg",
+      "sha256": "1b640f132e2cec17263a83004b07914e74bba44014ea2494ad9a207b64a26961"
+    },
+    {
+      "name": "icon_soda.svg",
+      "sha256": "55d12dd80fd08e09919656b421591e4edda6361fda682d103b45b5fc2d5887a4"
+    },
+    {
+      "name": "icon_speed.svg",
+      "sha256": "67a45c67fc0eae9a8e7735449e81ee5de39104cd025075bdb037d158a455b8aa"
+    },
+    {
+      "name": "icon_summon.svg",
+      "sha256": "7c69f2220fcd45ac525fc1b1a790b93bcdd08ed7191ef4e81fc5d23b49e2cf06"
+    },
+    {
+      "name": "panel_blue.svg",
+      "sha256": "8da084ab9f9e0330ec2bbcaf5aecb7a3f5c1ccd447126210ef678456f91c249b"
+    },
+    {
+      "name": "panel_coral.svg",
+      "sha256": "2d9d655238a9ef3c2e71d27a0b397d586bc9cc3149bb68a3bd28f7ef5c1e8a75"
+    },
+    {
+      "name": "panel_cream.svg",
+      "sha256": "df70d04a62c253b8dcc6c41c57a107e6fe435be7f5bc8c440319b8f19d6c415b"
+    },
+    {
+      "name": "panel_purple.svg",
+      "sha256": "5f6f3432c347681fffe2ca0c557fa8046175fe316f01200cf59f07585d745331"
+    }
+  ]
+}

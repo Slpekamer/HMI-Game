@@ -1,0 +1,25 @@
+Checkpoint host build: exit 0; log /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-checkpoint-host-0pes67je/build.log
+Checkpoint host import: exit 0; log /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-checkpoint-host-0pes67je/import.log
+Checkpoint host run: exit 1; log /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-checkpoint-host-0pes67je/run.log
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+HMI_READY reconstruction=2026-10-31 lighting=linear-direct0.36-ambient0.18
+ERROR: System.Exception: actual host catalog hash agrees with Core codec and production store
+   at CheckpointHostProbe.Check(Boolean ok, String why) in /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-checkpoint-host-0pes67je/project/src/Adapters/Godot/CheckpointHostProbe.cs:line 16
+   at CheckpointHostProbe._Ready() in /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-checkpoint-host-0pes67je/project/src/Adapters/Godot/CheckpointHostProbe.cs:line 34
+   at: void CheckpointHostProbe+<_Ready>d__8.MoveNext() (res://src/Adapters/Godot/CheckpointHostProbe.cs:34)
+   C# backtrace (most recent call first):
+       [0] void Godot.GD.PushError(string) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/GD.cs:366)
+       [1] void CheckpointHostProbe+<_Ready>d__8.MoveNext() (/workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-checkpoint-host-0pes67je/project/src/Adapters/Godot/CheckpointHostProbe.cs:34)
+       [2] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+       [3] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1+AsyncStateMachineBox`1.MoveNext(System.Threading.Thread)
+       [4] void System.Threading.Tasks.AwaitTaskContinuation.RunCallback(System.Threading.ContextCallback, object, System.Threading.Tasks.Task&)
+       [5] void System.Threading.Tasks.Task.RunContinuations(object)
+       [6] bool System.Threading.Tasks.Task`1.TrySetResult(TResult)
+       [7] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1.SetExistingTaskResult(System.Threading.Tasks.Task`1[TResult], TResult)
+       [8] void CheckpointHostProbe+<Flush>d__6.MoveNext() (/workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-checkpoint-host-0pes67je/project/src/Adapters/Godot/CheckpointHostProbe.cs:17)
+       [9] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+       [10] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1+AsyncStateMachineBox`1.MoveNext(System.Threading.Thread)
+       [11] void Godot.SignalAwaiter.SignalCallback(nint, Godot.NativeInterop.godot_variant**, int, Godot.NativeInterop.godot_bool*) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/SignalAwaiter.cs:65)
+
+FAIL checkpoint host run; evidence /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-checkpoint-host-0pes67je

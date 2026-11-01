@@ -1,0 +1,66 @@
+using Godot;
+using Hmi.Core;
+using Hmi.GodotAdapter;
+using System;
+using System.Reflection;
+using System.Linq;
+using System.Collections.Generic;
+using System.Text.Json;
+public partial class SaveNoticeResidualProbe:Node
+{
+ const BindingFlags Flags=BindingFlags.Instance|BindingFlags.NonPublic;
+ int checks;
+ void Check(bool ok,string reason){checks++;if(!ok)throw new Exception(reason);}
+ static IEnumerable<Node> Walk(Node n){yield return n;if(n is SubViewport)yield break;foreach(Node c in n.GetChildren())foreach(var x in Walk(c))yield return x;}
+ async System.Threading.Tasks.Task Flush(){for(int i=0;i<3;i++)await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);}
+ static object Rect(Rect2 r)=>new{x=r.Position.X,y=r.Position.Y,width=r.Size.X,height=r.Size.Y};
+ static float Area(Rect2 a,Rect2 b){var r=a.Intersection(b);return r.HasArea()?r.Size.X*r.Size.Y:0;}
+ public override async void _Ready(){try{
+ string prefix=null;foreach(var a in OS.GetCmdlineUserArgs())if(a.StartsWith("--capture-save="))prefix=a.Substring(15);
+ string report=null;foreach(var a in OS.GetCmdlineUserArgs())if(a.StartsWith("--report="))report=a.Substring(9);
+ var host=new GameHost();AddChild(host);host.SetProcess(false);await Flush();
+ object Field(string n)=>typeof(GameHost).GetField(n,Flags).GetValue(host);
+ var ui=(GameUi)Field("_ui");var camera=(Camera3D)Field("_camera");var rows=new List<object>();var textRows=new List<object>();bool textFit=true;
+ string[] states={"已保存波起点","本局未保存 · 无可恢复安全点","新局尚无可恢复安全点"};
+ var points=new[]{new Vector3(-4,0,-7.5f)};
+ foreach(var physical in new[]{new Vector2I(1280,720)}){
+ GetWindow().Size=physical;await Flush();Check(GetViewport().GetVisibleRect().Size==new Vector2(1280,720),"Real logical letterbox contract changed");
+ for(int hero=4;hero<5;hero++){
+ typeof(GameHost).GetMethod("Start",Flags).Invoke(host,new object[]{hero,(uint)1030});host.SetProcess(false);await Flush();var sim=(GameSimulation)Field("_sim");sim.Enqueue(GameCommand.Pause(true));sim.Step();
+ typeof(GameHost).GetMethod("RenderEntities",Flags).Invoke(host,new object[]{1f/60});typeof(GameHost).GetMethod("RefreshUi",Flags).Invoke(host,null);ui.ShowPause(false);Check(((Control)typeof(GameUi).GetField("_overlay",Flags).GetValue(ui)).GetChildCount()==0,"Controlled capture has no pause modal");
+ var actor=((Node3D[])Field("_visuals"))[sim.PlayerId.Index];
+ var hud=Walk(ui).OfType<Control>().First(n=>n.Name=="CombatHud"&&!n.IsQueuedForDeletion());
+ var notice=Walk(hud).OfType<Label>().First(n=>n.Name=="SaveStatusNotice");
+ foreach(var state in states){ui.SetResumeState(new ResumeUi(saveStatus:state));await Flush();Check(!notice.ClipText&&notice.TextOverrunBehavior==TextServer.OverrunBehavior.NoTrimming,"Full save status must not clip/trim");float width=notice.GetThemeFont("font").GetStringSize(state,HorizontalAlignment.Left,-1,16).X;var minimum=notice.GetMinimumSize();bool fit=minimum.X<=272; textFit&=fit;textRows.Add(new{hero,physical=physical.ToString(),text=state,textWidth=width,minimum=minimum.ToString(),actual=Rect(notice.GetGlobalRect()),fitsRequested=fit});}
+ ui.SetResumeState(new ResumeUi());Check(!notice.Visible,"Empty save state remains hidden");ui.SetResumeState(new ResumeUi(saveStatus:states[1]));await Flush();Check(notice.Visible&&notice.Text==states[1],"Full persistent state unchanged");
+ // Rest-mesh/all-yaw envelope, not actual skinned animation or alpha silhouette.
+ float radius=0,min=float.PositiveInfinity,max=float.NegativeInfinity;
+ foreach(var mesh in Walk(actor).OfType<MeshInstance3D>())for(int i=0;i<8;i++){var p=mesh.GlobalTransform*mesh.GetAabb().GetEndpoint(i)-actor.GlobalPosition;radius=Math.Max(radius,new Vector2(p.X,p.Z).Length());min=Math.Min(min,p.Y);max=Math.Max(max,p.Y);}
+ Check(radius>0&&float.IsFinite(min),"Actual imported mesh bounds missing");
+ foreach(var point in points){actor.Position=point;camera.Position=new Vector3(12,22,18)+new Vector3(Mathf.Clamp(point.X*.32f,-3,3),0,Mathf.Clamp(point.Z*.24f,-1.5f,1.5f));
+ Vector2 lo=Vector2.Inf,hi=-Vector2.Inf;for(int x=-1;x<=1;x+=2)for(int z=-1;z<=1;z+=2)foreach(float y in new[]{min,max}){var p=camera.UnprojectPosition(point+new Vector3(x*radius,y,z*radius));lo=lo.Min(p);hi=hi.Max(p);}var bounds=new Rect2(lo,hi-lo);
+ var controls=Walk(hud).OfType<Control>().Where(c=>c!=notice&&c.IsVisibleInTree()&&!c.IsQueuedForDeletion()&&(c is PanelContainer||c is Button||c is Label l&&l.GetTotalCharacterCount()>0||c is TouchJoystick)).Select(c=>c.GetGlobalRect()).ToArray();
+ notice.Position=new Vector2(390,145);notice.Size=new Vector2(500,28);var baseline=notice.GetGlobalRect();notice.Position=new Vector2(748,28);notice.Size=new Vector2(272,28);var candidate=notice.GetGlobalRect();Check(baseline.Size.Y==candidate.Size.Y,"Existing style minimum height must match A/B");int unionA=0,unionB=0;
+ for(int y=(int)Math.Floor(lo.Y);y<Math.Ceiling(hi.Y);y++)for(int x=(int)Math.Floor(lo.X);x<Math.Ceiling(hi.X);x++){var p=new Vector2(x+.5f,y+.5f);bool other=controls.Any(r=>r.HasPoint(p));if(other||baseline.HasPoint(p))unionA++;if(other||candidate.HasPoint(p))unionB++;}
+ if(prefix!=null){
+ foreach(var ap in actor.FindChildren("*","AnimationPlayer",true,false).OfType<AnimationPlayer>())ap.Pause();
+ string key=AssetVisuals.HeroIds[hero]+"-"+physical.X+"x"+physical.Y+"-"+"residual-north";
+ notice.Position=new Vector2(390,145);notice.Size=new Vector2(500,28);for(int f=0;f<8;f++)await ToSignal(RenderingServer.Singleton,RenderingServer.SignalName.FramePostDraw);var a=GetViewport().GetTexture().GetImage();Check(a.SavePng(prefix+"-"+key+"-baseline.png")==Error.Ok,"Save baseline screenshot");
+ notice.Position=new Vector2(748,28);notice.Size=new Vector2(272,28);for(int f=0;f<8;f++)await ToSignal(RenderingServer.Singleton,RenderingServer.SignalName.FramePostDraw);var b=GetViewport().GetTexture().GetImage();Check(b.SavePng(prefix+"-"+key+"-candidate.png")==Error.Ok,"Save candidate screenshot");
+ GD.Print("SAVE_NOTICE_CAPTURE "+key+" actualWindow="+GetWindow().Size+" framebuffer="+a.GetSize());
+ }
+ rows.Add(new{hero=AssetVisuals.HeroIds[hero],requestedPhysical=physical.ToString(),actualWindow=GetWindow().Size.ToString(),logical=GetViewport().GetVisibleRect().Size.ToString(),point=point.ToString(),radius,restMin=min,restMax=max,bounds=Rect(bounds),baseline=Rect(baseline),candidate=Rect(candidate),noticeBaselineArea=Area(bounds,baseline),noticeCandidateArea=Area(bounds,candidate),allHudBaselinePixelArea=unionA,allHudCandidatePixelArea=unionB,camera=camera.Position.ToString()});
+ }
+ foreach(int wave in new[]{7,1000,10000,int.MaxValue}){
+ ui.UpdateHud(AssetVisuals.HeroNames[hero],100,100,wave,24,int.MaxValue,"","",false,true,int.MaxValue);await Flush();
+ var waveLabel=(Label)typeof(GameUi).GetField("_wave",Flags).GetValue(ui);var walletLabel=(Label)typeof(GameUi).GetField("_wallet",Flags).GetValue(ui);
+ Check(!notice.GetGlobalRect().Intersects(waveLabel.GetGlobalRect())&&!notice.GetGlobalRect().Intersects(walletLabel.GetGlobalRect()),"Top notice overlaps actual high-wave/wallet label");
+ textRows.Add(new{dynamicWave=wave,wallet=int.MaxValue,notice=Rect(notice.GetGlobalRect()),waveRect=Rect(waveLabel.GetGlobalRect()),walletRect=Rect(walletLabel.GetGlobalRect())});
+ }
+ var cameraBefore=camera.Position;ui.ShowPause(true);await Flush();Check(camera.Position==cameraBefore,"Pause moved camera");ui.ShowPause(false);ui.ShowSelection();await Flush();Check(!GodotObject.IsInstanceValid(notice)||!notice.IsVisibleInTree()||notice.IsQueuedForDeletion(),"Retired save notice survives selection");
+ }
+ }
+ if(report!=null){using var f=FileAccess.Open(report,FileAccess.ModeFlags.Write);f.StoreString(JsonSerializer.Serialize(new{scope="Controlled actual original camera/rest-mesh envelopes. Not natural play, alpha silhouette or animated bound. No camera correction.",checks,textFit,textRows,rows},new JsonSerializerOptions{WriteIndented=true}));}
+ GD.Print($"SAVE_NOTICE_RESIDUAL MEASURED rows={rows.Count} checks={checks} textFit={textFit}");GetTree().Quit(textFit?0:2);
+ }catch(Exception ex){GD.PushError(ex.ToString());GetTree().Quit(1);}}
+}

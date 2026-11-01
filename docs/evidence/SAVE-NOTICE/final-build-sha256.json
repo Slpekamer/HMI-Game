@@ -1,0 +1,8 @@
+{
+  "src/Adapters/Godot/GameUi.cs": "46ea8cd98dac552d60ebbc81fcb955fdcfbd10949c6ce4ffe6723e4e7faf5dc7",
+  ".godot/mono/temp/bin/Debug/HmiGame.dll": "1a3983cb9c2e2078a3f69072434145695ab84afec0cc0fd53bcba70edb784093",
+  "scripts/verify.sh": "e1ca1971f4eed9eb31bbbb257ea61be01657656130580310f195a76d09781406",
+  "tests/Presentation/SaveNoticeProbe.cs.template": "a76090f61672fb7aabfbc0c4940ff2698d75615abaa83f3129117fea6ae69b23",
+  "tests/Presentation/SaveNoticeGridProbe.cs.template": "389ca6986f6f9d9e36b1f37bd412d20970217bed926e39473eef05a94d3a265d",
+  "tests/Presentation/SaveNoticeResidualProbe.cs.template": "1d3c5340fef157f353fda3379c3a95fe78f915879fc4471e05f1ef8536e91c95"
+}

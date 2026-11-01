@@ -1,0 +1,102 @@
+{
+  "provenance": "Original procedural SVG authored for this game; not copied concept screenshots.",
+  "source_generators": [
+    "tools/ui/build_revision_ui.py",
+    "tools/ui/build_illustrations.py"
+  ],
+  "files": [
+    {
+      "path": "button_disabled.svg",
+      "sha256": "c829f92b871b14ee19f124d596b3e7527fc91859ffb015b51104f155de3fff16"
+    },
+    {
+      "path": "button_primary.svg",
+      "sha256": "48a76b1a299e5eb956b360ef87e2bb20b994820045f8aa1c7e6f454f56a8a907"
+    },
+    {
+      "path": "button_secondary.svg",
+      "sha256": "9b2de9a5d2743d3af8856f8b093471269129037dfd910d73095eb2c64d272631"
+    },
+    {
+      "path": "candy_village.svg",
+      "sha256": "6325fc463f6a1a6032d32c796fbdd8ab90bb705caf463360b833830dad36a33c"
+    },
+    {
+      "path": "frame_blue.svg",
+      "sha256": "7a957f8067de822b15e5c143ea98655b2e1d9f7fddda85b384c45257890493f3"
+    },
+    {
+      "path": "frame_coral.svg",
+      "sha256": "fa8ddf0e5bd1d1ff4942005624abe4f581db8037ff7ef0124351f7e18a274f48"
+    },
+    {
+      "path": "frame_cream.svg",
+      "sha256": "efc22081c8fe43cb07e4b7fd8de8fd93d4d1f7cd9fe5799678981284a5cb81d5"
+    },
+    {
+      "path": "frame_gold.svg",
+      "sha256": "8108863dcece286d6e31d46e77c0f45fbb7bd30038eb8f9ebfda96295b70a05a"
+    },
+    {
+      "path": "frame_purple.svg",
+      "sha256": "4b2b2f55c5be90d8e07f8e69e0cb5aa69e9fa25d22c6d5836940cea64d29eb03"
+    },
+    {
+      "path": "illustrations/bounce.svg",
+      "sha256": "fca60c72fdcde1ee6d20166ad2076700eb3c56db7bf6b12b98659f43c59a51d0"
+    },
+    {
+      "path": "illustrations/crit.svg",
+      "sha256": "d0eac1b94ee7317da93ffe4201ed93a3058f6f68adb89aa4d40dde1fdb2297c2"
+    },
+    {
+      "path": "illustrations/glove.svg",
+      "sha256": "ce297a1e4f25e1920bdf1e43a7c27494d92f30251b35ca4f10b8385dcf040cbd"
+    },
+    {
+      "path": "illustrations/heart.svg",
+      "sha256": "c1e8c57f92d48995380a8192efbae11aa49db283843ebc8b0736f05eef1cb1ab"
+    },
+    {
+      "path": "illustrations/honey.svg",
+      "sha256": "858671bd5c6b5d614a2d49255b15e524c80109436c30c31389755290baddb7f0"
+    },
+    {
+      "path": "illustrations/insoles.svg",
+      "sha256": "8a132918136219498cf0a6da98778e0cdcf9b352f38c06987955af9b545c1efc"
+    },
+    {
+      "path": "illustrations/orbit.svg",
+      "sha256": "251bc2c0333b41ececee90081fc3a7954dd20de95c059f4b444b77fd585b5e8d"
+    },
+    {
+      "path": "illustrations/risk.svg",
+      "sha256": "db1d561b4687168c5e0999d436988725ef986a104055ef9d19a54bc0a06acebb"
+    },
+    {
+      "path": "illustrations/shield.svg",
+      "sha256": "72666a463e721f00fbda6ea5fe7d8d3d3b33130c16f5b8689e87607224f92439"
+    },
+    {
+      "path": "illustrations/soda.svg",
+      "sha256": "7ce20e8f344165ce31e2173860a3c5653dbccda3d49e9117e6c9dc82924eb655"
+    },
+    {
+      "path": "illustrations/speed.svg",
+      "sha256": "874f034e31bbe8b64b19aaa2b2e84ef301f56c8c91df7473549a2f8524f189f9"
+    },
+    {
+      "path": "illustrations/summon.svg",
+      "sha256": "d1900da389118a4ebcf06ebd140ada99cb601313759ca87e33cc2c2df6bbccbc"
+    }
+  ],
+  "raster_files": [
+    {
+      "path": "candy_city_background.png",
+      "sha256": "54d74ba7ce65a6bb08a303ca1d14d5f257e9a43e210eaf002930cabb6e2613a5",
+      "width": 1672,
+      "height": 941,
+      "provenance": "PROVENANCE.md"
+    }
+  ]
+}

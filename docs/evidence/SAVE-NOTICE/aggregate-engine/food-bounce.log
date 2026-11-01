@@ -1,0 +1,8 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+FOOD_IMPORTED_INSTANCE_ISOLATION bounce passed
+FOOD_IMPORTED_CLIP bounce Idle changed_bones=3
+FOOD_IMPORTED_CLIP bounce Run changed_bones=15
+FOOD_IMPORTED_CLIP bounce Attack changed_bones=7
+FOOD_IMPORTED_ASSET bounce bounds=[P: (-0.704373, 0.0, -0.402566), S: (1.408746, 1.2, 0.778657)] meshes=2
+FOOD_HERO_IMPORT_PROBE failures=0 scope=["bounce"]

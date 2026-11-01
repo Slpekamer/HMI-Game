@@ -1,0 +1,9 @@
+  Determining projects to restore...
+  Restored /workspace/scratch/80f5bc988ef7/HMI-Game-recovered-m1-final/src/Core/Hmi.Core.csproj (in 140 ms).
+  Hmi.Core -> /workspace/scratch/80f5bc988ef7/HMI-Game-recovered-m1-final/src/Core/bin/Release/netstandard2.1/Hmi.Core.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:01.64

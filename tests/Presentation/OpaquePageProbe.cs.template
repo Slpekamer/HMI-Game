@@ -1,0 +1,68 @@
+using Godot;
+using Hmi.Core;
+using Hmi.GodotAdapter;
+using System;
+using System.Reflection;
+using System.Linq;
+using System.Collections.Generic;
+using System.Text.Json;
+public partial class OpaquePageProbe:Node
+{
+ const BindingFlags Flags=BindingFlags.Instance|BindingFlags.NonPublic;
+ int checks;
+ void Check(bool ok,string reason){checks++;if(!ok)throw new Exception(reason);}
+ static IEnumerable<Node> Walk(Node node){yield return node;foreach(Node child in node.GetChildren())foreach(var item in Walk(child))yield return item;}
+ async System.Threading.Tasks.Task Flush(int frames=3){for(int i=0;i<frames;i++)await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);}
+ async System.Threading.Tasks.Task Warm(){for(int i=0;i<8;i++)await ToSignal(RenderingServer.Singleton,RenderingServer.SignalName.FramePostDraw);}
+ OfferUi Card(CardDefinition c)=>new(c.Id,c.Name,c.Effect,c.Slot);
+ public override async void _Ready(){try{
+ string prefix=null;foreach(string arg in OS.GetCmdlineUserArgs())if(arg.StartsWith("--capture-opaque="))prefix=arg.Substring(17);
+ bool initial=GetViewport().Disable3D;var host=new GameHost();AddChild(host);host.SetProcess(false);await Flush();
+ object Field(string name)=>typeof(GameHost).GetField(name,Flags).GetValue(host);
+ var ui=(GameUi)Field("_ui");var content=(GameContent)Field("_content");var viewport=GetViewport();
+ Check(viewport.Disable3D,"Existing selection remains suppressed");Check(!Walk(ui).OfType<SubViewport>().Any(),"Selection retains 2D portraits only");
+ typeof(GameHost).GetMethod("Start",Flags).Invoke(host,new object[]{3,(uint)1030});host.SetProcess(false);await Flush();var sim=(GameSimulation)Field("_sim");
+ void Render()=>typeof(GameHost).GetMethod("RenderEntities",Flags).Invoke(host,new object[]{1f/60});void Combat(){typeof(GameHost).GetMethod("RefreshUi",Flags).Invoke(host,null);host.SetProcess(false);}Render();
+ var actor=((Node3D[])Field("_visuals"))[sim.PlayerId.Index];var player=Walk(actor).OfType<AnimationPlayer>().First();var actorId=actor.GetInstanceId();var animationId=player.GetInstanceId();
+ var offers=new[]{Card(content.Cards.First(c=>c.Id=="crit.reach")),Card(content.Cards.First(c=>c.Id=="base.health")),Card(content.Cards.First(c=>c.Id=="risk.fleet"))};
+ var items=content.Items.Select(i=>new OfferUi(i.Id,i.Name,i.Effect+"\n"+i.Downside,$"{i.Price} 金币 · 已有 0/{i.Cap}")).ToArray();
+ void Between(bool shop)=>ui.ShowBetween(offers,12,20,8,false,items,shop);
+ void Decision()=>ui.ShowRunEnding(true,false,true,0,42,12,20,8,"");
+ void CheckBackdrop(){var texture=Walk(ui).OfType<TextureRect>().First(c=>c.IsVisibleInTree()&&c.Texture?.ResourcePath=="res://content/ui/revision/candy_city_background.png");Check(texture.GetGlobalRect().Encloses(viewport.GetVisibleRect()),"Known opaque backdrop covers actual logical viewport");Check(texture.Modulate==Colors.White&&texture.SelfModulate==Colors.White,"Backdrop opacity modulate unchanged");Check(!texture.Texture.HasAlpha(),"Imported backdrop is opaque RGB");}
+ Check(!viewport.Disable3D,"Combat main world enabled");Check(Walk(ui).OfType<SubViewport>().Count()==3,"Combat actual hero and companion preview viewports retained");
+ sim.Enqueue(GameCommand.Pause(true));sim.Step();ui.ShowPause(true);Render();double pausedClock=player.CurrentAnimationPosition;
+ for(int cycle=0;cycle<3;cycle++){
+  Combat();ui.ShowPause(true);Check(!viewport.Disable3D,"Pause preserves world");ui.ShowPause(false);
+  ui.ShowCodex();Check(!viewport.Disable3D,"Combat codex preserves world");Check(viewport.GuiGetFocusOwner() is Button,"Codex close receives focus");ui.CloseCodex();
+  ui.ShowSaveFailure("受控测试：保存失败",false);Check(!viewport.Disable3D,"Combat persistence modal preserves world");ui.HideSaveFailure();
+  Between(false);Check(viewport.Disable3D,"Between suppresses main world synchronously");CheckBackdrop();Between(true);Check(viewport.Disable3D,"Shop suppresses world");
+  ui.ShowEnding(false,1,12,20,8);Check(viewport.Disable3D,"Ending suppresses world");Decision();Check(viewport.Disable3D,"Endless decision suppresses world");
+  ui.ShowSelection();Check(viewport.Disable3D,"Selection remains suppressed");Combat();Check(!viewport.Disable3D,"Same-frame return restores combat before queue flush");await Flush();
+  Check(Walk(ui).OfType<SubViewport>().Count()==3,"Repeated page cycles retain exactly live combat previews");Check(GodotObject.IsInstanceValid(actor)&&actor.GetInstanceId()==actorId,"Main actor not destroyed/replaced for render savings");Check(Walk(actor).OfType<AnimationPlayer>().First().GetInstanceId()==animationId,"Actual AnimationPlayer instance preserved");Render();
+ }
+ typeof(GameUi).GetMethod("SetPage",Flags).Invoke(ui,new object[]{"future-uncovered-page"});Check(!viewport.Disable3D,"Unknown page fails open to world rendering");Combat();await Flush();
+ Check(Math.Abs(player.CurrentAnimationPosition-pausedClock)<.00001,"Paused world animation clock not advanced by page changes");
+ sim.Enqueue(GameCommand.Pause(false));sim.Step();Render();Check(Math.Abs(player.CurrentAnimationPosition-pausedClock)>.00001,"World animation resumes after returning combat");sim.Enqueue(GameCommand.Pause(true));sim.Step();Render();
+ // Frozen actual world for A/B. Native capture only toggles main viewport, never recreates actors/lights.
+ var results=new List<object>();var sizes=new[]{new Vector2I(1280,720),new Vector2I(1600,720),new Vector2I(720,1280),new Vector2I(1024,768)};
+ foreach(var size in sizes){GetWindow().Size=size;await Flush();Check(viewport.GetVisibleRect().Size==new Vector2(1280,720),"Current physical resize preserves logical1280x720 letterbox contract");
+  foreach(string page in new[]{"between","shop","ending","endless"}){
+   if(page=="between")Between(false);else if(page=="shop")Between(true);else if(page=="ending")ui.ShowEnding(false,1,12,20,8);else Decision();await Flush();Check(viewport.Disable3D,"Known changed opaque page disables main3D");CheckBackdrop();Check(!Walk(ui).OfType<SubViewport>().Any(),"Opaque page drains HUD preview viewports");
+   if(prefix!=null){
+    viewport.Disable3D=false;await Warm();var baseline=viewport.GetTexture().GetImage();var baselineDraw=RenderingServer.GetRenderingInfo(RenderingServer.RenderingInfo.TotalDrawCallsInFrame);var baselinePrimitives=RenderingServer.GetRenderingInfo(RenderingServer.RenderingInfo.TotalPrimitivesInFrame);
+    viewport.Disable3D=true;await Warm();var candidate=viewport.GetTexture().GetImage();var candidateDraw=RenderingServer.GetRenderingInfo(RenderingServer.RenderingInfo.TotalDrawCallsInFrame);var candidatePrimitives=RenderingServer.GetRenderingInfo(RenderingServer.RenderingInfo.TotalPrimitivesInFrame);
+    baseline.Convert(Image.Format.Rgba8);candidate.Convert(Image.Format.Rgba8);var a=baseline.GetData();var b=candidate.GetData();long different=0;int maxDelta=0;Check(a.Length==b.Length&&baseline.GetSize()==candidate.GetSize()&&baseline.GetFormat()==candidate.GetFormat(),"A/B same pixel layout");for(int i=0;i<a.Length;i++)if(a[i]!=b[i]){different++;maxDelta=Math.Max(maxDelta,Math.Abs(a[i]-b[i]));}
+    string key=page+"-"+size.X+"x"+size.Y;Check(baseline.SavePng(prefix+"-"+key+"-baseline.png")==Error.Ok&&candidate.SavePng(prefix+"-"+key+"-candidate.png")==Error.Ok,"Actual RGBA screenshots saved");
+    var row=new{page,requestedPhysical=size.ToString(),actualWindow=GetWindow().Size.ToString(),logicalViewport=viewport.GetVisibleRect().Size.ToString(),framebuffer=baseline.GetSize().ToString(),format=baseline.GetFormat().ToString(),differentChannels=different,maxChannelDelta=maxDelta,baselineDraw,candidateDraw,baselinePrimitives,candidatePrimitives};results.Add(row);GD.Print("OPAQUE_AB "+JsonSerializer.Serialize(row));using(var partial=FileAccess.Open(prefix+"-results.json",FileAccess.ModeFlags.Write))partial.StoreString(JsonSerializer.Serialize(new{status="in-progress",results},new JsonSerializerOptions{WriteIndented=true}));
+    Check(different==0,"Opaque page pixel equivalence failed: "+key);
+   }
+  }
+ }
+ GetWindow().Size=new Vector2I(1280,720);Combat();await Flush();Check(!viewport.Disable3D&&Walk(ui).OfType<SubViewport>().Count()==3,"Combat world/previews restore after resize tests");
+ // Explicit exit restore for both prior viewport states, without changing production ownership semantics.
+ foreach(bool prior in new[]{false,true}){viewport.Disable3D=prior;var secondary=new GameUi();AddChild(secondary);secondary.ShowCombat();Check(!viewport.Disable3D,"Secondary combat requests world");secondary.QueueFree();await Flush();Check(viewport.Disable3D==prior,"UI exit restores its captured previous viewport flag");}
+ viewport.Disable3D=initial;
+ if(prefix!=null){using var f=FileAccess.Open(prefix+"-results.json",FileAccess.ModeFlags.Write);f.StoreString(JsonSerializer.Serialize(new{scope="Actual engine controlled pixel A/B and renderer counters, not phone performance; 8 postdraw warm frames per variant",checks,results},new JsonSerializerOptions{WriteIndented=true}));}
+ GD.Print("OPAQUE_PAGE_PROBE PASS checks="+checks+" pairs="+results.Count+" sameframe / clocks / resources / exit / physical-resize-contract");GetTree().Quit();
+ }catch(Exception ex){GD.PushError(ex.ToString());GetTree().Quit(1);}}
+}

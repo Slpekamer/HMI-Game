@@ -1,0 +1,8 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+FOOD_IMPORTED_INSTANCE_ISOLATION orbit passed
+FOOD_IMPORTED_CLIP orbit Idle changed_bones=8
+FOOD_IMPORTED_CLIP orbit Run changed_bones=19
+FOOD_IMPORTED_CLIP orbit Attack changed_bones=12
+FOOD_IMPORTED_ASSET orbit bounds=[P: (-0.510324, 0.0, -0.179459), S: (0.95966, 1.2, 0.348583)] meshes=2
+FOOD_HERO_IMPORT_PROBE failures=0 scope=["orbit"]

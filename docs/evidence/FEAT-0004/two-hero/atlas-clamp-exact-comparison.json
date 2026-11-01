@@ -1,0 +1,53 @@
+[
+  {
+    "hero": "kaotuan",
+    "baseline": 16,
+    "candidate": 21,
+    "sha256": "ccf727163ad7439bb5e6b96b9c67449f322ee0bd818a9a96c5285bff26d0ae4f",
+    "binary_byte_identical": true,
+    "json_only_sampler_wrap_and_buffer_padding_length": true,
+    "buffer_length_padding_adjustment": 1,
+    "samplers": [
+      {
+        "magFilter": 9729,
+        "minFilter": 9987,
+        "wrapS": 33071,
+        "wrapT": 33071
+      }
+    ]
+  },
+  {
+    "hero": "juanjuan",
+    "baseline": 3,
+    "candidate": 6,
+    "sha256": "72bc016321bcc5a14f722810ff29c9498127fc59dbc0efb4b0df1b570a04908f",
+    "binary_byte_identical": true,
+    "json_only_sampler_wrap_and_buffer_padding_length": true,
+    "buffer_length_padding_adjustment": 0,
+    "samplers": [
+      {
+        "magFilter": 9729,
+        "minFilter": 9987,
+        "wrapS": 33071,
+        "wrapT": 33071
+      }
+    ]
+  },
+  {
+    "hero": "buding",
+    "baseline": 2,
+    "candidate": 3,
+    "sha256": "21f6e09fcc624e4c8c85a496bd6b63191ed8ffb1b657a5ecdd86afe261721b54",
+    "binary_byte_identical": true,
+    "json_only_sampler_wrap_and_buffer_padding_length": true,
+    "buffer_length_padding_adjustment": 3,
+    "samplers": [
+      {
+        "magFilter": 9729,
+        "minFilter": 9987,
+        "wrapS": 33071,
+        "wrapT": 33071
+      }
+    ]
+  }
+]

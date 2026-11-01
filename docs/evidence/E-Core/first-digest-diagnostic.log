@@ -1,0 +1,4 @@
+Unhandled exception. System.Exception: normalized initial authority matches including wallet, stats and RNG
+   at Program.<>c.<<Main>$>b__0_0(Boolean ok, String name) in /tmp/hmi-e-debug/Program.cs:line 1
+   at PreparedCheckpointTests.Run(Action`2 check) in /tmp/hmi-e-debug/PreparedCheckpointTests.cs:line 160
+   at Program.<Main>$(String[] args) in /tmp/hmi-e-debug/Program.cs:line 1

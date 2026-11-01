@@ -1,0 +1,74 @@
+[
+  {
+    "index": 0,
+    "mode": "strict",
+    "exit": 0,
+    "seconds": 13.727,
+    "errors": [],
+    "importedFileCount": 150,
+    "log": "/workspace/scratch/80f5bc988ef7/godot-toolchain-verification/import-diagnostic/trial-0-strict/import.log"
+  },
+  {
+    "index": 1,
+    "mode": "delay120",
+    "exit": 0,
+    "seconds": 12.417,
+    "errors": [],
+    "importedFileCount": 150,
+    "log": "/workspace/scratch/80f5bc988ef7/godot-toolchain-verification/import-diagnostic/trial-1-delay120/import.log"
+  },
+  {
+    "index": 2,
+    "mode": "strict",
+    "exit": 0,
+    "seconds": 12.339,
+    "errors": [],
+    "importedFileCount": 150,
+    "log": "/workspace/scratch/80f5bc988ef7/godot-toolchain-verification/import-diagnostic/trial-2-strict/import.log"
+  },
+  {
+    "index": 3,
+    "mode": "delay120",
+    "exit": 0,
+    "seconds": 10.822,
+    "errors": [],
+    "importedFileCount": 150,
+    "log": "/workspace/scratch/80f5bc988ef7/godot-toolchain-verification/import-diagnostic/trial-3-delay120/import.log"
+  },
+  {
+    "index": 4,
+    "mode": "strict",
+    "exit": 0,
+    "seconds": 8.952,
+    "errors": [],
+    "importedFileCount": 150,
+    "log": "/workspace/scratch/80f5bc988ef7/godot-toolchain-verification/import-diagnostic/trial-4-strict/import.log"
+  },
+  {
+    "index": 5,
+    "mode": "delay120",
+    "exit": 0,
+    "seconds": 52.666,
+    "errors": [],
+    "importedFileCount": 150,
+    "log": "/workspace/scratch/80f5bc988ef7/godot-toolchain-verification/import-diagnostic/trial-5-delay120/import.log"
+  },
+  {
+    "index": 6,
+    "mode": "strict",
+    "exit": 0,
+    "seconds": 9.58,
+    "errors": [],
+    "importedFileCount": 150,
+    "log": "/workspace/scratch/80f5bc988ef7/godot-toolchain-verification/import-diagnostic/trial-6-strict/import.log"
+  },
+  {
+    "index": 7,
+    "mode": "delay120",
+    "exit": 0,
+    "seconds": 8.999,
+    "errors": [],
+    "importedFileCount": 150,
+    "log": "/workspace/scratch/80f5bc988ef7/godot-toolchain-verification/import-diagnostic/trial-7-delay120/import.log"
+  }
+]

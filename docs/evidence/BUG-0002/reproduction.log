@@ -1,0 +1,2 @@
+DURATION_HEALTH before stat=125 healthMax=125
+DURATION_HEALTH after stat=100 healthMax=125 current=20

@@ -1,0 +1,13 @@
+  Determining projects to restore...
+  Restored /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-selection-portraits-qxeb6rd5/project/src/Adapters/Persistence/Hmi.Persistence.csproj (in 346 ms).
+  Restored /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-selection-portraits-qxeb6rd5/project/src/Core/Hmi.Core.csproj (in 9.91 sec).
+  Restored /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-selection-portraits-qxeb6rd5/project/HmiGame.csproj (in 9.96 sec).
+  Hmi.Core -> /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-selection-portraits-qxeb6rd5/project/src/Core/bin/Debug/netstandard2.1/Hmi.Core.dll
+  Hmi.Persistence -> /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-selection-portraits-qxeb6rd5/project/src/Adapters/Persistence/bin/Debug/net10.0/Hmi.Persistence.dll
+  HmiGame -> /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-selection-portraits-qxeb6rd5/project/.godot/mono/temp/bin/Debug/HmiGame.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:22.22

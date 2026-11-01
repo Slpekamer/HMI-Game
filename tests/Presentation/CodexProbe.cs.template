@@ -1,0 +1,62 @@
+using Godot;
+using Hmi.Core;
+using Hmi.GodotAdapter;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+// Actual UI fixture, compiled only into a temporary copy, never production hooks.
+public partial class CodexProbe:Node
+{
+ private static readonly BindingFlags Flags=BindingFlags.Instance|BindingFlags.NonPublic;
+ private static int assertions;
+ private static void Check(bool value,string reason){assertions++;if(!value)throw new Exception(reason);}
+ private static IEnumerable<Node> Walk(Node root){yield return root;foreach(Node child in root.GetChildren())foreach(var node in Walk(child))yield return node;}
+ private async System.Threading.Tasks.Task Flush(){await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);}
+ public override async void _Ready()
+ {
+  try
+  {
+   var host=new GameHost();AddChild(host);host.SetProcess(false);await Flush();
+   var ui=(GameUi)typeof(GameHost).GetField("_ui",Flags).GetValue(host);
+   var sim=(GameSimulation)typeof(GameHost).GetField("_sim",Flags).GetValue(host);
+   var content=(GameContent)typeof(GameHost).GetField("_content",Flags).GetValue(host);
+   typeof(GameHost).GetMethod("Start",Flags).Invoke(host,new object[]{2,(uint)1030});host.SetProcess(false);await Flush();
+   long tick=sim.Tick;ui.ShowCodex();sim.Step();await Flush();
+   Check(sim.Paused&&sim.Tick==tick,"Codex opening pauses through command without advancing combat");
+   var info=Walk(ui).OfType<RichTextLabel>().Single();
+   Check(info.Text==CodexFormatter.Build(content,sim.GetLevel,sim.GetCardAvailability),"Actual modal uses formatter");
+   Check(info.Text.Contains("前置（任一满足）：")&&info.Text.Contains("互斥支路："),"Actual graph-v2 body");
+   Check(info.ScrollActive&&info.GetVScrollBar().MaxValue>info.GetVScrollBar().Page,"Long body scrolls");
+   Check(info.Position.X>=0&&info.Size.X==840&&info.Size.Y==410,"Bounded codex viewport");
+   ui.ShowCodex();await Flush();Check(ReferenceEquals(info,Walk(ui).OfType<RichTextLabel>().Single()),"Repeated open guarded");
+   ui.CloseCodex();sim.Step();await Flush();Check(!sim.Paused&&!ui.IsCodexOpen,"Close resumes previously running combat");
+   ui.ShowCodex();sim.Step();host._Notification((int)NotificationApplicationFocusOut);sim.Step();ui.CloseCodex();sim.Step();await Flush();
+   Check(sim.Paused&&!ui.IsCodexOpen,"Focus loss prevents auto resume");ui.CloseCodex();sim.Step();Check(sim.Paused,"Repeated close inert");
+   // Controlled display, not random acquisition or a survival/balance test.
+   string[] ids={"fusion.sugaring","base.health","risk.bounty"};
+   var offers=ids.Select(id=>content.Cards.Single(c=>c.Id==id)).Select(c=>new OfferUi(c.Id,c.Name,c.Effect,c.Slot)).ToArray();
+   var items=content.Items.Select(i=>new OfferUi(i.Id,i.Name,i.Effect+"\n"+i.Downside,i.Price+" 金币")).ToArray();
+   ui.ShowBetween(offers,7,7,0,false,items,false);await Flush();
+   foreach(var offer in offers)
+   {
+    var label=Walk(ui).OfType<Label>().Single(l=>l.Text==offer.Detail);
+    GD.Print($"CODEX_DETAIL {offer.Id} size={label.Size} min={label.GetMinimumSize()} lineSpacing={label.GetThemeConstant("line_spacing")}");
+    Check(label.Size.X==278&&label.Size.Y==150,"Actual body matches text gate");
+    Check(label.GetMinimumSize().Y<=150,"Full detail fits actual control");
+    Check(label.GlobalPosition.Y+label.GetMinimumSize().Y<=530,"Full detail above button");
+   }
+   foreach(var button in Walk(ui).OfType<BaseButton>().Where(b=>b.IsVisibleInTree()))
+   {var bounds=button.GetGlobalRect();Check(bounds.Position.X>=-1&&bounds.Position.Y>=-1&&bounds.End.X<=1281&&bounds.End.Y<=721,"Buttons in viewport");}
+   foreach(string arg in OS.GetCmdlineUserArgs())
+   {
+    if(!arg.StartsWith("--capture-codex-offers=",StringComparison.Ordinal))continue;
+    await ToSignal(RenderingServer.Singleton,RenderingServer.SignalName.FramePostDraw);
+    string path=arg.Substring("--capture-codex-offers=".Length);
+    Check(GetViewport().GetTexture().GetImage().SavePng(path)==Error.Ok,"Native capture saves");GD.Print("CODEX_CONTROLLED_OFFERS_CAPTURE "+path);
+   }
+   GD.Print($"CODEX_ENGINE_PROBE PASS {assertions}: modal / repeated open-close / focus pause / actual rare-card text bounds");GetTree().Quit(0);
+  }
+  catch(Exception error){GD.PushError(error.ToString());GetTree().Quit(1);}
+ }
+}

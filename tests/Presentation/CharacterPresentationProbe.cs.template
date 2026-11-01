@@ -1,0 +1,147 @@
+using Godot;
+using Hmi.Core;
+using System;
+
+// Injected only into a copied project. Synthetic real engine nodes isolate adapter behavior;
+// imported production-asset and visual gates are separate and must not be inferred from this.
+public partial class CharacterPresentationProbe : Node
+{
+    private int checks;
+    private void Check(bool value, string message)
+    { checks++; if (!value) throw new Exception(message); }
+    private void Near(double a, double b, string message) => Check(Math.Abs(a-b)<.00001, message);
+    private EntityView View(EntityId id, float x=0, float hp=100, bool active=true) =>
+        new EntityView(id, EntityKind.Player, new Vec2(x,0), new Vec2(0,-1), hp,100,"fixture",active);
+    private ArrayMesh FaceMesh()
+    {
+        var mesh=new ArrayMesh();
+        foreach(string name in new[]{"Blink","Smile","Surprise"}) mesh.AddBlendShape(name);
+        var arrays=new Godot.Collections.Array(); arrays.Resize((int)Mesh.ArrayType.Max);
+        var vertices=new Vector3[]{new(-.1f,0,0),new(.1f,0,0),new(0,.2f,0)};
+        arrays[(int)Mesh.ArrayType.Vertex]=vertices;
+        var shapes=new Godot.Collections.Array<Godot.Collections.Array>();
+        for(int i=0;i<3;i++)
+        {
+            var shape=new Godot.Collections.Array(); shape.Resize((int)Mesh.ArrayType.Max);
+            shape[(int)Mesh.ArrayType.Vertex]=vertices; shapes.Add(shape);
+        }
+        mesh.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles,arrays,shapes);
+        return mesh;
+    }
+    private (Node3D root, AnimationPlayer player, MeshInstance3D face) Fixture(ArrayMesh mesh)
+    {
+        var root=new Node3D(); AddChild(root);
+        var face=new MeshInstance3D{ Name="Face", Mesh=mesh }; root.AddChild(face);
+        var marker=new Node3D{Name="Marker"}; root.AddChild(marker);
+        var player=new AnimationPlayer{Name="AnimationPlayer"}; root.AddChild(player);
+        var library=new AnimationLibrary();
+        foreach(string name in new[]{"Idle","Run","Attack"})
+        {
+            var clip=new Animation{Length=name=="Attack"?.2f:1f};
+            int track=clip.AddTrack(Animation.TrackType.Value);
+            clip.TrackSetPath(track,new NodePath("Marker:position"));
+            clip.TrackInsertKey(track,0,Vector3.Zero);
+            clip.TrackInsertKey(track,clip.Length,new Vector3(0,.01f,0));
+            library.AddAnimation(name,clip);
+        }
+        player.AddAnimationLibrary("",library);
+        return (root,player,face);
+    }
+    private float Morph(MeshInstance3D mesh,string name)=>mesh.GetBlendShapeValue(mesh.FindBlendShapeByName(name));
+    private void Neutral(MeshInstance3D mesh,string label)
+    {foreach(string name in new[]{"Blink","Smile","Surprise"})Near(Morph(mesh,name),0,label+" "+name);}
+    private async System.Threading.Tasks.Task Flush()
+    { await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame); await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame); }
+    public override async void _Ready()
+    {
+        try
+        {
+            var mesh=FaceMesh(); var a=Fixture(mesh); var b=Fixture(mesh);
+            var id=new EntityId(2,7); var p=new CharacterPresentation(a.root,View(id),0,4,1);
+            var other=new CharacterPresentation(b.root,View(new EntityId(3,1)),0,4,1);
+            Check(p.HasFacialShapes,"fixture must bind actual blend shapes"); Neutral(a.face,"constructor");
+            p.Advance(.02f,false); Check(p.CurrentClip=="Idle","rest starts idle");
+            Check(a.player.CallbackModeProcess==AnimationMixer.AnimationCallbackModeProcess.Manual,"single manual clock");
+            Check(p.Snapshot(View(id,1),1,4,1),"valid moving snapshot");
+            p.Advance(.02f,false); Check(p.CurrentClip=="Run","movement chooses run");
+            var beforePosition=a.root.Position; var beforeTime=a.player.CurrentAnimationPosition;
+            Check(p.Attack(id,4,1,1),"valid attack queues");
+            Check(!p.Attack(id,4,1,1),"same tick duplicate rejected");
+            Check(!p.Attack(new EntityId(2,6),4,1,2),"old generation rejected");
+            Check(!p.Attack(id,3,1,2)&&!p.Attack(id,4,2,2),"wrong scope rejected");
+            Check(!p.Attack(id,4,1,0),"out-of-order already consumed tick rejected");
+            Check(!p.Attack(id,4,1,2),"future tick rejected");
+            p.Advance(.1f,true); await Flush();
+            Check(p.CurrentClip=="Run","pause must not consume queued attack");
+            Near(a.player.CurrentAnimationPosition,beforeTime,"paused animation position");
+            Check(a.root.Position==beforePosition,"paused interpolation"); Neutral(a.face,"paused queued face");
+            p.Advance(.02f,false); Check(p.CurrentClip=="Attack","resume consumes queued attack");
+            Check(Morph(a.face,"Smile")>0,"attack triggers cosmetic smile"); Neutral(b.face,"shared mesh instance isolation");
+            var smile=Morph(a.face,"Smile"); beforeTime=a.player.CurrentAnimationPosition;
+            p.Advance(.1f,true); Near(Morph(a.face,"Smile"),smile,"pause freezes expression");
+            Near(a.player.CurrentAnimationPosition,beforeTime,"pause freezes attack clip");
+            Check(p.Snapshot(View(id,1,90),2,4,1),"health change snapshot"); p.Advance(.02f,false);
+            Check(Morph(a.face,"Surprise")>0,"damage expression"); Near(Morph(a.face,"Smile"),0,"surprise wins smile");
+            for(int i=0;i<20;i++)p.Advance(.05f,false);
+            Check(p.CurrentClip=="Idle","finished attack returns latest stationary state");
+            Check(p.Snapshot(View(id,2),3,4,1),"move again");p.Advance(.02f,false);
+            Check(p.CurrentClip=="Run","run resumes");
+            Check(!p.Snapshot(View(new EntityId(2,8),9),4,4,1),"replacement snapshot rejected");
+            Check(p.Snapshot(View(id,2),0,4,2),"next wave resets tick"); Neutral(a.face,"wave reset");
+            p.Advance(.02f,false);Check(p.CurrentClip=="Idle","wave rollback clears stale run speed");
+            Check(!p.Attack(id,4,1,100),"previous wave event rejected");
+            Check(p.Attack(id,4,2,0),"new wave tick zero allowed");
+            Check(p.Snapshot(View(id,2),0,5,1),"restart scope reset");p.Advance(.02f,false);
+            Check(p.CurrentClip=="Idle","restart clears queued attack");Neutral(a.face,"restart expressions");
+            p.Snapshot(View(id,2,100,false),1,5,1);Check(!a.root.Visible,"inactive snapshot hides presentation");
+            p.Snapshot(View(id,2),2,5,1);Check(a.root.Visible,"reactivation visible");
+            beforeTime=a.player.CurrentAnimationPosition;
+            p.Advance(float.NaN,false);p.Advance(float.PositiveInfinity,false);p.Advance(-1,false);
+            Near(a.player.CurrentAnimationPosition,beforeTime,"invalid delta no advancement");
+            bool sawBlink=false;
+            for(int i=0;i<400;i++)
+            {
+                p.Advance(.01f,false);float blink=Morph(a.face,"Blink");
+                Check(blink>=0&&blink<=1,"blink bounded");sawBlink|=blink>.1f;
+            }
+            Check(sawBlink,"automatic blink actually occurs");
+            Check(p.Snapshot(View(id,2),10,5,1),"catch-up snapshot");
+            Check(p.Attack(id,5,1,7),"unconsumed earlier catch-up event accepted");
+            Check(!p.Attack(id,5,1,6),"catch-up older than accepted event rejected");
+            Check(!p.Attack(id,5,1,11),"catch-up future event rejected");
+            p.Advance(.02f,false);Check(p.CurrentClip=="Attack","catch-up gesture rendered");
+            Check(p.Attack(id,5,1,8),"later authoritative repeated attack accepted");
+            p.Advance(.01f,false);Check(a.player.CurrentAnimationPosition>.025,"overlapping attack must not restart anticipation");
+            foreach(float dt in new[]{1f/120,1f/60,1f/30,.05f})
+            {
+                p.Snapshot(View(id,2),0,20+(int)(dt*1000),1);
+                int scope=20+(int)(dt*1000), reaches=0;double peak=0;
+                for(int frame=1;frame<=240;frame++)
+                {
+                    p.Snapshot(View(id,2),frame,scope,1);
+                    Check(p.Attack(id,scope,1,frame),"frequent valid event remains accepted");
+                    p.Advance(dt,false);peak=Math.Max(peak,a.player.CurrentAnimationPosition);
+                    if(a.player.CurrentAnimationPosition>=.18)reaches++;
+                }
+                Check(peak>=.18&&reaches>0,"frequent events allow readable attack at delta "+dt);
+                for(int frame=0;frame<60;frame++)p.Advance(dt,false);
+                Check(p.CurrentClip=="Idle","event stop returns idle without delayed attack backlog");
+            }
+            p.Dispose();p.Dispose();
+            Check(p.IsDisposed,"dispose idempotent");Neutral(a.face,"dispose clears morphs");
+            Check(!p.Attack(id,5,1,4)&&!p.Snapshot(View(id),4,5,1),"disposed rejects callbacks");
+            p.Advance(.1f,false);a.root.QueueFree();await Flush();p.Dispose();p.Advance(.1f,false);
+            other.Dispose();b.root.QueueFree();await Flush();
+            foreach(string hero in new[]{"hero_summon","hero_orbit","hero_honey","hero_crit","hero_bounce"})
+            {
+                var f=Fixture(mesh); var next=new CharacterPresentation(f.root,View(new EntityId(1,9)),0,9,1);
+                Neutral(f.face,"fresh "+hero);next.Attack(new EntityId(1,9),9,1,0);next.Advance(.01f,false);
+                f.root.QueueFree();next.Advance(.1f,false);Check(next.IsDisposed,"queued-free guard "+hero);
+                await Flush();next.Dispose();next.Advance(.1f,false);
+            }
+            GD.Print($"CHARACTER_PRESENTATION_PROBE PASS {checks} checks (synthetic actual-engine adapter fixture; not production asset/visual proof)");
+            GetTree().Quit();
+        }
+        catch(Exception error){GD.PushError(error.ToString());GetTree().Quit(1);}
+    }
+}

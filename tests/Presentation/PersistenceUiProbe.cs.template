@@ -1,0 +1,85 @@
+using Godot;
+using Hmi.GodotAdapter;
+using System;
+using System.Linq;
+using System.Collections.Generic;
+// Pure UI fixture: no coordinator, filesystem writes or gameplay rule transitions.
+public partial class PersistenceUiProbe:Node
+{
+ private int count;
+ private void Check(bool ok,string reason){count++;if(!ok)throw new Exception(reason);}
+ private static IEnumerable<Node> Walk(Node n){yield return n;foreach(Node child in n.GetChildren())foreach(var item in Walk(child))yield return item;}
+ private static Button Button(Node ui,string text)=>Walk(ui).OfType<Button>().Single(b=>b.Text==text);
+ private async System.Threading.Tasks.Task Flush(){await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);}
+ private async System.Threading.Tasks.Task Capture(string stage)
+ {
+  foreach(var arg in OS.GetCmdlineUserArgs())if(arg.StartsWith("--capture-persistence-ui=",StringComparison.Ordinal)){
+   await ToSignal(RenderingServer.Singleton,RenderingServer.SignalName.FramePostDraw);
+   string path=arg.Substring("--capture-persistence-ui=".Length)+"-"+stage+".jpg";
+   Check(GetViewport().GetTexture().GetImage().SaveJpg(path,.88f)==Error.Ok,"Actual native image saved");
+  }
+ }
+ private void Bounds(GameUi ui)
+ {
+  foreach(var button in Walk(ui).OfType<Button>().Where(b=>b.IsVisibleInTree())){
+   var box=button.GetGlobalRect();Check(box.Position.X>=0&&box.Position.Y>=0&&box.End.X<=1280&&box.End.Y<=720,"Visible button inside viewport");
+   float width=button.GetThemeFont("font").GetStringSize(button.Text,HorizontalAlignment.Left,-1,button.GetThemeFontSize("font_size")).X;
+   Check(width<=button.Size.X-12,"Complete button label fits");
+  }
+ }
+ public override async void _Ready()
+ {
+  try{
+   var ui=new GameUi();AddChild(ui);await Flush();
+   int resumes=0,retries=0,unsaved=0,exits=0,confirms=0,cancels=0,starts=0,restarts=0;
+   ui.StartRequested=(_,_)=>starts++;ui.RestartRequested=()=>restarts++;
+   var oldStart=Button(ui,"开始冒险  ›");ui.ShowCombat();oldStart.EmitSignal(BaseButton.SignalName.Pressed);
+   Check(starts==0,"Removed selection button cannot start against a newer page before QueueFree flush");
+   ui.ShowPause(true);var oldRestart=Button(ui,"重开整局 · 清空金币");ui.ShowSelection();oldRestart.EmitSignal(BaseButton.SignalName.Pressed);
+   Check(restarts==0,"Removed pause restart cannot reset a newer page before QueueFree flush");await Flush();
+   Button(ui,"开始冒险  ›").EmitSignal(BaseButton.SignalName.Pressed);Check(starts==1,"Current visible start still sends intent");
+   ui.ResumeRequested=()=>resumes++;ui.RetrySaveRequested=()=>retries++;ui.ContinueUnsavedRequested=()=>unsaved++;ui.ExitToSelectionRequested=()=>exits++;
+   var state=new ResumeUi(true,"布叮 · 第 7 波起点","恢复将回到第 7 波开始；本波内的金币与击败数将回滚。","最近安全点已保存","",true);
+   ui.SetResumeState(state);await Flush();var resume=Button(ui,"继续最近安全点");
+   ui.SetResumeState(new ResumeUi(true,state.Summary,state.RollbackWarning,state.SaveStatus,state.ErrorText,true));
+   Check(ReferenceEquals(resume,Button(ui,"继续最近安全点")),"Equal state does not redraw or steal focus");
+   resume.EmitSignal(BaseButton.SignalName.Pressed);await Flush();Check(ui.IsPersistenceModalOpen&&resumes==0,"Resume warns before intent");
+   Check(Walk(ui).OfType<RichTextLabel>().Single().Text.Contains(state.RollbackWarning),"Exact coordinator rollback text visible");
+   await Capture("resume-warning");Check(resume.Disabled,"Background selection locked");
+   Check(Walk(ui).OfType<SpinBox>().Single().GetLineEdit().FocusMode==Control.FocusModeEnum.None,"Internal SpinBox editor is locked too");Bounds(ui);
+   var focus=GetViewport().GuiGetFocusOwner();var modalParent=focus.GetParent();
+   for(int i=0;i<8;i++){Check(focus is Button&&focus.GetParent()==modalParent&&focus.Name.ToString().StartsWith("PersistenceAction",StringComparison.Ordinal),"Modal focus stays on its actions");focus=focus.FindNextValidFocus();focus.GrabFocus();}
+   Button(ui,"确认继续").EmitSignal(BaseButton.SignalName.Pressed);Check(resumes==1&&!ui.IsPersistenceModalOpen,"Explicit resume intent only");await Flush();
+   ui.ShowReplaceRunConfirmation(()=>confirms++,()=>cancels++);await Flush();Check(Button(ui,"取消，保留原局").HasFocus()&&Button(ui,"取消，保留原局").GetThemeColor("font_focus_color")==CandyTheme.Ink,"Focused light cancel has explicit dark text");await Capture("replace-confirm");Check(ui.TryCancelPersistenceModal()&&confirms==0&&cancels==1,"Replace cancel preserves old run intent");
+   ui.ShowReplaceRunConfirmation(()=>confirms++,()=>cancels++);var yes=Button(ui,"确认开始新局");yes.EmitSignal(BaseButton.SignalName.Pressed);yes.EmitSignal(BaseButton.SignalName.Pressed);Check(confirms==1,"Replacement confirmation is one-shot");await Flush();
+   string longError=string.Join("\n",Enumerable.Repeat("保存未完成：磁盘写入失败，请检查剩余空间。当前操作仍待重试，不会自动启动新局。",18));
+   ui.ShowSaveFailure(longError,false);await Flush();Check(!ui.TryCancelPersistenceModal(),"Failure cannot be escaped into gameplay");
+   Check(!Walk(ui).OfType<Button>().Any(b=>b.Text=="继续本局（不保存）"),"PendingStart/Closed failure has no unsafe continuation");
+   var body=Walk(ui).OfType<RichTextLabel>().Single();Check(body.ScrollActive&&body.GetVScrollBar().MaxValue>body.GetVScrollBar().Page,"Long error fully scrollable");Bounds(ui);await Capture("blocked-failure");
+   ui.ShowCodex();ui.ShowPause(false);Check(ui.IsPersistenceModalOpen&&!ui.IsCodexOpen,"Codex/pause cannot replace blocking save modal");
+   var old=Button(ui,"重试保存");ui.ShowSaveFailure(longError,false);old.EmitSignal(BaseButton.SignalName.Pressed);Check(retries==0,"Replaced modal rejects old callback");
+   var retry=Button(ui,"重试保存");retry.EmitSignal(BaseButton.SignalName.Pressed);retry.EmitSignal(BaseButton.SignalName.Pressed);Check(retries==1&&retry.Disabled&&ui.IsPersistenceModalOpen,"Retry one-shot waits for coordinator");
+   ui.ShowSaveFailure("已保存新局标记，但首个安全点尚未写入。",true);await Flush();
+   Check(Walk(ui).OfType<RichTextLabel>().Single().Text.Contains("后续波次也不会自动保存")&&!Walk(ui).OfType<RichTextLabel>().Single().Text.Contains("上一安全点"),"Unsaved first-run mode describes whole-run non-durability without inventing old point");Bounds(ui);
+   await Capture("allowed-unsaved");
+   var degrade=Button(ui,"继续本局（不保存）");degrade.EmitSignal(BaseButton.SignalName.Pressed);degrade.EmitSignal(BaseButton.SignalName.Pressed);Check(unsaved==1&&ui.IsPersistenceModalOpen,"Explicit degraded intent does not itself open combat");
+   ui.HideSaveFailure();Check(!ui.IsPersistenceModalOpen,"Coordinator can clear blocking failure");
+   ui.ShowCombat();ui.SetResumeState(new ResumeUi(false,"","","本局未保存 · 无可恢复安全点"));await Flush();
+   var notice=Walk(ui).OfType<Label>().Single(l=>l.Name=="SaveStatusNotice");Check(notice.Visible&&notice.Text.Contains("无可恢复安全点"),"Persistent unsaved HUD warning uses coordinator wording");
+   Check(notice.GetThemeFont("font").GetStringSize(notice.Text,HorizontalAlignment.Left,-1,notice.GetThemeFontSize("font_size")).X<=notice.Size.X,"Unsaved HUD notice fits without wider edge overlay");
+   ui.ShowPause(true);await Flush();Button(ui,"退出至选人 · 无安全点").EmitSignal(BaseButton.SignalName.Pressed);await Flush();
+   Check(Walk(ui).OfType<RichTextLabel>().Single().Text.Contains("无法恢复"),"Unsaved exit never promises an unavailable safe point");await Capture("exit-warning");Check(exits==0&&ui.IsPersistenceModalOpen,"Exit warns before returning to selection");Check(ui.TryCancelPersistenceModal(),"Exit confirmation cancels safely");await Flush();
+   Check(Walk(ui).OfType<Button>().Any(b=>b.Text=="继续守护"),"Exit cancellation restores pause panel");
+   Button(ui,"退出至选人 · 无安全点").EmitSignal(BaseButton.SignalName.Pressed);Button(ui,"确认退出至选人").EmitSignal(BaseButton.SignalName.Pressed);Check(exits==1,"Exit intent distinct from restart");
+   ui.ShowEnding(false,5,5,5,0);await Flush();var ending=Walk(ui).OfType<Label>().Single(l=>l.Text=="再试一次，守护者");
+   ui.ShowSaveFailure("本局已结束，终结记录尚未保存；不能继续该局。",false);await Flush();Check(GodotObject.IsInstanceValid(ending)&&ending.IsInsideTree(),"Closed failure preserves terminal background");
+   Check(!ui.TryCancelPersistenceModal(),"Closed failure cannot be bypassed");Bounds(ui);await Capture("closed-failure");
+   ui.ShowSelection();Check(!ui.IsPersistenceModalOpen,"Explicit coordinator page change invalidates modal");
+   ui.SetResumeState(new ResumeUi(false,"","","较旧安全点可恢复，等待检查","最新记录损坏；本阶段不会删除文件。",true));await Flush();
+   Button(ui,"查看存档状态").EmitSignal(BaseButton.SignalName.Pressed);await Flush();
+   Check(!Walk(ui).OfType<Button>().Any(b=>b.Text=="确认继续"),"Unavailable recovery never exposes ordinary Continue");
+   Check(Walk(ui).OfType<RichTextLabel>().Single().Text.Contains("不会删除文件"),"Corruption explanation preserved");Bounds(ui);await Capture("corrupt-status");
+   GD.Print($"PERSISTENCE_UI_PROBE PASS {count}: pure modal/state/one-shot/focus/bounds semantics; no durable-write claim");GetTree().Quit(0);
+  }catch(Exception error){GD.PushError(error.ToString());GetTree().Quit(1);}
+ }
+}

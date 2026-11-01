@@ -1,0 +1,6 @@
+d90e1647b6eb0806255119c694e0c1f4d283261a04e8f8f85593dd5e974aac7a  /workspace/scratch/80f5bc988ef7/game-recovery-1651/food-two-hero-candidate/src/Adapters/Godot/GameHost.cs
+a34f4b5a19a664111d353db6bb404f1a3ed7a1504f6fcaa5e3868c13fd7dab9e  /workspace/scratch/80f5bc988ef7/game-recovery-1651/food-two-hero-candidate/src/Adapters/Godot/GameUi.cs
+f37dd90a8287a2a21c24001b932f1ef7a104e0247b7ef8b5c0b9b6929c301ff0  /workspace/scratch/80f5bc988ef7/game-recovery-1651/food-two-hero-candidate/src/Adapters/Godot/CharacterPresentation.cs
+047ac453372347091b23f1ae4b71088d6391551ca161d80f4fc885a75ab95455  /workspace/scratch/80f5bc988ef7/game-recovery-1651/food-two-hero-candidate/src/Adapters/Godot/AssetVisuals.cs
+21f6e09fcc624e4c8c85a496bd6b63191ed8ffb1b657a5ecdd86afe261721b54  /workspace/scratch/80f5bc988ef7/game-recovery-1651/food-two-hero-candidate/content/models/hero_honey.glb
+ccf727163ad7439bb5e6b96b9c67449f322ee0bd818a9a96c5285bff26d0ae4f  /workspace/scratch/80f5bc988ef7/game-recovery-1651/food-two-hero-candidate/content/models/hero_summon.glb

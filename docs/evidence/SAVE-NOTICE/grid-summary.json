@@ -1,0 +1,46 @@
+{
+  "gridSpacingMetres": 0.5,
+  "legalRows": 7845,
+  "excludedByCoreBlocked": 1560,
+  "baselineNoticeOverlaps": 1549,
+  "candidateNoticeOverlaps": 1,
+  "newOverlap": 0,
+  "allHudWorse": 0,
+  "baselineExactUnionArea": 7551187.0488105,
+  "candidateExactUnionArea": 3226412.4284528,
+  "candidateResiduals": [
+    {
+      "hero": "bounce",
+      "requestedPhysical": "(1280, 720)",
+      "actualWindow": "(1280, 720)",
+      "logical": "(1280, 720)",
+      "point": "(-4, 0, -7.5)",
+      "radius": 1.0952492,
+      "restMin": 0,
+      "restMax": 1.6200001,
+      "bounds": {
+        "x": 620.5509,
+        "y": 66.24661,
+        "width": 130.18604,
+        "height": 141.50497
+      },
+      "baseline": {
+        "x": 390,
+        "y": 145,
+        "width": 500,
+        "height": 40
+      },
+      "candidate": {
+        "x": 748,
+        "y": 28,
+        "width": 272,
+        "height": 40
+      },
+      "noticeBaselineArea": 5207.4414,
+      "noticeCandidateArea": 4.7989135,
+      "allHudBaselinePixelArea": 9757.344,
+      "allHudCandidatePixelArea": 4554.701,
+      "camera": "(10.72, 22, 16.5)"
+    }
+  ]
+}

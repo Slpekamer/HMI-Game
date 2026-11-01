@@ -1,0 +1,94 @@
+using Godot;
+using Hmi.Core;
+using Hmi.GodotAdapter;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+
+// Actual engine integration fixture injected only into a temporary copied project.
+public partial class SelectionPortraitProbe : Node
+{
+    private GameHost host;
+    private static readonly BindingFlags Flags=BindingFlags.Instance|BindingFlags.NonPublic;
+    private object Field(string name)=>typeof(GameHost).GetField(name,Flags).GetValue(host);
+    private static void Check(bool ok,string message){if(!ok)throw new Exception(message);}
+    private static IEnumerable<Node> Walk(Node root){yield return root;foreach(Node child in root.GetChildren())foreach(var node in Walk(child))yield return node;}
+    private async System.Threading.Tasks.Task Flush(){await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);}
+    private static T Find<T>(Node root,string name)where T:Node=>Walk(root).OfType<T>().Single(n=>n.Name==name);
+    private static void Press(BaseButton button)=>button.EmitSignal(BaseButton.SignalName.Pressed);
+    private void CheckSelection(GameUi ui,int selected)
+    {
+        Check(ui.GetViewport().Disable3D,"Selection skips obscured main-world 3D pass");
+        Check(!Walk(ui).Any(n=>n is SubViewport||n is Node3D||n is AnimationPlayer),"Selection must have zero UI model viewports/3D nodes/animation players, including hidden HUD");
+        Check(Walk(ui).OfType<TextureRect>().Count(n=>n.Name=="SelectionPortrait")==5,"Exactly five 2D portraits");
+        for(int i=0;i<5;i++)
+        {
+            var card=Find<Button>(ui,"HeroCard_"+AssetVisuals.HeroIds[i]);
+            var image=Find<TextureRect>(card,"SelectionPortrait");
+            Check(image.Texture is AtlasTexture atlas && atlas.Atlas.ResourcePath.EndsWith("hero_"+AssetVisuals.HeroIds[i]+".png") && atlas.Region.Size.X==(AssetVisuals.HeroIds[i]=="bounce"?750:710) && atlas.Region.Size.Y==700,"Portrait stable ID mapping");
+            Check(image.StretchMode==TextureRect.StretchModeEnum.KeepAspectCentered,"No portrait distortion");
+            Check(image.MouseFilter==Control.MouseFilterEnum.Ignore,"Portrait must not intercept card input");
+            GD.Print($"PORTRAIT_BOUNDS {AssetVisuals.HeroIds[i]} position={image.Position} size={image.Size}");
+            Check(image.Position.X>=19.99f&&image.Position.Y>=21.99f&&image.Position.X+image.Size.X<=220.01f&&image.Position.Y+image.Size.Y<=252.01f,"Portrait stays above nameplate and inside card");
+            Check(Find<Label>(card,"SelectedBadge").Visible==(i==selected),"Exactly one matching selected badge");
+        }
+        Check(Find<Label>(ui,"SelectionSummary").Text==AssetVisuals.HeroNames[selected]+"  ·  "+AssetVisuals.HeroTraits[selected],"Summary follows selected identity/trait");
+    }
+    public override async void _Ready()
+    {
+        try
+        {
+            bool missingRejected=false;
+            try { new AssetVisuals().Create("__missing_required_asset_fixture__"); }
+            catch(InvalidOperationException e) { missingRejected=e.Message.Contains("No placeholder"); }
+            Check(missingRejected,"Missing required model must fail explicitly, never silently show placeholder/old hero");
+            host=new GameHost();AddChild(host);host.SetProcess(false);await Flush();
+            var ui=(GameUi)Field("_ui");CheckSelection(ui,3);
+            for(int cycle=0;cycle<2;cycle++)for(int hero=0;hero<5;hero++)
+            {
+                var card=Find<Button>(ui,"HeroCard_"+AssetVisuals.HeroIds[hero]);
+                card.GrabFocus();Check(card.HasFocus(),"Card accepts keyboard focus");Press(card);Press(card);CheckSelection(ui,hero);
+                Find<SpinBox>(ui,"SelectionSeed").Value=1030+hero;
+                var start=Find<Button>(ui,"StartAdventure");start.GrabFocus();Check(start.HasFocus(),"Start accepts keyboard focus");Press(start);host.SetProcess(false);await Flush();
+                Check((int)Field("_heroIndex")==hero&&(uint)Field("_seed")==1030+hero,"Start preserves selected hero and seed");
+                var sim=(GameSimulation)Field("_sim");Check(!ui.GetViewport().Disable3D,"Start restores in-game 3D rendering");
+                Check(sim.Phase==RunPhase.Combat&&sim.Wave==1&&sim.Coins==0,"Start enters fresh combat");
+                Check(Walk(ui).OfType<SubViewport>().Count()==3,"Combat-only HUD previews remain available");
+                var portraitCamera=Find<Camera3D>(ui,"HudHeroCamera");
+                var portraitViewport=portraitCamera.GetViewport();
+                Vector2 headTop=portraitCamera.UnprojectPosition(new Vector3(0,1.24f,0));
+                Vector2 headLeft=portraitCamera.UnprojectPosition(new Vector3(-.34f,.95f,0));
+                Vector2 headRight=portraitCamera.UnprojectPosition(new Vector3(.34f,.95f,0));
+                Check(headTop.Y>=portraitViewport.GetVisibleRect().Size.Y*.05f,"HUD preserves contracted 1.2m head plus idle headroom");
+                Check(headLeft.X>=0&&headRight.X<=portraitViewport.GetVisibleRect().Size.X,"HUD head envelope fits horizontally");
+                if(cycle==0&&hero==0)
+                {
+                    foreach(var sample in new[]{(81.25f,81.25f,"82 / 82"),(80.1f,81.25f,"81 / 82"),(.1f,81.25f,"1 / 82"),(0f,81.25f,"0 / 82"),(100f,100f,"100 / 100")})
+                    {
+                        ui.UpdateHud("HP probe",sample.Item1,sample.Item2,1,24,0,"","",false);
+                        Check(Walk(ui).OfType<Label>().Any(l=>l.Text=="HP probe  "+sample.Item3),"Fractional health uses consistent upward display rounding");
+                        var bar=Walk(ui).OfType<ProgressBar>().Single();
+                        Check(Math.Abs(bar.MaxValue-sample.Item2)<.0001&&Math.Abs(bar.Value-sample.Item1)<.0001,"Health bar retains raw authoritative fractional values");
+                        if(sample.Item1==81.25f)
+                            foreach(var arg in OS.GetCmdlineUserArgs().Where(a=>a.StartsWith("--capture-health=")))
+                            {
+                                await ToSignal(RenderingServer.Singleton,RenderingServer.SignalName.FramePostDraw);
+                                Check(GetViewport().GetTexture().GetImage().SavePng(arg.Substring("--capture-health=".Length))==Error.Ok,"Fractional health screenshot saved");
+                            }
+                    }
+                    GD.Print("HEALTH_DISPLAY_PROBE PASS fractional full/damaged/sub-one/zero/integer and raw bar values");
+                }
+                ui.ShowCodex();ui.ShowCodex();Check(ui.IsCodexOpen,"Repeated modal open is idempotent");ui.CloseCodex();Check(!ui.IsCodexOpen,"Modal back/close works");
+                var retired=Walk(ui).OfType<SubViewport>().ToArray();
+                ui.RestartRequested.Invoke();host.SetProcess(false);await Flush();CheckSelection(ui,hero);
+                Check(retired.All(n=>!GodotObject.IsInstanceValid(n)),"Restart actually frees all HUD viewports after queued deletion");
+            }
+            // Re-entering the root menu repeatedly must not create hidden viewport resources.
+            for(int i=0;i<3;i++){ui.ShowSelection();await Flush();CheckSelection(ui,4);}
+            host.QueueFree();await Flush();Check(!GetViewport().Disable3D,"Freeing UI restores inherited viewport rendering state");
+            GD.Print("SELECTION_PORTRAIT_PROBE PASS all5 / repeat / identity-seed / focus / start / codex-back / restart / zero-selection-viewports");GetTree().Quit();
+        }
+        catch(Exception e){GD.PushError(e.ToString());GetTree().Quit(1);}
+    }
+}

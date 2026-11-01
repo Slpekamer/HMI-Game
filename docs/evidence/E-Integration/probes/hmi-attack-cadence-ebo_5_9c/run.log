@@ -1,0 +1,23 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+CADENCE hero=orbit interval=33 accepted=7 peak=0.433333 normalized=1.000000
+CADENCE hero=orbit interval=3 accepted=80 peak=0.433333 normalized=1.000000
+CADENCE hero=orbit interval=1 accepted=240 peak=0.433333 normalized=1.000000
+CADENCE hero=orbit interval=0 accepted=31 peak=0.433333 normalized=1.000000
+CADENCE hero=crit interval=33 accepted=7 peak=0.433333 normalized=1.000000
+CADENCE hero=crit interval=3 accepted=80 peak=0.433333 normalized=1.000000
+CADENCE hero=crit interval=1 accepted=240 peak=0.433333 normalized=1.000000
+CADENCE hero=crit interval=0 accepted=31 peak=0.433333 normalized=1.000000
+CADENCE hero=honey interval=33 accepted=7 peak=0.433333 normalized=1.000000
+CADENCE hero=honey interval=3 accepted=80 peak=0.433333 normalized=1.000000
+CADENCE hero=honey interval=1 accepted=240 peak=0.433333 normalized=1.000000
+CADENCE hero=honey interval=0 accepted=31 peak=0.433333 normalized=1.000000
+CADENCE hero=summon interval=33 accepted=7 peak=0.433333 normalized=1.000000
+CADENCE hero=summon interval=3 accepted=80 peak=0.433333 normalized=1.000000
+CADENCE hero=summon interval=1 accepted=240 peak=0.433333 normalized=1.000000
+CADENCE hero=summon interval=0 accepted=31 peak=0.433333 normalized=1.000000
+CADENCE hero=bounce interval=33 accepted=7 peak=0.433333 normalized=1.000000
+CADENCE hero=bounce interval=3 accepted=80 peak=0.433333 normalized=1.000000
+CADENCE hero=bounce interval=1 accepted=240 peak=0.433333 normalized=1.000000
+CADENCE hero=bounce interval=0 accepted=31 peak=0.433333 normalized=1.000000
+ATTACK_CADENCE_PROBE PASS checks=1855 actual imported clips; no gameplay/performance claim

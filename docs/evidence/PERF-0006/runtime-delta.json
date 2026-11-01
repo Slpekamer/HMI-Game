@@ -1,0 +1,9 @@
+{
+  "base": "HP v1 / HMI-Game-health-final",
+  "changed": [
+    "src/Adapters/Godot/GameUi.cs"
+  ],
+  "baseline_sha256": "8cbebe6b9ff73e6858f0e35d374afe1853737e2e6bc82cb5c22473b7adee5dbf",
+  "candidate_sha256": "01b5d3d295cab557af53da744926e4ef7a950e50cf6c642c6b05d6db4bf8fdbd",
+  "camera_trial_imported": false
+}

@@ -1,0 +1,141 @@
+using Godot;
+using Hmi.Core;
+using Hmi.Adapters.Persistence;
+using Hmi.GodotAdapter;
+using System;
+using System.Linq;
+using System.Reflection;
+using System.Collections.Generic;
+// Test-only controlled state fixture. Internal access exists only in isolated copy.
+public partial class EndlessProbe:Node
+{
+ private int count;
+ private const BindingFlags Flags=BindingFlags.Instance|BindingFlags.NonPublic;
+ private void Check(bool ok,string reason){count++;if(!ok)throw new Exception(reason);}
+ private static IEnumerable<Node> Walk(Node node){yield return node;foreach(Node child in node.GetChildren())foreach(var item in Walk(child))yield return item;}
+ private async System.Threading.Tasks.Task Flush(){await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);}
+ private async System.Threading.Tasks.Task Capture(string stage)
+ {
+  foreach(var arg in OS.GetCmdlineUserArgs())if(arg.StartsWith("--capture-endless=")){
+   await ToSignal(RenderingServer.Singleton,RenderingServer.SignalName.FramePostDraw);
+   string path=arg.Substring("--capture-endless=".Length)+"-"+stage+".png";
+   Check(GetViewport().GetTexture().GetImage().SavePng(path)==Error.Ok,"Capture saved");
+  }
+ }
+ public override async void _Ready()
+ {
+  try
+  {
+   var host=new GameHost();AddChild(host);host.SetProcess(false);await Flush();
+   object Field(string name)=>typeof(GameHost).GetField(name,Flags).GetValue(host);
+   void Refresh(){typeof(GameHost).GetMethod("RefreshUi",Flags).Invoke(host,null);host.SetProcess(false);}
+   void Start()=>typeof(GameHost).GetMethod("Start",Flags).Invoke(host,new object[]{2,(uint)1030});
+   Start();host.SetProcess(false);var ui=(GameUi)Field("_ui");var g=(GameSimulation)Field("_sim");var content=(GameContent)Field("_content");
+   var checkpoint=(CheckpointSession)Field("_checkpoint");
+   // Test-only time compression, not natural survival. All progression, choices, RNG,
+   // history and checkpoint saves still pass through the production Core/host paths.
+   void CompleteCurrentWave()
+   {
+    Check(g.Phase==RunPhase.Combat,"Completion fixture starts from combat");
+    g.Run.Tick=1440;
+    g.World.Health[g.PlayerId.Index].Current=g.World.Health[g.PlayerId.Index].Maximum;
+    g.Step();Refresh();
+   }
+   void PickBaseAndStartNext()
+   {
+    var offered=g.GetOfferSlots().Single(x=>x.Slot=="base");
+    Check(offered.Enabled,"Base path remains selectable");
+    ui.PickRequested(offered.Card.Id);g.Step();Refresh();
+    Check(g.CardPicked,"Actual finite/deep choice accepted");
+    int previous=g.Wave;
+    ui.NextRequested();host.SetProcess(false);Refresh();
+    Check(g.Phase==RunPhase.Combat&&g.Wave==previous+1&&!ui.IsPersistenceModalOpen,
+     "Real host Next persists legal history before starting combat");
+    Check(checkpoint.CurrentWaveSaved&&checkpoint.CurrentRecovery.Kind==RecoveryKind.Active&&g.Tick==0,
+     "Next acknowledges a real Active safe point before the first simulation tick");
+   }
+   void ReachFiniteVictory()
+   {
+    for(int wave=1;wave<=6;wave++)
+    {
+     CompleteCurrentWave();
+     if(wave<6)PickBaseAndStartNext();
+    }
+    Check(g.Phase==RunPhase.Victory&&g.FiniteCompleted&&g.Wave==6,
+     "Six lawful compressed completions establish finite victory");
+   }
+   ReachFiniteVictory();await Flush();
+   var proceed=Walk(ui).OfType<Button>().Single(b=>b.Text=="继续无尽");
+   var finish=Walk(ui).OfType<Button>().Single(b=>b.Text=="结束本局");
+   Check(!proceed.Disabled&&!finish.Disabled,"Both explicit finite-completion intents available");
+   await Capture("finite-complete");int coins=g.Coins,earned=g.Earned;
+   var staleContinue=ui.ContinueRequested;proceed.EmitSignal(BaseButton.SignalName.Pressed);proceed.EmitSignal(BaseButton.SignalName.Pressed);g.Step();Refresh();await Flush();
+   Check(g.IsEndless&&g.Phase==RunPhase.Between&&g.Wave==6,"Continue enters wave-six shop, no skip to combat");
+   Check(g.Coins==coins&&g.Earned==earned,"Repeated continue cannot issue rewards");
+   Check(Walk(ui).OfType<Button>().Any(b=>b.Text=="结束无尽"),"Endless intermission offers voluntary finish");
+   var staleFinish=ui.FinishRequested;ui.FinishRequested();ui.FinishRequested();g.Step();Refresh();await Flush();
+   Check(g.Phase==RunPhase.Finished&&g.TerminationReason==RunTerminationReason.FinishedByPlayer,"Finish terminates through core");
+   Check(g.Coins==coins&&g.Earned==earned,"Repeated finish does not alter ledger");await Capture("finished");
+   Start();host.SetProcess(false);staleContinue();staleFinish();g.Step();Refresh();await Flush();
+   Check(g.Phase==RunPhase.Combat&&!g.IsEndless&&g.Coins==0,"Stale ending callbacks reject after restart");
+   ReachFiniteVictory();await Flush();
+   ui.ContinueRequested();g.Step();Refresh();await Flush();
+   Check(g.Phase==RunPhase.Between&&g.Wave==6,"Second legal run continues at wave-six menu");
+   PickBaseAndStartNext();
+   Check(g.Wave==7&&g.IsEndless,"Actual host next reaches wave seven with valid finite history");
+   // Default content needs fifteen permanent base picks before its base contract.
+   // Progress lawfully rather than forging capped ranks into a wave-six DTO.
+   OfferSlotView slot=null;
+   for(int boundary=0;boundary<24;boundary++)
+   {
+    CompleteCurrentWave();
+    slot=g.GetOfferSlots().Single(x=>x.Slot=="base");
+    if(slot.Kind==OfferKind.TemporaryContract)break;
+    PickBaseAndStartNext();
+   }
+   Check(slot!=null&&slot.Kind==OfferKind.TemporaryContract,
+    "Legal deep progression exposes typed base contract through core");
+   int contractWave=g.Wave;
+   var pendingName=slot.Card.Name;ui.PickRequested(slot.Card.Id);ui.PickRequested(slot.Card.Id);g.Step();Refresh();await Flush();
+   Check(g.PendingContractId==slot.Card.Id&&g.CardPicked,"Actual callback selects contract once");
+   Check(Walk(ui).OfType<Label>().Any(l=>l.Text=="下一波："+pendingName),"Pending contract labelled in shop");
+   var nextContract=ui.NextRequested;nextContract();nextContract();host.SetProcess(false);Refresh();await Flush();
+   Check(g.Wave==contractWave+1&&g.ActiveContractId==slot.Card.Id&&g.PendingContractId==null,"Next initializes contract once");
+   Check(checkpoint.CurrentWaveSaved&&checkpoint.CurrentRecovery.Kind==RecoveryKind.Active&&g.Tick==0,"Contract initialized only after durable safe-point acknowledgement");
+   Check(Walk(ui).OfType<Label>().Any(l=>l.Text.Contains("生效中："+pendingName)),"Active contract labelled in HUD");
+   foreach(int wave in new[]{1000,int.MaxValue}){
+    ui.ShowCombat();ui.UpdateHud("烤团",100,100,wave,24,0,"","",false,true,500);await Flush();
+    var label=Walk(ui).OfType<Label>().Single(l=>l.Text=="无尽 "+wave);
+    float width=label.GetThemeFont("font").GetStringSize(label.Text,HorizontalAlignment.Left,-1,label.GetThemeFontSize("font_size")).X;
+    Check(width<=180&&label.Size.X<=180,"Long endless wave fits actual HUD pill");
+   }
+   var items=content.Items.Select(i=>new OfferUi(i.Id,i.Name,i.Effect+"\n"+i.Downside,i.Price+" 金币")).ToArray();
+   for(int batch=0;batch<2;batch++)
+   {
+    var contracts=new[]{content.TemporaryContracts[batch],content.TemporaryContracts[2+batch],content.TemporaryContracts[4+batch]};
+    var offers=contracts.Select(c=>EndlessUiFormatter.Offer(new OfferSlotView(c.Slot,OfferKind.TemporaryContract,new CardDefinition{Id=c.Id,Name=c.Name,Slot=c.Slot,Effect=c.Description}))).ToArray();
+    ui.ShowBetween(offers,7,7,0,false,items,false,"",true);await Flush();
+    foreach(var offer in offers){
+     var label=Walk(ui).OfType<Label>().Single(l=>l.Text==offer.Detail);
+     GD.Print($"ENDLESS_DETAIL {offer.Id} size={label.Size} minimum={label.GetMinimumSize()}");
+     Check(label.Size==new Vector2(278,190)&&label.GetMinimumSize().Y<=190,"Full temporary text fits actual body");
+     Check(label.GlobalPosition.Y+label.GetMinimumSize().Y<=530,"Full temporary cost/expiry above button");
+     Check(offer.Enabled&&offer.Temporary,"Typed contract keeps enabled duration badge");
+    }
+    Check(Walk(ui).OfType<Label>().Count(l=>l.Text=="仅下一波")==3,"All three slots visibly temporary");
+    await Capture("contracts-"+batch);
+   }
+   var disabled=new[]{OfferUnavailableReason.Capped,OfferUnavailableReason.RiskLimit,OfferUnavailableReason.ContractLimit}.Select((reason,i)=>EndlessUiFormatter.Offer(new OfferSlotView(new[]{"trait","base","risk"}[i],OfferKind.Unavailable,new CardDefinition{Id="none"+i,Name="暂无可选内容",Effect="此槽当前不可选；请查看其他类别。"},reason))).ToArray();
+   ui.ShowBetween(disabled,7,7,0,false,items,false,"",true);await Flush();
+   foreach(var offer in disabled){var button=Walk(ui).OfType<Button>().Single(b=>b.Text==offer.DisabledText);Check(button.Disabled,"Unavailable slot stays visible and disabled");}
+   await Capture("disabled");
+   GD.Print($"ENDLESS_UI_PROBE PASS {count}: actual ending/scoped commands/ledger/contract text/disabled slots");
+   if(OS.GetCmdlineUserArgs().Contains("--interactive-endless")){
+    Start();host.SetProcess(false);ReachFiniteVictory();Refresh();await Flush();host.SetProcess(true);
+    GD.Print("ENDLESS_INTERACTIVE legally progressed, time-compressed finite-completion checkpoint; not survival evidence");return;
+   }
+   GetTree().Quit(0);
+  }
+  catch(Exception error){GD.PushError(error.ToString());GetTree().Quit(1);}
+ }
+}

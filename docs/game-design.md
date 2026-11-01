@@ -1,5 +1,7 @@
 # 软糖突围：完整玩法与美术设计基线 v0.9
 
+> Implementation status update (2026-10-31): the empty-project statements below describe baseline61fd0a0. The development branch now reconstructs a C# ECS slice after workspace loss; current scope and fresh evidence are in README and docs/evidence/FEAT-0001. Design proposals remain provisional.
+
 > 更新：2026-10-30。本文是 AI 可读设计入口，不依赖观看 HTML 或图片才能理解规则。
 > **只有浏览器 HTML/SVG 概念演示已经实现；本 Godot 仓库仍为空白 3D 工程，没有这些玩法、模型或 ECS 系统。**
 > 所有数值、名称、世界观细节、关卡长度和进化路线均为提案/演示参数，除明确记录的用户方向外，不得当作已批准的最终平衡或生产需求。

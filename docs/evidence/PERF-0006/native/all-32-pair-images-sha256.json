@@ -1,0 +1,130 @@
+{
+  "opaque-page-between-1024x768-baseline.png": {
+    "bytes": 594623,
+    "sha256": "1fe1ff2112e13a764685e999317212e899d2084c5b2b81dfa13c61799c49c81e"
+  },
+  "opaque-page-between-1280x720-baseline.png": {
+    "bytes": 794654,
+    "sha256": "e72ebd6ab0ed0b0d10489e389a90734a6aa5fd652ec4e17416cbf7f6b66a0f24"
+  },
+  "opaque-page-between-1600x720-baseline.png": {
+    "bytes": 794654,
+    "sha256": "e72ebd6ab0ed0b0d10489e389a90734a6aa5fd652ec4e17416cbf7f6b66a0f24"
+  },
+  "opaque-page-between-720x1280-baseline.png": {
+    "bytes": 347176,
+    "sha256": "e3718bc53a853c958f5c10a418798ee4d0e16e4d1c8e4c2c08f76bab6737db76"
+  },
+  "opaque-page-ending-1024x768-baseline.png": {
+    "bytes": 711625,
+    "sha256": "ceb59e0125039cf6966eab6491dfc56a4718b2c8fb59c994fb87351bf8e073ed"
+  },
+  "opaque-page-ending-1280x720-baseline.png": {
+    "bytes": 1006361,
+    "sha256": "43501a57197f1ff3cc3d3106aeea7ba56c6b329ae1e064d17c3d0adcec0be4ce"
+  },
+  "opaque-page-ending-1600x720-baseline.png": {
+    "bytes": 1006361,
+    "sha256": "43501a57197f1ff3cc3d3106aeea7ba56c6b329ae1e064d17c3d0adcec0be4ce"
+  },
+  "opaque-page-ending-720x1280-baseline.png": {
+    "bytes": 395481,
+    "sha256": "43ca6af87d92ac3c47eed7d7120466bed88552ab3d3202829bcefb1b0b8a464e"
+  },
+  "opaque-page-endless-1024x768-baseline.png": {
+    "bytes": 623853,
+    "sha256": "d0bc4cc940e070115b821e9e8e1887fbfe8cb0ebf7c053061401ce3938d9bb30"
+  },
+  "opaque-page-endless-1280x720-baseline.png": {
+    "bytes": 864835,
+    "sha256": "dc69e2f455676f662d7d3806d55cbc3e43837ad1da6b835bb7e12cfce44ffd23"
+  },
+  "opaque-page-endless-1600x720-baseline.png": {
+    "bytes": 864835,
+    "sha256": "dc69e2f455676f662d7d3806d55cbc3e43837ad1da6b835bb7e12cfce44ffd23"
+  },
+  "opaque-page-endless-720x1280-baseline.png": {
+    "bytes": 348614,
+    "sha256": "2f008f3c29e7a96a81bbacfa60afcf44e0af063f6d6403629982bbf35c1153a3"
+  },
+  "opaque-page-shop-1024x768-baseline.png": {
+    "bytes": 552594,
+    "sha256": "4548b3fbbb1752fb144e4fd0c4e4bc932ffb122b4b342bcb167f4486e4e3bcb0"
+  },
+  "opaque-page-shop-1280x720-baseline.png": {
+    "bytes": 716756,
+    "sha256": "870dfdab1043241897f10ba03946871cec2a2f738a724859141193d0b9640f75"
+  },
+  "opaque-page-shop-1600x720-baseline.png": {
+    "bytes": 716756,
+    "sha256": "870dfdab1043241897f10ba03946871cec2a2f738a724859141193d0b9640f75"
+  },
+  "opaque-page-shop-720x1280-baseline.png": {
+    "bytes": 331560,
+    "sha256": "2802f8f18275bc304243bdf412e2fc9ff9b99ddcf21600675794d95fb18e4cd1"
+  },
+  "opaque-page-between-1024x768-candidate.png": {
+    "bytes": 594623,
+    "sha256": "1fe1ff2112e13a764685e999317212e899d2084c5b2b81dfa13c61799c49c81e"
+  },
+  "opaque-page-between-1280x720-candidate.png": {
+    "bytes": 794654,
+    "sha256": "e72ebd6ab0ed0b0d10489e389a90734a6aa5fd652ec4e17416cbf7f6b66a0f24"
+  },
+  "opaque-page-between-1600x720-candidate.png": {
+    "bytes": 794654,
+    "sha256": "e72ebd6ab0ed0b0d10489e389a90734a6aa5fd652ec4e17416cbf7f6b66a0f24"
+  },
+  "opaque-page-between-720x1280-candidate.png": {
+    "bytes": 347176,
+    "sha256": "e3718bc53a853c958f5c10a418798ee4d0e16e4d1c8e4c2c08f76bab6737db76"
+  },
+  "opaque-page-ending-1024x768-candidate.png": {
+    "bytes": 711625,
+    "sha256": "ceb59e0125039cf6966eab6491dfc56a4718b2c8fb59c994fb87351bf8e073ed"
+  },
+  "opaque-page-ending-1280x720-candidate.png": {
+    "bytes": 1006361,
+    "sha256": "43501a57197f1ff3cc3d3106aeea7ba56c6b329ae1e064d17c3d0adcec0be4ce"
+  },
+  "opaque-page-ending-1600x720-candidate.png": {
+    "bytes": 1006361,
+    "sha256": "43501a57197f1ff3cc3d3106aeea7ba56c6b329ae1e064d17c3d0adcec0be4ce"
+  },
+  "opaque-page-ending-720x1280-candidate.png": {
+    "bytes": 395481,
+    "sha256": "43ca6af87d92ac3c47eed7d7120466bed88552ab3d3202829bcefb1b0b8a464e"
+  },
+  "opaque-page-endless-1024x768-candidate.png": {
+    "bytes": 623853,
+    "sha256": "d0bc4cc940e070115b821e9e8e1887fbfe8cb0ebf7c053061401ce3938d9bb30"
+  },
+  "opaque-page-endless-1280x720-candidate.png": {
+    "bytes": 864835,
+    "sha256": "dc69e2f455676f662d7d3806d55cbc3e43837ad1da6b835bb7e12cfce44ffd23"
+  },
+  "opaque-page-endless-1600x720-candidate.png": {
+    "bytes": 864835,
+    "sha256": "dc69e2f455676f662d7d3806d55cbc3e43837ad1da6b835bb7e12cfce44ffd23"
+  },
+  "opaque-page-endless-720x1280-candidate.png": {
+    "bytes": 348614,
+    "sha256": "2f008f3c29e7a96a81bbacfa60afcf44e0af063f6d6403629982bbf35c1153a3"
+  },
+  "opaque-page-shop-1024x768-candidate.png": {
+    "bytes": 552594,
+    "sha256": "4548b3fbbb1752fb144e4fd0c4e4bc932ffb122b4b342bcb167f4486e4e3bcb0"
+  },
+  "opaque-page-shop-1280x720-candidate.png": {
+    "bytes": 716756,
+    "sha256": "870dfdab1043241897f10ba03946871cec2a2f738a724859141193d0b9640f75"
+  },
+  "opaque-page-shop-1600x720-candidate.png": {
+    "bytes": 716756,
+    "sha256": "870dfdab1043241897f10ba03946871cec2a2f738a724859141193d0b9640f75"
+  },
+  "opaque-page-shop-720x1280-candidate.png": {
+    "bytes": 331560,
+    "sha256": "2802f8f18275bc304243bdf412e2fc9ff9b99ddcf21600675794d95fb18e4cd1"
+  }
+}

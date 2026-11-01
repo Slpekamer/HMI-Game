@@ -1,24 +1,7 @@
-# 架构决策记录（ADR）
+# Architecture
 
-当前无 ECS 实现。长期约束见根目录 `agent.md`；C# 双引擎可行性验证尚待执行。
-引入框架、改变核心/适配边界、API、存档 schema 或迁移路线时，复制以下模板。
-文件名：`ADR-0001-<slug>.md`；保留被替代的记录，链接后继决策。
+- [ADR-0001: portable ECS and thin host](ADR-0001-portable-ecs.md)
+- [Core schedule, data and command/event contracts](../../src/Core/README.md)
+- [Overnight decision audit](../overnight-decisions-2026-10-30.md)
 
-```markdown
-# ADR-<NNNN> <决策标题>
-- 日期：
-- 状态：提议 / 接受 / 拒绝 / 被替代（后继链接）
-- 关联需求/变更 ID：
-## 背景与约束
-<事实、问题、假设；区分已证实与未证实>
-## 备选方案
-<至少记录实际考虑过的方案及取舍，不编造比较结果>
-## 决策与理由
-<明确边界、依赖方向、代价、授权状态>
-## Unity / 团结迁移影响
-<版本/API/平台矩阵，需重写部分与退出方案>
-## 验证与证据
-<真实环境、步骤、输入、结果；未执行项与准入条件>
-## 后果与后续
-<风险、兼容性策略、何时重审、关联代码/测试/PR>
-```
+Current source was reconstructed after a cloud reset; old local passes do not certify it. Core-only M1 and host/art M2 are independently gated.

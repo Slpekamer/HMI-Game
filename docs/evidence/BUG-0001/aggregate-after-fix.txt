@@ -1,0 +1,48 @@
+PASS architectural dependency boundary
+PASS 9 preserved notice files and Linux/Android inclusion filters
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  Hmi.Core -> /workspace/scratch/80f5bc988ef7/HMI-Game-visual-revision/src/Core/bin/Release/netstandard2.1/Hmi.Core.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:00.84
+PERF honey enemies=32 ticks=300 ms=3.86 allocated_bytes=0 dropped_cosmetic_events=0
+PERF honey enemies=128 ticks=300 ms=12.07 allocated_bytes=0 dropped_cosmetic_events=0
+PERF honey enemies=512 ticks=300 ms=45.71 allocated_bytes=0 dropped_cosmetic_events=0
+PERF mixed_all_traits enemies=128 ticks=300 ms=21.15 allocated_bytes=0 dropped_cosmetic_events=2895
+PASS 538343 freshly executed assertions; reconstructed core netstandard2.1; host net10.0.
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  Hmi.Core -> /workspace/scratch/80f5bc988ef7/HMI-Game-visual-revision/src/Core/bin/Debug/netstandard2.1/Hmi.Core.dll
+  HmiGame -> /workspace/scratch/80f5bc988ef7/HMI-Game-visual-revision/.godot/mono/temp/bin/Debug/HmiGame.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:01.14
+PASS: 2 GLBs, 20 SVGs; pivots,dimensions,topology,opaque PBR,root transforms,hashes
+PASS 8 animated GLB assets, hierarchy bounds, three clips each, >=2 moving non-root nodes, no root motion
+PASS authored UI SVGs: 21 hashes, XML, no external resources
+PASS raster UI assets: 1 hashes, PNG dimensions, provenance
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+HMI_READY reconstruction=2026-10-31 lighting=linear-direct0.36-ambient0.18
+HMI_SMOKE phase=Combat wave=1 entities=16 tick=58
+Host lifecycle build: exit 0; log /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-host-lifecycle-lpekx4wk/build.log
+Host lifecycle import: exit 0; log /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-host-lifecycle-lpekx4wk/import.log
+Host lifecycle run: exit 0; log /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-host-lifecycle-lpekx4wk/run.log
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+HMI_READY reconstruction=2026-10-31 lighting=linear-direct0.36-ambient0.18
+HOST_LIFECYCLE animated -> pickup after actual queued free PASS
+HOST_LIFECYCLE pickup -> animated / generation replacement / stale event PASS
+HOST_LIFECYCLE expanded-companion wave1 -> wave2 / moving-idle / pause PASS
+HOST_LIFECYCLE_PROBE PASS
+
+PASS isolated actual-engine host lifecycle; evidence /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-host-lifecycle-lpekx4wk
+PASS build / core / import / smoke / host lifecycle; logs /tmp/hmi-verify.qs28pe
+Native visual/input, exports, real devices and Unity are separate gates.

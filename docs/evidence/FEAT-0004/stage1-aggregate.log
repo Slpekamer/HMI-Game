@@ -1,0 +1,73 @@
+PASS architectural dependency boundary
+........
+----------------------------------------------------------------------
+Ran 8 tests in 0.012s
+
+OK
+PASS 9 preserved notice files and Linux/Android inclusion filters
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  Hmi.Core -> /workspace/scratch/80f5bc988ef7/HMI-Game-food-heroes/src/Core/bin/Release/netstandard2.1/Hmi.Core.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:00.81
+PERF honey enemies=32 ticks=300 ms=3.83 allocated_bytes=0 dropped_cosmetic_events=0
+PERF honey enemies=128 ticks=300 ms=13.59 allocated_bytes=0 dropped_cosmetic_events=0
+PERF honey enemies=512 ticks=300 ms=49.49 allocated_bytes=0 dropped_cosmetic_events=0
+PERF mixed_all_traits enemies=128 ticks=300 ms=20.24 allocated_bytes=0 dropped_cosmetic_events=2895
+PASS 538343 freshly executed assertions; reconstructed core netstandard2.1; host net10.0.
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  Hmi.Core -> /workspace/scratch/80f5bc988ef7/HMI-Game-food-heroes/src/Core/bin/Debug/netstandard2.1/Hmi.Core.dll
+  HmiGame -> /workspace/scratch/80f5bc988ef7/HMI-Game-food-heroes/.godot/mono/temp/bin/Debug/HmiGame.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:02.90
+PASS: 2 GLBs, 20 SVGs; pivots,dimensions,topology,opaque PBR,root transforms,hashes
+PASS 8 animated GLB assets, hierarchy bounds, three clips each, >=2 moving non-root nodes, no root motion
+PASS authored UI SVGs: 21 hashes, XML, no external resources
+PASS raster UI assets: 1 hashes, PNG dimensions, provenance
+PORTRAIT_ASSETS_PASS {"passed": true, "portraits": [{"id": "orbit", "path": "content/ui/portraits/hero_orbit.png", "sha256": "7c8a2274a556b5de7492a3998853c0c6fcfa3e3933a1d760b83443802209cc9e", "bytes": 1765067, "size": [1327, 1186], "alpha_bbox_threshold32": [40, 10, 1293, 1175], "transparent_fraction": 0.39623159417011583, "decoded_rgba_bytes": 6295288}, {"id": "crit", "path": "content/ui/portraits/hero_crit.png", "sha256": "c5264cc94cde704f83d96e7ca9dd45a9cbb96cdccb525f9148927b6354310268", "bytes": 1555365, "size": [1374, 1145], "alpha_bbox_threshold32": [75, 41, 1317, 1099], "transparent_fraction": 0.5021814992086344, "decoded_rgba_bytes": 6292920}, {"id": "honey", "path": "content/ui/portraits/hero_honey.png", "sha256": "c2ab08cae00cf8e02123316ebeec797bbc46eb36a05421f43760c29c9cbd74c4", "bytes": 1319550, "size": [1213, 1296], "alpha_bbox_threshold32": [161, 93, 1172, 1216], "transparent_fraction": 0.524275976306067, "decoded_rgba_bytes": 6288192}, {"id": "summon", "path": "content/ui/portraits/hero_summon.png", "sha256": "34d350d4bfbf82063c5d5e27de3eff36ab1889cd65c84b2402fd23cec5353b2f", "bytes": 1584117, "size": [1223, 1286], "alpha_bbox_threshold32": [33, 75, 1209, 1217], "transparent_fraction": 0.4482660617073738, "decoded_rgba_bytes": 6291112}, {"id": "bounce", "path": "content/ui/portraits/hero_bounce.png", "sha256": "fd6ab2fb07c0f79c17c95c76ea32fd18bf0399137cb55622c16ef1259a7c48c0", "bytes": 1525973, "size": [1315, 1197], "alpha_bbox_threshold32": [56, 99, 1289, 1130], "transparent_fraction": 0.47700048600588923, "decoded_rgba_bytes": 6296220}], "total_decoded_rgba_bytes": 31463732, "limits": "Read-only alpha/dimensions/hash gate, not visual identity or GPU/mobile memory/performance certification."}
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+HMI_READY reconstruction=2026-10-31 lighting=linear-direct0.36-ambient0.18
+HMI_SMOKE phase=Combat wave=1 entities=16 tick=57
+Host lifecycle build: exit 0; log /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-host-lifecycle-qrsmz5xw/build.log
+Host lifecycle import: exit 0; log /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-host-lifecycle-qrsmz5xw/import.log
+Host lifecycle run: exit 0; log /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-host-lifecycle-qrsmz5xw/run.log
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+HMI_READY reconstruction=2026-10-31 lighting=linear-direct0.36-ambient0.18
+HOST_LIFECYCLE animated -> pickup after actual queued free PASS
+HOST_LIFECYCLE pickup -> animated / generation replacement / stale event PASS
+HOST_LIFECYCLE preserved catch-up tick / run-wave context / future rejection PASS
+HOST_LIFECYCLE expanded-companion wave1 -> wave2 / moving-idle / pause PASS
+HOST_LIFECYCLE actual scene exit disposes retained presenters PASS
+HOST_LIFECYCLE_PROBE PASS
+
+PASS isolated actual-engine host lifecycle; evidence /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-host-lifecycle-qrsmz5xw
+Presentation build: exit 0; log /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-character-presentation-ecig3eon/build.log
+Presentation import: exit 0; log /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-character-presentation-ecig3eon/import.log
+Presentation run: exit 0; log /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-character-presentation-ecig3eon/run.log
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+CHARACTER_PRESENTATION_PROBE PASS 482 checks (synthetic actual-engine adapter fixture; not production asset/visual proof)
+
+PASS isolated actual-engine presentation behavior; evidence /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-character-presentation-ecig3eon
+Selection portrait build: exit 0; log /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-selection-portraits-9o0mrn9s/build.log
+Selection portrait import: exit 0; log /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-selection-portraits-9o0mrn9s/import.log
+Selection portrait run: exit 0; log /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-selection-portraits-9o0mrn9s/run.log
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+HMI_READY reconstruction=2026-10-31 lighting=linear-direct0.36-ambient0.18
+SELECTION_PORTRAIT_PROBE PASS all5 / repeat / identity-seed / focus / start / codex-back / restart / zero-selection-viewports
+
+PASS isolated actual-engine selection portrait; evidence /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-selection-portraits-9o0mrn9s
+PASS build / core / import / smoke / host lifecycle; logs /tmp/hmi-verify.mhW9Pv
+Native visual/input, exports, real devices and Unity are separate gates.

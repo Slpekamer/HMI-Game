@@ -1,0 +1,67 @@
+using Godot;
+using Hmi.Core;
+using System;
+
+// Actual imported assets + production presentation driver, not authoritative combat.
+public partial class AttackCadenceProbe : Node3D
+{
+    private int checks,frame; private CharacterPresentation moviePresenter; private Node3D movieModel;
+    private Label caption; private readonly AssetVisuals assets=new();
+    private EntityView View(int index,float x=0)=>new(new EntityId(index,1),EntityKind.Player,new Vec2(x,0),new Vec2(0,-1),100,100,"fixture",true);
+    private void Check(bool value,string reason){checks++;if(!value)throw new Exception(reason);}
+    private static AnimationPlayer Player(Node n){if(n is AnimationPlayer p)return p;foreach(Node c in n.GetChildren()){var r=Player(c);if(r!=null)return r;}return null;}
+    public override async void _Ready()
+    {
+        try
+        {
+            await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);
+            if(Array.IndexOf(OS.GetCmdlineUserArgs(),"--capture-cadence")>=0){SetupMovie();return;}
+            for(int hero=0;hero<5;hero++)
+            {
+                var root=assets.Create("hero_"+AssetVisuals.HeroIds[hero]);AddChild(root);
+                var player=Player(root);Check(player!=null,"real AnimationPlayer");
+                foreach(int interval in new[]{33,3,1,0})
+                {
+                    var p=new CharacterPresentation(root,View(hero),0,1,1);double peak=0,normalizedPeak=0;int accepted=0;
+                    for(int tick=1;tick<=240;tick++)
+                    {
+                        p.Snapshot(View(hero),tick,1,1);
+                        if(interval==0?(tick%11==0||tick%23==0):tick%interval==0){Check(p.Attack(new EntityId(hero,1),1,1,tick),"valid authority trigger accepted");accepted++;}
+                        p.Advance(1f/60,false);
+                        if(p.CurrentClip.EndsWith("Attack",StringComparison.Ordinal)){peak=Math.Max(peak,player.CurrentAnimationPosition);normalizedPeak=Math.Max(normalizedPeak,player.CurrentAnimationPosition/player.GetAnimation(p.CurrentClip).Length);}
+                    }
+                    Check(accepted>0&&normalizedPeak>=.95,"actual Attack reaches end segment "+AssetVisuals.HeroIds[hero]+" interval="+interval);
+                    double time=player.CurrentAnimationPosition;p.Advance(.1f,true);Check(time==player.CurrentAnimationPosition,"paused real clip frozen");
+                    p.Snapshot(View(hero,.2f),241,1,1);
+                    for(int i=0;i<30;i++)p.Advance(1f/60,false);
+                    Check(p.CurrentClip.EndsWith("Run",StringComparison.Ordinal),"stop events returns movement without backlog");
+                    GD.Print($"CADENCE hero={AssetVisuals.HeroIds[hero]} interval={interval} accepted={accepted} peak={peak:F6} normalized={normalizedPeak:F6}");
+                    p.Dispose();
+                }
+                root.QueueFree();await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);
+            }
+            GD.Print("ATTACK_CADENCE_PROBE PASS checks="+checks+" actual imported clips; no gameplay/performance claim");GetTree().Quit();
+        }
+        catch(Exception e){GD.PushError(e.ToString());GetTree().Quit(1);}
+    }
+    private void SetupMovie()
+    {
+        movieModel=assets.Create("hero_summon");AddChild(movieModel);moviePresenter=new CharacterPresentation(movieModel,View(0),0,1,1);
+        AddChild(new WorldEnvironment{Environment=new Godot.Environment{BackgroundMode=Godot.Environment.BGMode.Color,BackgroundColor=new Color(.17f,.20f,.24f),AmbientLightSource=Godot.Environment.AmbientSource.Color,AmbientLightColor=Colors.White,AmbientLightEnergy=.18f}});
+        AddChild(new DirectionalLight3D{RotationDegrees=new Vector3(-42,152,0),LightEnergy=.36f});
+        var camera=new Camera3D{Position=new Vector3(0,.72f,-5),Projection=Camera3D.ProjectionType.Orthogonal,Size=2.05f,Current=true};AddChild(camera);camera.LookAt(new Vector3(0,.72f,0));
+        var layer=new CanvasLayer();AddChild(layer);caption=new Label{Position=new Vector2(65,24)};caption.AddThemeFontSizeOverride("font_size",22);layer.AddChild(caption);
+        layer.AddChild(new Label{Position=new Vector2(65,610),Text="Actual imported Kaotuan + production C# presenter | fixed 24 fps fixture\nNot player gameplay, combat balance, or device performance."});
+    }
+    public override void _Process(double delta)
+    {
+        if(moviePresenter==null)return;
+        int phase=frame/48;float x=phase==5?Math.Min((frame-240)*.004f,.19f):0;
+        moviePresenter.Snapshot(View(0,x),frame,1,1);
+        bool trigger=phase==1?frame%14==0:(phase==2||phase==3);
+        if(trigger)moviePresenter.Attack(new EntityId(0,1),1,1,frame);
+        moviePresenter.Advance(1f/24,phase==3);
+        caption.Text=new[]{"Idle","Normal cadence (~1.7 Hz)","24 Hz triggers: complete gestures, no restart starvation","Paused: clip and facial state frozen","No new events: finish current gesture, return Idle","Movement after stop: return Run"}[Math.Min(phase,5)];
+        frame++;if(frame>=288){GD.Print("ATTACK_CADENCE_MOVIE COMPLETE 288 fixed frames");GetTree().Quit();}
+    }
+}

@@ -1,5 +1,7 @@
 # HMI-Game：开发代理与协作规范
 
+> Implementation status update (2026-10-31): the empty-project statements below describe baseline61fd0a0. The development branch now reconstructs a C# ECS slice after workspace loss; current scope and fresh evidence are in README and docs/evidence/FEAT-0001. Design proposals remain provisional.
+
 本文件 `AGENTS.md` 是本仓库开发规范的唯一正文及工具发现入口；原 `agent.md` 内容已合并至此。
 适用于设计、代码、资源、测试、配置、依赖、文档和发布准备等所有变更。
 仓库规范不扩大用户授权，也不覆盖上级指令、安全策略或审批要求。

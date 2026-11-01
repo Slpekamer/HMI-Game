@@ -1,0 +1,14 @@
+  Determining projects to restore...
+  Restored /tmp/hmi-session-independent.SHFTis/src/Adapters/Persistence/Hmi.Persistence.csproj (in 216 ms).
+  Restored /tmp/hmi-session-independent.SHFTis/tests/CheckpointSessionTests/CheckpointSessionTests.csproj (in 216 ms).
+  Restored /tmp/hmi-session-independent.SHFTis/src/Core/Hmi.Core.csproj (in 354 ms).
+  Hmi.Core -> /tmp/hmi-session-independent.SHFTis/src/Core/bin/Release/netstandard2.1/Hmi.Core.dll
+  Hmi.Persistence -> /tmp/hmi-session-independent.SHFTis/src/Adapters/Persistence/bin/Release/net10.0/Hmi.Persistence.dll
+  CheckpointSessionTests -> /tmp/hmi-session-independent.SHFTis/tests/CheckpointSessionTests/bin/Release/net10.0/Hmi.CoreTests.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:10.65
+PASS CheckpointSession 77

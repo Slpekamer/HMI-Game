@@ -1,0 +1,4 @@
+# Versions used for the independently verified runtime postprocess reproduction.
+# Tooling only; these Python packages are not linked into the game runtime.
+numpy==2.3.5
+Pillow==13.0.0

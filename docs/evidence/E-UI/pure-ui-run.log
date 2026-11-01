@@ -1,0 +1,8 @@
+PersistenceUi build: exit 0; log /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-persistence-ui-idjhoyp3/build.log
+PersistenceUi import: exit 0; log /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-persistence-ui-idjhoyp3/import.log
+PersistenceUi run: exit 0; log /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-persistence-ui-idjhoyp3/run.log
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+PERSISTENCE_UI_PROBE PASS 108: pure modal/state/one-shot/focus/bounds semantics; no durable-write claim
+
+PASS isolated actual-engine persistence-ui; evidence /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-persistence-ui-idjhoyp3

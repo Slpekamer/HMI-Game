@@ -1,0 +1,133 @@
+{
+  "source_commit": "05c96916b5e60edc4be133c85838c2b6ab6cec2f",
+  "files": [
+    {
+      "path": "content/gameplay.json",
+      "sha256": "30981d16c5c608f70e750bbaf809eb1e811aef34d71f24258fcac852eba0e2de"
+    },
+    {
+      "path": "src/Core/.editorconfig",
+      "sha256": "c87c803125007036a90700004617cdb31960bc6ad12bfba3f57c2c35c6a3d54f"
+    },
+    {
+      "path": "src/Core/.gdignore",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "src/Core/AssemblyInfo.cs",
+      "sha256": "3cf3cbc1ed33af345948fd62440d610be1098c2d9184c6e5714ec5523737a78c"
+    },
+    {
+      "path": "src/Core/Catalog.cs",
+      "sha256": "9d39e203473cb21d655214a3f84e3ac7e1b918d7ae2aefc872c7a489e5aff238"
+    },
+    {
+      "path": "src/Core/CombatSystems.cs",
+      "sha256": "bb2892b10515271dec1712e7c7e775f8f68f1b3116a37b74008f37ce3806623a"
+    },
+    {
+      "path": "src/Core/CompiledSkillGraph.cs",
+      "sha256": "85513301f41610f5ccbfac90faff65597a8ea40fd1d3b4c94a7b3450dc041d6c"
+    },
+    {
+      "path": "src/Core/Contracts.cs",
+      "sha256": "033c64f1520addda53b68c65a1c815dd20c063644398d0c1c76bc6b6598815fb"
+    },
+    {
+      "path": "src/Core/EndlessRules.cs",
+      "sha256": "abb03341eb94e79e3753f985fb2f9bb289b014e13d531a1140836f6a0b622286"
+    },
+    {
+      "path": "src/Core/EntityLifecycleSystem.cs",
+      "sha256": "7049bbf0ebc1cc5cbae7df16e5c56935bd5688f4c591821ce16e8e2c2940c698"
+    },
+    {
+      "path": "src/Core/GameSimulation.cs",
+      "sha256": "ed16e78629f1222a3728c9bddbf60904f8e260de67214664b8a0b9d04457231a"
+    },
+    {
+      "path": "src/Core/Geometry.cs",
+      "sha256": "d884b53c50025d1165d2326ca545e6d37e424a844eb3b2fb7ae81304dff9d922"
+    },
+    {
+      "path": "src/Core/Hmi.Core.csproj",
+      "sha256": "9386c2d05518d31df3a593cd1d0525e52b576de0bff02a26c3d9be9ea59ad8ea"
+    },
+    {
+      "path": "src/Core/MovementSystems.cs",
+      "sha256": "66f2224db7f1baaadf6f0b8b274b4c34d9b0c552eb69088abedfedf545bd8423"
+    },
+    {
+      "path": "src/Core/README.md",
+      "sha256": "79665ea6aeb4794fdbfc66f32f235e595f89c330a4538ee39fcf30fd35c3f6eb"
+    },
+    {
+      "path": "src/Core/RunProgressionSystem.cs",
+      "sha256": "d7865d64594fae234708f3ea4dba43910bc84ab64b4f3f6fa93ae41ed57e599e"
+    },
+    {
+      "path": "src/Core/StatSystems.cs",
+      "sha256": "6bf36f73c8f3334a3a07c4959a62d603f6573cf85745fe50c82a2ac3c1734306"
+    },
+    {
+      "path": "src/Core/TemporaryContractSystem.cs",
+      "sha256": "3d3b3816e10a5746292ab29f95fe6d95c52b163cce537057c862dac3d70bf010"
+    },
+    {
+      "path": "src/Core/World.cs",
+      "sha256": "69c1d5952d090039a0dae56ecd8cd85a68c3bed391bfd9903f2397b60c12cff7"
+    },
+    {
+      "path": "tests/CoreTests/.editorconfig",
+      "sha256": "c87c803125007036a90700004617cdb31960bc6ad12bfba3f57c2c35c6a3d54f"
+    },
+    {
+      "path": "tests/CoreTests/EndlessIndependentTests.cs",
+      "sha256": "380d70ced3989e50f8573217452c9ac404880f69159f2ece6b6602b95ded21ff"
+    },
+    {
+      "path": "tests/CoreTests/EndlessTests.cs",
+      "sha256": "e1fd65aaaab402e2e98fa4e0e57e0f99efa8ae077a7981d4fffc0b2b018c48ea"
+    },
+    {
+      "path": "tests/CoreTests/Fixtures/legacy-gameplay.json",
+      "sha256": "66ae8d69133468b882b38bb45d6a5e722352013faeb82705c15410b7f1e1c783"
+    },
+    {
+      "path": "tests/CoreTests/Hmi.CoreTests.csproj",
+      "sha256": "dabe33846a56301894a935fab70c6a1a35b86cc27c76ec50537eebea4f9f52f7"
+    },
+    {
+      "path": "tests/CoreTests/LegacyParity.cs",
+      "sha256": "6b66eea27f80d58c1aa1845a2c8ee700d86596be6fd5c1dfd85ee2bfc338cb1a"
+    },
+    {
+      "path": "tests/CoreTests/ProductionBranchIndependentTests.cs",
+      "sha256": "58caa9be6222b95e3d2e4d216a6786c7501295c690f14f32eda224e1aa345bea"
+    },
+    {
+      "path": "tests/CoreTests/ProductionBranchTests.cs",
+      "sha256": "5c20479b3dfc03fbba98c85fa1794856fc15114528d3062a309e18704388c29c"
+    },
+    {
+      "path": "tests/CoreTests/Program.cs",
+      "sha256": "b231669c8f9cd31ef6b8c06a2e76fb9b96c6af7c9f18fa6e124e5f13ee15a4d5"
+    },
+    {
+      "path": "tests/CoreTests/SchemaV2IndependentTests.cs",
+      "sha256": "367bc87b07bde966219874093ef1a78ffe693feda1b9d07c22412c09e83e3f72"
+    },
+    {
+      "path": "tests/CoreTests/SchemaV2Tests.cs",
+      "sha256": "b77547ffb7c0af5e05f933b3b54a2bda7f4afbd8e34ed7206b5d93acc76f03e0"
+    },
+    {
+      "path": "tests/CoreTests/TemporaryContractIndependentTests.cs",
+      "sha256": "03a60d29393b36acdaf97dbcd8c3c6e51ffe807b9e95b1c43692a9847386d136"
+    },
+    {
+      "path": "tests/CoreTests/TemporaryContractTests.cs",
+      "sha256": "a808eb2eeb881635b0ab4fcd7021e0127e8b2e7c8775864c6cabe947c1303715"
+    }
+  ]
+}

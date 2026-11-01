@@ -1,0 +1,117 @@
+using Godot;
+using Hmi.Core;
+using Hmi.GodotAdapter;
+using Hmi.Adapters.Persistence;
+using System;
+using System.Reflection;
+using System.IO;
+
+// Isolated fixture only; authoritative state forcing is for failure/transition tests, not play evidence.
+public partial class CheckpointHostProbe : Node
+{
+    const BindingFlags Flags=BindingFlags.Instance|BindingFlags.NonPublic;
+    GameHost host; int checks;
+    object Field(string name)=>typeof(GameHost).GetField(name,Flags).GetValue(host);
+    void Call(string name,params object[] args)=>typeof(GameHost).GetMethod(name,Flags).Invoke(host,args);
+    void Check(bool ok,string why){checks++;if(!ok)throw new Exception(why);}
+    async System.Threading.Tasks.Task Flush(){await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);}
+    async System.Threading.Tasks.Task Capture(string stage)
+    {
+        foreach(var arg in OS.GetCmdlineUserArgs()) if(arg.StartsWith("--capture-checkpoint="))
+        {
+            await ToSignal(RenderingServer.Singleton,RenderingServer.SignalName.FramePostDraw);
+            Check(GetViewport().GetTexture().GetImage().SavePng(arg.Substring("--capture-checkpoint=".Length)+"-"+stage+".png")==Error.Ok,"actual failure dialog capture");
+        }
+    }
+    public override async void _Ready()
+    {
+        try
+        {
+            host=new GameHost();AddChild(host);host.SetProcess(false);await Flush();
+            var sim=(GameSimulation)Field("_sim");var ui=(GameUi)Field("_ui");
+            Call("Start",3,(uint)1030);host.SetProcess(false);
+            var productionSession=(CheckpointSession)Field("_checkpoint");
+            Check(sim.Phase==RunPhase.Combat && productionSession.CurrentRecovery.Kind==RecoveryKind.Active,
+                "actual host catalog hash agrees with Core codec and production store");
+            Call("Selection");
+            Check(productionSession.CurrentRecovery.Kind==RecoveryKind.Closed,"production store closes before injected faults");
+            var files=new FaultFiles(new PhysicalCheckpointFiles(ProjectSettings.GlobalizePath("user://fixture-store")));
+            var codec=new CheckpointCodec(sim);
+            var store=new CheckpointStore(files,sim.CatalogHash,GameSimulation.CheckpointRulesVersion,codec.Validate);
+            var session=new CheckpointSession(sim,store,codec);
+            typeof(GameHost).GetField("_checkpoint",Flags).SetValue(host,session);Call("BindPersistenceUi");
+            Call("Start",3,(uint)1030);host.SetProcess(false);
+            Check(sim.Phase==RunPhase.Combat&&sim.Tick==0,"start only after prepared commit");
+            Check(store.Recover().Kind==RecoveryKind.Active,"durable initial safe point");
+            long firstSeq=store.Recover().Control.Sequence;
+            for(int i=0;i<20;i++)sim.Step();
+            Call("ExitToSelection");
+            Check(!host.IsProcessing()&&sim.Paused,"exit stops simulation");
+            Check(store.Recover().Control.Sequence==firstSeq,"exit does not duplicate snapshot");
+            Action oldResume=ui.ResumeRequested;
+            ui.ResumeRequested();host.SetProcess(false);
+            Check(sim.Phase==RunPhase.Combat&&sim.Tick==0&&sim.Coins==0,"resume rolls back full wave start");
+            Call("Start",2,(uint)1030);host.SetProcess(false);
+            oldResume();
+            Check(sim.CharacterId=="honey"&&sim.Tick==0,"old selection callback cannot restore previous hero");
+            // Force only transition timing in this test copy; real session/menu/commit paths remain production.
+            sim.Run.Tick=1440;sim.World.Health[sim.PlayerId.Index].Current=100;sim.Step();Call("RefreshUi");
+            Check(sim.Phase==RunPhase.Between,"controlled between state");
+            var offer=sim.GetOffers()[0];sim.Enqueue(GameCommand.Choose(offer.Id));sim.Step();Call("RefreshUi");
+            int coins=sim.Coins;long beforeNext=store.Recover().Control.Sequence;
+            Action oldNext=ui.NextRequested;
+            files.Deny=true;ui.NextRequested();
+            Check(sim.Phase==RunPhase.Prepared&&!host.IsProcessing(),"save failure stops prepared simulation");
+            Check(ui.IsPersistenceModalOpen&&session.HasPendingFailure&&!session.CanContinueUnsaved,"later wave failure only retry");
+            long preparedTick=sim.Tick;await Flush();Check(sim.Tick==preparedTick,"failed save never ticks");
+            files.Deny=false;ui.RetrySaveRequested();host.SetProcess(false);
+            Check(sim.Phase==RunPhase.Combat&&sim.Wave==2&&sim.Tick==0&&sim.Coins==coins,"retry starts exactly next wave");
+            Check(store.Recover().Control.Sequence==beforeNext+1,"retry commits once");
+            oldNext();Check(sim.Wave==2&&sim.Tick==0,"old next callback rejected");
+            // Actual terminal path must keep a failed Close modal and never offer normal resume.
+            sim.World.Health[sim.PlayerId.Index].Current=0;sim.Step();
+            files.Deny=true;Call("RefreshUi");
+            Check(sim.Phase==RunPhase.Defeat&&session.IsCloseFailure,"defeat records pending close");
+            Check(ui.IsPersistenceModalOpen&&!host.IsProcessing(),"close failure blocks ordinary interactions");
+            Call("Selection");Check(session.IsCloseFailure,"restart cannot escape uncertain close");
+            await Capture("close-failed");
+            files.Deny=false;ui.RetrySaveRequested();host.SetProcess(false);
+            Check(store.Recover().Kind==RecoveryKind.Closed&&!ui.IsPersistenceModalOpen,"retry durably closes dead run");
+            Call("Selection");Check(!host.IsProcessing(),"ending restart returns selection after close");
+            Check(store.Recover().Kind==RecoveryKind.Closed,"selection cannot revive backup");
+            Call("Start",4,(uint)1030);host.SetProcess(false);
+            Check(sim.CharacterId=="bounce"&&sim.Coins==0&&sim.Tick==0,"fresh character after closed run");
+            // Explicit restart discards an alive run; exit-to-selection above deliberately did not.
+            Call("Selection");Check(store.Recover().Kind==RecoveryKind.Closed,"explicit restart closes living run");
+            files.FailSnapshots=true;
+            Call("Start",0,(uint)55);
+            Check(sim.Phase==RunPhase.Prepared && session.CanContinueUnsaved,"first snapshot failure offers explicit no-save path");
+            Check(ui.IsPersistenceModalOpen&&!host.IsProcessing(),"first save failure is blocking modal");
+            await Capture("first-save-failed");
+            ui.ContinueUnsavedRequested();host.SetProcess(false);
+            Check(sim.Phase==RunPhase.Combat&&!session.CurrentWaveSaved,"explicit unsaved continuation begins once");
+            Check(store.Recover().Kind==RecoveryKind.PendingStart,"unsaved run has no resumable snapshot");
+            Call("ExitToSelection");Check(store.Recover().Payload==null,"unsaved exit never invents previous safe point");
+            files.FailSnapshots=false;
+            files.Deny=true;session.RefreshRecovery();Call("UpdateResumeView");
+            long oldTick=sim.Tick;int oldRun=sim.RunToken;
+            Call("RequestStart",1,(uint)9);
+            Check(ui.IsPersistenceModalOpen&&sim.RunToken==oldRun&&sim.Tick==oldTick,"uncertain store cannot start replacement");
+            files.Deny=false;ui.RetrySaveRequested();
+            Check(!ui.IsPersistenceModalOpen,"recovery retry exits error after valid scan");
+            host.QueueFree();await Flush();Check(!GodotObject.IsInstanceValid(host),"real host cleanup");
+            GD.Print("CHECKPOINT_HOST_PROBE PASS "+checks);GetTree().Quit();
+        }
+        catch(Exception ex){GD.PushError(ex.ToString());GetTree().Quit(1);}
+    }
+    sealed class FaultFiles:ICheckpointFiles
+    {
+        readonly ICheckpointFiles inner;public bool Deny,FailSnapshots;
+        public FaultFiles(ICheckpointFiles inner){this.inner=inner;}
+        public IDisposable AcquireWriter(){if(Deny)throw new UnauthorizedAccessException("fixture denied");return inner.AcquireWriter();}
+        public string[] Names()=>inner.Names(); public long Length(string n)=>inner.Length(n);
+        public byte[] Read(string n,int limit)=>inner.Read(n,limit);
+        public void AtomicWrite(string n,byte[] bytes,bool overwrite){if(FailSnapshots&&n.StartsWith("snapshot-"))throw new IOException("fixture snapshot failure");inner.AtomicWrite(n,bytes,overwrite);}
+        public void Delete(string n)=>inner.Delete(n);
+    }
+}

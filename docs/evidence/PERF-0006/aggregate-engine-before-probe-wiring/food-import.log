@@ -1,0 +1,28 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+FOOD_IMPORTED_INSTANCE_ISOLATION summon passed
+FOOD_IMPORTED_CLIP summon Idle changed_bones=3
+FOOD_IMPORTED_CLIP summon Run changed_bones=15
+FOOD_IMPORTED_CLIP summon Attack changed_bones=7
+FOOD_IMPORTED_ASSET summon bounds=[P: (-0.507124, -0.000003, -0.343384), S: (0.920095, 1.200016, 0.664691)] meshes=2
+FOOD_IMPORTED_INSTANCE_ISOLATION orbit passed
+FOOD_IMPORTED_CLIP orbit Idle changed_bones=8
+FOOD_IMPORTED_CLIP orbit Run changed_bones=19
+FOOD_IMPORTED_CLIP orbit Attack changed_bones=12
+FOOD_IMPORTED_ASSET orbit bounds=[P: (-0.510324, 0.0, -0.179459), S: (0.95966, 1.2, 0.348583)] meshes=2
+FOOD_IMPORTED_INSTANCE_ISOLATION honey passed
+FOOD_IMPORTED_CLIP honey Idle changed_bones=3
+FOOD_IMPORTED_CLIP honey Run changed_bones=15
+FOOD_IMPORTED_CLIP honey Attack changed_bones=7
+FOOD_IMPORTED_ASSET honey bounds=[P: (-0.599181, 0.0, -0.386401), S: (1.099668, 1.2, 0.77281)] meshes=2
+FOOD_IMPORTED_INSTANCE_ISOLATION crit passed
+FOOD_IMPORTED_CLIP crit Idle changed_bones=3
+FOOD_IMPORTED_CLIP crit Run changed_bones=15
+FOOD_IMPORTED_CLIP crit Attack changed_bones=7
+FOOD_IMPORTED_ASSET crit bounds=[P: (-0.310635, 0.0, -0.254499), S: (0.762577, 1.2, 0.51213)] meshes=2
+FOOD_IMPORTED_INSTANCE_ISOLATION bounce passed
+FOOD_IMPORTED_CLIP bounce Idle changed_bones=3
+FOOD_IMPORTED_CLIP bounce Run changed_bones=15
+FOOD_IMPORTED_CLIP bounce Attack changed_bones=7
+FOOD_IMPORTED_ASSET bounce bounds=[P: (-0.704373, 0.0, -0.402566), S: (1.408746, 1.2, 0.778657)] meshes=2
+FOOD_HERO_IMPORT_PROBE failures=0 scope=["summon", "orbit", "honey", "crit", "bounce"]
