@@ -1,0 +1,126 @@
+{
+  "production_changed_files": 1,
+  "files": [
+    {
+      "path": "src/Adapters/Godot/CombatFeedbackVisuals.cs",
+      "baseline_sha256": "7619f04ad7358d8001dff8f2791d86e98927c6d7b6536f7c25cc2d3e4df628e5",
+      "candidate_sha256": "d9fcf09e07468edd0ccf58ed42da9666ab69f7e8cffafeb2677132570e784fad",
+      "same": false
+    },
+    {
+      "path": "src/Adapters/Godot/CombatSkillBodies.cs",
+      "baseline_sha256": "6290ec98f9d17a526269391d6a4f29ad01663b823784fa2fa0291cabf1ac2566",
+      "candidate_sha256": "6290ec98f9d17a526269391d6a4f29ad01663b823784fa2fa0291cabf1ac2566",
+      "same": true
+    },
+    {
+      "path": "src/Core/Catalog.cs",
+      "baseline_sha256": "9d39e203473cb21d655214a3f84e3ac7e1b918d7ae2aefc872c7a489e5aff238",
+      "candidate_sha256": "9d39e203473cb21d655214a3f84e3ac7e1b918d7ae2aefc872c7a489e5aff238",
+      "same": true
+    },
+    {
+      "path": "src/Core/GameSimulation.cs",
+      "baseline_sha256": "3eea7cae8e28e8cbc55d2f993a0b40fb09c63a337faf33b444dc1bd6cd4338a1",
+      "candidate_sha256": "3eea7cae8e28e8cbc55d2f993a0b40fb09c63a337faf33b444dc1bd6cd4338a1",
+      "same": true
+    },
+    {
+      "path": "src/Core/CheckpointSystem.cs",
+      "baseline_sha256": "333fcabbed1c46fda4e97401323278a431d65b8582829d60a56002580b00800d",
+      "candidate_sha256": "333fcabbed1c46fda4e97401323278a431d65b8582829d60a56002580b00800d",
+      "same": true
+    },
+    {
+      "path": "src/Core/MovementSystems.cs",
+      "baseline_sha256": "e6bb9b2cc1bab9c2032372827bbac8e15f135e5b9324d1c3ad3fd130b6bc5093",
+      "candidate_sha256": "e6bb9b2cc1bab9c2032372827bbac8e15f135e5b9324d1c3ad3fd130b6bc5093",
+      "same": true
+    },
+    {
+      "path": "src/Core/CheckpointContracts.cs",
+      "baseline_sha256": "16fc8844d5e14a1fc7932a19a91cd7ac74c4895250c34592852ccbae24f76c85",
+      "candidate_sha256": "16fc8844d5e14a1fc7932a19a91cd7ac74c4895250c34592852ccbae24f76c85",
+      "same": true
+    },
+    {
+      "path": "src/Core/Geometry.cs",
+      "baseline_sha256": "d884b53c50025d1165d2326ca545e6d37e424a844eb3b2fb7ae81304dff9d922",
+      "candidate_sha256": "d884b53c50025d1165d2326ca545e6d37e424a844eb3b2fb7ae81304dff9d922",
+      "same": true
+    },
+    {
+      "path": "src/Core/Hmi.Core.csproj",
+      "baseline_sha256": "9386c2d05518d31df3a593cd1d0525e52b576de0bff02a26c3d9be9ea59ad8ea",
+      "candidate_sha256": "9386c2d05518d31df3a593cd1d0525e52b576de0bff02a26c3d9be9ea59ad8ea",
+      "same": true
+    },
+    {
+      "path": "src/Core/CombatObservation.cs",
+      "baseline_sha256": "b784a4a19fc0c3a2f1f0ed81af2e03233bc3a4a23bd2f9a7c73cc43152819934",
+      "candidate_sha256": "b784a4a19fc0c3a2f1f0ed81af2e03233bc3a4a23bd2f9a7c73cc43152819934",
+      "same": true
+    },
+    {
+      "path": "src/Core/Contracts.cs",
+      "baseline_sha256": "595279f4c3e04abc4e712dda4662db1dbae9d285d64c65d85a0bf11624545cc6",
+      "candidate_sha256": "595279f4c3e04abc4e712dda4662db1dbae9d285d64c65d85a0bf11624545cc6",
+      "same": true
+    },
+    {
+      "path": "src/Core/StatSystems.cs",
+      "baseline_sha256": "09c274e358aa52a2cbe14b00c4766c76cfd098152f2b99c63394dd8b231afd6c",
+      "candidate_sha256": "09c274e358aa52a2cbe14b00c4766c76cfd098152f2b99c63394dd8b231afd6c",
+      "same": true
+    },
+    {
+      "path": "src/Core/TemporaryContractSystem.cs",
+      "baseline_sha256": "3d3b3816e10a5746292ab29f95fe6d95c52b163cce537057c862dac3d70bf010",
+      "candidate_sha256": "3d3b3816e10a5746292ab29f95fe6d95c52b163cce537057c862dac3d70bf010",
+      "same": true
+    },
+    {
+      "path": "src/Core/World.cs",
+      "baseline_sha256": "233a86ebc65e78f1aefdf3999f8fc713cf1fc7b8452d3646c3f04c5d7ae2cecd",
+      "candidate_sha256": "233a86ebc65e78f1aefdf3999f8fc713cf1fc7b8452d3646c3f04c5d7ae2cecd",
+      "same": true
+    },
+    {
+      "path": "src/Core/EntityLifecycleSystem.cs",
+      "baseline_sha256": "263aa9b2ac2c39d2df4db24a9f9894a84696f67422fa7166accb83f264ce7d87",
+      "candidate_sha256": "263aa9b2ac2c39d2df4db24a9f9894a84696f67422fa7166accb83f264ce7d87",
+      "same": true
+    },
+    {
+      "path": "src/Core/AssemblyInfo.cs",
+      "baseline_sha256": "3cf3cbc1ed33af345948fd62440d610be1098c2d9184c6e5714ec5523737a78c",
+      "candidate_sha256": "3cf3cbc1ed33af345948fd62440d610be1098c2d9184c6e5714ec5523737a78c",
+      "same": true
+    },
+    {
+      "path": "src/Core/EndlessRules.cs",
+      "baseline_sha256": "4afcf4bc6c27ca0f61defd190cfeac6dc2e909566c2b7a5a834cfb9b7443d33e",
+      "candidate_sha256": "4afcf4bc6c27ca0f61defd190cfeac6dc2e909566c2b7a5a834cfb9b7443d33e",
+      "same": true
+    },
+    {
+      "path": "src/Core/CombatSystems.cs",
+      "baseline_sha256": "067e7a56e257ccedd04d128357954b0f48080afa2fef1f78182bfc5bf12846ca",
+      "candidate_sha256": "067e7a56e257ccedd04d128357954b0f48080afa2fef1f78182bfc5bf12846ca",
+      "same": true
+    },
+    {
+      "path": "src/Core/CompiledSkillGraph.cs",
+      "baseline_sha256": "85513301f41610f5ccbfac90faff65597a8ea40fd1d3b4c94a7b3450dc041d6c",
+      "candidate_sha256": "85513301f41610f5ccbfac90faff65597a8ea40fd1d3b4c94a7b3450dc041d6c",
+      "same": true
+    },
+    {
+      "path": "src/Core/RunProgressionSystem.cs",
+      "baseline_sha256": "b7743d23ae28b0b446367a46fae8489351f935878222be973c8379b663808220",
+      "candidate_sha256": "b7743d23ae28b0b446367a46fae8489351f935878222be973c8379b663808220",
+      "same": true
+    }
+  ],
+  "same_red_green_fixture_sha256": "34385230fcdcdf2d88f466d70a926f0ba00ef008a0b81ae5fdea3455bad2cc07"
+}

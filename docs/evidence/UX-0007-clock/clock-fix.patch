@@ -1,0 +1,88 @@
+--- baseline/CombatFeedbackVisuals.cs
++++ candidate/CombatFeedbackVisuals.cs
+@@ -10,12 +10,12 @@
+ {
+     public const int PoolCapacity=48, SpawnBudget=12;
+     private enum Cue { Strike, Ray, Impact, Blast, Hit, Death }
+-    private struct Effect { public bool Active,HasBody; public Cue Kind; public EntityId Target; public Vec2 From,To; public float Age,Duration; }
++    private struct Effect { public bool Active,HasBody; public long BornFrame; public Cue Kind; public EntityId Target; public Vec2 From,To; public float Age,Duration; }
+     private sealed class Actor
+     {
+         public EntityId Id; public Node3D Root; public EntityKind Kind; public Vec2 Position;
+         public MeshInstance3D[] Meshes; public Material[] Previous;
+-        public StandardMaterial3D Tint; public float Remaining; public bool Applied;
++        public StandardMaterial3D Tint; public float Remaining; public bool Applied; public long TintBornFrame;
+     }
+     private struct HitGate { public EntityId Id; public double Next; }
+     private readonly Effect[] _pool=new Effect[PoolCapacity];
+@@ -31,6 +31,8 @@
+     private float _playerAge=1,_playerDuration=.32f;
+     private Vec2 _playerPosition,_hurtFrom;
+     private bool _paused,_combat,_disposed;
++    // One epoch per host render; SetState/Consume catch-up calls never replenish it.
++    private long _renderFrame,_playerBornFrame=-1;
+     public int AcceptedEvents {get;private set;}
+     public int RejectedEvents {get;private set;}
+     public int DroppedEffects {get;private set;}
+@@ -52,6 +54,7 @@
+     {
+         if(_disposed)return;
+         _spawned=0;
++        _renderFrame++;
+         SetState(run,wave,paused,combat);
+     }
+     public void SetState(int run,int wave,bool paused,bool combat)
+@@ -85,7 +88,7 @@
+                 if(e.Target==player)
+                 {
+                     _playerPosition=e.To;_hurtFrom=e.From;
+-                    if(_clock>=_playerNext){_playerAge=0;_playerNext=_clock+.35;Tint(e.Target,true);}
++                    if(_clock>=_playerNext){_playerAge=0;_playerBornFrame=_renderFrame;_playerNext=_clock+.35;Tint(e.Target,true);}
+                     else CoalescedHits++;
+                     
+                 }
+@@ -127,14 +130,15 @@
+         if(player.HasValue)_playerPosition=player.Value.Position;
+         if(paused || !_combat)return;
+         if(!float.IsFinite(delta) || delta<=0)return;
+-        delta=Math.Min(.25f,delta);_clock+=delta;_playerAge+=delta;
+-        for(int i=0;i<_pool.Length;i++)if(_pool[i].Active){_pool[i].Age+=delta;if(_pool[i].Age>=_pool[i].Duration){_pool[i].Active=false;_bodies?.Hide(i);}else if(_pool[i].HasBody)_bodies?.Phase(i,_pool[i].Age/_pool[i].Duration);}
++        delta=Math.Min(.25f,delta);_clock+=delta;
++        if(_playerBornFrame!=_renderFrame)_playerAge+=delta;
++        for(int i=0;i<_pool.Length;i++)if(_pool[i].Active){if(_pool[i].BornFrame!=_renderFrame)_pool[i].Age+=delta;if(_pool[i].Age>=_pool[i].Duration){_pool[i].Active=false;_bodies?.Hide(i);}else if(_pool[i].HasBody)_bodies?.Phase(i,_pool[i].Age/_pool[i].Duration);}
+         for(int i=0;i<_actors.Length;i++)
+         {
+             var a=_actors[i];if(a==null)continue;
+             if(!GodotObject.IsInstanceValid(a.Root) || a.Root.IsQueuedForDeletion()){Unbind(i);continue;}
+             if(a.Remaining<=0)continue;
+-            a.Remaining=Math.Max(0,a.Remaining-delta);
++            if(a.TintBornFrame!=_renderFrame)a.Remaining=Math.Max(0,a.Remaining-delta);
+             if(a.Remaining<=0){Restore(a);continue;}
+             float envelope=Mathf.Sin(Mathf.Pi*(1-a.Remaining/.22f));
+             a.Tint.AlbedoColor=a.Kind==EntityKind.Player?new Color(.78f,.17f,.19f,.27f*envelope):new Color(1,.83f,.52f,.24f*envelope);
+@@ -148,14 +152,14 @@
+         _lastTick=-1;_lastIndex=-1;_clock=0;_playerNext=0;
+     }
+     public override void _ExitTree(){Reset();_bodies?.Dispose();_disposed=true;}
+-    private void ClearCues(){_bodies?.Reset();Array.Clear(_pool);_playerAge=1;_spawned=0;for(int i=0;i<_actors.Length;i++)if(_actors[i]!=null){_actors[i].Remaining=0;Restore(_actors[i]);}QueueRedraw();}
++    private void ClearCues(){_bodies?.Reset();Array.Clear(_pool);_playerAge=1;_playerBornFrame=-1;_spawned=0;for(int i=0;i<_actors.Length;i++)if(_actors[i]!=null){_actors[i].Remaining=0;_actors[i].TintBornFrame=-1;Restore(_actors[i]);}QueueRedraw();}
+     private static bool Finite(Vec2 p)=>float.IsFinite(p.X)&&float.IsFinite(p.Y);
+     private void Tint(EntityId id,bool player)
+     {
+         if(id.Index<0 || id.Index>=_actors.Length)return;var a=_actors[id.Index];
+         if(a==null || a.Id!=id || (a.Kind==EntityKind.Companion || a.Kind==EntityKind.Pickup))return;
+         if(a.Tint==null)a.Tint=new StandardMaterial3D {ShadingMode=BaseMaterial3D.ShadingModeEnum.Unshaded,Transparency=BaseMaterial3D.TransparencyEnum.Alpha,AlbedoColor=new Color(1,1,1,0),NoDepthTest=false};
+-        a.Remaining=.22f;a.Applied=true;
++        a.Remaining=.22f;a.Applied=true;a.TintBornFrame=_renderFrame;
+         foreach(var m in a.Meshes)if(GodotObject.IsInstanceValid(m))m.MaterialOverlay=a.Tint;
+     }
+     private static void Restore(Actor a)
+@@ -185,7 +189,7 @@
+         var bodyKind=e.Kind==EventKind.Melee&&e.Mechanism==FeedbackMechanism.BasicMelee?CombatSkillBodies.BodyKind.Melee:
+             e.Kind==EventKind.Ray&&e.Mechanism==FeedbackMechanism.Ricochet?CombatSkillBodies.BodyKind.Ricochet:CombatSkillBodies.BodyKind.None;
+         bool body=bodyKind!=CombatSkillBodies.BodyKind.None&&_bodies!=null&&_bodies.Show(slot,bodyKind,e.From,e.To);
+-        _pool[slot]=new Effect{Active=true,HasBody=body,Kind=kind,Target=e.Target,From=e.From,To=e.To,Duration=duration};
++        _pool[slot]=new Effect{Active=true,HasBody=body,BornFrame=_renderFrame,Kind=kind,Target=e.Target,From=e.From,To=e.To,Duration=duration};
+     }
+     private bool Project(Vec2 world,float height,out Vector2 point)
+     {

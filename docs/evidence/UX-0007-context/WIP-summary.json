@@ -1,0 +1,16 @@
+{
+  "status": "WIP / strict import diagnostic RED / combat-context visual pending / no release or Android claim",
+  "base_core_commit": "e1b4cdb3c9fae052550e208ba7b955de81beef06",
+  "pure_visual_overlay": "bea56bb41018be31fda9b3fcb8dfa500cef581d4",
+  "main_dll_sha256": "30d2ce9da2f08076a9a50b2f333d8a966adb3e807c4f986acbc29fa5bc525d04",
+  "headless_behavior": 1009,
+  "prior_feedback_behavior": 54,
+  "native_storage_behavior": 1015,
+  "native_context_visual": "pending",
+  "audio": "absent",
+  "new_body_mechanisms": [
+    "Melee+BasicMelee",
+    "Ray+Ricochet"
+  ],
+  "rebuild": "source verified env; dotnet build -m:1; strict --import; import ERROR must not be waived"
+}

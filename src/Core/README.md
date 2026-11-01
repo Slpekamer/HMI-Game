@@ -33,3 +33,13 @@ Host/tests deserialize JSON into `GameContent`; core copies and validates that D
 World coordinates are X/Y in the core, mapped to Godot X/Z; metres, arena X −14..14 and Y −8..8. The two AABB walls leave passages. Movement substeps and LOS are pure geometry, not authoritative engine physics. Enemy iteration and equal-distance ties use slot order. Xorshift32 drives spawns; FNV-style deterministic offer hashing uses seed, character and prior picks. No cross-platform floating-point bit identity is promised.
 
 Prototype decisions: six 24-second waves, one chaser archetype, full health at wave start, real defeat, no dodge mechanic (removed by explicit user request; legacy command value1 rejected, no speed burst/cooldown/invulnerability). No save schema, networking, Unity/AOT verification or real-device performance certification is included. Impact pair scans are quadratic; representative warm allocation/time measurements are required rather than assuming ECS guarantees performance.
+
+## Read-only combat observation v1 (OBS-0001)
+
+`GameEvent.Mechanism` is explicit system attribution, not an inference from `Value`. Its default/legacy constructor value is `Unknown`; all original event fields and enum values retain their meanings. Consumers rebuild against this new struct; no raw native/binary ABI is promised.
+
+`ObservationCount` / `GetObservation` expose a separate 512-entry cosmetic buffer, with drop-newest `DroppedObservations` diagnostic. It never consumes legacy event slots or affects rules. Consume it after **every Step**, not just the last catchup tick. Support heal Value is the actual clamped HP delta (zero is a cast at full health, not healing); buff Value is the actual 1.5-second refresh assignment; WallBounce Value is the existing reflection count, with no extra damage/impulse. The dropped counter is cumulative within a wave scope and resets on Prepare/Begin/Restore.
+
+`TryGetEnemyMotionObservation` returns a full-ID/scope/tick-validated sample of the multiplier used by that tick's Movement branch. A knockback pass records multiplier 1 even when inside honey. Later same-tick impact is not retroactively applied to this historical sample. Paused snapshots may keep the same-tick result; destroyed/reused IDs and reset scopes are invalid.
+
+All observation buffers are ephemeral and excluded from checkpoint DTO, catalog identity and rules version. Restoring a checkpoint never replays support or bounce notifications. See ADR-0011 for units, compatibility and parity gates.

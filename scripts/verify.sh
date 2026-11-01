@@ -52,6 +52,7 @@ python3 scripts/test_floor_contact.py
 python3 scripts/test_host_lifecycle.py
 python3 scripts/test_character_presentation.py
 python3 scripts/test_enemy_health.py
+python3 scripts/test_combat_feedback.py
 python3 scripts/test_food_animation_mixer.py
 python3 scripts/test_attack_boundary.py
 python3 scripts/test_attack_cadence.py

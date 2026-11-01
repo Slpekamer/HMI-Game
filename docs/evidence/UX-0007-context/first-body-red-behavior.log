@@ -1,0 +1,13 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+SKILL_ASSERT_FAIL full target crystal immediately at endpoint
+SKILL_ASSERT_FAIL length changes placement not crystal width
+SKILL_REAL_EVENTS melee=5 ricochet=31
+ERROR: full target crystal immediately at endpoint; length changes placement not crystal width
+   at: void CombatSkillBodiesProbe._Process(double) (res://src/Adapters/Godot/CombatSkillBodiesProbe.cs:19)
+   C# backtrace (most recent call first):
+       [0] void Godot.GD.PushError(string) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/GD.cs:366)
+       [1] void CombatSkillBodiesProbe._Process(double) (/workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-combat-skill-bodies-t_6nsinr/project/src/Adapters/Godot/CombatSkillBodiesProbe.cs:19)
+       [2] bool Godot.Node.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name&, Godot.NativeInterop.NativeVariantPtrArgs, Godot.NativeInterop.godot_variant&) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Generated/GodotObjects/Node.cs:2640)
+       [3] bool CombatSkillBodiesProbe.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name&, Godot.NativeInterop.NativeVariantPtrArgs, Godot.NativeInterop.godot_variant&) (/workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-combat-skill-bodies-t_6nsinr/project/.godot/mono/temp/obj/Debug/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CombatSkillBodiesProbe_ScriptMethods.generated.cs:58)
+       [4] Godot.NativeInterop.godot_bool Godot.Bridge.CSharpInstanceBridge.Call(nint, Godot.NativeInterop.godot_string_name*, Godot.NativeInterop.godot_variant**, int, Godot.NativeInterop.godot_variant_call_error*, Godot.NativeInterop.godot_variant*) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/Bridge/CSharpInstanceBridge.cs:24)

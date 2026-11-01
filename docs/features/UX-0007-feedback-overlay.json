@@ -1,0 +1,30 @@
+[
+  {
+    "path": "src/Adapters/Godot/GameHost.cs",
+    "sha256": "6635f28f70f763bd7cbf388b0fcd240c6a76720edd05bdb37141b6dc07a48ac9"
+  },
+  {
+    "path": "src/Adapters/Godot/CombatFeedbackVisuals.cs",
+    "sha256": "b872f794bb4c0b2baaae8ce0e658d7bbc1a06fc7f9303d75783d2fd884422b04"
+  },
+  {
+    "path": "src/Adapters/Godot/CombatFeedbackVisuals.cs.uid",
+    "sha256": "26aff7d0aa69b509dc4103895db3b0e3783bdd021a31296de98e01bdd877321b"
+  },
+  {
+    "path": "tests/Presentation/CombatFeedbackProbe.cs.template",
+    "sha256": "1ab7232b89fb17b926a91e49def54c6a0db36cb1423b037f9c7bed080f2f636f"
+  },
+  {
+    "path": "scripts/test_combat_feedback.py",
+    "sha256": "e168522bdd3d7d3fe6e066c6eb7cbb493ed7c61827122d5bbcb94a04836a4047"
+  },
+  {
+    "path": "scripts/verify.sh",
+    "sha256": "ab733a813a8bf23a43a545c6276bf06dff51123a7df701ad517e80772e07b5c9"
+  },
+  {
+    "path": "docs/features/UX-0005-combat-feedback.md",
+    "sha256": "8580e1d2560ebe7f5422e5fdb8a2a1e093664d83d88dc052bbadda505afb61f9"
+  }
+]

@@ -25,6 +25,7 @@ namespace Hmi.Core
                 enemy.WallCooldown = Math.Max(0, enemy.WallCooldown - dt);
                 if (enemy.KnockTime > 0)
                 {
+                    g.ObserveMotion(i, 1, true);
                     transform.Position = Geometry.Move(g, transform.Position, enemy.KnockVelocity * dt, transform.Radius, out int hit);
                     enemy.KnockTime -= dt;
                     enemy.KnockVelocity *= (float)Math.Exp(-2.3f * dt);
@@ -41,6 +42,7 @@ namespace Hmi.Core
                             enemy.KnockTime = 0;
                             enemy.KnockVelocity = default;
                         }
+                        g.Observe(CombatObservationKind.WallBounce, w.Id(i), w.Id(i), transform.Position, transform.Position, enemy.Bounces);
                     }
                     continue;
                 }
@@ -49,6 +51,7 @@ namespace Hmi.Core
                 if (g.GetStat(Stat.HoneyEnabled) > 0
                     && (transform.Position - g.PlayerPosition).LengthSquared <= honeyRadius * honeyRadius)
                     slow = g.GetStat(Stat.HoneySlow);
+                g.ObserveMotion(i, slow, false);
                 Vec2 direction = Geometry.ChaseDirection(g, transform.Position, g.PlayerPosition, transform.Radius);
                 transform.Facing = direction;
                 float enemySpeed = (1 + i % 3 * .12f) * g.EffectiveEnemySpeedMultiplier * slow;
@@ -102,7 +105,9 @@ namespace Hmi.Core
                     if ((g.PlayerPosition - transform.Position).LengthSquared <= range * range)
                     {
                         ref var health = ref w.Health[g.PlayerId.Index];
+                        float before = health.Current;
                         health.Current = Math.Min(health.Maximum, health.Current + 2);
+                        g.Observe(CombatObservationKind.SupportHealApplied, w.Id(i), g.PlayerId, transform.Position, g.PlayerPosition, health.Current - before);
                         used = true;
                     }
                     for (int j = 0; j < w.Capacity; j++)
@@ -111,6 +116,7 @@ namespace Hmi.Core
                             || (w.Transform[j].Position - transform.Position).LengthSquared > range * range)
                             continue;
                         w.Companion[j].BuffTime = 1.5f;
+                        g.Observe(CombatObservationKind.SupportBuffApplied, w.Id(i), w.Id(j), transform.Position, w.Transform[j].Position, 1.5f);
                         used = true;
                     }
                     if (used)
@@ -121,8 +127,8 @@ namespace Hmi.Core
                     target = Geometry.NearestEnemy(g, transform.Position, range);
                     if (target < 0)
                         continue;
-                    g.Emit(EventKind.Ray, w.Id(i), w.Id(target), transform.Position, w.Transform[target].Position, 2.7f);
-                    g.Damage(target, companion.BuffTime > 0 ? 3.2f : 2.7f, w.Id(i));
+                    g.Emit(EventKind.Ray, w.Id(i), w.Id(target), transform.Position, w.Transform[target].Position, 2.7f, FeedbackMechanism.CompanionShot);
+                    g.Damage(target, companion.BuffTime > 0 ? 3.2f : 2.7f, w.Id(i), FeedbackMechanism.CompanionShot);
                     companion.Cooldown = .95f;
                 }
             }
@@ -140,7 +146,7 @@ namespace Hmi.Core
                     continue;
                 w.Health[g.PlayerId.Index].Current = Math.Max(0, w.Health[g.PlayerId.Index].Current - 7);
                 w.Enemy[i].AttackCooldown = .7f;
-                g.Emit(EventKind.Damage, w.Id(i), g.PlayerId, w.Transform[i].Position, g.PlayerPosition, 7);
+                g.Emit(EventKind.Damage, w.Id(i), g.PlayerId, w.Transform[i].Position, g.PlayerPosition, 7, FeedbackMechanism.EnemyContact);
                 Vec2 away = (w.Transform[i].Position - g.PlayerPosition).Normalized;
                 w.Transform[i].Position = Geometry.Move(g, w.Transform[i].Position, away * .6f, w.Transform[i].Radius, out _);
             }

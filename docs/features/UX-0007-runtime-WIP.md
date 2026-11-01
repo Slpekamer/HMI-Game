@@ -1,0 +1,3 @@
+# Readable VFX integration WIP
+
+Base local OBS-0001 e1b4cdb (real remote parent f4aa) plus exact pure-visual UX0005 bea56bb production overlay. UX0005 runtime shutdown blocker remains unresolved; this is an independent experiment, not an accepted release. No new audio. Metadata Core rule/authority parity already independently checked, but later presentation integration requires fresh runtime and strict gates. Mobile/gamepad/UI-motion experiments are NOT included. First scope: bounded actual Melee/Ricochet event-driven bodies; all other skills retain honest prior cues until their own implementation. No damage/RNG/timing/knock changes.

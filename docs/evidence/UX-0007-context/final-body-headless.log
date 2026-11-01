@@ -1,0 +1,5 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+SKILL_REAL_EVENTS melee=5 ricochet=31
+COMBAT_SKILL_BODIES_PROBE PASS 1009 native_storage=False
+NATIVE_STORAGE_PENDING 2 endpoint/width assertions require real renderer, not headless Dummy getters

@@ -22,9 +22,7 @@ public partial class GameHost : Node3D
     private EnemyHealthVisuals _enemyHealth;
     private MeshInstance3D _honey;
     private readonly Node3D[] _orbit = new Node3D[4];
-    private readonly MeshInstance3D[] _effects = new MeshInstance3D[64];
-    private readonly float[] _effectTime = new float[64];
-    private int _effectCursor;
+    private CombatFeedbackVisuals _feedback;
     private double _accumulator, _hudClock;
     private int _frames, _lastWave = -1, _lastCoins = -1, _lastSpent = -1, _heroIndex = 3;
     private uint _seed = 1030;
@@ -49,6 +47,9 @@ public partial class GameHost : Node3D
             BuildArena();
             var enemyHealthLayer = new CanvasLayer { Name="EnemyHealthLayer", Layer=0 };
             AddChild(enemyHealthLayer);
+            _feedback = new CombatFeedbackVisuals { Name="CombatFeedback" };
+            enemyHealthLayer.AddChild(_feedback);
+            _feedback.Initialize(_sim.Capacity,_camera,this);
             _enemyHealth = new EnemyHealthVisuals(_sim.Capacity) { Name="EnemyHealthBars" };
             enemyHealthLayer.AddChild(_enemyHealth);
             InitializePersistence(catalogHash);
@@ -100,7 +101,6 @@ public partial class GameHost : Node3D
         BuildCandyScenery();
         _honey = AssetVisuals.Disc(new Color(1,.65f,.03f,.25f)); AddChild(_honey); _honey.Visible = false;
         for (int i=0; i<4; i++) { _orbit[i] = _assets.Create("candy_pickup"); _orbit[i].Scale = Vector3.One*.5f; AddChild(_orbit[i]); _orbit[i].Visible = false; }
-        for (int i=0; i<_effects.Length; i++) { _effects[i] = AssetVisuals.Box(Vector3.One,Vector3.Zero,new Color("fff5bd")); AddChild(_effects[i]); _effects[i].Visible = false; }
     }
 
 
@@ -148,6 +148,7 @@ public partial class GameHost : Node3D
         if (_sim == null) return;
         _frames++;
         double elapsed = Math.Min(delta,.25);
+        _feedback.BeginFrame(_sim.RunToken,_sim.Wave,_sim.Paused,_sim.Phase==RunPhase.Combat);
         if (_sim.Phase == RunPhase.Combat && !_sim.Paused)
         {
             _accumulator += elapsed;
@@ -172,7 +173,10 @@ public partial class GameHost : Node3D
             if (steps == 8) _accumulator = 0;
         }
         else { _accumulator = 0; _sim.Step(); ConsumeEvents(); }
-        RenderEntities((float)elapsed); UpdateEffects(_sim.Paused ? 0 : (float)elapsed);
+        RenderEntities((float)elapsed);
+        _feedback.Visible=_sim.Phase==RunPhase.Combat;
+        _feedback.Advance((float)elapsed,_sim.Paused || _sim.Phase!=RunPhase.Combat,
+            _sim.TryGetEntity(_sim.PlayerId,out var feedbackPlayer)?feedbackPlayer:null);
         _hudClock += elapsed;
         if (_hudClock >= .1 || _lastPhase != _sim.Phase || _lastPaused != _sim.Paused || _lastWave != _sim.Wave || _lastCoins != _sim.Coins || _lastSpent != _sim.Spent || _lastPicked != _sim.CardPicked) { RefreshUi(); _hudClock = 0; }
         if (_smoke && _frames == 120)
@@ -206,17 +210,18 @@ public partial class GameHost : Node3D
     {
         _cameraBound=false;
         _enemyHealth?.Clear();
+        _feedback?.Reset();
         for(int i=0;i<_visuals.Length;i++) { _presentations[i]?.Dispose(); _visuals[i]?.QueueFree(); _visuals[i]=null; _presentations[i]=null; _pendingAttacks[i]=null; }
-        for(int i=0;i<_effects.Length;i++) { _effectTime[i]=0; if(_effects[i]!=null) _effects[i].Visible=false; }
         if(_honey!=null) _honey.Visible=false; foreach(var orbit in _orbit) if(orbit!=null) orbit.Visible=false;
     }
     private void RenderEntities(float delta)
     {
         for(int slot=0;slot<_visuals.Length;slot++)
         {
-            if(!_sim.TryGetEntityAtSlot(slot,out var view)) { _presentations[slot]?.Dispose(); _visuals[slot]?.QueueFree(); _visuals[slot]=null; _presentations[slot]=null; _pendingAttacks[slot]=null; continue; }
+            if(!_sim.TryGetEntityAtSlot(slot,out var view)) { _feedback.Unbind(slot); _presentations[slot]?.Dispose(); _visuals[slot]?.QueueFree(); _visuals[slot]=null; _presentations[slot]=null; _pendingAttacks[slot]=null; continue; }
             if(_visuals[slot]==null || _ids[slot]!=view.Id)
             {
+                _feedback.Unbind(slot);
                 _presentations[slot]?.Dispose();
                 _visuals[slot]?.QueueFree();
                 // A reused slot may change kind (actor -> pickup). Always discard the old
@@ -225,12 +230,14 @@ public partial class GameHost : Node3D
                 if(_pendingAttacks[slot]?.Source!=view.Id) _pendingAttacks[slot]=null;
                 _visuals[slot]=_assets.Create(view.Kind==EntityKind.Pickup?"candy_pickup":view.VisualId);
                 _ids[slot]=view.Id; AddChild(_visuals[slot]);
+                _feedback.Bind(view,_visuals[slot]);
                 if(view.Kind!=EntityKind.Pickup)
                 {
                     _visuals[slot].Scale=Vector3.One*(view.Kind==EntityKind.Player?1.35f:1.15f);
                     _presentations[slot]=new CharacterPresentation(_visuals[slot],view,_sim.Tick,_sim.RunToken,_sim.Wave);
                 }
             }
+            _feedback.Bind(view,_visuals[slot]);
             var node=_visuals[slot];
             var presentation=_presentations[slot];
             if(presentation!=null)
@@ -281,22 +288,14 @@ public partial class GameHost : Node3D
     }
     private void ConsumeEvents()
     {
+        _feedback.SetState(_sim.RunToken,_sim.Wave,_sim.Paused,_sim.Phase==RunPhase.Combat);
         for(int i=0;i<_sim.EventCount;i++)
         {
             var e=_sim.GetEvent(i);
             if(e.RunToken!=_sim.RunToken || e.Wave!=_sim.Wave) continue;
             QueuePresentationEvent(e);
-            if(e.Kind!=EventKind.Ray && e.Kind!=EventKind.Melee && e.Kind!=EventKind.Impact && e.Kind!=EventKind.Blast && !(e.Kind==EventKind.Damage&&e.Target==_sim.PlayerId)) continue;
-            int slot=_effectCursor++%_effects.Length;
-            var mesh=_effects[slot]; var a=ToGodot(e.From,.55f); var b=ToGodot(e.To,.55f); float length=a.DistanceTo(b);
-            mesh.Position=(a+b)*.5f; mesh.Scale=new Vector3(.07f,.07f,Math.Max(.12f,length));
-            if(length>.001f) mesh.LookAt(b);
-            mesh.Visible=true; _effectTime[slot]=.16f;
+            _feedback.Consume(e,i,_sim.Tick,_sim.PlayerId);
         }
-    }
-    private void UpdateEffects(float delta)
-    {
-        for(int i=0;i<_effects.Length;i++) if(_effectTime[i]>0) { _effectTime[i]-=delta; if(_effectTime[i]<=0) _effects[i].Visible=false; }
     }
     private void InitializeUi()
     {

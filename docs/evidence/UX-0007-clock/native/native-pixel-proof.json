@@ -1,0 +1,44 @@
+{
+  "pixel_cases": [
+    {
+      "kind": "Melee",
+      "variant": "old",
+      "first_draw_changed_bbox": null,
+      "width": 1180,
+      "height": 663
+    },
+    {
+      "kind": "Melee",
+      "variant": "fixed",
+      "first_draw_changed_bbox": [
+        615,
+        239,
+        666,
+        248
+      ],
+      "width": 1180,
+      "height": 663
+    },
+    {
+      "kind": "Ray",
+      "variant": "old",
+      "first_draw_changed_bbox": null,
+      "width": 1180,
+      "height": 663
+    },
+    {
+      "kind": "Ray",
+      "variant": "fixed",
+      "first_draw_changed_bbox": [
+        455,
+        286,
+        644,
+        436
+      ],
+      "width": 1180,
+      "height": 663
+    }
+  ],
+  "authority_sha256": "2776a9ab23e44edced9240b0f52986b82063f8874d82904a541b436552e6c9c6",
+  "note": "Controlled replay of genuine Core events, no Core steps during capture; original tint alpha0 limitation not tested away."
+}

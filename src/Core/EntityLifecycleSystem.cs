@@ -44,7 +44,7 @@ namespace Hmi.Core
     }
     internal static class DamageResolutionSystem
     {
-        internal static void Apply(GameSimulation g, int target, float amount, EntityId source)
+        internal static void Apply(GameSimulation g, int target, float amount, EntityId source, FeedbackMechanism mechanism = FeedbackMechanism.Unknown)
         {
             var w = g.World;
             if (g.Phase != RunPhase.Combat || !w.Has(target, Components.Enemy | Components.Health))
@@ -52,7 +52,7 @@ namespace Hmi.Core
             amount *= 1 + (g.PowerTime > 0 ? .25f : 0);
             w.Health[target].Current -= amount;
             g.Emit(EventKind.Damage, source, w.Id(target), w.Alive(source)
-                ? w.Transform[source.Index].Position : w.Transform[target].Position, w.Transform[target].Position, amount);
+                ? w.Transform[source.Index].Position : w.Transform[target].Position, w.Transform[target].Position, amount, mechanism);
             if (w.Health[target].Current <= 0)
             {
                 // Mark before awarding. Later damage in this tick cannot pay for the same life twice.

@@ -1,0 +1,32 @@
+{
+  "checks": 497,
+  "native": true,
+  "cases": [
+    {
+      "kind": "Melee",
+      "delta": 0.25,
+      "birthActive": 1,
+      "nextActive": 0,
+      "fromX": 2,
+      "fromY": 0,
+      "toX": 0.5400435,
+      "toY": -1.118619,
+      "coreTick": 452,
+      "coreAdvancedDuringRender": false,
+      "cameraSize": 16.8
+    },
+    {
+      "kind": "Ray",
+      "delta": 0.25,
+      "birthActive": 1,
+      "nextActive": 0,
+      "fromX": 2,
+      "fromY": 0,
+      "toX": 0.9752897,
+      "toY": 6.7815433,
+      "coreTick": 452,
+      "coreAdvancedDuringRender": false,
+      "cameraSize": 16.8
+    }
+  ]
+}

@@ -331,3 +331,9 @@ One presentation rectangle changes; full persistent text/font and authoritative 
 - Added public Android Food Preview preset, code6, explicit main/adaptive resources and source/cache packaging exclusions. No credentials. Existing C#/Core/Persistence/model bytes unchanged from UX-0003.
 - Python assets, actual Texture2D probe, build, Linux standalone smoke and Android offline package structure/signature checks pass. Actual No icon ERROR disappeared; separate EditorSettings shutdown ERROR after export DONE persists and is disclosed. No unlimited retry, network exception or diagnostic filter.
 - Source candidate application inputs are reconciled with final docs/evidence additions; final package image review and immutable manifests retained. No Android execution claim, no new remote push, no overwrite of old delivered APK identity.
+
+## 2026-11-01 — OBS-0001 isolated read-only combat observation candidate
+
+- Added ADR-0011 and a separate 512-entry observation channel; explicit mechanism tags in legacy events; stamped actual Movement honey/knock samples. No new gameplay, no audio, no authority callback.
+- Preserved checkpoint/catalog/rules contracts. Initial 5850-tick authority and legacy-event traces exactly match published UX0004; five old DTO JSON round trips match. Baseline full suite 624665, initial candidate 624703, own candidate 624713, then independent and final integrated candidate 624734 (69 new assertions); Store112/Session144 and host recompilation passed. Independent exact-Core snapshot passed and its 21 added tests were integrated and re-run.
+- Kept first controlled-test setup failure and trace-project warning; neither was fixed by changing rules or expected baseline hashes. Implementation remains isolated, not merged/published.

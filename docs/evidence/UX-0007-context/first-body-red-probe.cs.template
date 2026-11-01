@@ -1,0 +1,84 @@
+using Godot;
+using Hmi.Core;
+using Hmi.GodotAdapter;
+using System;
+using System.Collections.Generic;
+using System.Text.Json;
+using System.Threading.Tasks;
+public partial class CombatSkillBodiesProbe : Node
+{
+ int checks; Task task; bool done; readonly List<string> failures=new();
+ void Check(bool ok,string reason){checks++;if(!ok){failures.Add(reason);GD.Print("SKILL_ASSERT_FAIL "+reason);}}
+ static readonly EntityId Player=new(0,1),Enemy=new(1,1);
+ static GameEvent E(EventKind kind,FeedbackMechanism mechanism,int tick=1,int run=1)=>new(kind,Player,Enemy,new Vec2(0,0),new Vec2(2,0),2,tick,run,1,mechanism);
+ public override void _Ready(){task=Run();}
+ public override void _Process(double delta)
+ {
+  if(done||task==null||!task.IsCompleted)return;done=true;
+  if(task.IsFaulted){GD.PushError(task.Exception.ToString());GetTree().Quit(1);return;}
+  if(failures.Count>0){GD.PushError(string.Join("; ",failures));GetTree().Quit(1);return;}
+  GD.Print($"COMBAT_SKILL_BODIES_PROBE PASS {checks}");GetTree().Quit();
+ }
+ async Task Run()
+ {
+  var world=new Node3D();AddChild(world);var camera=new Camera3D();world.AddChild(camera);
+  var f=new CombatFeedbackVisuals();AddChild(f);f.Initialize(512,camera,world);f.BeginFrame(1,1,false,true);
+  Check(f.BodyNodeCount==96&&world.GetChildCount()==97,"96 preallocated built-in body nodes plus existing camera");
+  var a=world.GetNode<MeshInstance3D>("SkillBodyA_00");var b=world.GetNode<MultiMeshInstance3D>("SkillCrystals_00");
+  var mat=(StandardMaterial3D)a.MaterialOverride;var mult=b.Multimesh;var materialId=mat.GetInstanceId();var multiId=mult.GetInstanceId();
+  Check(mult.InstanceCount==3&&!a.Visible&&!b.Visible,"fixed three crystal instances hidden at init");
+  Check(f.Consume(E(EventKind.Melee,FeedbackMechanism.BasicMelee),0,1,Player)&&f.ActiveBodyCount==1,"tagged real melee kind selects body");
+  Check(a.Visible&&!b.Visible&&mat.CullMode==BaseMaterial3D.CullModeEnum.Back,"melee only main and corrected cull");
+  var arcId=a.Mesh.GetInstanceId();var pose=a.Transform;f.Advance(.08f,false);float alpha=mat.AlbedoColor.A;
+  f.Advance(.2f,true);Check(a.Transform==pose&&mat.AlbedoColor.A==alpha&&f.ActiveBodyCount==1,"pause preserves exact body and alpha");
+  f.Advance(.25f,false);Check(!a.Visible&&!b.Visible&&f.ActiveBodyCount==0,"expiry hides original slot");
+  f.BeginFrame(1,1,false,true);f.Consume(E(EventKind.Ray,FeedbackMechanism.Ricochet,2),0,2,Player);
+  Check(a.Visible&&b.Visible&&mat.CullMode==BaseMaterial3D.CullModeEnum.Disabled&&mat.AlbedoColor.A==1,"same slot melee to ray resets cull alpha visibility");
+  var linkId=a.Mesh.GetInstanceId();var crystalId=mult.Mesh.GetInstanceId();Check(linkId!=arcId,"two shared main meshes");
+  var end=mult.GetInstanceTransform(2);Check(Math.Abs(end.Origin.Z-2)<.00001f,"full target crystal immediately at endpoint");
+  float width=end.Basis.X.Length();f.Advance(.25f,false);f.BeginFrame(1,1,false,true);
+  var longRay=new GameEvent(EventKind.Ray,Player,Enemy,new Vec2(0,0),new Vec2(8,0),2,3,1,1,FeedbackMechanism.Ricochet);f.Consume(longRay,0,3,Player);
+  Check(Math.Abs(mult.GetInstanceTransform(2).Origin.Z-8)<.00001f&&Math.Abs(mult.GetInstanceTransform(2).Basis.X.Length()-width)<.00001f,"length changes placement not crystal width");
+  Check(mat.GetInstanceId()==materialId&&mult.GetInstanceId()==multiId&&a.Mesh.GetInstanceId()==linkId&&mult.Mesh.GetInstanceId()==crystalId,"spawn reuses exact owned resources");
+  f.Reset();f.BeginFrame(1,1,false,true);f.Consume(E(EventKind.Ray,FeedbackMechanism.CompanionShot),0,1,Player);Check(f.ActiveCount==1&&f.ActiveBodyCount==0,"companion honest old cue not upgraded");
+  f.Reset();f.BeginFrame(1,1,false,true);f.Consume(E(EventKind.Ray,FeedbackMechanism.Unknown),0,1,Player);Check(f.ActiveCount==1&&f.ActiveBodyCount==0,"unknown mechanism generic fallback");
+  f.Reset();f.BeginFrame(1,1,false,true);f.Consume(E(EventKind.Melee,FeedbackMechanism.Ricochet),0,1,Player);Check(f.ActiveBodyCount==0,"mismatched kind mechanism does not infer body");
+  f.Reset();f.BeginFrame(2,1,false,true);
+  for(int tick=1;tick<=8;tick++){f.SetState(2,1,false,true);for(int j=0;j<25;j++)f.Consume(E(EventKind.Ray,FeedbackMechanism.Ricochet,tick,2),j,tick,Player);}
+  Check(f.ActiveBodyCount==12&&f.ActiveCount==12&&f.SpawnedThisFrame==12,"eight catchup ticks share existing12 budget, no second pool");
+  for(int frame=9;frame<=11;frame++){f.BeginFrame(2,1,false,true);for(int j=0;j<40;j++)f.Consume(E(EventKind.Melee,FeedbackMechanism.BasicMelee,frame,2),j,frame,Player);}
+  Check(f.ActiveBodyCount==48&&f.ActiveCount==48&&f.BodyNodeCount==96,"48 total slot saturation and96 immutable nodes");
+  var hurt=new GameEvent(EventKind.Damage,Enemy,Player,new Vec2(1,0),new Vec2(0,0),7,12,2,1,FeedbackMechanism.EnemyContact);
+  f.Consume(hurt,0,12,Player);Check(f.PlayerCueActive&&f.ActiveBodyCount==48,"player hurt independent priority at body saturation");
+  f.Consume(new GameEvent(EventKind.Death,Player,Enemy,new Vec2(0,0),new Vec2(2,0),1,12,2,1),1,12,Player);
+  Check(f.ActiveCount==48&&f.ActiveBodyCount==47,"death replaces same body slot and hides body, no49th effect");
+  Check(world.GetChildCount()==97&&mat.GetInstanceId()==materialId,"dense stream allocated no nodes or material replacement");
+  f.BeginFrame(3,1,false,true);Check(f.ActiveBodyCount==0&&!a.Visible&&!b.Visible,"new scope resets bodies");
+  // Same real Core steps on two independent worlds; only first stream is observed by cosmetics.
+  var content=JsonSerializer.Deserialize<GameContent>(FileAccess.GetFileAsString("res://content/gameplay.json"),new JsonSerializerOptions{PropertyNameCaseInsensitive=true});
+  var sim=new GameSimulation(content,new SimulationLimits());var control=new GameSimulation(content,new SimulationLimits());
+  sim.StartRun("crit",1030);control.StartRun("crit",1030);int melee=0,ray=0;
+  for(int step=0;step<900;step++)
+  {
+   sim.Step();control.Step();f.BeginFrame(sim.RunToken,sim.Wave,false,sim.Phase==RunPhase.Combat);
+   Check(sim.Tick==control.Tick&&sim.EventCount==control.EventCount&&sim.Coins==control.Coins&&sim.Phase==control.Phase,"authority state unchanged by adapter");
+   for(int j=0;j<sim.EventCount;j++)
+   {
+    var e=sim.GetEvent(j);var c=control.GetEvent(j);Check(e.Kind==c.Kind&&e.Source==c.Source&&e.Target==c.Target&&e.Value==c.Value&&e.From.Equals(c.From)&&e.To.Equals(c.To),"real event trace unchanged");
+    f.Consume(e,j,sim.Tick,sim.PlayerId);
+    if(e.Kind==EventKind.Melee&&e.Mechanism==FeedbackMechanism.BasicMelee)melee++;
+    if(e.Kind==EventKind.Ray&&e.Mechanism==FeedbackMechanism.Ricochet)ray++;
+   }
+   f.Advance(1f/60,false);
+  }
+  Check(melee>0&&ray>0,"real unmodified Core produced both tagged attack mechanisms");GD.Print($"SKILL_REAL_EVENTS melee={melee} ricochet={ray}");
+  f.Reset();f.BeginFrame(9,1,false,true);f.Consume(E(EventKind.Ray,FeedbackMechanism.Ricochet,1,9),0,1,Player);
+  // World first: feedback remains alive and must tolerate destroyed native body nodes.
+  world.QueueFree();await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);f.Advance(.1f,false);f.Reset();f.Reset();f.QueueFree();await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);
+  Check(!GodotObject.IsInstanceValid(world),"world-first teardown completes");
+  world=new Node3D();AddChild(world);camera=new Camera3D();world.AddChild(camera);f=new CombatFeedbackVisuals();AddChild(f);f.Initialize(512,camera,world);f.BeginFrame(1,1,false,true);f.Consume(E(EventKind.Melee,FeedbackMechanism.BasicMelee),0,1,Player);
+  // Feedback first: active body nodes queued free; world survives unchanged.
+  f.QueueFree();await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);
+  Check(world.GetChildCount()==1,"feedback-first teardown frees96 owned nodes, preserves camera");world.QueueFree();await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);
+ }
+}

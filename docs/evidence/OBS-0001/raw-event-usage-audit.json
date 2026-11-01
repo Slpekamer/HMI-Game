@@ -1,0 +1,5 @@
+{
+  "searched": "authored src/**/*.cs, excluding bin/obj",
+  "matches": [],
+  "interpretation": "No raw GameEvent transport found; does not certify arbitrary external precompiled consumers."
+}

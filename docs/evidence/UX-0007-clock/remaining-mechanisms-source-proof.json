@@ -1,0 +1,39 @@
+{
+  "commit": "e1b4cdb3c9fae052550e208ba7b955de81beef06",
+  "library_file_id": "libfile_ee0021b37df481918d80c480d8983547",
+  "library_version": 1,
+  "method": "read supplied local source archive; raw Git commit SHA and six critical source byte comparisons",
+  "files": [
+    {
+      "path": "src/Core/CombatObservation.cs",
+      "sha256": "b784a4a19fc0c3a2f1f0ed81af2e03233bc3a4a23bd2f9a7c73cc43152819934",
+      "matches_archive": true
+    },
+    {
+      "path": "src/Core/GameSimulation.cs",
+      "sha256": "3eea7cae8e28e8cbc55d2f993a0b40fb09c63a337faf33b444dc1bd6cd4338a1",
+      "matches_archive": true
+    },
+    {
+      "path": "src/Core/Contracts.cs",
+      "sha256": "595279f4c3e04abc4e712dda4662db1dbae9d285d64c65d85a0bf11624545cc6",
+      "matches_archive": true
+    },
+    {
+      "path": "src/Core/CombatSystems.cs",
+      "sha256": "067e7a56e257ccedd04d128357954b0f48080afa2fef1f78182bfc5bf12846ca",
+      "matches_archive": true
+    },
+    {
+      "path": "src/Core/MovementSystems.cs",
+      "sha256": "e6bb9b2cc1bab9c2032372827bbac8e15f135e5b9324d1c3ad3fd130b6bc5093",
+      "matches_archive": true
+    },
+    {
+      "path": "src/Core/EntityLifecycleSystem.cs",
+      "sha256": "263aa9b2ac2c39d2df4db24a9f9894a84696f67422fa7166accb83f264ce7d87",
+      "matches_archive": true
+    }
+  ],
+  "contract_sha256": "945b2acfa9e37821e74ad0d46687b6a792875217848b1990cbe92e6aace7375d"
+}

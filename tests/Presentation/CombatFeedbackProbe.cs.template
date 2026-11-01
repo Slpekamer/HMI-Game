@@ -1,0 +1,70 @@
+using Godot;
+using Hmi.Core;
+using Hmi.GodotAdapter;
+using System;
+using System.Collections.Generic;
+public partial class CombatFeedbackProbe : Node
+{
+ int checks; readonly List<string> failures=new();
+ void Check(bool ok,string message){checks++;if(!ok){failures.Add(message);GD.Print("FEEDBACK_ASSERT_FAIL "+message);}}
+ static EntityId Player=new(0,1);
+ static EntityView View(EntityId id,EntityKind kind=EntityKind.Enemy)=>new(id,kind,new Vec2(0,0),new Vec2(0,-1),10,10,"probe");
+ static GameEvent E(EventKind kind,EntityId target,long tick=1,int run=1,int wave=1,float value=2)=>new(kind,Player,target,new Vec2(0,0),new Vec2(1,1),value,tick,run,wave);
+ public override async void _Ready()
+ {
+  try {
+   var world=new Node3D();AddChild(world);var camera=new Camera3D{Position=new Vector3(0,6,10),Current=true};world.AddChild(camera);camera.LookAt(Vector3.Zero);
+   var layer=new CanvasLayer();AddChild(layer);var f=new CombatFeedbackVisuals();layer.AddChild(f);f.Initialize(512,camera);f.BeginFrame(1,1,false,true);
+   using var sharedMesh=new BoxMesh();using var sharedMaterial=new StandardMaterial3D{AlbedoColor=Colors.Blue};using var priorOverlay=new StandardMaterial3D{AlbedoColor=new Color(.1f,.2f,.3f,.2f)};
+   var a=new MeshInstance3D{Mesh=sharedMesh,MaterialOverride=sharedMaterial,MaterialOverlay=priorOverlay};var b=new MeshInstance3D{Mesh=sharedMesh,MaterialOverride=sharedMaterial};var p=new MeshInstance3D{Mesh=sharedMesh,MaterialOverride=sharedMaterial};world.AddChild(a);world.AddChild(b);world.AddChild(p);
+   var id=new EntityId(1,1);f.Bind(View(id),a);f.Bind(View(new EntityId(2,1)),b);f.Bind(View(Player,EntityKind.Player),p);
+   var transform=a.Transform;var meshId=sharedMesh.GetInstanceId();var materialId=sharedMaterial.GetInstanceId();
+   Check(f.MouseFilter==Control.MouseFilterEnum.Ignore,"does not steal input");
+   Check(f.GetChildCount()==0,"pure visual controller creates no audio child/voice");
+   Check(f.Consume(E(EventKind.Damage,id),0,1,Player),"first actual Damage accepted");
+   f.Advance(.05f,false);Check(a.MaterialOverlay!=priorOverlay,"hit applies local overlay");
+   Check(b.MaterialOverlay==null&&sharedMaterial.AlbedoColor==Colors.Blue,"shared mesh/material peer untouched");
+   Check(a.Transform==transform&&a.Mesh.GetInstanceId()==meshId&&a.MaterialOverride.GetInstanceId()==materialId,"feedback cannot displace authority anchor or replace base resources");
+   int active=f.ActiveCount;Check(!f.Consume(E(EventKind.Damage,id),0,1,Player)&&f.ActiveCount==active,"duplicate tick/index rejected");
+   Check(f.Consume(E(EventKind.Damage,id),1,1,Player)&&f.CoalescedHits>0&&f.ActiveCount==active,"distinct same tick damage coalesces visuals not event identity");
+   var tint=a.MaterialOverlay;for(int i=0;i<20;i++)f.Advance(.1f,true);Check(f.ActiveCount==active&&a.MaterialOverlay==tint,"pause preserves local visual state");
+   f.BeginFrame(1,1,true,true);Check(!f.Consume(E(EventKind.Damage,id,2),0,2,Player),"paused consume rejected");f.BeginFrame(1,1,false,true);
+   f.Advance(.25f,false);Check(a.MaterialOverlay==priorOverlay&&f.ActiveCount==0,"expiry restores exact prior overlay");
+   Check(!f.Consume(E(EventKind.Damage,id,10),0,9,Player),"future event rejected");
+   Check(f.Consume(E(EventKind.Damage,id,2),0,9,Player),"older unconsumed catchup tick accepted");
+   Check(f.Consume(E(EventKind.Damage,id,3),0,9,Player),"event index resets on next tick");
+   Check(!f.Consume(E(EventKind.Damage,id,2),1,9,Player),"out of order tick rejected");
+   Check(!f.Consume(E(EventKind.Damage,id,4,run:9),0,9,Player),"wrong run rejected");
+   Check(!f.Consume(E(EventKind.Damage,id,4,wave:9),0,9,Player),"wrong wave rejected");
+   Check(!f.Consume(E(EventKind.Damage,id,4,value:float.NaN),0,9,Player),"nonfinite value rejected");
+   f.BeginFrame(1,2,false,true);Check(a.MaterialOverlay==priorOverlay&&f.ActiveCount==0,"wave scope clears overlays and pools");
+   f.Bind(View(new EntityId(1,2)),a);active=f.ActiveCount;f.Consume(E(EventKind.Damage,id,1,wave:2),0,1,Player);Check(f.ActiveCount==active&&a.MaterialOverlay==priorOverlay,"old generation damage cannot cue reused actor slot");
+   f.Bind(View(new EntityId(3,1),EntityKind.Companion),b);active=f.ActiveCount;f.Consume(E(EventKind.Damage,new EntityId(3,1),2,wave:2),0,2,Player);Check(f.ActiveCount==active&&b.MaterialOverlay==null,"companion receives no hurt feedback");
+   f.Unbind(1);active=f.ActiveCount;Check(f.Consume(E(EventKind.Death,id,3,wave:2),0,3,Player)&&f.ActiveCount>active,"death accepts already destroyed life independent of current node");
+   f.Reset();f.BeginFrame(2,1,false,true);f.Bind(View(Player,EntityKind.Player),p);
+   for(int frame=0;frame<4;frame++){f.BeginFrame(2,1,false,true);for(int i=0;i<100;i++)f.Consume(E(EventKind.Melee,new EntityId(i+1,1),frame+1,run:2),i,frame+1,Player);Check(f.SpawnedThisFrame<=CombatFeedbackVisuals.SpawnBudget,"per-render spawn budget bounded");Check(f.ActiveCount<=CombatFeedbackVisuals.PoolCapacity,"total pool bounded");}
+   Check(f.DroppedEffects>0&&f.PeakActive<=48,"dense overflow drops cosmetics without queue growth");
+   Check(f.GetChildCount()==0,"dense events do not lazily allocate audio players");
+   Check(f.Consume(E(EventKind.Damage,Player,5,run:2),0,5,Player)&&f.PlayerCueActive,"player hurt survives saturated ordinary pool");
+   f.Advance(.1f,false);Check(p.MaterialOverlay!=null,"player local cue tinted");
+   f.BeginFrame(2,1,false,false);Check(f.ActiveCount==0&&!f.PlayerCueActive&&p.MaterialOverlay==null,"noncombat clears feedback without deferred tail");
+   f.Reset();f.Reset();Check(f.ActiveCount==0&&!f.PlayerCueActive,"reset idempotent");
+   f.BeginFrame(4,1,false,true);
+   for(int tick=1;tick<=8;tick++){f.SetState(4,1,false,true);for(int i=0;i<20;i++)f.Consume(E(EventKind.Melee,id,tick,run:4),i,tick,Player);Check(f.SpawnedThisFrame<=12,"eight catchup steps share one render budget");}
+   Check(f.SpawnedThisFrame==12&&f.ActiveCount==12,"SetState does not replenish saturated budget");
+   f.BeginFrame(4,1,true,true);f.SetState(4,1,false,true);Check(f.Consume(E(EventKind.Melee,id,9,run:4),0,9,Player),"unpause SetState accepts first subsequent authoritative event");
+   f.Reset();f.BeginFrame(4,2,false,true);f.Bind(View(new EntityId(4,1),EntityKind.Pickup),b);Check(!f.Consume(E(EventKind.Damage,new EntityId(4,1),1,run:4,wave:2),0,1,Player),"pickup receives no hurt feedback");
+   var badPosition=new GameEvent(EventKind.Damage,Player,id,new Vec2(float.NaN,0),new Vec2(0,0),2,2,4,2);Check(!f.Consume(badPosition,0,2,Player),"nonfinite event position rejected");
+
+   f.BeginFrame(3,1,false,true);f.Bind(View(id),a);f.Consume(E(EventKind.Damage,id,1,run:3),0,1,Player);f.Unbind(1);Check(a.MaterialOverlay==priorOverlay,"unbind restores owned overlay");
+   f.Bind(View(new EntityId(2,2)),b);b.QueueFree();await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);f.Advance(.02f,false);Check(f.ActiveCount<=48,"freed binding tolerates advance");
+   f.Reset();f.BeginFrame(5,1,false,true);f.Bind(View(id),a);
+   Check(f.Consume(E(EventKind.Damage,new EntityId(1,2),1,run:5),0,1,Player)&&f.ActiveCount==1,"new generation first hit survives catchup before Render Bind");
+   Check(a.MaterialOverlay==priorOverlay,"new generation event never tints previous life actor");
+   f.Reset();f.BeginFrame(6,1,false,true);f.Bind(View(id,EntityKind.Companion),a);
+   Check(f.Consume(E(EventKind.Damage,new EntityId(1,2),1,run:6),0,1,Player)&&f.ActiveCount==1&&a.MaterialOverlay==priorOverlay,"old companion kind does not poison new generation enemy event");
+   f.QueueFree();await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);f.Reset();f.Reset();f.BeginFrame(9,9,false,true);Check(!f.Consume(E(EventKind.Melee,id,1,run:9,wave:9),0,1,Player),"disposed child rejects events and tolerates repeated parent cleanup");world.QueueFree();layer.QueueFree();await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);
+   if(failures.Count>0)throw new Exception(string.Join("; ",failures));GD.Print($"COMBAT_FEEDBACK_PROBE PASS {checks}");GetTree().Quit();
+  }catch(Exception ex){GD.PushError(ex.ToString());GetTree().Quit(1);}
+ }
+}

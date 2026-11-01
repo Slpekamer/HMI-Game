@@ -1,0 +1,22 @@
+[
+  {
+    "path": "src/Adapters/Godot/CombatSkillBodies.cs",
+    "sha256": "6290ec98f9d17a526269391d6a4f29ad01663b823784fa2fa0291cabf1ac2566"
+  },
+  {
+    "path": "src/Adapters/Godot/CombatFeedbackVisuals.cs",
+    "sha256": "7619f04ad7358d8001dff8f2791d86e98927c6d7b6536f7c25cc2d3e4df628e5"
+  },
+  {
+    "path": "src/Adapters/Godot/GameHost.cs",
+    "sha256": "d0bc3a17937ada4acad2849c1086bc11de9ffc2b38e78c65da05a90bdd25f896"
+  },
+  {
+    "path": "tests/Presentation/CombatSkillBodiesProbe.cs.template",
+    "sha256": "aece53b6f4975086e4d58950c12c9cbc1af4a570c76fddad32a72a91803b34ca"
+  },
+  {
+    "path": "scripts/test_combat_skill_bodies.py",
+    "sha256": "df73d63de8c371b420194fa38420af924def06a03f0ed750808ab77fb0ce0b37"
+  }
+]
