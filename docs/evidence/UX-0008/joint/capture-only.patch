@@ -1,0 +1,60 @@
+--- a/tests/Presentation/MobileMotionIntegrationProbe.cs.template
++++ b/tests/Presentation/MobileMotionIntegrationProbe.cs.template
+@@ -7,7 +7,8 @@
+ using System.Threading.Tasks;
+ public partial class MobileMotionIntegrationProbe:Node
+ {
+- const BindingFlags F=BindingFlags.Instance|BindingFlags.NonPublic;GameHost host;GameUi ui;GameSimulation sim;Task task;int checks;
++ const BindingFlags F=BindingFlags.Instance|BindingFlags.NonPublic;GameHost host;GameUi ui;GameSimulation sim;Task task;int checks,captures,supplementalChecks;
++ void Supplement(bool b,string why){supplementalChecks++;if(!b)throw new Exception(why);}
+  void Check(bool b,string why){checks++;if(!b)throw new Exception(why);}
+  T Host<T>(string n)=>(T)typeof(GameHost).GetField(n,F).GetValue(host);
+  T Ui<T>(string n)=>(T)typeof(GameUi).GetField(n,F).GetValue(ui);
+@@ -20,16 +21,32 @@
+  void Release(){foreach(var b in new[]{JoyButton.A,JoyButton.B,JoyButton.Start,JoyButton.DpadRight})Event(b,false);Tick();}
+  void Click(string text){Release();Button(text).GrabFocus();Event(JoyButton.A,true);Tick();}
+  void HoldTouch(){var j=ui.Joystick;Vector2 p=default;bool legal=false;for(float y=j.ActivationRegion.Position.Y+5;y<j.ActivationRegion.End.Y&&!legal;y+=20)for(float x=j.ActivationRegion.Position.X+5;x<j.ActivationRegion.End.X;x+=20){p=j.GetGlobalTransformWithCanvas()*new Vector2(x,y);if(j.CanBeginAtViewport(p)){legal=true;break;}}Check(legal,"legal touch region exists");using(var e=new InputEventScreenTouch{Index=4,Position=p,Pressed=true})GetViewport().PushInput(e,true);using(var e=new InputEventScreenDrag{Index=4,Position=p+new Vector2(50,0)})GetViewport().PushInput(e,true);Check(j.IsCaptured&&j.Direction.X>0,"actual touch injected through viewport captures");}
++ async Task Capture(string label)
++ {
++  string arg=OS.GetCmdlineUserArgs().FirstOrDefault(x=>x.StartsWith("--joint-capture="));if(arg==null)return;
++  string prefix=arg.Substring("--joint-capture=".Length);
++  for(int frame=0;frame<8;frame++)await ToSignal(RenderingServer.Singleton,RenderingServer.SignalName.FramePostDraw);
++  using var image=GetViewport().GetTexture().GetImage();
++  var result=image.SavePng(prefix+"-"+label+".png");if(result!=Error.Ok)throw new Exception("capture failed "+result);
++  captures++;var focused=GetViewport().GuiGetFocusOwner();
++  GD.Print("JOINT_CAPTURE "+label+" window="+GetWindow().Size+" viewport="+GetViewport().GetVisibleRect().Size+" focus="+(focused?.Name.ToString()??"null")+" rect="+(focused?.GetGlobalRect().ToString()??"none"));
++ }
+  public override void _Ready(){task=Run();}
+- public override void _Process(double d){if(task?.IsCompleted!=true)return;SetProcess(false);if(task.IsFaulted){GD.PushError(task.Exception.ToString());GetTree().Quit(1);}else{GD.Print("MOBILE_MOTION_JOINT PASS "+checks);GetTree().Quit();}}
++ public override void _Process(double d){if(task?.IsCompleted!=true)return;SetProcess(false);if(task.IsFaulted){GD.PushError(task.Exception.ToString());GetTree().Quit(1);}else{GD.Print("MOBILE_MOTION_JOINT PASS "+checks);GD.Print("JOINT_CAPTURE_COUNT "+captures);GD.Print("JOINT_SUPPLEMENTAL_PASS "+supplementalChecks);GetTree().Quit();}}
+  async Task Run(){
+   host=new GameHost();AddChild(host);host.SetProcess(false);await Flush();ui=Host<GameUi>("_ui");sim=Host<GameSimulation>("_sim");host.ApplyGamepadDevice(7);Release();
++  host.ConfigureGamepadConfirmCancel(JoyButton.B,JoyButton.A,"东键","南键");Release();Button("玩法说明").GrabFocus();Event(JoyButton.B,true);Tick();await Flush();
++  Supplement(ui.IsPersistenceModalOpen,"remapped B confirm opens instructions");
++  Supplement(Walk(ui).OfType<RichTextLabel>().Any(l=>l.Text.Contains("东键确认、南键返回")),"instructions reflect configured confirm/cancel labels");
++  Supplement(ui.GamepadHint.Contains("东键 确认")&&ui.GamepadHint.Contains("南键 返回"),"Hint agrees with remapped instructions");
++  Release();Event(JoyButton.A,true);Tick();await Flush();Supplement(!ui.IsPersistenceModalOpen,"remapped A cancel closes instructions");
++  host.ConfigureGamepadConfirmCancel(JoyButton.A,JoyButton.B,"下方键","右侧键");Release();
+   Check(!Ui<bool>("_motionUserReduced"),"fresh isolated preference defaults normal");
+   ui._Process(.25);var home=Button("玩法说明");var rect=home.GetGlobalRect();var scale=home.Scale;var color=home.SelfModulate;home.EmitSignal(BaseButton.SignalName.ButtonDown);ui._Process(.03);Check(home.GetGlobalRect()==rect&&home.Scale==scale,"motion press never changes button hitbox");
+   Click("玩法说明");await Flush();Check(ui.IsPersistenceModalOpen,"Joypad opens instructions");var motion=Ui<UiMotionController>("_motion");Check(motion.Suspended&&motion.ActiveCount==0,"modal retires home motion scope");Check(home.SelfModulate==color&&home.GetGlobalRect()==rect,"modal cancellation restores original visual without moving hitbox");
+-  Check(Walk(ui).OfType<RichTextLabel>().Any(l=>l.Text.Contains("控制器左摇杆")),"instructions preserve controller guidance");
++  Check(Walk(ui).OfType<RichTextLabel>().Any(l=>l.Text.Contains("控制器左摇杆")),"instructions preserve controller guidance");await Capture("instructions-focus");
+   Event(JoyButton.A,true);Tick();Check(!Ui<bool>("_motionUserReduced"),"held Home confirm cannot toggle next modal");
+-  Click("减少界面动效：关闭");await Flush();Check(Ui<bool>("_motionUserReduced")&&motion.ReducedMotion,"routed confirm toggles preference");
++  Click("减少界面动效：关闭");await Flush();Check(Ui<bool>("_motionUserReduced")&&motion.ReducedMotion,"routed confirm toggles preference");await Capture("toggle-rebuilt-focus");
+   var toggle=Button("减少界面动效：开启");var oldGeneration=ui.NavigationGeneration;
+   for(int i=0;i<8;i++){Event(JoyButton.A,true);Tick();}Check(Ui<bool>("_motionUserReduced")&&ui.NavigationGeneration==oldGeneration,"held confirm cannot repeatedly rebuild toggle modal");
+   Event(JoyButton.A,true,8);Tick();Check(Ui<bool>("_motionUserReduced"),"second pad cannot toggle via native ui_accept");
+@@ -38,9 +55,9 @@
+   Click("减少界面动效：开启");await Flush();Check(!Ui<bool>("_motionUserReduced"),"release then second confirm deliberately toggles once");
+   // Replay captured old callback after replacement: persistence generation/one-shot must reject.
+   foreach(var callback in oldCallbacks)callback.Call();Check(!Ui<bool>("_motionUserReduced"),"detached old toggle callback cannot act on replacement modal");
+-  Release();Walk(ui).OfType<Button>().First(b=>b.IsVisibleInTree()&&b.Text=="关闭").GrabFocus();Event(JoyButton.A,true);Tick();await Flush();Check(!ui.IsPersistenceModalOpen,"confirm closes instructions");Tick();var focus=GetViewport().GuiGetFocusOwner();Check(focus!=null&&focus.IsVisibleInTree()&&!focus.IsQueuedForDeletion(),"close returns valid visible Home focus");
++  Release();Walk(ui).OfType<Button>().First(b=>b.IsVisibleInTree()&&b.Text=="关闭").GrabFocus();Event(JoyButton.A,true);Tick();await Flush();Check(!ui.IsPersistenceModalOpen,"confirm closes instructions");Tick();var focus=GetViewport().GuiGetFocusOwner();Check(focus!=null&&focus.IsVisibleInTree()&&!focus.IsQueuedForDeletion(),"close returns valid visible Home focus");await Capture("home-return-focus");
+   Event(JoyButton.A,true);Tick();Check(!ui.IsPersistenceModalOpen&&sim.Phase==RunPhase.Selecting,"held close confirm cannot leak into Home");
+-  Click("开始冒险");await Flush();Check(Walk(ui).OfType<HeroSelectionPreview>().Any(),"Home navigation remains functional with motion");var seedEdit=Walk(ui).OfType<SpinBox>().First().GetLineEdit();seedEdit.GrabFocus();for(int i=0;i<8;i++)Tick();Check(GetViewport().GuiGetFocusOwner()==seedEdit,"new-scope and subsequent polling preserve already selected keyboard seed focus");
++  Click("开始冒险");await Flush();Check(Walk(ui).OfType<HeroSelectionPreview>().Any(),"Home navigation remains functional with motion");var seedEdit=Walk(ui).OfType<SpinBox>().First().GetLineEdit();seedEdit.GrabFocus();for(int i=0;i<8;i++)Tick();Check(GetViewport().GuiGetFocusOwner()==seedEdit,"new-scope and subsequent polling preserve already selected keyboard seed focus");await Capture("seed-edit-focus");
+   Click(AssetVisuals.HeroNames[3]);Click("开始");host.SetProcess(false);await Flush();Check(sim.Phase==RunPhase.Combat&&!sim.Paused,"actual session starts after UI motion interactions");
+   Check(motion.ActiveCount==0&&motion.Suspended,"combat scope cancels all menu motion");host.ApplyGamepadDevice(-1);Call("ReadMoveIntent");await Flush();HoldTouch();
+   host._Notification((int)NotificationApplicationFocusOut);ui._Notification((int)NotificationApplicationFocusOut);Check(!ui.Joystick.IsCaptured&&ui.Joystick.Direction==Vector2.Zero,"focus loss clears floating capture");Check(motion.ActiveCount==0,"focus loss never leaves motion animation pending");

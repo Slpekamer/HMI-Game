@@ -69,5 +69,15 @@ python3 scripts/test_opaque_pages.py
 # Historical fixed-camera/letterbox BUG4 study remains preserved, superseded by Expand UI contract.
 python3 scripts/test_responsive_ui.py
 python3 scripts/test_host_responsive.py
+# Input routing and cosmetic UI motion are adapter-only; hardware remains a separate gate.
+dotnet build -m:1 tests/InputRouter/InputRouter.csproj -v minimal
+dotnet run --no-build --project tests/InputRouter/InputRouter.csproj
+python3 scripts/test_floating_input.py
+python3 scripts/test_gamepad_ui.py
+python3 scripts/test_mobile_safe_area.py
+python3 scripts/test_ui_motion.py
+python3 scripts/test_ui_motion_visible.py
+python3 scripts/test_ui_motion_preference.py
+python3 scripts/test_mobile_motion_integration.py
 echo "PASS build / core / import / smoke / host lifecycle; logs $logs"
 echo 'Native visual/input, exports, real devices and Unity are separate gates.'

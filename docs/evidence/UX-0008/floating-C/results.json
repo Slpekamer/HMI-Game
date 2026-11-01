@@ -1,0 +1,11 @@
+{
+  "main_build": "exit0; 0 warnings/errors",
+  "router": "PASS232 exit0",
+  "floating_strict": "blocked import ERROR despite exit0",
+  "floating_separate_behavior": "PASS130 exit0; no ERROR/leak",
+  "safearea_strict": "blocked import ERROR despite exit0",
+  "safearea_separate_behavior": "PASS28 exit0; no ERROR/leak",
+  "main_dll_sha256": "789b51ad9be2e197897b52e7c26f86ff4b484456815d8f9edd4c508fec524abd",
+  "touch_sha256": "16d2ba54f4a75c0e60a571c91dffa3db238570cd9c75f381e27f887fb2a660d7",
+  "outside_Draw_unchanged": true
+}

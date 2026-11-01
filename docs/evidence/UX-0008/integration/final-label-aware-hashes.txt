@@ -1,0 +1,3 @@
+f716e6b4132f12e00dfd651cb07b93d53459a67998c3fe6a17ffff8ef8480645  .godot/mono/temp/bin/Debug/HmiGame.dll
+5a9c7dcf707f6fa806cb759a6c58379d1b9c8ba94eb024681b8093868a062542  src/Adapters/Godot/GameUi.Motion.cs
+38573a7532a67de584db11d6f40ceac11d9bea08455f52d35f5fa9acd459bf81  src/Adapters/Godot/GameUi.Focus.cs

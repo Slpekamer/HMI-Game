@@ -1,0 +1,69 @@
+using Godot;
+using Hmi.GodotAdapter;
+using System;
+using System.Collections.Generic;
+
+public partial class UiMotionProbe : Node
+{
+    int checks;
+    void Check(bool value,string description){checks++;if(!value)throw new Exception(description);}
+    static bool Near(Color a,Color b)=>a.IsEqualApprox(b);
+    public override async void _Ready()
+    {
+        try
+        {
+            var root=new Control();AddChild(root);
+            var button=new Button{Position=new Vector2(20,20),Size=new Vector2(180,60),Text="Stable target"};root.AddChild(button);
+            var visual=new Label{Position=new Vector2(4,4),Size=new Vector2(172,52),Text="Press visual",MouseFilter=Control.MouseFilterEnum.Ignore,FocusMode=Control.FocusModeEnum.None};button.AddChild(visual);visual.PivotOffset=visual.Size/2;
+            var color=new Color(.7f,.8f,.9f,.9f);button.SelfModulate=color;
+            var motion=new UiMotionController();long scope=motion.BeginScope();int pressed=0;button.Pressed+=()=>pressed++;
+            var rectangle=button.GetGlobalRect();var scale=button.Scale;var mouse=button.MouseFilter;var focus=button.FocusMode;
+            foreach(var cue in Enum.GetValues<UiMotionController.Cue>())
+            {
+                Check(motion.Play(button,cue,scope),"Accepted visible cue");
+                Check(button.GetGlobalRect()==rectangle&&button.Scale==scale,"Cue does not move hit rectangle");
+                Check(button.SelfModulate.A>=color.A*.81f,"Content remains legible from first frame");
+                motion.Advance(.05);Check(motion.ActiveCount==1,"Short cue remains in flight");
+                Check(button.Disabled==false&&button.MouseFilter==mouse&&button.FocusMode==focus,"No interaction properties changed");
+                motion.Advance(.25);Check(motion.ActiveCount==0&&Near(button.SelfModulate,color),"Hitch settles exact baseline");
+            }
+            Check(pressed==0,"Motion never emits gameplay button actions");
+            button.Hide();Check(!motion.Play(button,UiMotionController.Cue.CardEnter,scope),"Hidden page target receives no queued motion");button.Show();motion.SetPressed(button,true,scope);motion.Advance(.05);button.Disabled=true;Check(!motion.SetPressed(button,false,scope)&&Near(button.SelfModulate,color),"Disabled button cancels stale press cue without becoming clickable");button.Disabled=false;
+            for(int i=0;i<100;i++){Check(motion.Play(button,UiMotionController.Cue.ValueChanged,scope),"Repeated value trigger accepted");motion.Advance(.01);}
+            Check(motion.ActiveCount==1,"Repeated trigger replaces rather than queues");motion.CancelAll();Check(Near(button.SelfModulate,color),"Repeated pulse does not accumulate tint drift");
+            motion.Play(button,UiMotionController.Cue.PageEnter,scope);button.Scale=new Vector2(1.1f,1.1f);motion.CancelAll();Check(button.Scale==new Vector2(1.1f,1.1f),"Colour channel does not own layout transform");button.Scale=scale;
+            motion.Play(button,UiMotionController.Cue.PageEnter,scope);Check(!motion.SetPressed(button,false,scope),"Unmatched release does not replace page transition");motion.CancelAll();
+            Check(motion.SetPressed(button,true,scope),"Press colour starts");motion.Advance(.2);var held=button.SelfModulate;
+            motion.Advance(.2);Check(Near(button.SelfModulate,held),"Held input does not oscillate or flash");
+            Check(motion.SetPressed(button,false,scope),"Release starts recovery");motion.Advance(.25);Check(Near(button.SelfModulate,color),"Release settles baseline");
+            Check(button.GetGlobalRect()==rectangle&&pressed==0,"Press colour preserves hitbox and command count");
+            Check(!motion.SetDecorativePressed(button,button,true,scope),"Interactive target cannot be squashed");
+            Check(motion.SetDecorativePressed(visual,button,true,scope),"Explicit passive child may squash");motion.Advance(.1);
+            Check(visual.Scale.X>=.969f&&visual.Scale.X<=.971f&&button.GetGlobalRect()==rectangle,"Only passive child scales three percent");
+            motion.SetDecorativePressed(visual,button,false,scope);motion.Advance(.25);Check(visual.Scale==Vector2.One,"Decorative child returns exactly");
+            var interactive=new Button{MouseFilter=Control.MouseFilterEnum.Ignore,FocusMode=Control.FocusModeEnum.None};visual.AddChild(interactive);
+            Check(!motion.SetDecorativePressed(visual,button,true,scope),"Interactive descendant rejected even with mouse ignored");visual.RemoveChild(interactive);interactive.QueueFree();
+            motion.SetDecorativePressed(visual,button,true,scope);motion.Advance(.1);button.Disabled=true;motion.Advance(.01);Check(visual.Scale==Vector2.One&&motion.ActiveCount==0,"Disabling parent cancels held proxy");button.Disabled=false;
+            motion.SetDecorativePressed(visual,button,true,scope);motion.Advance(.05);motion.Play(visual,UiMotionController.Cue.PageEnter,scope);Check(visual.Scale==Vector2.One,"Switching channel restores proxy transform");motion.CancelAll();
+            motion.Play(visual,UiMotionController.Cue.PageEnter,scope);visual.Scale=new Vector2(2,2);motion.SetDecorativePressed(visual,button,true,scope);motion.Advance(.1);Check(visual.Scale.IsEqualApprox(new Vector2(1.94f,1.94f)),"Switching to proxy captures current layout scale, not stale foreign-channel value");motion.CancelAll();Check(visual.Scale==new Vector2(2,2),"Proxy cancel restores new layout baseline");visual.Scale=Vector2.One;
+            motion.SetDecorativePressed(visual,button,true,scope);visual.SelfModulate=new Color(.6f,.7f,.8f,1);motion.Play(visual,UiMotionController.Cue.ValueChanged,scope);motion.CancelAll();Check(Near(visual.SelfModulate,new Color(.6f,.7f,.8f,1)),"Switching to colour captures current independent colour");
+            motion.Play(button,UiMotionController.Cue.CardEnter,scope);long newer=motion.BeginScope();Check(Near(button.SelfModulate,color)&&motion.ActiveCount==0,"Scope change restores synchronously");
+            Check(!motion.Play(button,UiMotionController.Cue.PageEnter,scope),"Old page callback rejected");scope=newer;
+            foreach(string lifecycle in new[]{"focus loss","pause","resize","scene switch","new run","provider cancel"})
+            {motion.Play(button,UiMotionController.Cue.PageEnter,scope);long oldToken=scope;scope=motion.BeginScope();Check(motion.ActiveCount==0&&Near(button.SelfModulate,color),lifecycle+" cancellation baseline");Check(!motion.Play(button,UiMotionController.Cue.PageEnter,oldToken),lifecycle+" rejects old token");}
+            motion.Play(button,UiMotionController.Cue.PageEnter,scope);long beforeSuspend=scope;scope=motion.SetSuspended(true);Check(motion.Suspended&&motion.ActiveCount==0&&Near(button.SelfModulate,color),"Suspend restores immediately and blocks work");Check(!motion.Play(button,UiMotionController.Cue.CardEnter,scope),"Suspended context refuses current token too");Check(motion.SetSuspended(true)==scope,"Repeated suspend is idempotent");scope=motion.SetSuspended(false);Check(!motion.Play(button,UiMotionController.Cue.CardEnter,beforeSuspend),"Pre-pause callback cannot replay on resume");Check(motion.ActiveCount==0&&motion.Play(button,UiMotionController.Cue.CardEnter,scope),"Resume accepts only fresh scope without backlog");motion.CancelAll();
+            motion.Play(button,UiMotionController.Cue.PageEnter,scope);motion.SetReducedMotion(true);Check(motion.ActiveCount==0&&Near(button.SelfModulate,color),"Reduced motion settles current work");
+            Check(!motion.Play(button,UiMotionController.Cue.PageEnter,scope),"Reduced motion avoids new animations");motion.SetReducedMotion(false,true);Check(motion.ReducedMotion,"Injected system preference respected");motion.SetReducedMotion(false,false);
+            motion.Play(button,UiMotionController.Cue.PageEnter,scope);var before=button.SelfModulate;motion.Advance(double.NaN);motion.Advance(-1);motion.Advance(0);Check(Near(before,button.SelfModulate),"Invalid deltas do not advance");motion.CancelAll();
+            var extra=new List<Control>();for(int i=0;i<UiMotionController.Capacity+1;i++){var c=new Control();root.AddChild(c);extra.Add(c);motion.SetPressed(c,true,scope);}
+            Check(motion.ActiveCount==32&&motion.Dropped==1,"Bounded 32 slots and deterministic overflow");motion.CancelAll();
+            motion.Play(button,UiMotionController.Cue.PageEnter,scope);root.RemoveChild(button);motion.Advance(.01);Check(motion.ActiveCount==0&&Near(button.SelfModulate,color),"Detached target restores and releases");root.AddChild(button);
+            motion.Play(button,UiMotionController.Cue.PageEnter,scope);button.QueueFree();await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);motion.Advance(.1);Check(motion.ActiveCount==0,"Freed target does not retain work");
+            motion.Dispose();motion.Dispose();Check(!motion.Play(extra[0],UiMotionController.Cue.PageEnter,scope),"Disposed controller rejects late callback");motion.BeginScope();motion.Advance(.1);motion.CancelAll();
+            Check(pressed==0,"No delayed or duplicated command callbacks exist");
+            root.QueueFree();await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);
+            GD.Print("UI_MOTION_PROBE PASS "+checks+" scoped helper behavior only; no GameUi hook or native visual acceptance");GetTree().Quit();
+        }
+        catch(Exception ex){GD.PushError(ex.ToString());GetTree().Quit(1);}
+    }
+}

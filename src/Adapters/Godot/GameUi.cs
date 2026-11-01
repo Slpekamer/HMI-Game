@@ -58,10 +58,10 @@ internal partial class GameUi:CanvasLayer
   if(logicalSize.X<=0||logicalSize.Y<=0||!float.IsFinite(logicalSize.X)||!float.IsFinite(logicalSize.Y))throw new ArgumentException("Invalid logical viewport");
   var nextSafe=safeRect.Intersection(new Rect2(Vector2.Zero,logicalSize));
   if(_layoutSize==logicalSize&&_safeRect==nextSafe)return;
-  _layoutSize=logicalSize;_safeRect=nextSafe;Joystick.Reset();ApplyResponsiveLayout();
+  _layoutSize=logicalSize;_safeRect=nextSafe;CancelGameplayInput();ApplyResponsiveLayout();MotionContext();
  }
- public override void _Process(double delta)=>_selectionPreview?.Advance(delta,_page!="selection"||_codexOpen||_persistenceOpen||!_applicationActive);
- public override void _Notification(int what){if(what==NotificationApplicationFocusOut)_applicationActive=false;else if(what==NotificationApplicationFocusIn)_applicationActive=true;}
+ public override void _Process(double delta){_selectionPreview?.Advance(delta,_page!="selection"||_codexOpen||_persistenceOpen||!_applicationActive);RefreshInputHint();MotionAdvance(delta);}
+ public override void _Notification(int what){if(what==NotificationApplicationFocusOut){_applicationActive=false;CancelGameplayInput();}else if(what==NotificationApplicationFocusIn){_applicationActive=true;RefreshTouchAvailability();}if(what==NotificationApplicationFocusOut||what==NotificationApplicationFocusIn)MotionContext();}
  private void ReleaseSelectionPreview(){_selectionPreview?.Release();_selectionPreview=null;_selectionStage=null;}
 
  public override void _Ready(){
@@ -74,7 +74,7 @@ internal partial class GameUi:CanvasLayer
  }
  public override void _ExitTree()
  {
-  ReleaseSelectionPreview();_assets.ReleaseCachedReferences();
+  _motion.Dispose();ReleaseSelectionPreview();_assets.ReleaseCachedReferences();
   if(_mainViewport!=null&&GodotObject.IsInstanceValid(_mainViewport))_mainViewport.Disable3D=_previousDisable3D;
  }
  private static T Place<T>(Control parent,T node,float x,float y,float w,float h)where T:Control{parent.AddChild(node);node.Position=new Vector2(x,y);node.Size=new Vector2(w,h);node.SetMeta("layout_base",new Rect2(x,y,w,h));for(Node? owner=parent;owner!=null;owner=owner.GetParent())if(owner is GameUi ui){ui.RequestResponsiveLayout();break;}return node;}
@@ -117,27 +117,22 @@ internal partial class GameUi:CanvasLayer
    // delegates must not reinterpret an old screen's click against a newer run/page.
    if(button!=null&&GodotObject.IsInstanceValid(button)&&button.IsInsideTree()&&!button.IsQueuedForDeletion()&&button.IsVisibleInTree()&&!button.Disabled)action();
   },color);
-  return Place(parent,button,x,y,w,h);
+  Place(parent,button,x,y,w,h);for(Node? owner=parent;owner!=null;owner=owner.GetParent())if(owner is GameUi ui){ui.MotionBind(button);break;}return button;
  }
- private void SetPage(string page){if(_screenScroll!=null)_screenScroll.ScrollVertical=0;ReleaseSelectionPreview();DismissPersistenceModal();if(_codexOpen)CloseCodex();_codexOpen=false;_page=page;GetViewport().Disable3D=page=="home"||page=="selection"||page=="between"||page=="ending";Clear(_screen);Clear(_overlay);_hud.Visible=page=="combat";if(page!="combat")ClearHudPreviews();Joystick.Reset();RequestResponsiveLayout();}
+ private void SetPage(string page){MotionPageChanged();_pauseInputInfo=null;InvalidateNavigation();if(_screenScroll!=null)_screenScroll.ScrollVertical=0;ReleaseSelectionPreview();DismissPersistenceModal();if(_codexOpen)CloseCodex();_codexOpen=false;_page=page;_pauseInputBlocked=false;GetViewport().Disable3D=page=="home"||page=="selection"||page=="between"||page=="ending";Clear(_screen);Clear(_overlay);_hud.Visible=page=="combat";_screenScroll.Visible=page!="combat";if(page!="combat")ClearHudPreviews();CancelGameplayInput();RequestResponsiveLayout();}
  public void ShowHome()
  {
   SetPage("home");_assets.ReleaseCachedReferences();
   Place(_screen,new ColorRect{Color=new Color("f7efe4"),MouseFilter=Control.MouseFilterEnum.Ignore},0,0,1280,720);
-  Text(_screen,"软糖突围",180,135,920,100,64);
-  Text(_screen,"守护糖果世界，迎战发条入侵者",250,245,780,46,26);
+  Text(_screen,"软糖突围",180,135,920,100,64).Name="MotionHomeTitle";
+  Text(_screen,"守护糖果世界，迎战发条入侵者",250,245,780,46,26).Name="MotionHomeSubtitle";
   Btn(_screen,"开始冒险",ShowSelection,440,335,400,66,CandyTheme.Coral).Name="HomeStart";
   var resume=Btn(_screen,_resumeState.CanContinue?"继续最近安全点":"查看存档状态",ShowResumeDialog,440,418,400,58,CandyTheme.Purple);resume.Name="HomeContinue";
   resume.Disabled=!(_resumeState.CanContinue||_resumeState.CanRetry||_resumeState.ErrorText.Length>0||_resumeState.SaveStatus.Length>0);
   Btn(_screen,"玩法说明",ShowInstructions,440,493,400,58).Name="HomeInstructions";
-  Text(_screen,"移动生存 · 自动攻击 · 波末选择成长",250,610,780,34,21);
+  Text(_screen,"移动生存 · 自动攻击 · 波末选择成长",250,610,780,34,21);MotionPageReady();
  }
- private void ShowInstructions()
- {
-  BeginPersistenceModal("玩法说明","使用 WASD、方向键或左侧摇杆移动，角色会自动攻击。\n每波结束可免费选择一张卡，再用击杀金币购买道具。\n暂停可查看构筑；没有闪避操作。\n继续冒险会回到最近已保存的波次起点，本波中途进度不会保留。",true);
-  PersistenceAction("关闭",null,460,470,360,true);
-  (_overlay.GetChildren().OfType<Button>().FirstOrDefault())?.GrabFocus();
- }
+ private void ShowInstructions()=>ShowMotionInstructions();
  public void ShowSelection()
  {
   SetPage("selection");_assets.ReleaseCachedReferences();_heroButtons.Clear();_selectedBadges.Clear();
@@ -176,6 +171,7 @@ internal partial class GameUi:CanvasLayer
    _selectionPreview=Place(_selectionStage,new HeroSelectionPreview{Name="SelectionPreview"},0,0,430,470);
    _selectionPreview.Initialize(_assets,AssetVisuals.HeroIds[index]);_selectionPreview.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
   }
+  MotionSelectionChanged();
  }
  private void ClearHudPreviews()
  {
@@ -219,7 +215,7 @@ internal partial class GameUi:CanvasLayer
   _health.Text=$"{hero}  {Math.Max(0,(int)Math.Ceiling(health))} / {Math.Max(0,(int)Math.Ceiling(max))}";_healthBar.MaxValue=max;_healthBar.Value=health;_wave.AddThemeFontSizeOverride("font_size",endless&&wave>9999?19:25);_wave.Text=endless?$"无尽 {wave}":$"第 {wave} / 6 波";_timer.Text=$"00:{Math.Max(0,(int)Math.Ceiling(remaining)):00}";_wallet.Text=$"{coins}";_buff.Text=buffs;_status.Text=status;_companionTray.Visible=hasCompanions;
   if(_portraitHero!=hero){_portraitHero=hero;Clear(_portrait);int index=Array.IndexOf(AssetVisuals.HeroNames,hero);if(index>=0)AddHudModelPreview(_portrait,"hero_"+AssetVisuals.HeroIds[index],0,0,84,92,true);}
  }
- public void ShowPause(bool paused){if(_page!="combat"||_codexOpen||_persistenceOpen)return;if(!paused){Clear(_overlay);return;}Clear(_overlay);Shade();Panel(_overlay,390,ExitToSelectionRequested!=null?180:200,500,ExitToSelectionRequested!=null?390:310);Text(_overlay,"休息一下",400,223,480,54,34);Text(_overlay,"战斗时间与冷却均已暂停",400,283,480,34,20);Btn(_overlay,"继续守护",()=>PauseRequested?.Invoke(),460,335,360,60,CandyTheme.Coral);Btn(_overlay,"重开整局 · 清空金币",()=>RestartRequested?.Invoke(),460,415,360,52);
+ public void ShowPause(bool paused){if(_pauseInputBlocked!=paused){_pauseInputBlocked=paused;InvalidateNavigation();CancelGameplayInput();}if(_page!="combat"||_codexOpen||_persistenceOpen)return;if(!paused){_pauseInputInfo=null;Clear(_overlay);return;}Clear(_overlay);Shade();Panel(_overlay,390,ExitToSelectionRequested!=null?180:200,500,ExitToSelectionRequested!=null?390:310);Text(_overlay,"休息一下",400,223,480,54,34);_pauseInputInfo=Text(_overlay,PauseInputCaption,400,283,480,34,20);Btn(_overlay,"继续守护",()=>PauseRequested?.Invoke(),460,335,360,60,CandyTheme.Coral);Btn(_overlay,"重开整局 · 清空金币",()=>RestartRequested?.Invoke(),460,415,360,52);
   if(ExitToSelectionRequested!=null)Btn(_overlay,_resumeState.CanContinue?"退出至选人 · 保留安全点":"退出至选人 · 无安全点",ShowExitConfirmation,460,480,360,52);
  }
  private void Shade()=>Place(_overlay,new ColorRect{Color=new Color(.15f,.09f,.19f,.46f),MouseFilter=Control.MouseFilterEnum.Stop},0,0,1280,720);
@@ -232,10 +228,10 @@ internal partial class GameUi:CanvasLayer
     string icon=offer.Id.StartsWith("base.health")?"heart":offer.Id.StartsWith("base.")?"speed":offer.Id.StartsWith("risk.")?"risk":offer.Id.Split('.')[0];
     if(!offer.Temporary)Illustration(_screen,icon,x+38,232,258,94);
     if(offer.Badge.Length>0)Text(_screen,offer.Badge,x+80,229,174,27,18);
-    Text(_screen,offer.Name,x+18,offer.Temporary?287:325,298,44,27);Wrapped(_screen,offer.Detail,x+28,offer.Temporary?334:372,278,offer.Temporary?190:150,20);
+    Text(_screen,offer.Name,x+18,offer.Temporary?287:325,298,44,27).Name="MotionCardTitle"+i;Wrapped(_screen,offer.Detail,x+28,offer.Temporary?334:372,278,offer.Temporary?190:150,20).Name="MotionCardDetail"+i;
     var button=Btn(_screen,picked?"本波已选择":offer.Enabled?"选择":offer.DisabledText,()=>pickAction?.Invoke(offer.Id),x+28,530,278,56,CandyTheme.Coral);button.Disabled=picked||!offer.Enabled;
    }
-   Frame(_screen,365,625,470,66);Text(_screen,picked?(selectionStatus.Length>0?selectionStatus:"卡片已加入构筑"):"选牌免费，商店另行兑换",375,636,450,42,21);
+   Frame(_screen,365,625,470,66);Text(_screen,picked?(selectionStatus.Length>0?selectionStatus:"卡片已加入构筑"):"选牌免费，商店另行兑换",375,636,450,42,21).Name=picked?"MotionPickedStatus":"CardStatus";
    Btn(_screen,"去商店补给  ›",()=>ShowBetween(offers,coins,earned,spent,picked,items,true,selectionStatus,endless),926,633,280,61,CandyTheme.Purple);
   }else{
    string[] tones={"purple","blue","gold","coral"};
@@ -251,6 +247,7 @@ internal partial class GameUi:CanvasLayer
   }
   Btn(_screen,"构筑图鉴",ShowCodex,32,119,165,49);
   if(endless)Btn(_screen,"结束无尽",()=>finishAction?.Invoke(),1060,119,185,49);
+  MotionPageReady();
  }
  public bool IsShop=>_page=="between"&&_shop;
  public void ShowEnding(bool won,int kills,int coins,int earned,int spent){SetPage("ending");Backdrop(_screen);Panel(_screen,300,130,680,460);Text(_screen,won?"糖果世界，守住了！":"再试一次，守护者",320,168,640,72,36);Text(_screen,won?"六波挑战完成":"被发条军团击败 · 本局结束",320,255,640,44,24);Text(_screen,$"击败敌人 {kills}  ·  余额 {coins}\n累计获得 {earned} − 花费 {spent}",320,325,640,80,23);Btn(_screen,"重新选择 · 开始新局",()=>RestartRequested?.Invoke(),440,458,400,70,CandyTheme.Coral);}
@@ -266,8 +263,8 @@ internal partial class GameUi:CanvasLayer
   Btn(_screen,"重新选择 · 开始新局",()=>restartAction?.Invoke(),440,535,400,58);
  }
  public bool IsCodexOpen=>_codexOpen;
- public void CloseCodex(){if(!_codexOpen)return;_codexOpen=false;UnlockBackground();Clear(_overlay);CodexClosed?.Invoke();}
- public void ShowCodex(){if(_codexOpen||_persistenceOpen)return;_codexOpen=true;GetViewport().GuiGetFocusOwner()?.ReleaseFocus();LockBackground(_screenScroll);LockBackground(_hud);string text=CodexRequested?.Invoke()??"";Clear(_overlay);Shade();Panel(_overlay,180,70,920,580);Text(_overlay,"构筑 · 技能树 · 道具",200,88,880,50,30);var info=Place(_overlay,new RichTextLabel{Text=text,BbcodeEnabled=false,ScrollActive=true,SelectionEnabled=true},220,154,840,410);info.AddThemeColorOverride("default_color",CandyTheme.Ink);info.AddThemeFontSizeOverride("normal_font_size",20);Btn(_overlay,"关闭",CloseCodex,880,581,170,50).GrabFocus();}
+ public void CloseCodex(){if(!_codexOpen)return;_codexOpen=false;InvalidateNavigation();RefreshTouchAvailability();UnlockBackground();Clear(_overlay);CodexClosed?.Invoke();}
+ public void ShowCodex(){if(_codexOpen||_persistenceOpen)return;_codexOpen=true;_pauseInputInfo=null;InvalidateNavigation();CancelGameplayInput();GetViewport().GuiGetFocusOwner()?.ReleaseFocus();LockBackground(_screenScroll);LockBackground(_hud);string text=CodexRequested?.Invoke()??"";Clear(_overlay);Shade();Panel(_overlay,180,70,920,580);Text(_overlay,"构筑 · 技能树 · 道具",200,88,880,50,30);var info=Place(_overlay,new RichTextLabel{Text=text,BbcodeEnabled=false,ScrollActive=true,SelectionEnabled=true},220,154,840,410);info.AddThemeColorOverride("default_color",CandyTheme.Ink);info.AddThemeFontSizeOverride("normal_font_size",20);Btn(_overlay,"关闭",CloseCodex,880,581,170,50).GrabFocus();}
  public bool IsPersistenceModalOpen=>_persistenceOpen;
  public void SetResumeState(ResumeUi state)
  {
@@ -280,10 +277,10 @@ internal partial class GameUi:CanvasLayer
  private void BeginPersistenceModal(string title,string message,bool cancelable,Action? cancel=null)
  {
   // Mark before closing codex so the host can suppress its normal resume callback.
-  _persistenceOpen=true;_persistenceBusy=false;_persistenceCancelable=cancelable;_persistenceCancel=cancel;_persistenceGeneration++;
+  _pauseInputInfo=null;InvalidateNavigation();_persistenceOpen=true;_persistenceBusy=false;_persistenceCancelable=cancelable;_persistenceCancel=cancel;_persistenceGeneration++;
   if(_codexOpen)CloseCodex();
   UnlockBackground();LockBackground(_screenScroll);LockBackground(_hud);
-  GetViewport().GuiGetFocusOwner()?.ReleaseFocus();Joystick.Reset();Clear(_overlay);Shade();
+  GetViewport().GuiGetFocusOwner()?.ReleaseFocus();CancelGameplayInput();Clear(_overlay);Shade();
   Panel(_overlay,230,95,820,530);Text(_overlay,title,260,114,760,56,32);
   // Long platform errors remain fully available through scrolling, never ellipsized.
   var body=Place(_overlay,new RichTextLabel{Name="PersistenceMessage",Text=message,BbcodeEnabled=false,ScrollActive=true,SelectionEnabled=true},275,190,730,220);
@@ -310,8 +307,8 @@ internal partial class GameUi:CanvasLayer
  private void DismissPersistenceModal()
  {
   if(!_persistenceOpen)return;
-  _persistenceOpen=false;_persistenceBusy=false;_persistenceCancelable=false;_persistenceCancel=null;_persistenceGeneration++;
-  UnlockBackground();if(_overlay!=null)Clear(_overlay);
+  InvalidateNavigation();_persistenceOpen=false;_persistenceBusy=false;_persistenceCancelable=false;_persistenceCancel=null;_persistenceGeneration++;
+  RefreshTouchAvailability();UnlockBackground();if(_overlay!=null)Clear(_overlay);
  }
  public bool TryCancelPersistenceModal()
  {

@@ -1,0 +1,6 @@
+test_ui_motion strict exit=1
+test_ui_motion_visible strict exit=1
+test_ui_motion_preference strict exit=1
+test_floating_input strict exit=1
+test_gamepad_ui strict exit=1
+test_mobile_safe_area strict exit=1

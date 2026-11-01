@@ -1,0 +1,45 @@
+using Godot;
+using Hmi.GodotAdapter;
+using System;
+using System.Linq;
+using System.Reflection;
+using System.Threading.Tasks;
+public partial class UiMotionPreferenceProbe:Node
+{
+ int checks;const BindingFlags F=BindingFlags.Instance|BindingFlags.NonPublic;
+ void Check(bool x,string why){checks++;if(!x)throw new Exception(why);}
+ T Field<T>(GameUi ui,string name)=>(T)typeof(GameUi).GetField(name,F).GetValue(ui);
+ Control Overlay(GameUi ui)=>Field<Control>(ui,"_overlay");
+ Button Toggle(GameUi ui)=>Overlay(ui).GetNode<Button>("ReducedMotionToggle");
+ string Message(GameUi ui)=>Overlay(ui).GetNode<RichTextLabel>("PersistenceMessage").Text;
+ void Open(GameUi ui){typeof(GameUi).GetMethod("ShowInstructions",F).Invoke(ui,null);}
+ async Task Flush(){for(int i=0;i<3;i++)await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);}
+ GameUi Make(string path=null){var ui=new GameUi();if(path!=null)typeof(GameUi).GetField("_motionPreferencePath",F).SetValue(ui,path);AddChild(ui);ui.SetProcess(false);return ui;}
+ async Task Drop(GameUi ui){RemoveChild(ui);ui.QueueFree();await Flush();}
+ async Task Shot(string name){var a=OS.GetCmdlineUserArgs().FirstOrDefault(x=>x.StartsWith("--motion-pref-capture="));if(a==null)return;await ToSignal(RenderingServer.Singleton,RenderingServer.SignalName.FramePostDraw);using var img=GetViewport().GetTexture().GetImage();Check(img.SavePng(a.Substring(22)+"-"+name+".png")==Error.Ok,"Actual preference capture");}
+ async Task CorruptOnly()
+ {
+  const string raw="[ui\nreduced_motion=true\nunknown=keep\n";
+  using(var f=FileAccess.Open("user://corrupt-presentation.cfg",FileAccess.ModeFlags.Write))f.StoreString(raw);
+  var ui=Make("user://corrupt-presentation.cfg");Open(ui);Check(Message(ui).Contains("设置读取失败"),"Malformed file produces explicit read failure");Toggle(ui).EmitSignal(BaseButton.SignalName.Pressed);Check(Field<UiMotionController>(ui,"_motion").ReducedMotion,"Corrupt-file save still applies session policy");Check(Message(ui).Contains("保存失败"),"Corrupt file cannot be called persisted");Check(FileAccess.GetFileAsString("user://corrupt-presentation.cfg")==raw,"Malformed file original bytes never overwritten");await Drop(ui);
+  GD.Print("UI_MOTION_CORRUPT_PROBE PASS "+checks+" expected parser ERROR retained; not a clean-log run");GetTree().Quit();
+ }
+ public override async void _Ready(){try{
+  if(OS.GetCmdlineUserArgs().Contains("--corrupt-only")){await CorruptOnly();return;}
+  using(var f=FileAccess.Open("user://checkpoint-sentinel",FileAccess.ModeFlags.Write))f.StoreString("unchanged authority sentinel");
+  var ui=Make();await Flush();var motion=Field<UiMotionController>(ui,"_motion");Check(!motion.ReducedMotion,"Fresh user defaults to restrained motion");Check(motion.ActiveCount>0,"Real Home cue exists before cancellation");Open(ui);await Flush();Check(motion.ActiveCount==0,"Opening preference modal cancels current Home motion");var toggle=Toggle(ui);Check(toggle.Text=="减少界面动效：关闭"&&toggle.FocusMode==Control.FocusModeEnum.All,"Visible textual state and keyboard-focusable toggle");Check(toggle.HasFocus(),"Toggle is initial keyboard focus");Check(!toggle.FocusNext.IsEmpty&&Overlay(ui).GetNode<Button>(toggle.FocusNext).Text=="关闭","Existing modal keyboard navigation reaches close");await Shot("off");var rectangle=toggle.GetGlobalRect();toggle.EmitSignal(BaseButton.SignalName.Pressed);Check(motion.ReducedMotion&&motion.ActiveCount==0,"Real action immediately switches off motion");Check(Message(ui).Contains("已保存在本机"),"Successful save is explicitly stated");Check(Toggle(ui).Text=="减少界面动效：开启","State not conveyed solely by colour");toggle.EmitSignal(BaseButton.SignalName.Pressed);Check(motion.ReducedMotion,"Retired modal callback cannot toggle twice");await Flush();Check(Toggle(ui).GetGlobalRect()==rectangle,"Toggle rebuild does not shift hit rectangle");await Shot("on");
+  using(var cfg=new ConfigFile()){Check(cfg.Load("user://presentation.cfg")==Error.Ok,"Config persisted to separate presentation path");Check(cfg.GetValue("ui","reduced_motion").AsBool(),"Actual bool readback true");Check(cfg.GetSections().Length==1&&cfg.GetSectionKeys("ui").SequenceEqual(new[]{"reduced_motion"}),"Only presentation preference stored");}
+  using(var extra=new ConfigFile()){Check(extra.Load("user://presentation.cfg")==Error.Ok,"Load existing preference for forward-compatibility fixture");extra.SetValue("ui","future_zoom",1.25);extra.SetValue("future_section","unknown_label","keep me");Check(extra.Save("user://presentation.cfg")==Error.Ok,"Save unknown keys fixture");}
+  ui.TryCancelPersistenceModal();ui.ShowHome();await Flush();Check(motion.ActiveCount==0,"Home actually skips motion with stored choice");var old=ToggleAfterOpen(ui);ui.ShowSelection();old.EmitSignal(BaseButton.SignalName.Pressed);Check(motion.ReducedMotion,"Old modal cannot cross page to change preference");await Drop(ui);
+  ui=Make();await Flush();motion=Field<UiMotionController>(ui,"_motion");Check(motion.ReducedMotion&&motion.ActiveCount==0,"Recreated real UI loads reduced preference before first Home cue");Open(ui);Toggle(ui).EmitSignal(BaseButton.SignalName.Pressed);Check(!motion.ReducedMotion&&Message(ui).Contains("已保存在本机"),"Toggle back persists false");using(var kept=new ConfigFile()){Check(kept.Load("user://presentation.cfg")==Error.Ok,"Reload preference after toggle");Check(kept.GetValue("ui","future_zoom").AsDouble()==1.25&&kept.GetValue("future_section","unknown_label").AsString()=="keep me","Unknown keys and sections survive exact-key update");}
+  ui.TryCancelPersistenceModal();ui.ShowHome();Check(motion.ActiveCount==3,"User can restore actual Home motion");await Drop(ui);
+  using(var bad=new ConfigFile()){bad.SetValue("ui","reduced_motion","not a bool");Check(bad.Save("user://invalid-presentation.cfg")==Error.Ok,"Prepare invalid typed fixture");}
+  ui=Make("user://invalid-presentation.cfg");Open(ui);Check(!Field<UiMotionController>(ui,"_motion").ReducedMotion&&Message(ui).Contains("设置内容无效"),"Invalid preference explicitly falls back without false saved claim");await Drop(ui);
+  using(var f=FileAccess.Open("user://blocked-parent",FileAccess.ModeFlags.Write))f.StoreString("parent is a regular file");
+  ui=Make("user://blocked-parent/presentation.cfg");Open(ui);Toggle(ui).EmitSignal(BaseButton.SignalName.Pressed);motion=Field<UiMotionController>(ui,"_motion");Check(motion.ReducedMotion,"Save failure still applies choice for this UI session");Check(Message(ui).Contains("本次生效，保存失败")&&!Message(ui).Contains("已保存在本机"),"Save failure is explicit and never falsely called durable");await Flush();await Shot("save-failed");await Drop(ui);
+  ui=Make("user://blocked-parent/presentation.cfg");Check(!Field<UiMotionController>(ui,"_motion").ReducedMotion,"Failed write is not falsely restored after UI recreation");await Drop(ui);
+  Check(FileAccess.GetFileAsString("user://checkpoint-sentinel")=="unchanged authority sentinel","Separate authority sentinel unchanged");
+  GD.Print("UI_MOTION_PREFERENCE_PROBE PASS "+checks+" actual ConfigFile and UI; native/user input not inferred");GetTree().Quit();
+ }catch(Exception ex){GD.PushError(ex.ToString());GetTree().Quit(1);}}
+ Button ToggleAfterOpen(GameUi ui){Open(ui);return Toggle(ui);}
+}

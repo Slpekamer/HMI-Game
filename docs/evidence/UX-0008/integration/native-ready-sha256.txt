@@ -1,0 +1,5 @@
+f288cb54c708095731f5ec2fd5c4f064b6958a4df4dca85d8c7a0a9cc4673dad  src/Adapters/Godot/GameUi.cs
+38573a7532a67de584db11d6f40ceac11d9bea08455f52d35f5fa9acd459bf81  src/Adapters/Godot/GameUi.Focus.cs
+42ea1900542f1e0e11a1ca626516db1bdf8357a256ae1608cd796e907840e5a4  src/Adapters/Godot/GameUi.Motion.cs
+5a549277f19afb579efa70aa2931c60c8a0a514ea047f475056b24a036cb4756  src/Adapters/Godot/UiMotionController.cs
+c93273b808f587bd3733b83a360d90f4b182c00a7e5b4847759d8bd9b89e9d16  .godot/mono/temp/bin/Debug/HmiGame.dll

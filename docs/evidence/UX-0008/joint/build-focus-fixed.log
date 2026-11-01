@@ -1,0 +1,9 @@
+  Hmi.Core -> /workspace/scratch/80f5bc988ef7/HMI-mobile-motion-joint-probe/src/Core/bin/Debug/netstandard2.1/Hmi.Core.dll
+  Hmi.Persistence -> /workspace/scratch/80f5bc988ef7/HMI-mobile-motion-joint-probe/src/Adapters/Persistence/bin/Debug/net10.0/Hmi.Persistence.dll
+  HmiGame -> /workspace/scratch/80f5bc988ef7/HMI-mobile-motion-joint-probe/.godot/mono/temp/bin/Debug/HmiGame.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:05.68

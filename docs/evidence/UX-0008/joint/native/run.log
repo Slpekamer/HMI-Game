@@ -1,0 +1,13 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+WARNING: Could not set V-Sync mode, as changing V-Sync mode is not supported by the graphics driver.
+     at: set_use_vsync (platform/linuxbsd/x11/gl_manager_x11.cpp:364)
+OpenGL API 4.5 (Core Profile) Mesa 25.0.7-2+deb13u1 - Compatibility - Using Device: Mesa - llvmpipe (LLVM 19.1.7, 256 bits)
+
+HMI_READY reconstruction=2026-10-31 lighting=linear-direct0.36-ambient0.18
+JOINT_CAPTURE instructions-focus window=(1180, 812) viewport=(1280, 880) focus=ReducedMotionToggle rect=(285, 550), (400, 60)
+JOINT_CAPTURE toggle-rebuilt-focus window=(1180, 812) viewport=(1280, 880) focus=ReducedMotionToggle rect=(285, 550), (400, 60)
+JOINT_CAPTURE home-return-focus window=(1180, 812) viewport=(1280, 880) focus=HomeStart rect=(440, 415), (400, 66)
+JOINT_CAPTURE seed-edit-focus window=(1180, 812) viewport=(1280, 880) focus=@SpinBoxLineEdit@304 rect=(65, 714), (192, 50)
+MOBILE_MOTION_JOINT PASS 30
+JOINT_CAPTURE_COUNT 4
+JOINT_SUPPLEMENTAL_PASS 4

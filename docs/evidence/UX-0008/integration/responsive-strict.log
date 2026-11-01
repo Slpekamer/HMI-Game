@@ -1,0 +1,3 @@
+HudSafeView build: exit 0; log /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-responsive-ui-c_5iixud/build.log
+HudSafeView import: exit 0; log /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-responsive-ui-c_5iixud/import.log
+FAIL responsive-ui import; evidence /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-responsive-ui-c_5iixud

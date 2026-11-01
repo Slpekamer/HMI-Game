@@ -1,0 +1,9 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+RESPONSIVE_SIZE requested=(1280, 720) actual=(1280, 720) logical=(1280, 720) safe=(16, 24), (1248, 672)
+RESPONSIVE_SIZE requested=(1560, 720) actual=(1560, 720) logical=(1560, 720) safe=(16, 24), (1528, 672)
+RESPONSIVE_SIZE requested=(1600, 720) actual=(1600, 720) logical=(1600, 720) safe=(16, 24), (1568, 672)
+RESPONSIVE_SIZE requested=(1024, 768) actual=(1024, 768) logical=(1280, 960) safe=(16, 24), (1248, 912)
+RESPONSIVE_SIZE requested=(720, 1280) actual=(720, 1280) logical=(720, 1280) safe=(16, 24), (688, 1232)
+RESPONSIVE_SIZE requested=(540, 1280) actual=(540, 1280) logical=(720, 1706) safe=(16, 24), (688, 1658)
+RESPONSIVE_UI_PROBE PASS checks=893

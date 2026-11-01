@@ -1,0 +1,42 @@
+using Godot;
+using Hmi.GodotAdapter;
+using Hmi.Core;
+using System;
+using System.Reflection;
+using System.Threading.Tasks;
+public partial class MobileSafeAreaProbe:Node
+{
+ GameHost host;Task task;int checks;const BindingFlags F=BindingFlags.Instance|BindingFlags.NonPublic;
+ void Check(bool b,string m){checks++;if(!b)throw new Exception(m);}
+ object Call(string n,params object[] args)=>typeof(GameHost).GetMethod(n,F).Invoke(host,args);
+ T Field<T>(string n)=>(T)typeof(GameHost).GetField(n,F).GetValue(host);
+ async Task Flush(){for(int i=0;i<4;i++)await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);}
+ Vector2 Legal(TouchJoystick j){for(float y=j.ActivationRegion.Position.Y+5;y<j.ActivationRegion.End.Y;y+=20)for(float x=j.ActivationRegion.Position.X+5;x<j.ActivationRegion.End.X;x+=20){var p=j.GetGlobalTransformWithCanvas()*new Vector2(x,y);if(j.CanBeginAtViewport(p))return p;}throw new Exception("no legal point");}
+ void Hold(TouchJoystick j){var p=Legal(j);using(var e=new InputEventScreenTouch{Index=6,Position=p,Pressed=true})GetViewport().PushInput(e,true);using(var e=new InputEventScreenDrag{Index=6,Position=p+new Vector2(45,0)})GetViewport().PushInput(e,true);Check(j.IsCaptured&&j.Direction.X>0,"fresh capture exists");}
+ public override void _Ready(){task=Run();}
+ public override void _Process(double delta){if(task?.IsCompleted!=true)return;SetProcess(false);if(task.IsFaulted){GD.PushError(task.Exception.ToString());GetTree().Quit(1);}else{GD.Print("MOBILE_SAFE_AREA_PROBE PASS "+checks);GetTree().Quit();}}
+ async Task Run(){
+  host=new GameHost();AddChild(host);host.SetProcess(false);await Flush();Call("Start",3,(uint)1030);host.SetProcess(false);await Flush();
+  var sim=Field<GameSimulation>("_sim");var ui=Field<GameUi>("_ui");sim.Enqueue(GameCommand.Pause(true));sim.Step();Call("RefreshUi");ui.ShowPause(false);await Flush();
+  var size=GetViewport().GetVisibleRect().Size;var physical=new Rect2I(0,0,(int)size.X,(int)size.Y);var snapshot=new MobileSafeAreaSnapshot(physical,Transform2D.Identity);int reads=0;
+  host.ConfigureSafeAreaReader(()=>{reads++;return snapshot;},true);
+  var startupJoystick=ui.Joystick;Check(!Field<bool>("_touchGeometryKnown")&&!host.SubmitMovementIntent(Field<Hmi.Adapters.Input.MoveInputRouter>("_moveInputs").Token("touch"),new Hmi.Adapters.Input.MoveIntent(1,0)),"mobile observer starts closed before first OS sample");
+  snapshot=new MobileSafeAreaSnapshot(new Rect2I(100000,100000,500,500),Transform2D.Identity);Call("PollMobileSafeArea",0d,true);Check(!Field<bool>("_touchGeometryKnown")&&!host.SubmitMovementIntent(Field<Hmi.Adapters.Input.MoveInputRouter>("_moveInputs").Token("touch"),new Hmi.Adapters.Input.MoveIntent(1,0)),"first out-of-viewport OS sample cannot open full-screen touch");
+  snapshot=new MobileSafeAreaSnapshot(physical,Transform2D.Identity);Call("PollMobileSafeArea",0d,true);await Flush();int startReads=reads;
+  var j=ui.Joystick;Hold(j);long tick=sim.Tick;int wave=sim.Wave,token=sim.RunToken;var camera=Field<Camera3D>("_camera");var cameraTransform=camera.Transform;var windowSize=GetWindow().Size;
+  Call("PollMobileSafeArea",.1d,false);Check(reads==startReads,"poll frequency bounded");Call("PollMobileSafeArea",.15d,false);Check(reads==startReads+1&&j.IsCaptured,"unchanged OS sample preserves capture");
+  snapshot=new MobileSafeAreaSnapshot(new Rect2I(32,20,(int)size.X-64,(int)size.Y-40),Transform2D.Identity);Call("PollMobileSafeArea",.25d,false);Check(!j.IsCaptured&&j.Direction==Vector2.Zero,"safe area changes without SizeChanged cancel capture");Check(GetWindow().Size==windowSize,"OS injection does not resize viewport");Check(sim.Tick==tick&&sim.RunToken==token&&sim.Wave==wave&&sim.Paused,"safe-area reflow does not advance paused authority");Check(camera.Transform==cameraTransform,"insets do not alter camera framing");await Flush();
+  Hold(j);var router=Field<Hmi.Adapters.Input.MoveInputRouter>("_moveInputs");var keyboardToken=router.Token("keyboard");var padToken=router.Token("gamepad");router.Submit(keyboardToken,new Hmi.Adapters.Input.MoveIntent(1,0));router.Resolve();snapshot=new MobileSafeAreaSnapshot(new Rect2I(),Transform2D.Identity);Call("PollMobileSafeArea",.25d,false);Check(!j.IsCaptured&&j.Direction==Vector2.Zero,"invalid OS sample cancels old capture without replacing layout");Check(!j.CanBeginAtViewport(j.GetGlobalTransformWithCanvas()*j.Center),"unknown geometry rejects fresh touches until valid sample");Check(!host.SubmitMovementIntent(router.Token("touch"),new Hmi.Adapters.Input.MoveIntent(1,0)),"unknown geometry rejects provider intent, not merely its picture");Check(camera.Transform==cameraTransform&&sim.Tick==tick,"invalid snapshot preserves camera and authority");Check(router.Token("keyboard").Generation==keyboardToken.Generation&&router.Token("gamepad").Generation==padToken.Generation&&router.Resolve().X==1,"unknown touch geometry does not invalidate keyboard or pad provider");
+  snapshot=new MobileSafeAreaSnapshot(physical,Transform2D.Identity);Call("PollMobileSafeArea",0d,true);await Flush();Check(!j.IsCaptured,"forced changed safe sample cancels");Hold(j);
+  var oldSafe=ui.Joystick.ActivationRegion;
+  snapshot=new MobileSafeAreaSnapshot(new Rect2I(100000,100000,500,500),Transform2D.Identity);Call("PollMobileSafeArea",.25d,false);
+  Check(!j.IsCaptured&&!j.CanBeginAtViewport(j.GetGlobalTransformWithCanvas()*j.Center),"empty mapped safe intersection rejects touch instead of full viewport fallback");
+  Check(j.ActivationRegion==oldSafe&&camera.Transform==cameraTransform&&sim.Tick==tick,"empty mapped intersection retains prior layout and authority");
+  snapshot=new MobileSafeAreaSnapshot(physical,Transform2D.Identity);Call("PollMobileSafeArea",.25d,false);await Flush();Check(!j.IsCaptured,"valid recovery never revives old capture");Hold(j);
+  // Same mapped logical safe rectangle, different physical-to-viewport mapping.
+  snapshot=new MobileSafeAreaSnapshot(new Rect2I(0,0,physical.Size.X*2,physical.Size.Y*2),new Transform2D(new Vector2(2,0),new Vector2(0,2),Vector2.Zero));Call("PollMobileSafeArea",.25d,false);Check(!j.IsCaptured,"transform change cancels even equal mapped logical rectangle");await Flush();Hold(j);Call("ApplyViewportLayout");Check(j.IsCaptured,"identical explicit layout does not cancel");
+  snapshot=new MobileSafeAreaSnapshot(physical,Transform2D.Identity);host._Notification((int)NotificationApplicationFocusIn);Check(!j.IsCaptured,"focus-in probes new OS mapping immediately");Check(sim.Tick==tick,"focus-in read does not tick authority");
+  host.ConfigureSafeAreaReader(()=>{reads++;return snapshot;},false);int desktopReads=reads;Call("PollMobileSafeArea",.25d,false);Check(reads==desktopReads,"desktop does not poll mobile OS boundary");
+  host.QueueFree();await Flush();int exitReads=reads;Call("PollMobileSafeArea",.25d,true);Check(reads==exitReads,"unloaded observer cannot poll");
+ }
+}

@@ -1,0 +1,3 @@
+Presentation build: exit 0; log /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-ui-motion-txcmlbrm/build.log
+Presentation import: exit 0; log /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-ui-motion-txcmlbrm/import.log
+FAIL presentation import; evidence /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-ui-motion-txcmlbrm

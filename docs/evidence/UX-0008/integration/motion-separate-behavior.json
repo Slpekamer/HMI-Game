@@ -1,0 +1,23 @@
+[
+  {
+    "name": "test_ui_motion",
+    "exit": 0,
+    "errors": false,
+    "strict": "blocked at editor import; not overridden",
+    "project": "/workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-ui-motion-txcmlbrm/project"
+  },
+  {
+    "name": "test_ui_motion_visible",
+    "exit": 0,
+    "errors": false,
+    "strict": "blocked at editor import; not overridden",
+    "project": "/workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-ui-motion-visible-pgpkue_a/project"
+  },
+  {
+    "name": "test_ui_motion_preference",
+    "exit": 0,
+    "errors": false,
+    "strict": "blocked at editor import; not overridden",
+    "project": "/workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-ui-motion-preference-gkkpofdl/project"
+  }
+]

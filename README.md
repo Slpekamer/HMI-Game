@@ -1,3 +1,5 @@
+> **WIP / NOT A RELEASE.** See [WIP_STATUS.md](WIP_STATUS.md) for scoped tests, known editor/teardown failures and untested devices. This independent archive does not replace published `dev`. The release history below is historical context.
+
 # 软糖突围 / HMI-Game
 
 Godot 4.6.3 **.NET** / Compatibility 原型，纯 C# ECS 核心与引擎表现层分离。标准版 Godot 不能编译本项目。

@@ -1,0 +1,6 @@
+{
+  "base": "eda890a2cd78e05323e4e5801b1ce3812c9bc9ea",
+  "before_sha256": "edae3d2d448cab20c3a45d39f509551f78f819bdb6dd6d9033707d04cb1766c3",
+  "after_sha256": "16d2ba54f4a75c0e60a571c91dffa3db238570cd9c75f381e27f887fb2a660d7",
+  "outside_draw_prefix_identical": true
+}

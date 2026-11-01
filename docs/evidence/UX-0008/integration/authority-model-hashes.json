@@ -1,0 +1,212 @@
+[
+  {
+    "path": "content/animated-manifest.json",
+    "baseline": "e1ebb3249be1252d09455bf7debc72116212a869127977ad1490622ce4c4a310",
+    "candidate": "e1ebb3249be1252d09455bf7debc72116212a869127977ad1490622ce4c4a310"
+  },
+  {
+    "path": "content/fonts/glyph-coverage.json",
+    "baseline": "b0ff219315647a7f2ccca8706bbe32cb47e04ead5e8a58b5f992c76bcfb9001a",
+    "candidate": "b0ff219315647a7f2ccca8706bbe32cb47e04ead5e8a58b5f992c76bcfb9001a"
+  },
+  {
+    "path": "content/food-heroes-manifest.json",
+    "baseline": "f5976dd408de1e698e9c49e54dca9f94d84d04c94e4a9f3fd2825b7940cd67b3",
+    "candidate": "f5976dd408de1e698e9c49e54dca9f94d84d04c94e4a9f3fd2825b7940cd67b3"
+  },
+  {
+    "path": "content/gameplay.json",
+    "baseline": "30981d16c5c608f70e750bbaf809eb1e811aef34d71f24258fcac852eba0e2de",
+    "candidate": "30981d16c5c608f70e750bbaf809eb1e811aef34d71f24258fcac852eba0e2de"
+  },
+  {
+    "path": "content/licenses/Godot-THIRD-PARTY.json",
+    "baseline": "cae754a6503506e9242337be345277b1a1a5f537236f42740488ad0a63f90f44",
+    "candidate": "cae754a6503506e9242337be345277b1a1a5f537236f42740488ad0a63f90f44"
+  },
+  {
+    "path": "content/licenses/manifest.json",
+    "baseline": "56678b66b9baa37afdccc6baaba715018d70d88a831d620737ab92bed1726b8a",
+    "candidate": "56678b66b9baa37afdccc6baaba715018d70d88a831d620737ab92bed1726b8a"
+  },
+  {
+    "path": "content/models/candy_pickup.glb",
+    "baseline": "0830507f2d310010f7b4ae31476281f25a3665da0493f4d10d2aadd86f7c9e8d",
+    "candidate": "0830507f2d310010f7b4ae31476281f25a3665da0493f4d10d2aadd86f7c9e8d"
+  },
+  {
+    "path": "content/models/companion_shooter.glb",
+    "baseline": "9a9d7da98bba59643d84d06005e1a38092663b3289f0b359c02cc49f9c84e04f",
+    "candidate": "9a9d7da98bba59643d84d06005e1a38092663b3289f0b359c02cc49f9c84e04f"
+  },
+  {
+    "path": "content/models/companion_support.glb",
+    "baseline": "dccf8ccd12cad96493c614517193072b19df70aecf8a9844ca4b9e76bca411fb",
+    "candidate": "dccf8ccd12cad96493c614517193072b19df70aecf8a9844ca4b9e76bca411fb"
+  },
+  {
+    "path": "content/models/enemy_chaser.glb",
+    "baseline": "15369930f954a47c8472652ff7b052f4096951d2cd902cc14edc7a2af8003244",
+    "candidate": "15369930f954a47c8472652ff7b052f4096951d2cd902cc14edc7a2af8003244"
+  },
+  {
+    "path": "content/models/food-heroes-provenance.json",
+    "baseline": "01b371d70b7b36f0b563c99b04ac23beeb8216afe4270a4378479df6484337cc",
+    "candidate": "01b371d70b7b36f0b563c99b04ac23beeb8216afe4270a4378479df6484337cc"
+  },
+  {
+    "path": "content/models/hero_bounce.glb",
+    "baseline": "2c9180243a92973ff64f80f574349430a4aa9bc5b91a6708529f4dfc0eb62a51",
+    "candidate": "2c9180243a92973ff64f80f574349430a4aa9bc5b91a6708529f4dfc0eb62a51"
+  },
+  {
+    "path": "content/models/hero_crit.glb",
+    "baseline": "38d76d5fe62ecd39c0b4506672c31038f62a797dc493dcbc72ede3f609d916bb",
+    "candidate": "38d76d5fe62ecd39c0b4506672c31038f62a797dc493dcbc72ede3f609d916bb"
+  },
+  {
+    "path": "content/models/hero_honey.glb",
+    "baseline": "21f6e09fcc624e4c8c85a496bd6b63191ed8ffb1b657a5ecdd86afe261721b54",
+    "candidate": "21f6e09fcc624e4c8c85a496bd6b63191ed8ffb1b657a5ecdd86afe261721b54"
+  },
+  {
+    "path": "content/models/hero_orbit.glb",
+    "baseline": "4f33b8e613e761352881ff6246a2c0949303fe2b7c750e73ae846f434ed7369f",
+    "candidate": "4f33b8e613e761352881ff6246a2c0949303fe2b7c750e73ae846f434ed7369f"
+  },
+  {
+    "path": "content/models/hero_summon.glb",
+    "baseline": "e55155cc991c1f7ce7cf0229c765a8f706efd9a7a4be362f44a55c7bbd66a7b9",
+    "candidate": "e55155cc991c1f7ce7cf0229c765a8f706efd9a7a4be362f44a55c7bbd66a7b9"
+  },
+  {
+    "path": "content/models/manifest.json",
+    "baseline": "6920ae7fdb2c0bcb6ef955f1ce1a6817cdc75f4022603adec6df776603c714c2",
+    "candidate": "6920ae7fdb2c0bcb6ef955f1ce1a6817cdc75f4022603adec6df776603c714c2"
+  },
+  {
+    "path": "content/models/wall_block.glb",
+    "baseline": "6b5835ab666dd32618c8dd826c4a6f40d3b6c664b8ff34f67e711aced9d96b2e",
+    "candidate": "6b5835ab666dd32618c8dd826c4a6f40d3b6c664b8ff34f67e711aced9d96b2e"
+  },
+  {
+    "path": "content/ui/launcher/manifest.json",
+    "baseline": "ae0a8949ce1784800008bc4a3e3507c7b7b31bd956b8efeafaf6aa5dc8021156",
+    "candidate": "ae0a8949ce1784800008bc4a3e3507c7b7b31bd956b8efeafaf6aa5dc8021156"
+  },
+  {
+    "path": "content/ui/manifest.json",
+    "baseline": "d9f713b034825c369e207f2e0737c9b19b808b6f39b907c84542ee28cc760408",
+    "candidate": "d9f713b034825c369e207f2e0737c9b19b808b6f39b907c84542ee28cc760408"
+  },
+  {
+    "path": "content/ui/portraits/manifest.json",
+    "baseline": "14e9842cf6aa23033c75498f7f65247669c6b5eed2f428a617f9f4e1574e0bd6",
+    "candidate": "14e9842cf6aa23033c75498f7f65247669c6b5eed2f428a617f9f4e1574e0bd6"
+  },
+  {
+    "path": "content/ui/revision/manifest.json",
+    "baseline": "71a5190895cb463822be468bc46004a3fdd05d27a423135d20e918dd14523687",
+    "candidate": "71a5190895cb463822be468bc46004a3fdd05d27a423135d20e918dd14523687"
+  },
+  {
+    "path": "src/Adapters/Persistence/CheckpointCodec.cs",
+    "baseline": "16e1b39e48ffce4fa12bf9ae065fce648cfd5f98ab810a7284fba1cb07ddff86",
+    "candidate": "16e1b39e48ffce4fa12bf9ae065fce648cfd5f98ab810a7284fba1cb07ddff86"
+  },
+  {
+    "path": "src/Adapters/Persistence/CheckpointSession.cs",
+    "baseline": "e97f036cf83dcc3ff755efb05afb5ff84a8f98f105626c159bcbc9657d2de230",
+    "candidate": "e97f036cf83dcc3ff755efb05afb5ff84a8f98f105626c159bcbc9657d2de230"
+  },
+  {
+    "path": "src/Adapters/Persistence/CheckpointStore.cs",
+    "baseline": "5e5719233e3690f0cc957b6badd43c1516ff14198c41d00e753489901e778976",
+    "candidate": "5e5719233e3690f0cc957b6badd43c1516ff14198c41d00e753489901e778976"
+  },
+  {
+    "path": "src/Adapters/Persistence/PhysicalCheckpointFiles.cs",
+    "baseline": "d5f44c339dc5260e9e5faa95914cf917f35868d915fcf95a26943adcc9c49743",
+    "candidate": "d5f44c339dc5260e9e5faa95914cf917f35868d915fcf95a26943adcc9c49743"
+  },
+  {
+    "path": "src/Core/AssemblyInfo.cs",
+    "baseline": "3cf3cbc1ed33af345948fd62440d610be1098c2d9184c6e5714ec5523737a78c",
+    "candidate": "3cf3cbc1ed33af345948fd62440d610be1098c2d9184c6e5714ec5523737a78c"
+  },
+  {
+    "path": "src/Core/Catalog.cs",
+    "baseline": "9d39e203473cb21d655214a3f84e3ac7e1b918d7ae2aefc872c7a489e5aff238",
+    "candidate": "9d39e203473cb21d655214a3f84e3ac7e1b918d7ae2aefc872c7a489e5aff238"
+  },
+  {
+    "path": "src/Core/CheckpointContracts.cs",
+    "baseline": "16fc8844d5e14a1fc7932a19a91cd7ac74c4895250c34592852ccbae24f76c85",
+    "candidate": "16fc8844d5e14a1fc7932a19a91cd7ac74c4895250c34592852ccbae24f76c85"
+  },
+  {
+    "path": "src/Core/CheckpointSystem.cs",
+    "baseline": "bdaee1dae02392f1015a4d4513fb1c9f7cadd16e6ce701e842698d2c95d0a06e",
+    "candidate": "bdaee1dae02392f1015a4d4513fb1c9f7cadd16e6ce701e842698d2c95d0a06e"
+  },
+  {
+    "path": "src/Core/CombatSystems.cs",
+    "baseline": "bb2892b10515271dec1712e7c7e775f8f68f1b3116a37b74008f37ce3806623a",
+    "candidate": "bb2892b10515271dec1712e7c7e775f8f68f1b3116a37b74008f37ce3806623a"
+  },
+  {
+    "path": "src/Core/CompiledSkillGraph.cs",
+    "baseline": "85513301f41610f5ccbfac90faff65597a8ea40fd1d3b4c94a7b3450dc041d6c",
+    "candidate": "85513301f41610f5ccbfac90faff65597a8ea40fd1d3b4c94a7b3450dc041d6c"
+  },
+  {
+    "path": "src/Core/Contracts.cs",
+    "baseline": "7a2bf9ace2592e4f0c3067fde968f65690ed57e28ec7d7d0e889155bf211d436",
+    "candidate": "7a2bf9ace2592e4f0c3067fde968f65690ed57e28ec7d7d0e889155bf211d436"
+  },
+  {
+    "path": "src/Core/EndlessRules.cs",
+    "baseline": "4afcf4bc6c27ca0f61defd190cfeac6dc2e909566c2b7a5a834cfb9b7443d33e",
+    "candidate": "4afcf4bc6c27ca0f61defd190cfeac6dc2e909566c2b7a5a834cfb9b7443d33e"
+  },
+  {
+    "path": "src/Core/EntityLifecycleSystem.cs",
+    "baseline": "91b09e602d9441b68618b76f055d21f9dcf400cbe7021506faff5bba459cea55",
+    "candidate": "91b09e602d9441b68618b76f055d21f9dcf400cbe7021506faff5bba459cea55"
+  },
+  {
+    "path": "src/Core/GameSimulation.cs",
+    "baseline": "a290fa446404d0883ebf8a24d1424422f724ea550dc83e1c5ec65c076484f303",
+    "candidate": "a290fa446404d0883ebf8a24d1424422f724ea550dc83e1c5ec65c076484f303"
+  },
+  {
+    "path": "src/Core/Geometry.cs",
+    "baseline": "d884b53c50025d1165d2326ca545e6d37e424a844eb3b2fb7ae81304dff9d922",
+    "candidate": "d884b53c50025d1165d2326ca545e6d37e424a844eb3b2fb7ae81304dff9d922"
+  },
+  {
+    "path": "src/Core/MovementSystems.cs",
+    "baseline": "66f2224db7f1baaadf6f0b8b274b4c34d9b0c552eb69088abedfedf545bd8423",
+    "candidate": "66f2224db7f1baaadf6f0b8b274b4c34d9b0c552eb69088abedfedf545bd8423"
+  },
+  {
+    "path": "src/Core/RunProgressionSystem.cs",
+    "baseline": "e22db805ecde7c6611f072b7754a4bd09f3cda6b8c655f410941bc0d97816ee2",
+    "candidate": "e22db805ecde7c6611f072b7754a4bd09f3cda6b8c655f410941bc0d97816ee2"
+  },
+  {
+    "path": "src/Core/StatSystems.cs",
+    "baseline": "09c274e358aa52a2cbe14b00c4766c76cfd098152f2b99c63394dd8b231afd6c",
+    "candidate": "09c274e358aa52a2cbe14b00c4766c76cfd098152f2b99c63394dd8b231afd6c"
+  },
+  {
+    "path": "src/Core/TemporaryContractSystem.cs",
+    "baseline": "3d3b3816e10a5746292ab29f95fe6d95c52b163cce537057c862dac3d70bf010",
+    "candidate": "3d3b3816e10a5746292ab29f95fe6d95c52b163cce537057c862dac3d70bf010"
+  },
+  {
+    "path": "src/Core/World.cs",
+    "baseline": "233a86ebc65e78f1aefdf3999f8fc713cf1fc7b8452d3646c3f04c5d7ae2cecd",
+    "candidate": "233a86ebc65e78f1aefdf3999f8fc713cf1fc7b8452d3646c3f04c5d7ae2cecd"
+  }
+]

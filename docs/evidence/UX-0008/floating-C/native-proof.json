@@ -1,0 +1,15 @@
+{
+  "movie": {
+    "width": 1280,
+    "height": 720,
+    "r_frame_rate": "30/1",
+    "duration": "14.000000",
+    "nb_read_frames": "420"
+  },
+  "traceExactlyEqualsOriginalB": true,
+  "eventsExactlyEqualOriginalB": true,
+  "traceSha256": "e72c002e2ee507c70e1d6ffece05aec7ef13689346c42a6289ed3e6c5dfa1d78",
+  "aviSha256": "acdd536cf77f6144636410ab60ee642e3d5d4081739c14389a3044f7397f31a1",
+  "mp4Sha256": "69deb019f652e087e1d56292c957337c61e94acf7b71ce0138bc9539d37f1cd9",
+  "boundary": "B\u2192C visual-only redraw; A\u2192C functionality comparison has intentionally different authority routes. Actual controlled input recording, not physical mobile/hardware."
+}

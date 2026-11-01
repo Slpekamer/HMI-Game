@@ -1,0 +1,3 @@
+Floating input build: exit 0; log /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-floating-input-wmnygqh1/build.log
+Floating input import: exit 0; log /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-floating-input-wmnygqh1/import.log
+FAIL floating input import; evidence /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-floating-input-wmnygqh1

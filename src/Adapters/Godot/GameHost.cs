@@ -53,6 +53,7 @@ public partial class GameHost : Node3D
             enemyHealthLayer.AddChild(_enemyHealth);
             InitializePersistence(catalogHash);
             InitializeUi();
+            InitializeMovementInput();
             BindPersistenceUi();
             ApplyViewportLayout();
             _ui.ShowHome();
@@ -146,6 +147,9 @@ public partial class GameHost : Node3D
     public override void _Process(double delta)
     {
         if (_sim == null) return;
+        PollMobileSafeArea(delta);
+        UpdateGamepadUi(delta);
+        SynchronizeMovementInput();
         _frames++;
         double elapsed = Math.Min(delta,.25);
         if (_sim.Phase == RunPhase.Combat && !_sim.Paused)
@@ -154,12 +158,7 @@ public partial class GameHost : Node3D
             int steps = 0;
             while (_accumulator >= GameSimulation.FixedDelta && steps < 8)
             {
-                Vector2 move = _ui.Joystick.Direction;
-                if (Input.IsPhysicalKeyPressed(Key.A) || Input.IsPhysicalKeyPressed(Key.Left)) move.X--;
-                if (Input.IsPhysicalKeyPressed(Key.D) || Input.IsPhysicalKeyPressed(Key.Right)) move.X++;
-                if (Input.IsPhysicalKeyPressed(Key.W) || Input.IsPhysicalKeyPressed(Key.Up)) move.Y--;
-                if (Input.IsPhysicalKeyPressed(Key.S) || Input.IsPhysicalKeyPressed(Key.Down)) move.Y++;
-                move = move.LimitLength();
+                Vector2 move = ReadMoveIntent();
                 // Input directions stay screen-relative with the diagonal presentation camera.
                 Vector3 right = _camera.GlobalBasis.X; right.Y = 0; right = right.Normalized();
                 Vector3 down = _camera.GlobalBasis.Z; down.Y = 0; down = down.Normalized();
@@ -197,6 +196,7 @@ public partial class GameHost : Node3D
     private static Vector3 ToGodot(Vec2 p,float height=0) => new(p.X,height,p.Y);
     public override void _ExitTree()
     {
+        ReleaseMovementInput();
         ReleaseViewportLayout();
         if(_visuals!=null) ClearVisuals();
         _assets.ReleaseCachedReferences();
@@ -317,6 +317,7 @@ public partial class GameHost : Node3D
     }
     public override void _Input(InputEvent input)
     {
+        if(HandleGamepadEvent(input))return;
         if(_sim==null || input is not InputEventKey key || !key.Pressed || key.Echo) return;
         if(key.Keycode==Key.Escape)
         {
@@ -328,7 +329,9 @@ public partial class GameHost : Node3D
     }
     public override void _Notification(int what)
     {
+        if(what==NotificationApplicationFocusIn){_inputFocused=true;ResetMovementInput();PollMobileSafeArea(0,true);}
         if(what!=NotificationApplicationFocusOut || _sim==null) return;
+        _inputFocused=false;ResetMovementInput();
         _codexResume=false; _accumulator=0; _ui?.Joystick.ResetInput();
         if(_sim.Phase==RunPhase.Combat) Send(CommandKind.Pause,flag:true);
     }
@@ -336,7 +339,7 @@ public partial class GameHost : Node3D
     {
         _codexOpen=true; _codexResume=_sim.Phase==RunPhase.Combat && !_sim.Paused;
         if(_sim.Phase==RunPhase.Combat) Send(CommandKind.Pause,flag:true);
-        _ui.Joystick.ResetInput(); _accumulator=0;
+        _ui.CancelGameplayInput(); _accumulator=0;
         return CodexFormatter.Build(_content, _sim.GetLevel, _sim.GetCardAvailability);
     }
     private void CloseCodex()

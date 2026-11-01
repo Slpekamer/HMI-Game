@@ -1,0 +1,23 @@
+[
+  {
+    "name": "test_floating_input",
+    "exit": 0,
+    "errors": false,
+    "strict": "blocked at editor import; not overridden",
+    "project": "/workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-floating-input-wmnygqh1/project"
+  },
+  {
+    "name": "test_gamepad_ui",
+    "exit": 0,
+    "errors": false,
+    "strict": "blocked at editor import; not overridden",
+    "project": "/workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-gamepad-ui-h6vknkz8/project"
+  },
+  {
+    "name": "test_mobile_safe_area",
+    "exit": 0,
+    "errors": false,
+    "strict": "blocked at editor import; not overridden",
+    "project": "/workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-mobile-safe-area-22orpgca/project"
+  }
+]

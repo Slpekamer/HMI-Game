@@ -1,0 +1,183 @@
+{
+  "source": "/workspace/scratch/80f5bc988ef7/HMI-Game-mobile-ui-motion-integration-r1",
+  "probeRoot": "/workspace/scratch/80f5bc988ef7/HMI-mobile-motion-joint-probe",
+  "productionDiff": [],
+  "files": [
+    {
+      "path": "src/Core/Catalog.cs",
+      "sha256": "9d39e203473cb21d655214a3f84e3ac7e1b918d7ae2aefc872c7a489e5aff238"
+    },
+    {
+      "path": "src/Core/GameSimulation.cs",
+      "sha256": "a290fa446404d0883ebf8a24d1424422f724ea550dc83e1c5ec65c076484f303"
+    },
+    {
+      "path": "src/Core/CheckpointSystem.cs",
+      "sha256": "bdaee1dae02392f1015a4d4513fb1c9f7cadd16e6ce701e842698d2c95d0a06e"
+    },
+    {
+      "path": "src/Core/MovementSystems.cs",
+      "sha256": "66f2224db7f1baaadf6f0b8b274b4c34d9b0c552eb69088abedfedf545bd8423"
+    },
+    {
+      "path": "src/Core/CheckpointContracts.cs",
+      "sha256": "16fc8844d5e14a1fc7932a19a91cd7ac74c4895250c34592852ccbae24f76c85"
+    },
+    {
+      "path": "src/Core/Geometry.cs",
+      "sha256": "d884b53c50025d1165d2326ca545e6d37e424a844eb3b2fb7ae81304dff9d922"
+    },
+    {
+      "path": "src/Core/Contracts.cs",
+      "sha256": "7a2bf9ace2592e4f0c3067fde968f65690ed57e28ec7d7d0e889155bf211d436"
+    },
+    {
+      "path": "src/Core/StatSystems.cs",
+      "sha256": "09c274e358aa52a2cbe14b00c4766c76cfd098152f2b99c63394dd8b231afd6c"
+    },
+    {
+      "path": "src/Core/TemporaryContractSystem.cs",
+      "sha256": "3d3b3816e10a5746292ab29f95fe6d95c52b163cce537057c862dac3d70bf010"
+    },
+    {
+      "path": "src/Core/World.cs",
+      "sha256": "233a86ebc65e78f1aefdf3999f8fc713cf1fc7b8452d3646c3f04c5d7ae2cecd"
+    },
+    {
+      "path": "src/Core/EntityLifecycleSystem.cs",
+      "sha256": "91b09e602d9441b68618b76f055d21f9dcf400cbe7021506faff5bba459cea55"
+    },
+    {
+      "path": "src/Core/AssemblyInfo.cs",
+      "sha256": "3cf3cbc1ed33af345948fd62440d610be1098c2d9184c6e5714ec5523737a78c"
+    },
+    {
+      "path": "src/Core/EndlessRules.cs",
+      "sha256": "4afcf4bc6c27ca0f61defd190cfeac6dc2e909566c2b7a5a834cfb9b7443d33e"
+    },
+    {
+      "path": "src/Core/CombatSystems.cs",
+      "sha256": "bb2892b10515271dec1712e7c7e775f8f68f1b3116a37b74008f37ce3806623a"
+    },
+    {
+      "path": "src/Core/CompiledSkillGraph.cs",
+      "sha256": "85513301f41610f5ccbfac90faff65597a8ea40fd1d3b4c94a7b3450dc041d6c"
+    },
+    {
+      "path": "src/Core/RunProgressionSystem.cs",
+      "sha256": "e22db805ecde7c6611f072b7754a4bd09f3cda6b8c655f410941bc0d97816ee2"
+    },
+    {
+      "path": "src/Adapters/Persistence/CheckpointSession.cs",
+      "sha256": "e97f036cf83dcc3ff755efb05afb5ff84a8f98f105626c159bcbc9657d2de230"
+    },
+    {
+      "path": "src/Adapters/Persistence/PhysicalCheckpointFiles.cs",
+      "sha256": "d5f44c339dc5260e9e5faa95914cf917f35868d915fcf95a26943adcc9c49743"
+    },
+    {
+      "path": "src/Adapters/Persistence/CheckpointCodec.cs",
+      "sha256": "16e1b39e48ffce4fa12bf9ae065fce648cfd5f98ab810a7284fba1cb07ddff86"
+    },
+    {
+      "path": "src/Adapters/Persistence/CheckpointStore.cs",
+      "sha256": "5e5719233e3690f0cc957b6badd43c1516ff14198c41d00e753489901e778976"
+    },
+    {
+      "path": "src/Adapters/Godot/GameHost.cs",
+      "sha256": "47afdbd99478303e95fedc9b237185553f6ae351e26baa9658941cff09bcda33"
+    },
+    {
+      "path": "src/Adapters/Godot/CandyTheme.cs",
+      "sha256": "748c70d93855599d61047555347e9b69969275f517d2a89be7ac1fc5956b790a"
+    },
+    {
+      "path": "src/Adapters/Godot/GameHost.GamepadUi.cs",
+      "sha256": "3da4a23ef3b5c5441a969813e2bf99ce39f476eb191ffff77d4cb909a89250f8"
+    },
+    {
+      "path": "src/Adapters/Godot/GameHost.Layout.cs",
+      "sha256": "7549375657a3b08d7b5da4e9968a5bb8560ca4c0e5f4e237f39b3534a77bcd33"
+    },
+    {
+      "path": "src/Adapters/Godot/HeroSelectionPreview.cs",
+      "sha256": "9af5f796c598140d18f920e822490de9bfbcf26e2cbb437d2d1f74164919b230"
+    },
+    {
+      "path": "src/Adapters/Godot/GameHost.Input.cs",
+      "sha256": "0d2c88918ce0e7f274a4e8f1e9c1c77c4f11387895f482d227afb76280e866fb"
+    },
+    {
+      "path": "src/Adapters/Godot/AssetVisuals.cs",
+      "sha256": "cce8d0c69193ac36abe8c3ead27bc2a34f47776b30b68eecb626428933f82871"
+    },
+    {
+      "path": "src/Adapters/Godot/GameHost.Persistence.cs",
+      "sha256": "8aa1eb28fd8a9edb907ee3c645d8449c419e6df1fbe55225b1103d310841b716"
+    },
+    {
+      "path": "src/Adapters/Godot/GameUi.cs",
+      "sha256": "f288cb54c708095731f5ec2fd5c4f064b6958a4df4dca85d8c7a0a9cc4673dad"
+    },
+    {
+      "path": "src/Adapters/Godot/EndlessUiFormatter.cs",
+      "sha256": "9dd3a197b8bd3df4af4799551c19d8c23042e29d6eb7276085dfcda0181f31a8"
+    },
+    {
+      "path": "src/Adapters/Godot/GameUi.Layout.cs",
+      "sha256": "4abce23aa9202f296a44ee749cc90f591e398f75e99038668a7c8c09589dd79b"
+    },
+    {
+      "path": "src/Adapters/Godot/FoodAnimationMixer.cs",
+      "sha256": "cc0a45685a6983ece08d9609e08f45b982a4c5b7be00d585c0af576755cbacf0"
+    },
+    {
+      "path": "src/Adapters/Godot/ResumeUi.cs",
+      "sha256": "1afaf9701f6e00db141b1aad78773464a7700864470ef29c7e3aff0c294ec8f3"
+    },
+    {
+      "path": "src/Adapters/Godot/EnemyHealthVisuals.cs",
+      "sha256": "0148b337d638caea7c1196cd503880ba6258b598b8e6c98d57e2dc60b309b803"
+    },
+    {
+      "path": "src/Adapters/Godot/GameUi.Motion.cs",
+      "sha256": "42ea1900542f1e0e11a1ca626516db1bdf8357a256ae1608cd796e907840e5a4"
+    },
+    {
+      "path": "src/Adapters/Godot/GameUi.Focus.cs",
+      "sha256": "1cb94f447d7a7ef0167bf408a057bd7d99cf90e3ae378080da57d882a6595af1"
+    },
+    {
+      "path": "src/Adapters/Godot/UiMotionController.cs",
+      "sha256": "5a549277f19afb579efa70aa2931c60c8a0a514ea047f475056b24a036cb4756"
+    },
+    {
+      "path": "src/Adapters/Godot/TouchJoystick.cs",
+      "sha256": "edae3d2d448cab20c3a45d39f509551f78f819bdb6dd6d9033707d04cb1766c3"
+    },
+    {
+      "path": "src/Adapters/Godot/CharacterPresentation.cs",
+      "sha256": "f24500a9190a38eb8db9325b580c7642d7578deb0b347a3472d853981fea84aa"
+    },
+    {
+      "path": "src/Adapters/Godot/GameUi.Input.cs",
+      "sha256": "c8db0f1f52f10a1681053503e1757d53dc09bc191bed4cb3f95ba8390744c090"
+    },
+    {
+      "path": "src/Adapters/Godot/CodexFormatter.cs",
+      "sha256": "78337da1ba5da59edb7759a32af92fa4f908476a1a5d1ef55ce6061acc126d91"
+    },
+    {
+      "path": "src/Adapters/Godot/GameHost.SafeArea.cs",
+      "sha256": "082cbb6ab73eca41c59558977097bc1e823ae235db259d0346a5d071ddca0047"
+    },
+    {
+      "path": "src/Adapters/Godot/Input/MoveInputRouter.cs",
+      "sha256": "5e62af76587833a3c8352a9a81633b20b3860c87e18ef27dd593bc4cb30e45b8"
+    },
+    {
+      "path": "src/Adapters/Godot/Input/GamepadMenuRouter.cs",
+      "sha256": "e8127273346adba03eed8b1d916af46558756d9cd528fabb76cf9bebe5e6352d"
+    }
+  ]
+}
