@@ -21,3 +21,6 @@ Checked clean remote source `495d098a3d8653b112470848692e178f0f2f3373` with .NET
 Native appearance, continuous normal-speed plant/flight readability and post-draw attachments remain **unverified in this environment**. Earlier recordings are unavailable and are not substituted for fresh evidence. Do not adopt or present as a ready user action candidate until the visual gate and quick-restart defect are resolved.
 
 Use `experiments/displacement-run/run-check.sh` for opt-in headless/native/lifecycle/restart checks. No integration, production replacement, release or APK approval is claimed.
+
+## Restart bridge candidate — untested WIP
+A new bounded 50 ms restart bridge preserves the evaluated foot/body state, continues actual-distance phase and transfers back to the unchanged steady gait. The earlier quick-restart failure above describes the frozen predecessor; this new correction has not yet passed build, interval-matrix or native validation. No fix/adoption claim is made by this source checkpoint. The opt-in matrix covers two stop phases and 0..13 ticks before resuming; native review runner captures full-scale steady start/stop and quick-restart comparisons. Stamp decoder was checked on synthetic 181-frame input with a duplicated final stamp; that is tooling validation, not game footage.

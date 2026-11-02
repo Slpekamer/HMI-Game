@@ -10,6 +10,7 @@ namespace Hmi.GodotAdapter;
 internal sealed class DisplacementRunPresentation
 {
     private const float Step = 1.2f, Contact = .24f, Cycle = 2.4f, Swing = 2.16f;
+    private const float ResumeDuration = .05f; // bounded bridge, not a new gait clock
     private const float Half = .12f, Fillet = .048f, Slope = .125f, Lift = .04f, Height = .18f;
     private readonly Node3D _root;
     private readonly Skeleton3D _skeleton;
@@ -23,7 +24,9 @@ internal sealed class DisplacementRunPresentation
     private Vector3 _lastRoot;
     private float _distance, _phaseOffset, _age, _stopAge, _bodyDelta, _hop, _ground;
     private bool _applied, _started, _stopping, _initialCaptured;
-    private int _footfalls;
+    private int _footfalls, _restartCount;
+    private bool _resuming;
+    private float _resumeAge, _resumeBodyOffset, _resumeBodyVelocityOffset, _bodyVelocity, _lastSpeed;
     private string _failure = "";
     public object Diagnostics { get; private set; } = new { state = "not-started" };
 
@@ -35,7 +38,8 @@ internal sealed class DisplacementRunPresentation
         public Basis Flat;
         public float UpperLength, LowerLength, AnkleY, Phase, Margin, SettleAge;
         public bool Stance, Settling, Settled, StopReleasePending;
-        public Vector3 SettleRelative, SettleVelocity;
+        public Vector3 SettleRelative, SettleVelocity, Velocity, ResumeOffset, ResumeVelocityOffset;
+        public bool ResumeHold;
         public float SettleLift;
         public string State = "initial";
     }
@@ -128,8 +132,9 @@ internal sealed class DisplacementRunPresentation
     public void Reset()
     {
         RestoreBase(); _distance = _age = _stopAge = _bodyDelta = _hop = 0; _footfalls = 0;
-        _started = _stopping = _initialCaptured = false; _failure = ""; _lastRoot = GodotObject.IsInstanceValid(_root) && _root.IsInsideTree() ? _root.GlobalPosition : Vector3.Zero;
-        foreach (var f in _feet) { f.CycleIndex = int.MinValue; f.Stance = f.Settling = f.Settled = f.StopReleasePending = false; f.SettleVelocity = Vector3.Zero; f.State = "reset"; }
+        _started = _stopping = _initialCaptured = _resuming = false;
+        _resumeAge = _resumeBodyOffset = _resumeBodyVelocityOffset = _bodyVelocity = _lastSpeed = 0; _restartCount = 0; _failure = ""; _lastRoot = GodotObject.IsInstanceValid(_root) && _root.IsInsideTree() ? _root.GlobalPosition : Vector3.Zero;
+        foreach (var f in _feet) { f.CycleIndex = int.MinValue; f.Stance = f.Settling = f.Settled = f.StopReleasePending = false; f.SettleVelocity = f.Velocity = f.ResumeOffset = f.ResumeVelocityOffset = Vector3.Zero; f.ResumeHold = false; f.State = "reset"; }
         Diagnostics = new { state = "reset", distance = 0f };
     }
     public void Advance(float dt, bool moving, Vector3 authoritativeTarget)
@@ -146,9 +151,10 @@ internal sealed class DisplacementRunPresentation
             CaptureInitial(); Diagnostics = new { state = "idle", distance = _distance, renderDistance = traveled }; return;
         }
         if (!_started) { _started = true; _age = 0; }
-        if (_stopping && moving) Fail("Restart during settle needs explicit lifecycle Reset in this bounded prototype");
-        if (!moving && !_stopping) { _stopping = true; _stopAge = 0; foreach (var f in _feet) f.StopReleasePending = f.Stance; }
-        _distance += traveled; _age += dt; if (_stopping) _stopAge += dt;
+        if (_stopping && moving) BeginResume(displacement);
+        if (!moving && !_stopping) { if (_resuming) Fail("Stop interrupted the bounded50ms resume bridge"); _stopping = true; _stopAge = 0; foreach (var f in _feet) f.StopReleasePending = f.Stance; }
+        _distance += traveled; _age += dt; if (_stopping) _stopAge += dt; if (_resuming) _resumeAge += dt;
+        float previousBodyDelta = _bodyDelta;
         for (int i = 0; i < _owned.Length; i++) _base[i] = _skeleton.GetBonePose(_owned[i]);
         _applied = true;
         try
@@ -161,10 +167,13 @@ internal sealed class DisplacementRunPresentation
             float restHipY = (_skeleton.GlobalTransform * _feet[0].RestThigh.Origin).Y;
             float desiredHipY = _feet[0].AnkleY + Height + _hop;
             _bodyDelta = (desiredHipY - restHipY) * start * (1 - settleRise);
+            float resumeT = Math.Clamp(_resumeAge / ResumeDuration, 0, 1);
+            if (_resuming) _bodyDelta += BridgeOffset(resumeT, _resumeBodyOffset, _resumeBodyVelocityOffset);
             var pelvis = _restPelvis; pelvis.Origin += _skeleton.GlobalBasis.Inverse() * new Vector3(0, _bodyDelta, 0);
             SetGlobal(_pelvis, pelvis);
             foreach (var f in _feet)
             {
+                Vector3 previousFootOrigin = f.World.Origin;
                 float phase = _distance + _phaseOffset + f.Side * Step;
                 int cycle = (int)MathF.Floor(phase / Cycle); float q = Mod(phase, Cycle); f.Phase = q;
                 Vector3 hipWorld = _skeleton.GlobalTransform * (f.RestThigh.Origin + _skeleton.GlobalBasis.Inverse() * new Vector3(0, _bodyDelta, 0));
@@ -187,7 +196,28 @@ internal sealed class DisplacementRunPresentation
                     f.Settling = true; f.SettleAge = _stopAge; f.SettleRelative = Horizontal(f.World.Origin - hipWorld);
                     f.SettleLift = f.World.Origin.Y - f.AnkleY;
                 }
-                if (f.Settling || f.Settled)
+                if (_resuming)
+                {
+                    bool wasStance = f.Stance;
+                    if (f.ResumeHold && q <= Contact)
+                    {
+                        // Existing planted sole remains the same full world transform.
+                        f.World = f.Anchor; f.Stance = true; f.State = "resume-anchor";
+                    }
+                    else
+                    {
+                        Vector3 target = NominalFootOrigin(f, _distance, Vector3.Zero);
+                        target += BridgeOffset(resumeT, f.ResumeOffset, f.ResumeVelocityOffset);
+                        if (target.Y < f.AnkleY - .00001f) Fail("Resume bridge would put the rigid sole below its preserved ground");
+                        f.World = new Transform3D(f.Flat, target); f.Stance = false; f.State = "resume-bridge";
+                        if (resumeT >= 1 && q <= Contact)
+                        {
+                            f.Anchor = f.World; f.Stance = true; f.State = "stance-anchor";
+                            if (!wasStance) _footfalls++;
+                        }
+                    }
+                }
+                else if (f.Settling || f.Settled)
                 {
                     // Authority only predicts where the root will finish its unchanged visual Lerp.
                     Vector3 goal = authoritativeTarget + (_skeleton.GlobalTransform * f.RestFoot.Origin - root); goal.Y = f.AnkleY;
@@ -227,7 +257,10 @@ internal sealed class DisplacementRunPresentation
                 }
                 f.CycleIndex = cycle;
                 Solve(f, hipWorld);
+                f.Velocity = (f.World.Origin - previousFootOrigin) / dt;
             }
+            _bodyVelocity = (_bodyDelta - previousBodyDelta) / dt; _lastSpeed = traveled / dt;
+            if (_resuming && _resumeAge >= ResumeDuration) _resuming = false;
             Diagnostics = ReadDiagnostics(traveled, authoritativeTarget);
         }
         catch (Exception ex)
@@ -235,6 +268,73 @@ internal sealed class DisplacementRunPresentation
             _failure = ex.Message; Diagnostics = ReadDiagnostics(traveled, authoritativeTarget); throw;
         }
     }
+    private void BeginResume(Vector3 currentDisplacement)
+    {
+        // These values are the previous actually rendered pose, not the mixer's freshly restored base.
+        // Never CaptureInitial here: airborne sole height is not a new ground plane.
+        Foot support = _feet.FirstOrDefault(f => f.Stance);
+        if (support != null)
+        {
+            Vector3 previousHip = _skeleton.GlobalTransform * support.RestThigh.Origin - currentDisplacement;
+            float r = (support.Anchor.Origin - previousHip).Dot(_forward), q = Half - r;
+            if (q < 0 || q > Contact) Fail("Grounded restart anchor lies outside the bounded contact phase");
+            _phaseOffset = q - support.Side * Step - _distance;
+        }
+        float nominalBody = _feet[0].AnkleY + Height + NominalHop(_distance)
+            - (_skeleton.GlobalTransform * _feet[0].RestThigh.Origin).Y;
+        _resumeBodyOffset = _bodyDelta - nominalBody;
+        _resumeBodyVelocityOffset = _bodyVelocity - NominalHopDerivative(_distance) * _lastSpeed;
+        foreach (var f in _feet)
+        {
+            f.ResumeHold = f == support;
+            f.ResumeOffset = f.World.Origin - NominalFootOrigin(f, _distance, currentDisplacement);
+            f.ResumeVelocityOffset = f.Velocity - NominalFootVelocity(f, _distance, _lastSpeed);
+            if (f.ResumeHold)
+            {
+                // Rephasing matches the held support, so it needs no position/velocity bridge.
+                if (Horizontal(f.ResumeOffset).Length() > .0001f) Fail("Restart support is not laterally aligned with its hip");
+                f.ResumeOffset = f.ResumeVelocityOffset = Vector3.Zero;
+            }
+            f.Settling = f.Settled = f.StopReleasePending = false;
+        }
+        _resumeAge = 0; _resuming = true; _stopping = false; _restartCount++;
+        // _distance, _ground, ankle heights, current bodyDelta and anchors deliberately survive.
+    }
+    private Vector3 NominalFootOrigin(Foot f, float distance, Vector3 rootDisplacement)
+    {
+        float q = Mod(distance + _phaseOffset + f.Side * Step, Cycle);
+        (float r, float lift) = q <= Contact ? (Half - q, 0f) : SwingCurve(q - Contact);
+        Vector3 hip = _skeleton.GlobalTransform * f.RestThigh.Origin - rootDisplacement;
+        Vector3 target = hip + _forward * r; target.Y = f.AnkleY + lift; return target;
+    }
+    private Vector3 NominalFootVelocity(Foot f, float distance, float speed)
+    {
+        float q = Mod(distance + _phaseOffset + f.Side * Step, Cycle);
+        if (q <= Contact) return Vector3.Zero;
+        return _forward * ((1 + SwingDerivative(q - Contact)) * speed)
+            + Vector3.Up * (LiftDerivative(q - Contact) * speed);
+    }
+    private float NominalHop(float distance)
+    {
+        float q = Mod(distance + _phaseOffset, Step);
+        return q <= Contact ? 0 : .05f * Square(MathF.Sin(MathF.PI * (q - Contact) / (Step - Contact)));
+    }
+    private float NominalHopDerivative(float distance)
+    {
+        float q = Mod(distance + _phaseOffset, Step);
+        return q <= Contact ? 0 : .05f * MathF.PI / (Step - Contact)
+            * MathF.Sin(2 * MathF.PI * (q - Contact) / (Step - Contact));
+    }
+    private static float LiftDerivative(float u)
+    {
+        if (u < Fillet) { float t = u / Fillet; return Lift * 6*t*(1-t) / Fillet; }
+        if (u > Swing - Fillet) { float t = (Swing-u) / Fillet; return -Lift * 6*t*(1-t) / Fillet; }
+        return 0;
+    }
+    private static float BridgeOffset(float t, float offset, float velocityOffset) =>
+        (2*t*t*t-3*t*t+1)*offset + (t*t*t-2*t*t+t)*ResumeDuration*velocityOffset;
+    private static Vector3 BridgeOffset(float t, Vector3 offset, Vector3 velocityOffset) =>
+        (2*t*t*t-3*t*t+1)*offset + (t*t*t-2*t*t+t)*ResumeDuration*velocityOffset;
     private void Solve(Foot f, Vector3 hipWorld)
     {
         Transform3D inv = _skeleton.GlobalTransform.AffineInverse();
@@ -269,13 +369,13 @@ internal sealed class DisplacementRunPresentation
     }
     private object ReadDiagnostics(float traveled, Vector3 authority)
     {
-        return new { state = _failure.Length>0 ? "failed" : _stopping ? "stopping" : "running", failure = _failure,
+        return new { state = _failure.Length>0 ? "failed" : _stopping ? "stopping" : _resuming ? "resuming" : "running", failure = _failure,
             distance = _distance, phase = Mod(_distance+_phaseOffset,Cycle), phaseOffset = _phaseOffset,
-            renderDistance = traveled, footfalls = _footfalls, startAge = _age, stopAge = _stopAge,
+            renderDistance = traveled, footfalls = _footfalls, restartCount = _restartCount, resumeAge = _resumeAge, resumeDuration = ResumeDuration, startAge = _age, stopAge = _stopAge,
             bodyDrop = -_bodyDelta, bodyHop = _hop, height = Height, groundY = _ground,
             root = V(_root.GlobalPosition), authorityTarget = V(authority),
             feet = _feet.Select(f => new { side = f.Side==0?"L":"R", phase=f.Phase, state=f.State, stance=f.Stance,
-                reachMargin=f.Margin, stopReleasePending=f.StopReleasePending, settleAge=f.SettleAge, settleInitialRelativeVelocity=V(f.SettleVelocity), anchor=V(f.Anchor.Origin), ankle=V(f.World.Origin), ankleGroundY=f.AnkleY,
+                reachMargin=f.Margin, worldVelocity=V(f.Velocity), resumeHeldAnchor=f.ResumeHold, resumeOffset=V(f.ResumeOffset), resumeVelocityOffset=V(f.ResumeVelocityOffset), stopReleasePending=f.StopReleasePending, settleAge=f.SettleAge, settleInitialRelativeVelocity=V(f.SettleVelocity), anchor=V(f.Anchor.Origin), ankle=V(f.World.Origin), ankleGroundY=f.AnkleY,
                 solePositions=f.Sole.Select(p=>V((_skeleton.GlobalTransform*_skeleton.GetBoneGlobalPose(f.Bone))*p)).ToArray() }).ToArray() };
     }
     private void Fail(string message) { _failure = message; throw new InvalidOperationException("DisplacementRun: " + message); }
