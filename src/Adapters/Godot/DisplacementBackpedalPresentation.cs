@@ -42,7 +42,7 @@ internal sealed class DisplacementBackpedalPresentation
         public Vector3 SettleRelative, SettleVelocity, Velocity, ResumeOffset, ResumeVelocityOffset;
         public bool ResumeHold, TapSettle, TapLiftoff;
         public float TapHorizontalBrake, TapVerticalBrake, TapHeight, TapVerticalVelocity;
-        public float ResumeHeight, ResumeVerticalVelocity, ResumeBrakeDuration;
+        public float ResumeHeight, ResumeVerticalVelocity, ResumeBrakeDuration, ResumeReachBrakeCap;
         public float SettleLift;
         public string State = "initial";
     }
@@ -429,6 +429,35 @@ internal sealed class DisplacementBackpedalPresentation
             f.ResumeBrakeDuration = incoming.Y < 0 && f.ResumeHeight > 0
                 && -incoming.Y * ResumeDuration > 2 * f.ResumeHeight
                 ? Math.Min(ResumeDuration / 2, f.ResumeHeight / -incoming.Y) : 0;
+            f.ResumeReachBrakeCap = 0;
+            if (f.ResumeBrakeDuration > 0 && !f.ResumeHold)
+            {
+                // Ground-only braking can keep a low airborne foot descending while the hip
+                // moves beyond it. Bound that braking clock by the outgoing 3D reach corridor.
+                // Fixed prototype speed is at most4.8. Include the future hop and body-bridge
+                // upward derivative bounds, not merely the initial hip/ankle vertical gap.
+                Vector3 previousHip = _skeleton.GlobalTransform * f.RestThigh.Origin
+                    - currentDisplacement + Vector3.Up * _bodyDelta;
+                float upwardHipBound = .05f * MathF.PI / (Step - Contact) * 4.8f
+                    + 1.5f / ResumeDuration * Math.Abs(_resumeBodyOffset)
+                    + Math.Abs(_resumeBodyVelocityOffset);
+                Vector3 relative = f.World.Origin - previousHip;
+                Vector3 outward = incoming - _travelAxis * 4.8f - Vector3.Up * upwardHipBound;
+                float speed = outward.Length();
+                if (speed > .000001f)
+                {
+                    float reach = (f.UpperLength + f.LowerLength) * _scale - .000001f;
+                    float along = relative.Dot(outward / speed);
+                    float discriminant = along * along + reach * reach - relative.LengthSquared();
+                    if (discriminant <= 0) Fail("Resume descent has no3D braking corridor");
+                    float room = -along + MathF.Sqrt(discriminant);
+                    if (room <= 0) Fail("Resume descent starts outside3D reach");
+                    f.ResumeReachBrakeCap = room / speed;
+                    f.ResumeBrakeDuration = Math.Min(f.ResumeBrakeDuration, f.ResumeReachBrakeCap);
+                }
+                // This replans the airborne vertical path, never projects an evaluated IK target.
+                // Full subsequent curved targets still pass the original reach and ground guards.
+            }
             if (f.ResumeHold)
             {
                 // Rephasing matches the held support, so it needs no position/velocity bridge.
@@ -528,7 +557,7 @@ internal sealed class DisplacementBackpedalPresentation
             bodyForward = V(_bodyForward), travelAxis = V(_travelAxis),
             root = V(_root.GlobalPosition), authorityTarget = V(authority),
             feet = _feet.Select(f => new { side = f.Side==0?"L":"R", phase=f.Phase, state=f.State, stance=f.Stance,
-                reachMargin=f.Margin, worldVelocity=V(f.Velocity), resumeHeldAnchor=f.ResumeHold, resumeOffset=V(f.ResumeOffset), resumeVelocityOffset=V(f.ResumeVelocityOffset), resumeInitialSoleHeight=f.ResumeHeight, resumeInitialVerticalVelocity=f.ResumeVerticalVelocity, resumeBrakeDuration=f.ResumeBrakeDuration, tapHorizontalBrake=f.TapHorizontalBrake, tapVerticalBrake=f.TapVerticalBrake, tapInitialHeight=f.TapHeight, tapInitialVerticalVelocity=f.TapVerticalVelocity, stopReleasePending=f.StopReleasePending, settleAge=f.SettleAge, settleInitialRelativeVelocity=V(f.SettleVelocity), anchor=V(f.Anchor.Origin), ankle=V(f.World.Origin), ankleGroundY=f.AnkleY,
+                reachMargin=f.Margin, worldVelocity=V(f.Velocity), resumeHeldAnchor=f.ResumeHold, resumeOffset=V(f.ResumeOffset), resumeVelocityOffset=V(f.ResumeVelocityOffset), resumeInitialSoleHeight=f.ResumeHeight, resumeInitialVerticalVelocity=f.ResumeVerticalVelocity, resumeBrakeDuration=f.ResumeBrakeDuration, resumeReachBrakeCap=f.ResumeReachBrakeCap, tapHorizontalBrake=f.TapHorizontalBrake, tapVerticalBrake=f.TapVerticalBrake, tapInitialHeight=f.TapHeight, tapInitialVerticalVelocity=f.TapVerticalVelocity, stopReleasePending=f.StopReleasePending, settleAge=f.SettleAge, settleInitialRelativeVelocity=V(f.SettleVelocity), anchor=V(f.Anchor.Origin), ankle=V(f.World.Origin), ankleGroundY=f.AnkleY,
                 solePositions=f.Sole.Select(p=>V((_skeleton.GlobalTransform*_skeleton.GetBoneGlobalPose(f.Bone))*p)).ToArray() }).ToArray() };
     }
     private void Fail(string message) { _failure = message; throw new InvalidOperationException("DisplacementBackpedal: " + message); }
