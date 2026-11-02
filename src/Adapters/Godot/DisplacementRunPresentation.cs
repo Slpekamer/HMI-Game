@@ -342,7 +342,23 @@ internal sealed class DisplacementRunPresentation
         f.SettleRelative = Horizontal(f.World.Origin - hipWorld);
         f.SettleVelocity = Horizontal(velocity) - _forward * rootSpeed;
         f.TapHeight = f.World.Origin.Y - f.AnkleY; f.TapVerticalVelocity = velocity.Y;
-        f.TapVerticalBrake = Math.Abs(velocity.Y) < .000001f ? 0 : ResumeDuration / 2;
+        // One initial3D corridor bounds BOTH braking clocks, including actual hip vertical velocity.
+        // The pose itself is never projected. Curved later targets remain subject to the hard IK guard.
+        float brakeCap = ResumeDuration / 2;
+        Vector3 relative = f.World.Origin - hipWorld;
+        Vector3 relativeVelocity = velocity - _forward * rootSpeed - Vector3.Up * _bodyVelocity;
+        float speed3 = relativeVelocity.Length();
+        if (speed3 > .000001f)
+        {
+            float reach = (f.UpperLength + f.LowerLength) * _scale - .000001f;
+            float along = relative.Dot(relativeVelocity / speed3);
+            float disc3 = along*along + reach*reach - relative.LengthSquared();
+            if (disc3 <= 0) Fail("Tap joint braking has no3D reach corridor");
+            float room3 = -along + MathF.Sqrt(disc3);
+            if (room3 <= 0) Fail("Tap joint braking starts outside3D reach");
+            brakeCap = Math.Min(brakeCap, room3 / speed3);
+        }
+        f.TapVerticalBrake = Math.Abs(velocity.Y) < .000001f ? 0 : brakeCap;
         if (velocity.Y < 0 && f.TapHeight > 0)
             f.TapVerticalBrake = Math.Min(f.TapVerticalBrake, f.TapHeight / -velocity.Y);
         if (velocity.Y < 0 && f.TapHeight <= 0) Fail("Descending tap foot has no ground clearance");
@@ -359,7 +375,7 @@ internal sealed class DisplacementRunPresentation
             if (disc <= 0) Fail("Tap horizontal braking has no reachable corridor");
             float room = -b + MathF.Sqrt(disc);
             if (room <= 0) Fail("Tap horizontal braking starts outside reach");
-            f.TapHorizontalBrake = Math.Min(ResumeDuration / 2, room / speed);
+            f.TapHorizontalBrake = Math.Min(brakeCap, room / speed);
         }
     }
     private static Vector3 TapHorizontal(Foot f, float elapsed, float duration, Vector3 targetRelative)
