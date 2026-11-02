@@ -1,4 +1,4 @@
-# Directional first-split study — WIP, not validated
+# Directional first-split study — bounded validation, pending style review
 
 Base: approved Run snapshot `5c9251e34507a9292112a2a1ed835d8b1c2ee85f`.
 Requirement: reduce visible moving shadow-edge aliasing without changing camera,
@@ -35,3 +35,5 @@ size policy, projection and near/far are retained. Only diagnostic UI is hidden.
 Each view requires three identical raw framebuffer hashes. A/B manifests require
 identical camera/paused tick data and light settings except the candidate split.
 No native coverage result is claimed by this fixture checkpoint.
+
+See [validation.md](validation.md) for completed scoped native A/B and paused side-view results, explicit harder-shadow tradeoff and remaining limits. No production merge.

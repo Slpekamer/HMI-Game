@@ -38,3 +38,32 @@ One cloud desktop Compatibility/llvmpipe capture each: A reports mean CPU/GPU
 render 1.29/2.85 ms per frame; B 1.48/3.19 ms. These are single software-renderer
 samples, not a controlled performance benchmark or 8155/Android/device claim.
 Unchanged atlas size does not establish unchanged GPU cost.
+
+## Bounded side-view coverage result
+Fixture checkpoint: `bad23045e2d7c4d9b7ec533e17f1552a15b722aa`.
+Native Compatibility/llvmpipe coverage completed successfully:
+- Four side focus positions, five neighboring 8-cm samples each, at landscape
+  1280x720 and portrait 720x1280. Both A/B variants: 80 original-resolution PNGs
+  in total, with three identical raw framebuffer hashes at every view (240 reads).
+- A/B actual camera position, basis, size, near/far, projection, paused state and
+  frozen simulation tick match exactly. Recorded light properties match except
+  Split1; shadows remain enabled. No production camera or motion source changed.
+- Actual recorded camera ray/floor intersections, not assumed edge reachability:
+  landscape receiver depth 22.594507–39.114487 m; portrait 16.170072–45.538923 m.
+  B first cascade ends at 60.04925 m. All four viewport corner intersections at
+  every sampled pose lie inside the existing 80x80 m floor; largest absolute X/Z
+  is 32.106674 m. `verify-receiver-depth.py` reproduces these bounds from manifests.
+- Center A/B boards, all B neighboring-view boards, and original-resolution
+  representative landscape/portrait images were inspected. Visible environment
+  and hero shadows remain; no obvious new acne, missing shadow band, or abrupt
+  coverage dropout was seen in this bounded set. This is not a claim that all
+  subpixel aliasing has disappeared, or that every unseen/offscreen caster was
+  tested. The visible floor stays within the first cascade, so these checks do
+  not intentionally cross its boundary or certify other camera configurations.
+
+These are labeled **frozen paused-world coverage diagnostics, not played routes**.
+The player was not moved to each edge, and no traversal/gameplay claim follows.
+The initial normal-speed route plus the coverage evidence support submitting this
+single candidate for parent/user visual review. Harder, more defined shadows are
+an explicit appearance tradeoff; softness was not tuned. Production integration,
+all aspect ratios, arbitrary scene changes, and Android/8155 remain unvalidated.
