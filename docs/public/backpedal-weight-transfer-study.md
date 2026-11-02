@@ -1,0 +1,7 @@
+# Backpedal weight-transfer study — stopped for insufficient readability
+
+This isolated follow-up compares the frozen foot-only Backpedal with one fixed additive torso/head curve: 6-degree forward counterbalance, phase-linked ±5-degree roll, and half Head counter-rotation. Mesh, rig/rest pose, pelvis, feet, root movement, camera and gameplay speed remain unchanged. The layer adds to the genuine Attack pose; it does not replace it with a neutral pose or invent projectile-release timing.
+
+Build and scoped runtime tests pass. A/B authoritative state, root/camera, non-Chest/Head local bone transforms, morphs, Attack starts, clip phase and sole material points match. Native recordings cover two full-speed backward cycles; evaluated Hand_L/R attachments match their bones in all 180 frames. The original stationary-facing 225-check and Host 231-check regressions also pass. These checks do not establish mobile performance or complete animation lifecycle acceptance.
+
+The visual result is not accepted: the torso/head change remains small at the original game scale, and backward foot/support exchange is still difficult to read. No catastrophic shape failure was observed, but the curve does not provide sufficient improvement for user review. The single-candidate strategy is stopped and retained as an experiment; there is no amplitude sweep, other-hero expansion, moving-fire controller or production merge.
