@@ -406,7 +406,11 @@ internal sealed class DisplacementRunPresentation
             f.ResumeVerticalVelocity = incoming.Y;
             // Stop the actual descent before floor contact, not by clamping the evaluated position.
             // At tau the clearance is h + v*tau/2 >= h/2, with zero vertical speed.
+            // Do not restart a25ms brake for harmless tiny descent on every one-tick tap.
+            // The ordinary Hermite's first height control point stays >=h/3 when |v|*T<=2h.
+            // Only the fast-descent/low-clearance case needs the short analytic braking segment.
             f.ResumeBrakeDuration = incoming.Y < 0 && f.ResumeHeight > 0
+                && -incoming.Y * ResumeDuration > 2 * f.ResumeHeight
                 ? Math.Min(ResumeDuration / 2, f.ResumeHeight / -incoming.Y) : 0;
             if (f.ResumeHold)
             {
