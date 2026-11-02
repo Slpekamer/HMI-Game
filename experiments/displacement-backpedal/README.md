@@ -1,4 +1,4 @@
-# Backpedal displacement pilot — awaiting native review
+# Backpedal displacement pilot — native captured, motion/style review pending
 
 The user accepted the forward Run/settle motion and static proportions. This separate branch tests **one backward pilot for the same character**, not production integration. Sideways motion and moving-fire heading remain later work; no other hero is changed.
 
@@ -22,7 +22,9 @@ The approved Run implementation is retained unchanged. The Backpedal adapter is 
 - A clean remote reconstruction ran all accepted Run steady/tap/restart checks. Across 552 authority/camera/motion/pose/sole/locomotion trace files, the new host path matches the accepted Run reference byte-for-byte.
 - Across 92 backward/Run authority trace files with identical input scenarios, Core positions/events/projectiles match exactly. A/B upper-local poses and morph/event timing also match within each gait.
 
-These are bounded numerical and lifecycle results. **Native deformation, reverse-step readability, landing/airborne style and normal-speed appearance are pending.** No backward action or full controller acceptance is claimed.
+Fresh native captures completed both backward continuous-tap and short-tap chapters. All four streams preserve all 195 simulation ticks; each AVI has one repeated terminal stamped frame that is explicitly omitted. The full-width Chinese A-then-B video is 780 frames / 13 seconds at 60 fps, 1280x752 including the title margin, and passed complete decoding. Native actual CPU skin, boot envelopes and locomotion traces match the corresponding headless cases byte-for-byte; authority/camera match A/B and each stream has 195 post-draw attachment samples with zero measured transform error. Runtime logs are clean; the existing editor-import shutdown diagnostic is tracked separately, not called an all-logs-clean result.
+
+These are bounded numerical, lifecycle and capture results. **Actual reverse-step readability, deformation, landing/airborne style and normal-speed appearance await motion/style review.** No backward action or full controller acceptance is claimed.
 
 ## Reproduce
 Use the dependency setup in `../displacement-run/README.md`. Every runner needs a fresh output directory and a Godot .NET executable.
