@@ -43,3 +43,8 @@ The frozen restart candidate completed actual native flight-stop, restart-delay-
 Each source AVI contains one repeated final stamped frame. The comparison preserves every unique simulation tick (180/195/195) and drops only those repeated terminal encoded frames; three side-by-side chapters total 570 frames at 60 fps. The clean experiment video is archived separately, not included in Git. Pixel sampling found clearer foot exchange and no obvious broken limb, but continuous normal-speed naturalness/grounding is still a visual review gate.
 
 The next isolated WIP adds opt-in tap patterns starting from idle or steady Run, with one-/two-tick releases and resumptions, then either held movement or a full stop. It is intended to expose and fix the remaining stop-during-resume exception, not to declare that limitation acceptable. This fixture checkpoint has not yet validated a new component correction.
+
+## Safe tap-stop candidate — untested WIP
+The first tap fixture reproduced 14 failures in 16 B cases: twelve stop-during-resume exceptions and two one-/two-tick initial-run stops that could not finish contact release using residual root displacement. These are ordinary-input defects, not accepted final limitations.
+
+A new isolated candidate routes those stops from the current evaluated pose and velocity. Grounded feet explicitly lift from the retained world anchor before stepping to a reachable neutral landing target; airborne feet brake and settle without redefining the ground. Current body offset is retained through a bounded transition. Core/root, mesh/rest proportions, uniform scale and steady gait are unchanged; ground/reach guards remain. Source is checkpointed before build/runtime tests, with no success claim yet.

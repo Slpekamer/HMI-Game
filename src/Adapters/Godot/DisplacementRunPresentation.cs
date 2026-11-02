@@ -25,7 +25,8 @@ internal sealed class DisplacementRunPresentation
     private float _distance, _phaseOffset, _age, _stopAge, _bodyDelta, _hop, _ground;
     private bool _applied, _started, _stopping, _initialCaptured;
     private int _footfalls, _restartCount;
-    private bool _resuming;
+    private bool _resuming, _tapStopping;
+    private float _stopBodyOffset, _stopBodyVelocityOffset;
     private float _resumeAge, _resumeBodyOffset, _resumeBodyVelocityOffset, _bodyVelocity, _lastSpeed;
     private string _failure = "";
     public object Diagnostics { get; private set; } = new { state = "not-started" };
@@ -39,7 +40,8 @@ internal sealed class DisplacementRunPresentation
         public float UpperLength, LowerLength, AnkleY, Phase, Margin, SettleAge;
         public bool Stance, Settling, Settled, StopReleasePending;
         public Vector3 SettleRelative, SettleVelocity, Velocity, ResumeOffset, ResumeVelocityOffset;
-        public bool ResumeHold;
+        public bool ResumeHold, TapSettle, TapLiftoff;
+        public float TapHorizontalBrake, TapVerticalBrake, TapHeight, TapVerticalVelocity;
         public float ResumeHeight, ResumeVerticalVelocity, ResumeBrakeDuration;
         public float SettleLift;
         public string State = "initial";
@@ -133,9 +135,10 @@ internal sealed class DisplacementRunPresentation
     public void Reset()
     {
         RestoreBase(); _distance = _age = _stopAge = _bodyDelta = _hop = 0; _footfalls = 0;
-        _started = _stopping = _initialCaptured = _resuming = false;
+        _started = _stopping = _initialCaptured = _resuming = _tapStopping = false;
+        _stopBodyOffset = _stopBodyVelocityOffset = 0;
         _resumeAge = _resumeBodyOffset = _resumeBodyVelocityOffset = _bodyVelocity = _lastSpeed = 0; _restartCount = 0; _failure = ""; _lastRoot = GodotObject.IsInstanceValid(_root) && _root.IsInsideTree() ? _root.GlobalPosition : Vector3.Zero;
-        foreach (var f in _feet) { f.CycleIndex = int.MinValue; f.Stance = f.Settling = f.Settled = f.StopReleasePending = false; f.SettleVelocity = f.Velocity = f.ResumeOffset = f.ResumeVelocityOffset = Vector3.Zero; f.ResumeHold = false; f.ResumeHeight = f.ResumeVerticalVelocity = f.ResumeBrakeDuration = 0; f.State = "reset"; }
+        foreach (var f in _feet) { f.CycleIndex = int.MinValue; f.Stance = f.Settling = f.Settled = f.StopReleasePending = false; f.SettleVelocity = f.Velocity = f.ResumeOffset = f.ResumeVelocityOffset = Vector3.Zero; f.ResumeHold = f.TapSettle = f.TapLiftoff = false; f.ResumeHeight = f.ResumeVerticalVelocity = f.ResumeBrakeDuration = 0; f.State = "reset"; }
         Diagnostics = new { state = "reset", distance = 0f };
     }
     public void Advance(float dt, bool moving, Vector3 authoritativeTarget)
@@ -153,7 +156,11 @@ internal sealed class DisplacementRunPresentation
         }
         if (!_started) { _started = true; _age = 0; }
         if (_stopping && moving) BeginResume(displacement);
-        if (!moving && !_stopping) { if (_resuming) Fail("Stop interrupted the bounded50ms resume bridge"); _stopping = true; _stopAge = 0; foreach (var f in _feet) f.StopReleasePending = f.Stance; }
+        if (!moving && !_stopping)
+        {
+            if (_resuming || _age < ResumeDuration) BeginTapStop(displacement);
+            else { _tapStopping = false; _stopping = true; _stopAge = 0; foreach (var f in _feet) f.StopReleasePending = f.Stance; }
+        }
         _distance += traveled; _age += dt; if (_stopping) _stopAge += dt; if (_resuming) _resumeAge += dt;
         float previousBodyDelta = _bodyDelta;
         for (int i = 0; i < _owned.Length; i++) _base[i] = _skeleton.GetBonePose(_owned[i]);
@@ -170,6 +177,8 @@ internal sealed class DisplacementRunPresentation
             _bodyDelta = (desiredHipY - restHipY) * start * (1 - settleRise);
             float resumeT = Math.Clamp(_resumeAge / ResumeDuration, 0, 1);
             if (_resuming) _bodyDelta += BridgeOffset(resumeT, _resumeBodyOffset, _resumeBodyVelocityOffset);
+            if (_tapStopping && _stopAge < ResumeDuration)
+                _bodyDelta += BridgeOffset(_stopAge / ResumeDuration, _stopBodyOffset, _stopBodyVelocityOffset);
             var pelvis = _restPelvis; pelvis.Origin += _skeleton.GlobalBasis.Inverse() * new Vector3(0, _bodyDelta, 0);
             SetGlobal(_pelvis, pelvis);
             foreach (var f in _feet)
@@ -181,9 +190,9 @@ internal sealed class DisplacementRunPresentation
                 // A planted stop foot first follows the existing distance-domain release fillet.
                 // Its old world anchor is NOT a valid airborne start after the hip passes the rear reach bound.
                 bool releaseReady = !f.StopReleasePending || (q >= Contact + Fillet && q < Cycle);
-                if (_stopping && f.StopReleasePending && !releaseReady && _stopAge >= .2f)
+                if (_stopping && !_tapStopping && f.StopReleasePending && !releaseReady && _stopAge >= .2f)
                     Fail("Stop residual displacement insufficient to finish locked-contact release within200ms");
-                if (_stopping && !f.Settling && !f.Settled && releaseReady)
+                if (_stopping && !_tapStopping && !f.Settling && !f.Settled && releaseReady)
                 {
                     f.SettleVelocity = Vector3.Zero;
                     if (f.StopReleasePending)
@@ -216,6 +225,39 @@ internal sealed class DisplacementRunPresentation
                         {
                             f.Anchor = f.World; f.Stance = true; f.State = "stance-anchor";
                             if (!wasStance) _footfalls++;
+                        }
+                    }
+                }
+                else if (_tapStopping && (f.TapLiftoff || f.TapSettle))
+                {
+                    if (f.TapLiftoff)
+                    {
+                        // With too little residual root travel, a planted tap foot cannot wait forever
+                        // for a distance-domain release. Lift from the SAME world anchor first.
+                        float liftTime = Fillet / 4.8f;
+                        f.World = f.Anchor;
+                        f.World.Origin += Vector3.Up * (Lift * Smooth(_stopAge / liftTime));
+                        f.Stance = false; f.State = "tap-liftoff";
+                        if (_stopAge >= liftTime)
+                        {
+                            f.TapLiftoff = false;
+                            InitializeTapAir(f, hipWorld, Vector3.Zero, traveled / dt, _stopAge);
+                        }
+                    }
+                    if (f.TapSettle)
+                    {
+                        if (f.Settled) { f.World = f.Anchor; f.Stance = true; f.State = "settled-anchor"; }
+                        else
+                        {
+                            float duration = .2f - f.SettleAge, elapsed = _stopAge - f.SettleAge;
+                            if (duration <= Math.Max(f.TapHorizontalBrake, f.TapVerticalBrake)) Fail("No tap settle interval remains after braking");
+                            Vector3 goal = authoritativeTarget + (_skeleton.GlobalTransform * f.RestFoot.Origin - root); goal.Y = f.AnkleY;
+                            Vector3 relative = TapHorizontal(f, elapsed, duration, Horizontal(goal - hipWorld));
+                            Vector3 target = hipWorld + relative;
+                            target.Y = TapVertical(f, elapsed, duration);
+                            if (target.Y < f.AnkleY - .00001f) Fail("Tap settle would put rigid sole below preserved ground");
+                            f.World = new Transform3D(f.Flat, target); f.Stance = false; f.State = "tap-settle";
+                            if (elapsed >= duration) { f.Anchor = f.World; f.Settled = true; f.Stance = true; f.State = "settled-anchor"; }
                         }
                     }
                 }
@@ -270,6 +312,73 @@ internal sealed class DisplacementRunPresentation
             _failure = ex.Message; Diagnostics = ReadDiagnostics(traveled, authoritativeTarget); throw;
         }
     }
+    private void BeginTapStop(Vector3 currentDisplacement)
+    {
+        // Only transient stop entry changes. Actual applied pose/velocities/ground survive.
+        float nominalBody = _feet[0].AnkleY + Height + NominalHop(_distance)
+            - (_skeleton.GlobalTransform * _feet[0].RestThigh.Origin).Y;
+        _stopBodyOffset = _bodyDelta - nominalBody;
+        _stopBodyVelocityOffset = _bodyVelocity - NominalHopDerivative(_distance) * _lastSpeed;
+        _tapStopping = _stopping = true; _resuming = false; _stopAge = 0;
+        foreach (var f in _feet)
+        {
+            f.Settling = f.Settled = f.StopReleasePending = false;
+            f.TapSettle = f.TapLiftoff = false;
+            if (f.Stance)
+            {
+                f.Anchor = f.World; f.TapLiftoff = true;
+            }
+            else
+            {
+                Vector3 previousHip = _skeleton.GlobalTransform * f.RestThigh.Origin - currentDisplacement
+                    + Vector3.Up * _bodyDelta;
+                InitializeTapAir(f, previousHip, f.Velocity, _lastSpeed, 0);
+            }
+        }
+    }
+    private void InitializeTapAir(Foot f, Vector3 hipWorld, Vector3 velocity, float rootSpeed, float startAge)
+    {
+        f.TapSettle = true; f.Settling = false; f.Settled = false; f.SettleAge = startAge;
+        f.SettleRelative = Horizontal(f.World.Origin - hipWorld);
+        f.SettleVelocity = Horizontal(velocity) - _forward * rootSpeed;
+        f.TapHeight = f.World.Origin.Y - f.AnkleY; f.TapVerticalVelocity = velocity.Y;
+        f.TapVerticalBrake = Math.Abs(velocity.Y) < .000001f ? 0 : ResumeDuration / 2;
+        if (velocity.Y < 0 && f.TapHeight > 0)
+            f.TapVerticalBrake = Math.Min(f.TapVerticalBrake, f.TapHeight / -velocity.Y);
+        if (velocity.Y < 0 && f.TapHeight <= 0) Fail("Descending tap foot has no ground clearance");
+        // Brake relative horizontal velocity inside half of the currently available reach distance.
+        // This changes time, never clamps a pose or scales a limb. Every actual 3D target still passes Solve.
+        float speed = f.SettleVelocity.Length(); f.TapHorizontalBrake = 0;
+        if (speed > .000001f)
+        {
+            float length = (f.UpperLength + f.LowerLength) * _scale - .000001f;
+            float h = hipWorld.Y - f.World.Origin.Y, radiusSquared = length*length-h*h;
+            Vector3 direction = f.SettleVelocity / speed;
+            float b = f.SettleRelative.Dot(direction);
+            float disc = b*b + radiusSquared - f.SettleRelative.LengthSquared();
+            if (disc <= 0) Fail("Tap horizontal braking has no reachable corridor");
+            float room = -b + MathF.Sqrt(disc);
+            if (room <= 0) Fail("Tap horizontal braking starts outside reach");
+            f.TapHorizontalBrake = Math.Min(ResumeDuration / 2, room / speed);
+        }
+    }
+    private static Vector3 TapHorizontal(Foot f, float elapsed, float duration, Vector3 targetRelative)
+    {
+        float tau = f.TapHorizontalBrake;
+        if (tau > 0 && elapsed <= tau)
+            return f.SettleRelative + f.SettleVelocity * (elapsed - elapsed*elapsed/(2*tau));
+        Vector3 braked = f.SettleRelative + f.SettleVelocity * (tau/2);
+        return braked.Lerp(targetRelative, Smooth((elapsed-tau)/(duration-tau)));
+    }
+    private static float TapVertical(Foot f, float elapsed, float duration)
+    {
+        float tau = f.TapVerticalBrake;
+        if (tau > 0 && elapsed <= tau)
+            return f.AnkleY + f.TapHeight + f.TapVerticalVelocity * (elapsed-elapsed*elapsed/(2*tau));
+        float braked = f.TapHeight + f.TapVerticalVelocity*tau/2;
+        float t = Smooth((elapsed-tau)/(duration-tau));
+        return f.AnkleY + (1-t)*braked + Lift*Square(MathF.Sin(MathF.PI*t));
+    }
     private void BeginResume(Vector3 currentDisplacement)
     {
         // These values are the previous actually rendered pose, not the mixer's freshly restored base.
@@ -305,8 +414,9 @@ internal sealed class DisplacementRunPresentation
                 if (Horizontal(f.ResumeOffset).Length() > .0001f) Fail("Restart support is not laterally aligned with its hip");
                 f.ResumeOffset = f.ResumeVelocityOffset = Vector3.Zero;
             }
-            f.Settling = f.Settled = f.StopReleasePending = false;
+            f.Settling = f.Settled = f.StopReleasePending = f.TapSettle = f.TapLiftoff = false;
         }
+        _tapStopping = false;
         _resumeAge = 0; _resuming = true; _stopping = false; _restartCount++;
         // _distance, _ground, ankle heights, current bodyDelta and anchors deliberately survive.
     }
@@ -390,13 +500,13 @@ internal sealed class DisplacementRunPresentation
     }
     private object ReadDiagnostics(float traveled, Vector3 authority)
     {
-        return new { state = _failure.Length>0 ? "failed" : _stopping ? "stopping" : _resuming ? "resuming" : "running", failure = _failure,
+        return new { state = _failure.Length>0 ? "failed" : _stopping ? (_tapStopping ? "tap-stopping" : "stopping") : _resuming ? "resuming" : "running", failure = _failure,
             distance = _distance, phase = Mod(_distance+_phaseOffset,Cycle), phaseOffset = _phaseOffset,
-            renderDistance = traveled, footfalls = _footfalls, restartCount = _restartCount, resumeAge = _resumeAge, resumeDuration = ResumeDuration, startAge = _age, stopAge = _stopAge,
+            renderDistance = traveled, footfalls = _footfalls, restartCount = _restartCount, resumeAge = _resumeAge, resumeDuration = ResumeDuration, tapStopping = _tapStopping, startAge = _age, stopAge = _stopAge,
             bodyDrop = -_bodyDelta, bodyHop = _hop, height = Height, groundY = _ground,
             root = V(_root.GlobalPosition), authorityTarget = V(authority),
             feet = _feet.Select(f => new { side = f.Side==0?"L":"R", phase=f.Phase, state=f.State, stance=f.Stance,
-                reachMargin=f.Margin, worldVelocity=V(f.Velocity), resumeHeldAnchor=f.ResumeHold, resumeOffset=V(f.ResumeOffset), resumeVelocityOffset=V(f.ResumeVelocityOffset), resumeInitialSoleHeight=f.ResumeHeight, resumeInitialVerticalVelocity=f.ResumeVerticalVelocity, resumeBrakeDuration=f.ResumeBrakeDuration, stopReleasePending=f.StopReleasePending, settleAge=f.SettleAge, settleInitialRelativeVelocity=V(f.SettleVelocity), anchor=V(f.Anchor.Origin), ankle=V(f.World.Origin), ankleGroundY=f.AnkleY,
+                reachMargin=f.Margin, worldVelocity=V(f.Velocity), resumeHeldAnchor=f.ResumeHold, resumeOffset=V(f.ResumeOffset), resumeVelocityOffset=V(f.ResumeVelocityOffset), resumeInitialSoleHeight=f.ResumeHeight, resumeInitialVerticalVelocity=f.ResumeVerticalVelocity, resumeBrakeDuration=f.ResumeBrakeDuration, tapHorizontalBrake=f.TapHorizontalBrake, tapVerticalBrake=f.TapVerticalBrake, tapInitialHeight=f.TapHeight, tapInitialVerticalVelocity=f.TapVerticalVelocity, stopReleasePending=f.StopReleasePending, settleAge=f.SettleAge, settleInitialRelativeVelocity=V(f.SettleVelocity), anchor=V(f.Anchor.Origin), ankle=V(f.World.Origin), ankleGroundY=f.AnkleY,
                 solePositions=f.Sole.Select(p=>V((_skeleton.GlobalTransform*_skeleton.GetBoneGlobalPose(f.Bone))*p)).ToArray() }).ToArray() };
     }
     private void Fail(string message) { _failure = message; throw new InvalidOperationException("DisplacementRun: " + message); }
