@@ -1,0 +1,31 @@
+using Hmi.Core;
+using Hmi.Adapters.Persistence;
+using System.Security.Cryptography;
+using System.Text.Json;
+
+string root=args[0];bool selected=args[1]=="selected";
+byte[] bytes=File.ReadAllBytes(Path.Combine(AppContext.BaseDirectory,"gameplay.json"));string catalog=Convert.ToHexString(SHA256.HashData(bytes)).ToLowerInvariant();
+var sim=new GameSimulation(JsonSerializer.Deserialize<GameContent>(bytes,new JsonSerializerOptions{PropertyNameCaseInsensitive=true})!,new SimulationLimits(32,10,4),catalog);
+var files=new PhysicalRuleMigrationFiles(Path.Combine(root,"registry"),Path.Combine(root,"legacy"));var c=new RuleMigrationCoordinator(files,sim);
+if(args[1].StartsWith("create-"))
+{
+ const string oldRun="11111111111111111111111111111111",newRun="22222222222222222222222222222222",op="33333333333333333333333333333333";
+ sim.PrepareRun("honey",1030);if(!sim.TryCapturePrepared(new CheckpointIdentity(Guid.ParseExact(oldRun,"N"),2),out var dto,out _))throw new Exception("old fixture capture");dto!.RulesVersion=WaveRules.LegacyVersion;
+ var old=new CheckpointStore(files.Legacy,catalog,WaveRules.LegacyVersion,(_,_)=>true);old.BeginRun(oldRun,Guid.NewGuid().ToString("N"),0);old.Save(oldRun,Guid.NewGuid().ToString("N"),1,JsonSerializer.SerializeToUtf8Bytes(dto));
+ if(args[1]=="create-newgame")old.Close(oldRun,Guid.NewGuid().ToString("N"),2);
+ var inspection=c.Inspect();if(args[1]=="create-newgame")c.InitializeNewGame(op,newRun,inspection.Fingerprint);else c.Confirm(op,newRun,inspection.Fingerprint);
+ Console.WriteLine("OLD_WRITER_SCHEMA2_CREATED "+args[1]);return;
+}
+
+string State()=>string.Join("|",Directory.GetFiles(root,"*",SearchOption.AllDirectories).OrderBy(p=>p).Select(p=>p+":"+Convert.ToHexString(File.ReadAllBytes(p))));
+string before=State();var inspect=c.Inspect();var read=c.ReadPendingConsent();
+if(inspect.Kind!=(selected?MigrationKind.Uncertain:MigrationKind.Incomplete)||read.Kind!=PendingConsentKind.Blocked||read.Consent!=null)throw new Exception("Old reader accepted schema3 authority");
+foreach(bool migrate in new[]{false,true})
+{
+ bool refused=false;
+ try{if(migrate)c.Confirm("33333333333333333333333333333333","22222222222222222222222222222222",new string('A',64));else c.InitializeNewGame("33333333333333333333333333333333","22222222222222222222222222222222",new string('A',64));}
+ catch(InvalidDataException e){refused=e.Message==(selected?"Invalid selector":"Invalid migration intent");Console.WriteLine("OLD_READER_REFUSAL "+e.Message);}
+ if(!refused)throw new Exception("Old write API did not reject actual schema3");
+}
+if(before!=State()||sim.Phase!=RunPhase.Selecting||sim.Tick!=0)throw new Exception("Old reader mutated files or authority");
+Console.WriteLine("OLD_READER_SCHEMA3_REJECT PASS inspect="+inspect.Kind+" pending="+read.Kind+" no writes");

@@ -30,6 +30,7 @@ public partial class CheckpointHostProbe : Node
             host=new GameHost();AddChild(host);host.SetProcess(false);await Flush();
             var sim=(GameSimulation)Field("_sim");var ui=(GameUi)Field("_ui");
             Call("Start",3,(uint)1030);host.SetProcess(false);
+            Check((bool)Field("_ruleSelected"),"production Start selects an actual rule2 slot before the Session-only fault seam");
             var productionSession=(CheckpointSession)Field("_checkpoint");
             Check(sim.Phase==RunPhase.Combat && productionSession.CurrentRecovery.Kind==RecoveryKind.Active,
                 "actual host catalog hash agrees with Core codec and production store");
@@ -39,6 +40,8 @@ public partial class CheckpointHostProbe : Node
             var codec=new CheckpointCodec(sim);
             var store=new CheckpointStore(files,sim.CatalogHash,GameSimulation.CheckpointRulesVersion,codec.Validate);
             var session=new CheckpointSession(sim,store,codec);
+            // The real Start above selected rule2. From here this tests the original Session fault seam,
+            // not registry/selector fault integration, and never changes _ruleSelected by reflection.
             typeof(GameHost).GetField("_checkpoint",Flags).SetValue(host,session);Call("BindPersistenceUi");
             Call("Start",3,(uint)1030);host.SetProcess(false);
             Check(sim.Phase==RunPhase.Combat&&sim.Tick==0,"start only after prepared commit");
@@ -55,7 +58,7 @@ public partial class CheckpointHostProbe : Node
             oldResume();
             Check(sim.CharacterId=="honey"&&sim.Tick==0,"old selection callback cannot restore previous hero");
             // Force only transition timing in this test copy; real session/menu/commit paths remain production.
-            sim.Run.Tick=1440;sim.World.Health[sim.PlayerId.Index].Current=100;sim.Step();Call("RefreshUi");
+            sim.Run.Tick=WaveRules.DurationTicks;sim.World.Health[sim.PlayerId.Index].Current=100;sim.Step();Call("RefreshUi");
             Check(sim.Phase==RunPhase.Between,"controlled between state");
             var offer=sim.GetOffers()[0];sim.Enqueue(GameCommand.Choose(offer.Id));sim.Step();Call("RefreshUi");
             int coins=sim.Coins;long beforeNext=store.Recover().Control.Sequence;

@@ -1,9 +1,0 @@
-# C2 eight production nodes — independent review
-
-2026-10-31 19:06 UTC. Fresh isolated build/run: **546285 assertions PASS**, c2-independent-final.log. Source/content hashes: c2-independent-source-sha256.txt. Reviewer authored only ProductionBranchIndependentTests.cs, released after run.
-
-Added independent tests for actual production fusion ALL/ANY missing prerequisites, alternative geometry paths, rank-two boundary, explicit range/force tradeoffs and unchanged ricochet hit count. Every exclusive branch is tested on its minimal legal prerequisite build, including negative effects, sibling lock, legacy path remaining unlocked, and unchanged common melee damage/rate. Worker tests compare actual production legacy 21-card prefix/four items/five heroes against frozen legacy data rather than testing the fixture alone. Original suite continues on that legacy fixture; new production suite is separately executed.
-
-250 synthetic finite progression runs (five heroes × 50 seeds, instant test-only wave completion) observed each new node at least once: outer12, inner5, longwatch4, skirmish5, longpush9, heavy5, sugaring1, relaypush1. This is offer eligibility/distribution evidence, NOT combat survival or balanced rarity. Fusion appearances are sparse in this sample and six-wave mode offers little time to enjoy late unlocks; actual playtesting/endless depth remain open.
-
-Eight nodes use existing registered stat effects, not new damage triggers. Their fusion names do not imply an extra hit-chain mechanic. No new core system changes in C2. No new blocking logic defect found in this reviewed content slice. Actual long text, graph/lock/current-rank UI, effect feedback and user gameplay enjoyment still require adapter/native gates. This is not an endless or save-system implementation/approval.

@@ -53,13 +53,13 @@ static class Program
         for (int i = 0; i < g.Capacity; i++)
         if (g.World.Has(i, Components.Enemy))
             g.World.Destroy(i);
-        g.SpawnTimer = 999;
+        g.SpawnTimer = 999; g.SpawnReservations.ResetScope(); /* Controlled empty-arena fixture removes rule2 previews. */
     }
     static EntityId Enemy(GameSimulation g, float x, float y, float hp = 100) => g.World.Create(Components.Enemy | Components.Health, new Vec2(x, y), .44f, "enemy_chaser", hp);
     static void Finish(GameSimulation g)
     {
         Empty(g);
-        int guard = 2000;
+        int guard = WaveRules.DurationTicks + 600;
         while (g.Phase == RunPhase.Combat && guard-- > 0)
         {
             g.World.Health[g.PlayerId.Index].Current = 10000;
@@ -88,8 +88,23 @@ static class Program
             g.Step();
         }
     }
-    static void Main()
+    static void Main(string[] args)
     {
+        if (Array.IndexOf(args, "--print-projectile-golden") >= 0)
+        {
+            var data = Load(); Console.WriteLine("RULE3_SCHEMA1 " + LegacyParity.Digest(data).ToString("X16"));
+            data.SchemaVersion = 2; Console.WriteLine("RULE3_SCHEMA2 " + LegacyParity.Digest(data).ToString("X16")); return;
+        }
+        ProjectileTests.Run(Check);
+        ProjectileIndependentTests.Run(Check);
+        if (Array.IndexOf(args, "--projectiles-only") >= 0)
+        { Console.WriteLine("PROJECTILE P1 PASS " + checks); return; }
+        if (Array.IndexOf(args, "--classify-legacy") >= 0) { ClassifyLegacyGroups(); return; }
+        Wave60TimingTests.Run(Check);
+        SpawnPreviewTests.Run(Check);
+        WaveSpawnIndependentTests.Run(Check);
+        CombatObservationTests.Run(Check);
+        CombatObservationIndependentTests.Run(Check);
         SchemaV2IndependentTests.Run(Check);
         SchemaV2Tests.Run(Check);
         ProductionBranchTests.Run(Check);
@@ -110,6 +125,45 @@ static class Program
         Replay();
         Performance();
         Console.WriteLine("PASS " + checks + " freshly executed assertions; reconstructed core netstandard2.1; host net10.0.");
+    }
+    static void ClassifyLegacyGroups()
+    {
+        var groups = new (string Name, Action Run)[]
+        {
+            ("Wave60TimingTests", () => Wave60TimingTests.Run(Check)),
+            ("SpawnPreviewTests", () => SpawnPreviewTests.Run(Check)),
+            ("WaveSpawnIndependentTests", () => WaveSpawnIndependentTests.Run(Check)),
+            ("CombatObservationTests", () => CombatObservationTests.Run(Check)),
+            ("CombatObservationIndependentTests", () => CombatObservationIndependentTests.Run(Check)),
+            ("SchemaV2IndependentTests", () => SchemaV2IndependentTests.Run(Check)),
+            ("SchemaV2Tests", () => SchemaV2Tests.Run(Check)),
+            ("ProductionBranchTests", () => ProductionBranchTests.Run(Check)),
+            ("ProductionBranchIndependentTests", () => ProductionBranchIndependentTests.Run(Check)),
+            ("EndlessTests", () => EndlessTests.Run(Check)),
+            ("EndlessIndependentTests", () => EndlessIndependentTests.Run(Check)),
+            ("TemporaryContractTests", () => TemporaryContractTests.Run(Check)),
+            ("TemporaryContractIndependentTests", () => TemporaryContractIndependentTests.Run(Check)),
+            ("TimedHealthIndependentTests", () => TimedHealthIndependentTests.Run(Check)),
+            ("PreparedCheckpointTests", () => PreparedCheckpointTests.Run(Check)),
+            ("PreparedCheckpointIndependentTests", () => PreparedCheckpointIndependentTests.Run(Check)),
+            ("Catalog", () => Catalog()),
+            ("Lifecycle", () => Lifecycle()),
+            ("RemovedDodge", () => RemovedDodge()),
+            ("Economy", () => Economy()),
+            ("Durations", () => Durations()),
+            ("Mechanics", () => Mechanics()),
+            ("Replay", () => Replay()),
+            ("Performance", () => Performance()),
+        };
+        int failures = 0;
+        foreach (var group in groups)
+        {
+            int before = checks;
+            try { group.Run(); Console.WriteLine($"LEGACY_GROUP PASS {group.Name} checks={checks - before}"); }
+            catch (Exception error) { failures++; Console.WriteLine($"LEGACY_GROUP RED {group.Name}: {error.Message}"); }
+        }
+        Console.WriteLine($"LEGACY_CLASSIFICATION groups={groups.Length} red={failures} checked={checks}");
+        Environment.ExitCode = failures == 0 ? 0 : 1;
     }
     static void Catalog()
     {
@@ -417,21 +471,39 @@ static class Program
         var b = Enemy(g, 6, 0);
         var c = Enemy(g, 10, 0);
         g.Step();
-        Near(g.World.Health[a.Index].Current, 95.5f, "common melee plus first shot");
-        Near(g.World.Health[b.Index].Current, 98.5f, "one hop");
+        Near(g.World.Health[a.Index].Current, 98.5f, "launch tick only shared melee; projectile not at victim yet");
+        Near(g.World.Health[b.Index].Current, 100, "no future hop damage at launch");
+        long firstHit = -1, secondHit = -1;
+        int flightGuard = 40;
+        while (g.ProjectileCount > 0 && flightGuard-- > 0)
+        {
+            g.Step();
+            for (int i = 0; i < g.ProjectileTransitionCount; i++)
+            {
+                var projectileHit = g.GetProjectileTransition(i);
+                if (projectileHit.Kind != ProjectileTransitionKind.Impact) continue;
+                if (projectileHit.Target == a) { firstHit = projectileHit.Tick; Near(g.World.Health[b.Index].Current, 100, "next enemy still unharmed on first impact tick"); }
+                if (projectileHit.Target == b) secondHit = projectileHit.Tick;
+            }
+        }
+        Check(firstHit > 1 && secondHit > firstHit && flightGuard > 0, "actual first impact then strictly later next-hop impact");
+        Near(g.World.Health[a.Index].Current, 95.5f, "common melee plus actual first projectile contact");
+        Near(g.World.Health[b.Index].Current, 98.5f, "one real flight hop");
         Near(g.World.Health[c.Index].Current, 100, "finite count");
         g = New("crit");
         Empty(g);
         a = Enemy(g, 3, 0);
         b = Enemy(g, -3, 0);
         g.Step();
-        Near(g.World.Health[b.Index].Current, 100, "finite hop range");
+        for (int i = 0; i < 40 && g.ProjectileCount > 0; i++) g.Step();
+        Near(g.World.Health[b.Index].Current, 100, "finite hop range after actual impact/search");
         // Use legal catalog max by moving existing chain/relay effects to the root would overcount validation; instead test repeated-target with current one bounce.
         g = New("crit");
         Empty(g);
         a = Enemy(g, 3, 0);
         g.Step();
-        Near(g.World.Health[a.Index].Current, 95.5f, "visited target not hit twice");
+        for (int i = 0; i < 40 && g.ProjectileCount > 0; i++) g.Step();
+        Near(g.World.Health[a.Index].Current, 95.5f, "visited target not hit twice after actual flight");
         g = New("orbit");
         Empty(g);
         a = Enemy(g, 5.04f, 0);

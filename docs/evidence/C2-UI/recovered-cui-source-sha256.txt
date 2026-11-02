@@ -1,4 +1,0 @@
-2b7955649845a947121720c79b8223b0b008e6da104a020b78d6acf35ab7cb11  HMI-Game-deep-tree-ui/src/Adapters/Godot/GameUi.cs
-2ae5432114f466b3ee385a23f9d3c560e8c7804493eaed5be0a32951bd8074cb  HMI-Game-deep-tree-ui/src/Adapters/Godot/GameHost.cs
-edd92136a5be8b6dbdb933e0c0bd6ae4fb0956632d8af24d88fea8cadf6ff9e4  HMI-Game-deep-tree-ui/src/Adapters/Godot/CodexFormatter.cs
-17750bad1351e67b2334f247ad7211c77185e6c2ca5180d4540c1699096cb1cc  HMI-Game-deep-tree-ui/content/fonts/CandySans.otf

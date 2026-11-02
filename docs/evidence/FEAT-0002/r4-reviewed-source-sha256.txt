@@ -1,3 +1,0 @@
-0a7cdac8fd80372524c3663f2a207fd190311b03b2fa33fd7b1ac088967faf69  HMI-Game-visual-revision/src/Adapters/Godot/GameHost.cs
-ac69ba97bacd2e0efb8c643c0009d0ebb537a7520ffe1c35e07aae56745b0bd4  HMI-Game-visual-revision/src/Adapters/Godot/GameUi.cs
-99f5772e3c9c3da1a75b71656e5c7990f45a0194b1894aa003d7231e7ccb1a80  HMI-Game-visual-revision/src/Adapters/Godot/CharacterPresentation.cs

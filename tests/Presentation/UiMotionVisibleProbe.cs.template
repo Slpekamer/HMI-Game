@@ -1,0 +1,40 @@
+using Godot;
+using Hmi.GodotAdapter;
+using System;
+using System.Linq;
+using System.Reflection;
+using System.Threading.Tasks;
+
+public partial class UiMotionVisibleProbe:Node
+{
+ int checks;const BindingFlags Flags=BindingFlags.Instance|BindingFlags.NonPublic;
+ void Check(bool ok,string why){checks++;if(!ok)throw new Exception(why);}
+ T Field<T>(GameUi ui,string name)=>(T)typeof(GameUi).GetField(name,Flags).GetValue(ui);
+ Control Screen(GameUi ui)=>Field<Control>(ui,"_screen");
+ T Named<T>(GameUi ui,string name)where T:Node=>Screen(ui).GetNode<T>(name);
+ async Task Flush(){for(int i=0;i<3;i++)await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);}
+ async Task Shot(string name)
+ {
+  var arg=OS.GetCmdlineUserArgs().FirstOrDefault(x=>x.StartsWith("--motion-capture="));if(arg==null)return;
+  await ToSignal(RenderingServer.Singleton,RenderingServer.SignalName.FramePostDraw);
+  using var image=GetViewport().GetTexture().GetImage();Check(image.SavePng(arg.Substring(17)+"-"+name+".png")==Error.Ok,"Capture "+name);
+ }
+ public override async void _Ready(){try{
+  var ui=new GameUi();AddChild(ui);ui.SetProcess(false);await Flush();var motion=Field<UiMotionController>(ui,"_motion");
+  Check(motion.ActiveCount==3,"Home actual title/subtitle/action drawings animated");var title=Named<Label>(ui,"MotionHomeTitle");Check(title.SelfModulate.A<1&&title.SelfModulate.A>=.81,"Home title is drawn and legible during enter");await Shot("home-enter");
+  ui._Process(.08);await Shot("home-mid");ui._Process(.25);Check(title.SelfModulate==Colors.White,"Home title settles exactly");await Shot("home-settled");
+  var start=Named<Button>(ui,"HomeStart");var rect=start.GetGlobalRect();start.EmitSignal(BaseButton.SignalName.ButtonDown);ui._Process(.04);Check(start.GetGlobalRect()==rect&&start.SelfModulate.R<1,"Home press visible without moved hitbox");await Shot("home-pressed");start.EmitSignal(Control.SignalName.MouseExited);Check(start.SelfModulate==Colors.White,"Drag-out resets visual only");
+  start.EmitSignal(BaseButton.SignalName.Pressed);await Flush();Check(Screen(ui).HasNode("SelectionSummary"),"Original Home action navigates immediately");
+  var summary=Named<Label>(ui,"SelectionSummary");Check(summary.SelfModulate.A<1,"Chooser real content enters");ui._Process(.25);var hero=Named<Button>(ui,"HeroCard_crit");rect=hero.GetGlobalRect();hero.EmitSignal(BaseButton.SignalName.Pressed);Check(summary.Text.Contains("卷卷")&&summary.SelfModulate.A<1,"Selection truth immediately updates and visible content cues");Check(hero.GetGlobalRect()==rect,"Selection keeps button rect");await Shot("chooser-change");ui._Process(.25);await Shot("chooser-settled");
+  var offers=new[]{new OfferUi("a","蜂蜜扩展","范围增加，保持完整文案。","trait"),new OfferUi("b","基础强化","基础选择说明。","base"),new OfferUi("c","风险契约","收益和代价始终清楚。","risk")};int picks=0;
+  ui.PickRequested=_=>{picks++;ui.ShowBetween(offers,12,12,0,true,Array.Empty<OfferUi>(),false,"卡片已加入构筑");};
+  ui.ShowBetween(offers,12,12,0,false,Array.Empty<OfferUi>(),false);await Flush();Check(motion.ActiveCount==6,"Card actual title/detail drawings enter within budget");await Shot("cards-enter");ui._Process(.25);await Shot("cards-settled");
+  var choose=Screen(ui).GetChildren().OfType<Button>().First(x=>x.Text=="选择");rect=choose.GetGlobalRect();choose.EmitSignal(BaseButton.SignalName.ButtonDown);ui._Process(.06);Check(choose.GetGlobalRect()==rect,"Card press has stable hitbox");choose.EmitSignal(BaseButton.SignalName.Pressed);Check(picks==1,"Card request is immediate not animation-delayed");choose.EmitSignal(BaseButton.SignalName.Pressed);Check(picks==1,"Retired action cannot double consume after immediate page rebuild");await Flush();Check(Named<Label>(ui,"MotionPickedStatus").SelfModulate.R<1,"Selected state truth has quiet visible emphasis");await Shot("card-picked");
+  ui.SetMotionPreferences(true);Check(motion.ActiveCount==0,"Reduced motion cancels actual page accents");ui.ShowHome();await Flush();Check(motion.ActiveCount==0&&Named<Label>(ui,"MotionHomeTitle").SelfModulate==Colors.White,"Reduced home fully readable without motion");await Shot("home-reduced");
+  ui.SetMotionPreferences(false,true);ui.ShowSelection();await Flush();Check(motion.ActiveCount==0,"Injected system preference also suppresses real chooser cues");ui.SetMotionPreferences(false);ui.ShowHome();ui._Notification((int)NotificationApplicationFocusOut);Check(motion.ActiveCount==0&&motion.Suspended,"Focus loss immediately cancels drawn cue");ui._Notification((int)NotificationApplicationFocusIn);Check(motion.ActiveCount==0,"Focus return never replays entry");
+  var button=Named<Button>(ui,"HomeStart");button.EmitSignal(BaseButton.SignalName.ButtonDown);ui._Process(.03);ui.SetLayoutMetrics(new Vector2(720,1280),new Rect2(0,0,720,1280));Check(motion.ActiveCount==0&&button.SelfModulate==Colors.White,"Resize cancels existing motion and preserves readable state");await Flush();await Shot("home-portrait");
+  ui.ShowCombat();Check(motion.ActiveCount==0,"Combat transition clears page cues; no HP/wallet feature added");
+  RemoveChild(ui);ui.QueueFree();await Flush();Check(motion.ActiveCount==0,"Actual GameUi ExitTree releases held motion references");
+  GD.Print("UI_MOTION_VISIBLE_PROBE PASS "+checks+" controlled UI hooks only; no native gesture/device claim");GetTree().Quit();
+ }catch(Exception ex){GD.PushError(ex.ToString());GetTree().Quit(1);}}
+}

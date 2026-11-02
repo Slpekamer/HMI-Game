@@ -4,27 +4,9 @@ namespace Hmi.Core
     {
         internal static void SpawnEnemy(GameSimulation g)
         {
-            int enemies = 0;
-            for (int i = 0; i < g.Capacity; i++)
-                if (g.World.Has(i, Components.Enemy)) enemies++;
-            if (enemies >= g.Limits.EnemyCapacity || g.EntityCount >= g.Capacity || !g.World.HasFreeSlot) return;
-            uint random = g.Random();
-            int edge = g.SpawnCounter++ % 4;
-            float fraction = random % 10000 / 10000f;
-            float x, y;
-            if (edge < 2)
-            {
-                x = edge == 0 ? -12.8f : 12.8f;
-                y = -6.5f + fraction * 13;
-            }
-            else
-            {
-                x = -12.5f + fraction * 25;
-                y = edge == 2 ? -6.8f : 6.8f;
-            }
-            g.World.Create(Components.Enemy | Components.Health, new Vec2(x, y), .44f,
-                "enemy_chaser", 8 * g.EffectiveEnemyHealthMultiplier);
+            g.SpawnReservations.Schedule(g);
         }
+
         internal static void RecallCompanions(GameSimulation g)
         {
             int count = 0;
@@ -44,7 +26,7 @@ namespace Hmi.Core
     }
     internal static class DamageResolutionSystem
     {
-        internal static void Apply(GameSimulation g, int target, float amount, EntityId source)
+        internal static void Apply(GameSimulation g, int target, float amount, EntityId source, FeedbackMechanism mechanism = FeedbackMechanism.Unknown)
         {
             var w = g.World;
             if (g.Phase != RunPhase.Combat || !w.Has(target, Components.Enemy | Components.Health))
@@ -52,7 +34,7 @@ namespace Hmi.Core
             amount *= 1 + (g.PowerTime > 0 ? .25f : 0);
             w.Health[target].Current -= amount;
             g.Emit(EventKind.Damage, source, w.Id(target), w.Alive(source)
-                ? w.Transform[source.Index].Position : w.Transform[target].Position, w.Transform[target].Position, amount);
+                ? w.Transform[source.Index].Position : w.Transform[target].Position, w.Transform[target].Position, amount, mechanism);
             if (w.Health[target].Current <= 0)
             {
                 // Mark before awarding. Later damage in this tick cannot pay for the same life twice.

@@ -1,0 +1,46 @@
+using Godot;
+using Hmi.Core;
+using Hmi.GodotAdapter;
+using System;
+using System.IO;
+using System.Text;
+using System.Reflection;
+using System.Text.Json;
+using System.Collections.Generic;
+public partial class IntegratedRicochetFirstDrawProbe:Node
+{
+ const BindingFlags F=BindingFlags.Instance|BindingFlags.NonPublic;
+ GameHost host;GameSimulation sim,reference;SubViewport view;Label label;ColorRect[] stamp=new ColorRect[8];string folder;int frame;bool ready;
+ T Field<T>(string n)=>(T)typeof(GameHost).GetField(n,F).GetValue(host);
+ string State(GameSimulation s){var b=new StringBuilder();var run=typeof(GameSimulation).GetField("Run",F).GetValue(s);b.AppendJoin('|',s.Tick,s.Phase,s.Paused,s.Coins,run.GetType().GetField("Random",F).GetValue(run));for(int i=0;i<s.Capacity;i++)if(s.TryGetEntityAtSlot(i,out var e))b.Append('|').Append(e.Id).Append(':').Append(e.Kind).Append(':').Append(e.Position.X.ToString("R")).Append(',').Append(e.Position.Y.ToString("R")).Append(':').Append(e.Health.ToString("R"));for(int i=0;i<s.EventCount;i++){var e=s.GetEvent(i);b.Append('|').Append(e.Kind).Append(':').Append(e.Source).Append('>').Append(e.Target).Append(':').Append(e.Value.ToString("R"));}return b.ToString();}
+ public override void _Ready(){try{
+ folder=OS.GetEnvironment("READY_OUTPUT");Directory.CreateDirectory(folder);GetWindow().Size=new(1280,720);
+ var container=new SubViewportContainer{Size=new(1280,720),Stretch=false,MouseFilter=Control.MouseFilterEnum.Ignore};AddChild(container);view=new SubViewport{Size=new(1280,720),OwnWorld3D=true,HandleInputLocally=true,RenderTargetUpdateMode=SubViewport.UpdateMode.Always};container.AddChild(view);host=new GameHost();view.AddChild(host);host.SetProcess(false);typeof(GameHost).GetMethod("Start",F).Invoke(host,new object[]{1,(uint)1030});host.SetProcess(false);sim=Field<GameSimulation>("_sim");
+ var content=JsonSerializer.Deserialize<GameContent>(Godot.FileAccess.GetFileAsBytes("res://content/gameplay.json"),new JsonSerializerOptions{PropertyNameCaseInsensitive=true});reference=new GameSimulation(content);reference.StartRun("crit",1030);
+ var layer=new CanvasLayer{Layer=100};view.AddChild(layer);label=new Label{Position=new(240,687),MouseFilter=Control.MouseFilterEnum.Ignore};label.AddThemeFontSizeOverride("font_size",13);layer.AddChild(label);
+ for(int i=0;i<8;i++){stamp[i]=new ColorRect{Position=new(8+i*14,696),Size=new(12,12),Color=Colors.Black,MouseFilter=Control.MouseFilterEnum.Ignore};layer.AddChild(stamp[i]);}
+ if(State(sim)!=State(reference))throw new Exception("initial reference differs");ready=true;
+ }catch(Exception e){GD.PushError(e.ToString());GetTree().Quit(1);}}
+ void Capture(string name,int bits){using(var root=GetTree().Root.GetTexture().GetImage())root.SavePng(folder+"/"+name+"-root.png");using(var game=view.GetTexture().GetImage()){game.SavePng(folder+"/"+name+"-game.png");int actual=0;for(int i=0;i<8;i++)if(game.GetPixel(14+i*14,702).R>.5f)actual|=1<<i;if(actual!=bits)throw new Exception("DRAW_STAMP_MISMATCH expected="+bits+" actual="+actual);}}
+ public override async void _Process(double ignored){if(!ready)return;try{
+ if(host.IsProcessing())throw new Exception("automatic host processing");var events=new List<object>();int enemyDamage=0;long before=sim.Tick;
+ for(int j=0;j<8;j++){reference.Enqueue(new GameCommand(CommandKind.Move,x:0,y:0,runToken:reference.RunToken,wave:reference.Wave));reference.Step();for(int i=0;i<reference.EventCount;i++){var e=reference.GetEvent(i);if(e.Kind==EventKind.Ray&&e.Mechanism==FeedbackMechanism.Ricochet&&e.Source==reference.PlayerId){enemyDamage++;events.Add(new{index=i,e.Tick,Source=e.Source.ToString(),Target=e.Target.ToString(),e.Value,Mechanism=e.Mechanism.ToString(),FromX=e.From.X,FromY=e.From.Y,ToX=e.To.X,ToY=e.To.Y});}}if(reference.Phase!=RunPhase.Combat||reference.Paused)break;}
+ host._Process(.25);var w=GetWindow();w.ContentScaleSize=new(1280,720);w.ContentScaleMode=Window.ContentScaleModeEnum.Viewport;w.ContentScaleAspect=Window.ContentScaleAspectEnum.Keep;
+ if(State(sim)!=State(reference))throw new Exception("reference/Host diverged at frame"+frame);File.AppendAllText(folder+"/authority.tsv",frame+"|"+State(sim)+"\n");
+ label.Text="FIRST DRAW DIAGNOSTIC / natural spawn / 8-tick catchup, not FPS benchmark / tick "+sim.Tick;
+ int bits=(frame+91)&255;for(int i=0;i<8;i++)stamp[i].Color=(bits&(1<<i))!=0?Colors.White:Colors.Black;
+ if(enemyDamage>0){ready=false;SetProcess(false);var feedback=Field<RicochetBeamPresentation>("_ricochetBeam");if(feedback==null)throw new Exception("default owner missing");if(feedback.CapturedLinks!=enemyDamage||feedback.ActiveLinks==0||feedback.HasBackplate||!feedback.HasRibbon||!feedback.HasFacetShading)throw new Exception("first group or actual geometry flags invalid");var snap=feedback?.Snapshot();if(snap!=null)foreach(var c in snap)if(c.Age!=0||c.Alpha<=0||!c.Visible)throw new Exception("birth aged before first draw");long tick=sim.Tick;string state=feedback?.StateSignature;
+ File.WriteAllText(folder+"/first-draw.json",JsonSerializer.Serialize(new{frame,before,tick,steps=tick-before,events,cues=snap,mode=OS.GetEnvironment("RICOCHET_BEAM"),stamp=bits,note="No setup teleport, HP change, cadence edit or pre-render repair. Reference Core captures all 8 steps and is state-equal to actual Host. First FramePostDraw only."},new JsonSerializerOptions{WriteIndented=true,IncludeFields=true}));
+ bool headless=OS.GetEnvironment("RICOCHET_FIRST_HEADLESS")=="1";
+ if(!headless){await ToSignal(RenderingServer.Singleton,RenderingServer.SignalName.FramePostDraw);if(sim.Tick!=tick||feedback?.StateSignature!=state)throw new Exception("state changed before first draw");Capture("first",bits);}
+ GD.Print("NATURAL_RICOCHET_FIRST_PASS tick="+tick+" steps="+(tick-before)+" rays="+enemyDamage+" stamp="+bits+" headless="+headless);
+ var oldKeys=new HashSet<string>();if(snap!=null)foreach(var c in snap)oldKeys.Add(c.Tick+"|"+c.Source);
+ var nextEvents=new List<object>();for(int j=0;j<8;j++){reference.Enqueue(new GameCommand(CommandKind.Move,x:0,y:0,runToken:reference.RunToken,wave:reference.Wave));reference.Step();for(int i=0;i<reference.EventCount;i++){var e=reference.GetEvent(i);if(e.Kind==EventKind.Ray&&e.Mechanism==FeedbackMechanism.Ricochet)nextEvents.Add(new{e.Tick,index=i,Source=e.Source.ToString(),Target=e.Target.ToString()});}}
+ host._Process(.25);if(State(sim)!=State(reference))throw new Exception("expiry batch reference differs");var next=feedback?.Snapshot();if(next!=null)foreach(var c in next)if(oldKeys.Contains(c.Tick+"|"+c.Source))throw new Exception("old full-scope burst failed to expire");
+ int nextBits=(bits+1)&255;for(int i=0;i<8;i++)stamp[i].Color=(nextBits&(1<<i))!=0?Colors.White:Colors.Black;label.Text="EXPIRY DIAGNOSTIC / old group expired; new real groups allowed / tick "+sim.Tick;long nextTick=sim.Tick;string nextState=feedback?.StateSignature;
+ File.WriteAllText(folder+"/expiry.json",JsonSerializer.Serialize(new{tick=nextTick,oldScope=new{sim.RunToken,sim.Wave},oldKeys,newEvents=nextEvents,remaining=next,stamp=nextBits,note="Old group identity expiry, not unconditional whole-pool emptiness. Next batch is actual Host .25 and reference eight Steps."},new JsonSerializerOptions{WriteIndented=true,IncludeFields=true}));File.AppendAllText(folder+"/authority.tsv","expiry|"+State(sim)+"\n");
+ if(!headless){await ToSignal(RenderingServer.Singleton,RenderingServer.SignalName.FramePostDraw);if(sim.Tick!=nextTick||feedback?.StateSignature!=nextState)throw new Exception("state changed before expiry draw");Capture("expiry",nextBits);}
+ GD.Print("NATURAL_RICOCHET_EXPIRE_PASS tick="+nextTick+" newRays="+nextEvents.Count+" active="+(next?.Length??0)+" headless="+headless);GetTree().Quit();return;}
+ if(++frame>500||sim.Phase!=RunPhase.Combat)throw new Exception("no natural Ricochet before terminal");
+ }catch(Exception e){ready=false;SetProcess(false);GD.PushError(e.ToString());GetTree().Quit(1);}}
+}

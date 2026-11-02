@@ -26,6 +26,23 @@ internal static class LegacyParity
                     Float(entity.Position.X); Float(entity.Position.Y); Float(entity.Health); Float(entity.MaxHealth);
                     Float(entity.Facing.X); Float(entity.Facing.Y); Add(entity.Active ? 1 : 0);
                 }
+                // Rule3 golden includes projectile authority, not only actors/legacy cosmetic events.
+                Add(g.Run.Random); Add(g.ProjectileCount);
+                for (int slot = 0; slot < g.ProjectileCapacity; slot++)
+                {
+                    if (!g.TryGetProjectileAtSlot(slot, out var p)) continue;
+                    Add(p.Id.Index); Add(p.Id.Generation); Add(p.RunToken); Add(p.Wave); Add(p.Owner.Index); Add(p.Owner.Generation);
+                    Add((int)p.Kind); Add((int)p.State); Add(p.HitsCompleted); Add(p.RemainingTicks); Add(p.BirthTick);
+                    Float(p.PreviousPosition.X); Float(p.PreviousPosition.Y); Float(p.Position.X); Float(p.Position.Y);
+                    Float(p.Direction.X); Float(p.Direction.Y); Float(p.Radius); Float(p.RawDamage); Float(p.RemainingLegDistance); Float(p.RemainingTotalDistance);
+                }
+                for (int i = 0; i < g.ProjectileTransitionCount; i++)
+                {
+                    var p = g.GetProjectileTransition(i);
+                    Add((int)p.Kind); Add((int)p.Reason); Add((int)p.ProjectileKind); Add(p.RunToken); Add(p.Wave); Add(p.HitsCompleted); Add(p.Id.Index); Add(p.Id.Generation); Add(p.Tick);
+                    Add(p.Owner.Index); Add(p.Owner.Generation); Add(p.Target.Index); Add(p.Target.Generation);
+                    Float(p.From.X); Float(p.From.Y); Float(p.Position.X); Float(p.Position.Y); Float(p.RawDamage); Float(p.AppliedDamageAmount);
+                }
                 for (int i = 0; i < g.EventCount; i++)
                 {
                     var ev = g.GetEvent(i);
@@ -37,7 +54,7 @@ internal static class LegacyParity
             for (int wave = 1; wave < 6; wave++)
             {
                 for (int i = 0; i < g.Capacity; i++) if (g.World.Has(i, Components.Enemy)) g.World.Destroy(i);
-                g.SpawnTimer = 999;
+                g.SpawnTimer = 999; g.SpawnReservations.ResetScope(); /* Controlled empty-arena fixture removes rule2 previews. */
                 while (g.Phase == RunPhase.Combat) g.Step();
                 var offers = g.GetOffers();
                 foreach (var offer in offers) Text(offer.Id);

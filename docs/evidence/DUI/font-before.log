@@ -1,2 +1,0 @@
-{"font_sha256": "17750bad1351e67b2334f247ad7211c77185e6c2ca5180d4540c1699096cb1cc", "required_codepoints": 537, "mapped_codepoints": 1331, "missing": [{"codepoint": "U+4FA6", "character": "侦"}, {"codepoint": "U+64A4", "character": "撤"}, {"codepoint": "U+69FD", "character": "槽"}, {"codepoint": "U+6C89", "character": "沉"}, {"codepoint": "U+94B3", "character": "钳"}]}
-FAIL shipped font missing runtime characters; desktop fallback is not a pass

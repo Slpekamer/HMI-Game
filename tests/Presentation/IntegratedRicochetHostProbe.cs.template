@@ -1,0 +1,69 @@
+using Godot;
+using Hmi.Core;
+using Hmi.GodotAdapter;
+using System;
+using System.Collections.Generic;
+using System.Reflection;
+using System.Threading.Tasks;
+public partial class IntegratedRicochetHostProbe:Node3D
+{
+ const BindingFlags F=BindingFlags.Instance|BindingFlags.NonPublic;
+ int checks;Task task;bool quit;GameHost host;
+ void C(bool b,string n){checks++;if(!b)throw new Exception(n);}
+ T Field<T>(string n)=>(T)typeof(GameHost).GetField(n,F).GetValue(host);
+ void Call(string n,params object[] a)=>typeof(GameHost).GetMethod(n,F).Invoke(host,a);
+ static List<MeshInstance3D> Meshes(Node root){var list=new List<MeshInstance3D>();void Walk(Node n){if(n is MeshInstance3D m&&m.Mesh!=null)list.Add(m);foreach(Node c in n.GetChildren())Walk(c);}Walk(root);return list;}
+ public override void _Ready(){task=Run();}
+ public override void _Process(double delta){if(quit||task==null||!task.IsCompleted)return;quit=true;if(task.IsFaulted){GD.PushError(task.Exception.ToString());GetTree().Quit(1);}else{GD.Print("INTEGRATED_RICOCHET_HOST_PASS "+checks);GetTree().Quit();}}
+ async Task Run(){
+  // Actual original WAVE6 enemy model, two instances sharing their imported resources.
+  var assets=new AssetVisuals();var target=assets.Create("enemy_chaser");var peer=assets.Create("enemy_chaser");AddChild(target);AddChild(peer);peer.Position=Vector3.Right*2;
+  var a=Meshes(target);var b=Meshes(peer);C(a.Count>0&&a.Count==b.Count,"actual baseline enemy mesh set");
+  using var prior=new StandardMaterial3D{AlbedoColor=new Color(.1f,.2f,.3f,.4f)};
+  var materials=new Material[a.Count];var original=new Material[a.Count];var originalPeer=new Material[b.Count];
+  for(int i=0;i<a.Count;i++){original[i]=a[i].MaterialOverlay;originalPeer[i]=b[i].MaterialOverlay;a[i].MaterialOverlay=prior;b[i].MaterialOverlay=prior;materials[i]=a[i].GetActiveMaterial(0);C(a[i].Mesh==b[i].Mesh,"imported mesh shared across peers");}
+  var camera=new Camera3D{Position=new Vector3(4,6,7)};AddChild(camera);camera.LookAt(Vector3.Zero);
+  using(var effect=new EnemyDamageReaction(this,camera,32)){
+   var id=new EntityId(1,1);effect.BeginFrame(1,1);effect.BindForTest(id,target);
+   C(effect.Capture(new GameEvent(EventKind.Damage,new EntityId(20,7),id,default,default,3,1,1,1),0,1,EntityKind.Enemy,false,false),"old model enemy hit accepted without source actor");effect.EndFrame(.25f,false,true);
+   C(effect.ActiveCount==1&&effect.Snapshot()[0].Age==0&&effect.Snapshot()[0].NormalDepth,"actual model first-render age0 and depth");
+   for(int i=0;i<a.Count;i++)C(a[i].MaterialOverlay!=prior&&b[i].MaterialOverlay==prior&&a[i].GetActiveMaterial(0)==materials[i],"actual model tint does not mutate imported material/peer");
+   effect.BeginFrame(1,1);effect.EndFrame(.2f,false,true);
+   for(int i=0;i<a.Count;i++)C(a[i].MaterialOverlay==prior&&b[i].MaterialOverlay==prior,"actual model original overlays restored after expiry");
+   C(prior.AlbedoColor==new Color(.1f,.2f,.3f,.4f),"borrowed prior material color unchanged");
+   effect.ClearPresentation();effect.Dispose();effect.Dispose();
+  }
+  for(int i=0;i<a.Count;i++){a[i].MaterialOverlay=original[i];b[i].MaterialOverlay=originalPeer[i];}target.QueueFree();peer.QueueFree();camera.QueueFree();assets.ReleaseCachedReferences();
+  await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);
+  // Real production Host, no event/HP/position injection, default enabled without study env flags.
+  host=new GameHost();AddChild(host);host.ProcessMode=ProcessModeEnum.Disabled;host.SetProcess(false);
+  C(typeof(GameHost).GetField("_readyAttention",F)==null,"experimental ready/aim not imported");
+  var beam=Field<RicochetBeamPresentation>("_ricochetBeam");C(beam!=null&&beam.HasRibbon&&beam.HasFacetShading&&!beam.HasBackplate&&!beam.HasCrystals,"default final ribbon without study flags");
+  var fx=Field<EnemyDamageReaction>("_damageReaction");C(fx!=null&&fx.ActiveCount==0,"damage owner default enabled at Home");
+  Call("Start",1,(uint)1030);host.SetProcess(false);var sim=Field<GameSimulation>("_sim");
+  C(sim.Phase==RunPhase.Combat&&sim.TryGetEntity(sim.PlayerId,out var playerAtStart)&&playerAtStart.Health==100&&sim.Coins==0,"actual durable new run started with original stats");
+  int frames=0;while(fx.ActiveCount==0&&sim.Phase==RunPhase.Combat&&frames++<500){host._Process(.25);host.SetProcess(false);}
+  C(fx.ActiveCount>0&&sim.Tick>0,"real natural Damage captured through actual Host catchup");
+  bool live=false;foreach(var cue in fx.Snapshot()){C(cue.Age==0&&cue.NormalDepth,"new Host cue not expired by preceding .25delta");live|=cue.LiveBound;}C(live,"natural first hit bound to original enemy model");
+  var roots=Field<Node3D[]>("_visuals");var liveMeshes=new List<MeshInstance3D>();foreach(var node in roots)if(node!=null)foreach(var m in Meshes(node))if(m.MaterialOverlay!=null)liveMeshes.Add(m);C(liveMeshes.Count>0,"live Host enemy has tint overlay");
+  Call("Send",CommandKind.Pause,"",true);host._Process(0);string frozen=fx.StateSignature;string beamFrozen=beam.StateSignature;long tick=sim.Tick;
+  for(int i=0;i<3;i++){host._Process(.25);host.SetProcess(false);}
+  C(beam.StateSignature==beamFrozen,"paused beam clock and active groups freeze");
+  C(sim.Paused&&sim.Tick==tick&&fx.StateSignature==frozen,"ordinary paused Host keeps active cue age/clock and authority frozen");
+  host._Notification((int)NotificationApplicationFocusOut);C(beam.ActiveCount==0&&beam.PendingCount==0,"focus clears beam");C(fx.ActiveCount==0&&fx.PendingCount==0,"focus loss clears reaction immediately");foreach(var m in liveMeshes)if(GodotObject.IsInstanceValid(m))C(m.MaterialOverlay==null,"focus loss restores old enemy overlay");
+  host._Notification((int)NotificationApplicationFocusIn);Call("Send",CommandKind.Pause,"",false);host._Process(0);host.SetProcess(false);C(!sim.Paused&&fx.ActiveCount==0,"resume does not replay stale hit");
+  int oldRun=sim.RunToken;Call("Selection");host.SetProcess(false);C(fx.ActiveCount==0&&fx.PendingCount==0,"actual restart/selection clears effects");
+  Call("Start",1,(uint)2031);host.SetProcess(false);C(sim.RunToken!=oldRun&&sim.Tick==0&&sim.TryGetEntity(sim.PlayerId,out var playerAtRestart)&&playerAtRestart.Health==100&&sim.Coins==0,"actual new run authority reset with separate seed");host._Process(0);host.SetProcess(false);C(fx.ActiveCount==0&&fx.PendingCount==0,"new scope starts without old tint");
+  // Controlled adapter-only routing checks, after the natural lifecycle assertions.
+  C(beam.ActiveCount==0,"new run no old beam");
+  typeof(GameSimulation).GetField("EventLength",F).SetValue(sim,0);
+  var emit=typeof(GameSimulation).GetMethod("Emit",F);
+  void Emit(FeedbackMechanism mechanism)=>emit.Invoke(sim,new object[]{EventKind.Ray,sim.PlayerId,new EntityId(1,1),new Vec2(0,0),new Vec2(1,0),3f,mechanism});
+  int cursor=Field<int>("_effectCursor");beam.BeginFrame(sim.RunToken,sim.Wave);Emit(FeedbackMechanism.Ricochet);Call("ConsumeEvents");beam.EndFrame(0,false,true);
+  C(beam.ActiveLinks==1&&Field<int>("_effectCursor")==cursor,"Ricochet replaces white pool with no fallback");
+  C(Field<GameEvent?[]>("_pendingAttacks")[sim.PlayerId.Index].HasValue,"animation queue still receives actual Ray");
+  typeof(GameSimulation).GetField("EventLength",F).SetValue(sim,0);Emit(FeedbackMechanism.CompanionShot);Emit(FeedbackMechanism.Unknown);Call("ConsumeEvents");
+  C(Field<int>("_effectCursor")==cursor+2,"CompanionShot and Unknown keep old white path");
+  host.QueueFree();await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);C(!GodotObject.IsInstanceValid(host),"normal QueueFree Host teardown");beam.Dispose();beam.ClearPresentation();C(beam.ActiveCount==0,"beam disposal after Host exit idempotent");fx.Dispose();fx.ClearPresentation();C(fx.ActiveCount==0,"owner disposal idempotent after Host exit");host=null;
+ }
+}

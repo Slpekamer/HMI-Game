@@ -74,6 +74,7 @@ namespace Hmi.Core
         }
         internal static void Terminate(GameSimulation g, RunTerminationReason reason)
         {
+            g.SpawnReservations.Cancel(g, SpawnOutcome.ScopeEnded);
             ExpireSupply(g);
             g.Run.PendingContract = -1;
             g.Run.PendingSupply = false;

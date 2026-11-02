@@ -1,5 +1,0 @@
-SCHEMA2_LOAD cards=256 assignments=65536 elapsed_ms=2490.78 allocated_bytes=103712
-Unhandled exception. System.Exception: FAIL: maximum catalog runtime eligibility zero allocation
-   at Program.Check(Boolean ok, String name) in /tmp/hmi-d2-recovered-final.gApeKS/tests/CoreTests/Program.cs:line 16
-   at SchemaV2Tests.Run(Action`2 check) in /tmp/hmi-d2-recovered-final.gApeKS/tests/CoreTests/SchemaV2Tests.cs:line 103
-   at Program.Main() in /tmp/hmi-d2-recovered-final.gApeKS/tests/CoreTests/Program.cs:line 94

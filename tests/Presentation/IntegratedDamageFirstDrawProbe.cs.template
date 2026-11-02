@@ -1,0 +1,40 @@
+using Godot;
+using Hmi.Core;
+using Hmi.GodotAdapter;
+using System;
+using System.IO;
+using System.Text;
+using System.Reflection;
+using System.Text.Json;
+using System.Collections.Generic;
+public partial class IntegratedDamageFirstDrawProbe:Node
+{
+ const BindingFlags F=BindingFlags.Instance|BindingFlags.NonPublic;
+ GameHost host;GameSimulation sim,reference;SubViewport view;Label label;ColorRect[] stamp=new ColorRect[8];string folder;int frame;bool ready;
+ T Field<T>(string n)=>(T)typeof(GameHost).GetField(n,F).GetValue(host);
+ string State(GameSimulation s){var b=new StringBuilder();var run=typeof(GameSimulation).GetField("Run",F).GetValue(s);b.AppendJoin('|',s.Tick,s.Phase,s.Paused,s.Coins,run.GetType().GetField("Random",F).GetValue(run));for(int i=0;i<s.Capacity;i++)if(s.TryGetEntityAtSlot(i,out var e))b.Append('|').Append(e.Id).Append(':').Append(e.Kind).Append(':').Append(e.Position.X.ToString("R")).Append(',').Append(e.Position.Y.ToString("R")).Append(':').Append(e.Health.ToString("R"));for(int i=0;i<s.EventCount;i++){var e=s.GetEvent(i);b.Append('|').Append(e.Kind).Append(':').Append(e.Source).Append('>').Append(e.Target).Append(':').Append(e.Value.ToString("R"));}return b.ToString();}
+ public override void _Ready(){try{
+ folder=OS.GetEnvironment("READY_OUTPUT");Directory.CreateDirectory(folder);GetWindow().Size=new(1280,720);
+ var container=new SubViewportContainer{Size=new(1280,720),Stretch=false,MouseFilter=Control.MouseFilterEnum.Ignore};AddChild(container);view=new SubViewport{Size=new(1280,720),OwnWorld3D=true,HandleInputLocally=true,RenderTargetUpdateMode=SubViewport.UpdateMode.Always};container.AddChild(view);host=new GameHost();view.AddChild(host);host.SetProcess(false);typeof(GameHost).GetMethod("Start",F).Invoke(host,new object[]{1,(uint)1030});host.SetProcess(false);sim=Field<GameSimulation>("_sim");
+ var content=JsonSerializer.Deserialize<GameContent>(Godot.FileAccess.GetFileAsBytes("res://content/gameplay.json"),new JsonSerializerOptions{PropertyNameCaseInsensitive=true});reference=new GameSimulation(content);reference.StartRun("crit",1030);
+ var layer=new CanvasLayer{Layer=100};view.AddChild(layer);label=new Label{Position=new(240,687),MouseFilter=Control.MouseFilterEnum.Ignore};label.AddThemeFontSizeOverride("font_size",13);layer.AddChild(label);
+ for(int i=0;i<8;i++){stamp[i]=new ColorRect{Position=new(8+i*14,696),Size=new(12,12),Color=Colors.Black,MouseFilter=Control.MouseFilterEnum.Ignore};layer.AddChild(stamp[i]);}
+ if(State(sim)!=State(reference))throw new Exception("initial reference differs");ready=true;
+ }catch(Exception e){GD.PushError(e.ToString());GetTree().Quit(1);}}
+ public override async void _Process(double ignored){if(!ready)return;try{
+ if(host.IsProcessing())throw new Exception("automatic host processing");var events=new List<object>();int enemyDamage=0;long before=sim.Tick;
+ for(int j=0;j<8;j++){reference.Enqueue(new GameCommand(CommandKind.Move,x:0,y:0,runToken:reference.RunToken,wave:reference.Wave));reference.Step();for(int i=0;i<reference.EventCount;i++){var e=reference.GetEvent(i);if(e.Kind==EventKind.Damage&&e.Target!=reference.PlayerId){enemyDamage++;events.Add(new{index=i,e.Tick,Source=e.Source.ToString(),Target=e.Target.ToString(),e.Value,X=e.To.X,Y=e.To.Y});}}if(reference.Phase!=RunPhase.Combat||reference.Paused)break;}
+ host._Process(.25);var w=GetWindow();w.ContentScaleSize=new(1280,720);w.ContentScaleMode=Window.ContentScaleModeEnum.Viewport;w.ContentScaleAspect=Window.ContentScaleAspectEnum.Keep;
+ if(State(sim)!=State(reference))throw new Exception("reference/Host diverged at frame"+frame);File.AppendAllText(folder+"/authority.tsv",frame+"|"+State(sim)+"\n");
+ label.Text="FIRST DRAW DIAGNOSTIC / natural spawn / 8-tick catchup, not FPS benchmark / tick "+sim.Tick;
+ int bits=(frame+91)&255;for(int i=0;i<8;i++)stamp[i].Color=(bits&(1<<i))!=0?Colors.White:Colors.Black;
+ if(enemyDamage>0){ready=false;SetProcess(false);var feedback=Field<EnemyDamageReaction>("_damageReaction");if(feedback!=null&&(feedback.Captured!=enemyDamage||feedback.ActiveCount==0))throw new Exception("first group not captured/visible");var snap=feedback?.Snapshot();if(snap!=null)foreach(var c in snap)if(c.Age!=0||c.TintAlpha<=0)throw new Exception("birth aged before first draw");long tick=sim.Tick;string state=feedback?.StateSignature;
+ File.WriteAllText(folder+"/first-draw.json",JsonSerializer.Serialize(new{frame,before,tick,steps=tick-before,events,cues=snap,mode=OS.GetEnvironment("ENEMY_DAMAGE_C"),stamp=bits,note="No setup teleport, HP change, cadence edit or pre-render repair. Reference Core captures all 8 steps and is state-equal to actual Host. First FramePostDraw only."},new JsonSerializerOptions{WriteIndented=true}));
+ if(OS.GetEnvironment("DAMAGE_FIRST_HEADLESS")=="1"){GD.Print("NATURAL_FIRST_PREFLIGHT tick="+tick+" events="+enemyDamage);GetTree().Quit();return;}
+ await ToSignal(RenderingServer.Singleton,RenderingServer.SignalName.FramePostDraw);
+ if(sim.Tick!=tick||feedback?.StateSignature!=state)throw new Exception("state changed before draw");
+ using(var root=GetTree().Root.GetTexture().GetImage())root.SavePng(folder+"/first-root.png");using(var game=view.GetTexture().GetImage()){game.SavePng(folder+"/first-game.png");int actual=0;for(int i=0;i<8;i++)if(game.GetPixel(14+i*14,702).R>.5f)actual|=1<<i;if(actual!=bits)throw new Exception("FIRST_DRAW_STAMP_MISMATCH expected="+bits+" actual="+actual);}
+ GD.Print("NATURAL_FIRST_DRAW_PASS tick="+tick+" steps="+(tick-before)+" events="+enemyDamage+" stamp="+bits);GetTree().Quit();return;}
+ if(++frame>500||sim.Phase!=RunPhase.Combat)throw new Exception("no natural enemy Damage before terminal");
+ }catch(Exception e){ready=false;SetProcess(false);GD.PushError(e.ToString());GetTree().Quit(1);}}
+}

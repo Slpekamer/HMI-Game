@@ -6,8 +6,8 @@ namespace Hmi.Core
     // Composition, schedule and read-only boundary. Rule mutation lives in explicit systems.
     public sealed class GameSimulation
     {
-        public const float FixedDelta = 1f / 60f;
-        public const float WaveDuration = 24f;
+        public const float FixedDelta = 1f / WaveRules.TicksPerSecond;
+        public const float WaveDuration = WaveRules.DurationSeconds;
         public const int TotalWaves = 6;
         public const float ArenaWidth = 28f, ArenaHeight = 16f;
         internal World World;
@@ -18,7 +18,7 @@ namespace Hmi.Core
         internal float[] BaseStats = new float[(int)Stat.Count];
         public SimulationLimits Limits { get; }
         public string? CatalogHash { get; }
-        public const string CheckpointRulesVersion = "hmi-core-wave-start-1";
+        public const string CheckpointRulesVersion = WaveRules.Version;
         internal float[] Stats = new float[(int)Stat.Count];
         internal float[] Multipliers = new float[(int)Stat.Count];
         internal readonly Queue<GameCommand> Commands = new Queue<GameCommand>(256);
@@ -29,6 +29,10 @@ namespace Hmi.Core
         internal int SpawnCounter;
         internal int EventLength;
         private readonly GameEvent[] _events = new GameEvent[2048];
+        internal readonly CombatObservationStorage Observations;
+        internal readonly SpawnReservationStorage SpawnReservations;
+        internal ProjectileStorage Projectiles;
+        public const int CombatObservationSchemaVersion = 1;
         private readonly RunProgressionSystem _progression = new RunProgressionSystem();
         private readonly StatEffectSystem _statEffects = new StatEffectSystem();
         private ISimulationSystem[] _systems;
@@ -86,12 +90,15 @@ namespace Hmi.Core
             CatalogHash = catalogHash?.ToLowerInvariant();
             Catalog = catalog;
             World = new World(limits.EntityCapacity);
+            Observations = new CombatObservationStorage(limits.EntityCapacity);
+            SpawnReservations = new SpawnReservationStorage(limits.EnemyCapacity);
+            Projectiles = new ProjectileStorage(limits.EntityCapacity);
             Wallet = new WalletResource(Catalog.Items.Length);
             Loadout = new CardLoadoutResource(Catalog.Cards.Length);
             _systems = new ISimulationSystem[]
             {
-                new MovementSystem(), new CompanionSystem(), new BasicMeleeSystem(), new OrbitSystem(),
-                new RicochetSystem(), new HoneySystem(), new ImpactSystem(), new ContactSystem(),
+                new ProjectileMotionStartSystem(), new MovementSystem(), new ProjectileMotionEndSystem(), new CompanionSystem(), new BasicMeleeSystem(), new OrbitSystem(),
+                new RicochetSystem(), new HoneySystem(), new ImpactSystem(), new ProjectileLaunchSystem(), new ProjectileFlightSystem(), new ContactSystem(),
                 new PickupSystem(), new CleanupSpawnSystem()
             };
         }
@@ -102,6 +109,15 @@ namespace Hmi.Core
         public bool BeginPreparedWave(PreparedWaveToken token) => RunProgressionSystem.BeginPreparedWave(this, token);
         public bool TryCapturePrepared(CheckpointIdentity identity, out WaveCheckpointDto? checkpoint, out CheckpointError error)
             => CheckpointSystem.TryCapture(this, identity, out checkpoint, out error);
+        public bool TryConvertLegacyPreparedCheckpoint(WaveCheckpointDto legacy, CheckpointIdentity expectedLegacyIdentity,
+            CheckpointIdentity targetIdentity, out WaveCheckpointDto? converted, out CheckpointError error)
+            => CheckpointSystem.TryConvertLegacy(this, legacy, expectedLegacyIdentity, targetIdentity, out converted, out error);
+        // Archival inspection only: neither method restores, begins, or mutates this run.
+        public bool TryValidateArchivedCheckpoint(WaveCheckpointDto checkpoint, CheckpointIdentity identity, out CheckpointError error)
+            => CheckpointSystem.TryValidateArchived(this, checkpoint, identity, out error);
+        public bool TryConvertPriorPreparedCheckpoint(WaveCheckpointDto checkpoint, CheckpointIdentity sourceIdentity,
+            CheckpointIdentity targetIdentity, out WaveCheckpointDto? converted, out CheckpointError error)
+            => CheckpointSystem.TryConvertPrior(this, checkpoint, sourceIdentity, targetIdentity, out converted, out error);
         public bool TryValidateCheckpoint(WaveCheckpointDto checkpoint, CheckpointIdentity expectedIdentity, out CheckpointError error)
             => CheckpointSystem.TryValidate(this, checkpoint, expectedIdentity, out error);
         public bool TryRestorePrepared(WaveCheckpointDto checkpoint, CheckpointIdentity expectedIdentity, out CheckpointError error)
@@ -122,9 +138,12 @@ namespace Hmi.Core
         public void Step()
         {
             EventLength = 0;
+            Observations.BeginStep();
+            SpawnReservations.BeginStep();
+            Projectiles.BeginStep();
             _progression.Update(this);
-            if (Phase != RunPhase.Combat || Paused)
-                return;
+            if (Phase != RunPhase.Combat) { Projectiles.Cancel(this); return; }
+            if (Paused) return;
             Run.Tick++;
             Run.WaveSeconds = Tick * FixedDelta;
             _statEffects.Update(this);
@@ -136,6 +155,7 @@ namespace Hmi.Core
                 if (Phase != RunPhase.Combat) break;
             }
             RunProgressionSystem.EndTick(this);
+            if (Phase != RunPhase.Combat) Projectiles.Cancel(this);
         }
         public bool CanBuy(string id) => RunProgressionSystem.CanBuy(this, id);
         public CardAvailability GetCardAvailability(string id) => id != null && Catalog.CardIndex.TryGetValue(id, out int index)
@@ -191,7 +211,7 @@ namespace Hmi.Core
                 throw new ArgumentOutOfRangeException(nameof(index));
             return _events[index];
         }
-        internal void Emit(EventKind kind, EntityId source, EntityId target, Vec2 from, Vec2 to, float value)
+        internal void Emit(EventKind kind, EntityId source, EntityId target, Vec2 from, Vec2 to, float value, FeedbackMechanism mechanism = FeedbackMechanism.Unknown)
         {
             // Cosmetic-only drop-newest policy. Rules never read this presentation event buffer.
             if (EventLength == _events.Length)
@@ -199,9 +219,44 @@ namespace Hmi.Core
                 DroppedEvents++;
                 return;
             }
-            _events[EventLength++] = new GameEvent(kind, source, target, from, to, value, Tick, RunToken, Wave);
+            _events[EventLength++] = new GameEvent(kind, source, target, from, to, value, Tick, RunToken, Wave, mechanism);
         }
-        internal void Damage(int target, float amount, EntityId source) => DamageResolutionSystem.Apply(this, target, amount, source);
+        internal void Damage(int target, float amount, EntityId source, FeedbackMechanism mechanism = FeedbackMechanism.Unknown)
+            => DamageResolutionSystem.Apply(this, target, amount, source, mechanism);
+        public int ProjectileCapacity => ProjectileRules.Capacity;
+        public int ProjectileCount => Projectiles.Count;
+        public int ProjectileTransitionCount => Projectiles.TransitionCount;
+        public long DroppedProjectileTransitions => Projectiles.DroppedTransitions;
+        public ProjectileTransition GetProjectileTransition(int index) => Projectiles.GetTransition(index);
+        public bool TryGetProjectileAtSlot(int slot, out ProjectileView view) => Projectiles.TryGet(slot, Tick, out view);
+        public bool TryGetProjectile(ProjectileId id, int runToken, int wave, out ProjectileView view)
+        {
+            if (runToken == RunToken && wave == Wave && Projectiles.TryGet(id.Index, Tick, out view) && view.Id == id) return true;
+            view = default; return false;
+        }
+        public int PendingSpawnCount => SpawnReservations.Count;
+        public PendingSpawnView GetPendingSpawn(int index) => SpawnReservations.Get(index);
+        public int SpawnTransitionCount => SpawnReservations.TransitionCount;
+        public SpawnTransition GetSpawnTransition(int index) => SpawnReservations.GetTransition(index);
+        public long DroppedSpawnTransitions => SpawnReservations.DroppedTransitions;
+        public SpawnOutcome LastSpawnOutcome => SpawnReservations.LastOutcome;
+        public int ObservationCount => Observations.Count;
+        public long DroppedObservations => Observations.Dropped;
+        public CombatObservation GetObservation(int index) => Observations.Get(index);
+        internal void Observe(CombatObservationKind kind, EntityId source, EntityId target, Vec2 from, Vec2 to, float value)
+            => Observations.Add(new CombatObservation(kind, source, target, from, to, value, Tick, RunToken, Wave));
+        internal void ObserveMotion(int slot, float honeyMultiplier, bool usedKnockMovement)
+            => Observations.SetMotion(new EnemyMotionObservation(World.Id(slot), honeyMultiplier, usedKnockMovement, Tick, RunToken, Wave));
+        public bool TryGetEnemyMotionObservation(EntityId id, out EnemyMotionObservation value)
+        {
+            if (Phase == RunPhase.Combat && World.Alive(id) && World.Has(id.Index, Components.Enemy))
+            {
+                var sample = Observations.GetMotion(id.Index);
+                if (sample.Id == id && sample.RunToken == RunToken && sample.Wave == Wave && sample.Tick == Tick)
+                { value = sample; return true; }
+            }
+            value = default; return false;
+        }
         internal void SpawnEnemy() => EntityLifecycleSystem.SpawnEnemy(this);
         internal void RecallCompanions() => EntityLifecycleSystem.RecallCompanions(this);
         internal uint Random()

@@ -1,9 +1,0 @@
-d90e1647b6eb0806255119c694e0c1f4d283261a04e8f8f85593dd5e974aac7a  /workspace/scratch/80f5bc988ef7/game-recovery-1651/food-five-hero-candidate/src/Adapters/Godot/GameHost.cs
-a34f4b5a19a664111d353db6bb404f1a3ed7a1504f6fcaa5e3868c13fd7dab9e  /workspace/scratch/80f5bc988ef7/game-recovery-1651/food-five-hero-candidate/src/Adapters/Godot/GameUi.cs
-f37dd90a8287a2a21c24001b932f1ef7a104e0247b7ef8b5c0b9b6929c301ff0  /workspace/scratch/80f5bc988ef7/game-recovery-1651/food-five-hero-candidate/src/Adapters/Godot/CharacterPresentation.cs
-047ac453372347091b23f1ae4b71088d6391551ca161d80f4fc885a75ab95455  /workspace/scratch/80f5bc988ef7/game-recovery-1651/food-five-hero-candidate/src/Adapters/Godot/AssetVisuals.cs
-4f33b8e613e761352881ff6246a2c0949303fe2b7c750e73ae846f434ed7369f  /workspace/scratch/80f5bc988ef7/game-recovery-1651/food-five-hero-candidate/content/models/hero_orbit.glb
-38d76d5fe62ecd39c0b4506672c31038f62a797dc493dcbc72ede3f609d916bb  /workspace/scratch/80f5bc988ef7/game-recovery-1651/food-five-hero-candidate/content/models/hero_crit.glb
-21f6e09fcc624e4c8c85a496bd6b63191ed8ffb1b657a5ecdd86afe261721b54  /workspace/scratch/80f5bc988ef7/game-recovery-1651/food-five-hero-candidate/content/models/hero_honey.glb
-e55155cc991c1f7ce7cf0229c765a8f706efd9a7a4be362f44a55c7bbd66a7b9  /workspace/scratch/80f5bc988ef7/game-recovery-1651/food-five-hero-candidate/content/models/hero_summon.glb
-2c9180243a92973ff64f80f574349430a4aa9bc5b91a6708529f4dfc0eb62a51  /workspace/scratch/80f5bc988ef7/game-recovery-1651/food-five-hero-candidate/content/models/hero_bounce.glb

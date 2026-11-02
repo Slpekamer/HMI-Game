@@ -128,6 +128,8 @@ namespace Hmi.Core
         }
         internal static void EnterPrepared(GameSimulation g)
         {
+            g.SpawnReservations.ResetScope();
+            g.Projectiles.ResetScope();
             g.World.Clear();
             g.Run.PlayerId = EntityId.None;
             g.Run.Phase = RunPhase.Prepared;
@@ -139,6 +141,7 @@ namespace Hmi.Core
             g.Run.SupplyHealthBonus = 0;
             g.Commands.Clear();
             g.EventLength = 0;
+            g.Observations.ResetScope();
             g.MoveInput = default;
             g.PowerTime = g.HasteTime = 0;
             g.MeleeTimer = g.RicochetTimer = g.HoneyTimer = g.ImpactTimer = g.SpawnTimer = 0;
@@ -164,8 +167,11 @@ namespace Hmi.Core
         }
         private static void BeginWave(GameSimulation g)
         {
+            g.SpawnReservations.ResetScope();
+            g.Projectiles.ResetScope();
             g.World.Clear();
             g.EventLength = 0;
+            g.Observations.ResetScope();
             g.Run.Phase = RunPhase.Combat;
             g.Run.Paused = false;
             g.Run.Tick = 0;
@@ -197,6 +203,7 @@ namespace Hmi.Core
                 g.World.Companion[id.Index] = new CompanionComponent
                 {
                     Anchor = position,
+                    SpawnOrdinal = i,
                     Cooldown = .15f + i * .25f,
                     Support = i % 2 == 1
                 };
@@ -214,16 +221,18 @@ namespace Hmi.Core
             if (g.World.Alive(g.PlayerId) && g.World.Health[g.PlayerId.Index].Current <= 0)
             {
                 EndlessProgressionSystem.ExpireSupply(g);
+                g.SpawnReservations.Cancel(g, SpawnOutcome.Defeat);
                 g.Run.Phase = RunPhase.Defeat;
                 g.MoveInput = default;
             }
-            else if (g.Tick >= 1440)
+            else if (g.Tick >= WaveRules.DurationTicks)
                 FinishWave(g);
         }
         internal static void FinishWave(GameSimulation g)
         {
             if (g.Phase != RunPhase.Combat)
                 return;
+            g.SpawnReservations.Cancel(g, SpawnOutcome.ScopeEnded);
             EndlessProgressionSystem.ExpireSupply(g);
             if (g.IsEndless)
             {

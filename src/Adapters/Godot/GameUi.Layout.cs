@@ -125,7 +125,7 @@ internal partial class GameUi
   foreach(var c in _hud.GetChildren().OfType<Control>())
   {
    var b=Original(c);float x=b.Position.X,y=b.Position.Y;
-   if(ReferenceEquals(c,Joystick)){y=h-205;}
+   if(ReferenceEquals(c,Joystick)){continue;}
    else if(ReferenceEquals(c,_companionTray)){x=portrait?w-432:(w-416)/2;y=h-117;}
    else if(ReferenceEquals(c,_saveNotice)){x=portrait?(w-b.Size.X)/2:w/2+108;y=portrait?220:28;}
    else if(ReferenceEquals(c,_buff)){x=(w-b.Size.X)/2;y=portrait?270:109;}
@@ -134,6 +134,7 @@ internal partial class GameUi
    else if(b.Position.X>=548&&b.Position.X<=732){x+=w/2-640;if(portrait)y+=100;}
    Rect(c,x,y,b.Size.X,b.Size.Y);
   }
+  ConfigureFloatingJoystick(w,h);
  }
  private void LayoutOverlay(Rect2 safe,bool portrait)
  {

@@ -19,10 +19,10 @@ static partial class Program
     }
     static void Between(GameSimulation g)
     {
-        g.Run.Tick = 1440;
+        g.Run.Tick = WaveRules.DurationTicks;
         g.World.Health[g.PlayerId.Index].Current = 100;
         g.Step();
-        Check(g.Phase == RunPhase.Between, "fixture natural completion");
+        Check(g.Phase == RunPhase.Between, "controlled rule-duration completion (not survival)");
         var offer = g.GetOfferSlots().First(s => s.Enabled);
         g.Enqueue(GameCommand.Choose(offer.Card.Id)); g.Step();
         Check(g.CardPicked, "fixture choice");
@@ -82,9 +82,14 @@ static partial class Program
         for (int completed = 0; completed < 140 && !found; completed++)
         {
             for (int enemy = 0; enemy < 8; enemy++) x.G.SpawnEnemy();
+            // Rule2 SpawnEnemy reserves a warning, not an immediately damageable enemy.
+            // Advance the real preview deadline before this synthetic reward fixture kills them.
+            for (int tick = 0; tick < WaveRules.SpawnPreviewTicks; tick++) x.G.Step();
+            Check(x.G.Phase == RunPhase.Combat && Enumerable.Range(0, x.G.Capacity)
+                .Any(slot => (x.G.World.Mask[slot] & Components.Enemy) != 0), "real preview activates fixture enemies before reward damage");
             for (int slot = 0; slot < x.G.Capacity; slot++)
                 if ((x.G.World.Mask[slot] & Components.Enemy) != 0) x.G.Damage(slot, 10000, x.G.PlayerId);
-            x.G.Run.Tick = 1440; x.G.World.Health[x.G.PlayerId.Index].Current = 100; x.G.Step();
+            x.G.Run.Tick = WaveRules.DurationTicks; x.G.World.Health[x.G.PlayerId.Index].Current = 100; x.G.Step();
             if (x.G.Phase == RunPhase.Victory)
             {
                 int before = x.G.Coins;

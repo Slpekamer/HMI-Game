@@ -12,6 +12,7 @@ public partial class GameHost
     private Vector2 _cameraLayoutSize;
     private void InitializeViewportLayout()
     {
+        InitializeSafeAreaProbe();
         _layoutViewport=GetViewport();
         _layoutViewport.SizeChanged+=QueueViewportLayout;
         ApplyViewportLayout();
@@ -33,20 +34,11 @@ public partial class GameHost
         var logical=GetViewport().GetVisibleRect().Size;
         if(logical.X<=0||logical.Y<=0)return;
         var safe=new Rect2(Vector2.Zero,logical);
-        // Desktop windows use their client rectangle. Mobile insets come from the OS,
-        // transformed through the actual viewport-to-screen mapping, not a guessed notch size.
-        if(OS.GetName()=="Android" || OS.GetName()=="iOS")
-        {
-            var physicalSafe=DisplayServer.GetDisplaySafeArea();
-            if(physicalSafe.Size.X>0&&physicalSafe.Size.Y>0)
-            {
-                var inverse=GetViewport().GetScreenTransform().AffineInverse();
-                Vector2 a=inverse*(Vector2)physicalSafe.Position;
-                Vector2 b=inverse*(Vector2)physicalSafe.End;
-                var mapped=new Rect2(a,b-a).Abs().Intersection(safe);
-                if(mapped.Size.X>0&&mapped.Size.Y>0)safe=mapped;
-            }
-        }
+        // Polling and direct resize share one OS-to-viewport mapping; events themselves
+        // already carry viewport positions and are not transformed through this path.
+        safe=CurrentSafeLayout(safe,out var inputTransform);
+        if(_inputTransformSeen&&inputTransform!=_lastInputScreenTransform)_ui?.CancelGameplayInput();
+        _lastInputScreenTransform=inputTransform;_inputTransformSeen=true;
         _ui?.SetLayoutMetrics(logical,safe);
         if(_camera!=null)
         {
@@ -85,6 +77,6 @@ public partial class GameHost
     private void ReleaseViewportLayout()
     {
         if(_layoutViewport!=null&&GodotObject.IsInstanceValid(_layoutViewport))_layoutViewport.SizeChanged-=QueueViewportLayout;
-        _layoutViewport=null;
+        _layoutViewport=null;ReleaseSafeAreaProbe();
     }
 }

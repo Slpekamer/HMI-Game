@@ -17,6 +17,7 @@ namespace Hmi.Core
         {
             dto = null;
             if (g.Phase != RunPhase.Prepared) return Fail(CheckpointError.NotPrepared, out error);
+            if (!g.Projectiles.EmptyForCheckpoint) return Fail(CheckpointError.InvalidTemporaryState, out error);
             if (g.CatalogHash == null) return Fail(CheckpointError.MissingCatalogIdentity, out error);
             if (!ValidIdentity(identity)) return Fail(CheckpointError.InvalidIdentity, out error);
             var cards = new CheckpointCount[g.Catalog.Cards.Length];
@@ -50,7 +51,9 @@ namespace Hmi.Core
             var ready = staged!;
             // All allocations, validation, arithmetic and derived-state calculation are complete.
             // These reference/value assignments cannot invoke caller code or expose a partial state on the single writer thread.
+            ready.Projectiles.CopyGenerationBaseline(g.Projectiles);
             g.AdoptPreparedSystemStorage(ready);
+            g.Projectiles = ready.Projectiles;
             g.World = ready.World;
             g.Run = ready.Run;
             g.Wallet = ready.Wallet;
@@ -64,11 +67,45 @@ namespace Hmi.Core
             g.PowerTime = g.HasteTime = 0;
             g.SpawnCounter = 0;
             g.EventLength = 0;
+            g.Observations.ResetScope();
+            g.SpawnReservations.ResetScope();
             g.Commands.Clear();
             return true;
         }
+        internal static bool TryConvertLegacy(GameSimulation g, WaveCheckpointDto source, CheckpointIdentity legacyIdentity,
+            CheckpointIdentity targetIdentity, out WaveCheckpointDto? converted, out CheckpointError error)
+        {
+            // PROJECTILE-0001 P1: no implicit rule1/rule2 -> rule3 conversion. The explicit
+            // preserved-slot consent adapter is a separate gate, not a constant-only migration.
+            converted = null;
+            return Fail(CheckpointError.RulesMismatch, out error);
+        }
+        internal static bool TryValidateArchived(GameSimulation g, WaveCheckpointDto source,
+            CheckpointIdentity identity, out CheckpointError error)
+        {
+            if (source == null || (source.RulesVersion != WaveRules.PriorVersion && source.RulesVersion != WaveRules.LegacyVersion))
+                return Fail(CheckpointError.RulesMismatch, out error);
+            return TryBuild(g, source, identity, false, out _, out error, source.RulesVersion);
+        }
+        internal static bool TryConvertPrior(GameSimulation g, WaveCheckpointDto source,
+            CheckpointIdentity sourceIdentity, CheckpointIdentity targetIdentity,
+            out WaveCheckpointDto? converted, out CheckpointError error)
+        {
+            converted = null;
+            if (!ValidIdentity(sourceIdentity) || !ValidIdentity(targetIdentity)
+                || sourceIdentity.RunId == targetIdentity.RunId || targetIdentity.Sequence != 2)
+                return Fail(CheckpointError.InvalidIdentity, out error);
+            if (!TryBuild(g, source, sourceIdentity, false, out _, out error, WaveRules.PriorVersion)) return false;
+            var candidate = Copy(source);
+            candidate.RulesVersion = WaveRules.Version;
+            candidate.RunId = targetIdentity.RunId;
+            candidate.Sequence = targetIdentity.Sequence;
+            if (!TryValidate(g, candidate, targetIdentity, out error)) return false;
+            converted = candidate;
+            return true;
+        }
         private static bool TryBuild(GameSimulation g, WaveCheckpointDto source, CheckpointIdentity expected, bool restoring,
-            out GameSimulation? staged, out CheckpointError error)
+            out GameSimulation? staged, out CheckpointError error, string expectedRules = GameSimulation.CheckpointRulesVersion)
         {
             staged = null;
             if (g.CatalogHash == null) return Fail(CheckpointError.MissingCatalogIdentity, out error);
@@ -78,7 +115,7 @@ namespace Hmi.Core
             if (source.SchemaVersion != 1) return Fail(CheckpointError.InvalidSchema, out error);
             if (!ValidHash(source.CatalogHash) || !string.Equals(source.CatalogHash, g.CatalogHash, StringComparison.OrdinalIgnoreCase))
                 return Fail(CheckpointError.CatalogMismatch, out error);
-            if (source.RulesVersion != GameSimulation.CheckpointRulesVersion || source.EntityCapacity != g.Capacity
+            if (source.RulesVersion != expectedRules || source.EntityCapacity != g.Capacity
                 || source.EnemyCapacity != g.Limits.EnemyCapacity || source.CompanionCapacity != g.Limits.CompanionCapacity
                 || source.EnemyHealthCap != g.Limits.EnemyHealthMultiplierCap || source.EnemySpeedCap != g.Limits.EnemySpeedMultiplierCap)
                 return Fail(CheckpointError.RulesMismatch, out error);

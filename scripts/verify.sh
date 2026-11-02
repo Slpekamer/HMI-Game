@@ -13,7 +13,7 @@ dotnet run --no-build --project tests/CoreTests/Hmi.CoreTests.csproj -c Release
 dotnet build -m:1 tests/CodexTests/Hmi.CodexTests.csproj -v minimal
 dotnet run --no-build --project tests/CodexTests/Hmi.CodexTests.csproj
 dotnet build -m:1 HmiGame.csproj -v minimal
-logs=$(mktemp -d /tmp/hmi-verify.XXXXXX)
+logs=$(mktemp -d -t hmi-verify.XXXXXX)
 # Isolate editor configuration from unrelated Android export/editor sessions.
 export XDG_CONFIG_HOME="$logs/editor-config"
 export XDG_DATA_HOME="$logs/user-data"
@@ -69,5 +69,22 @@ python3 scripts/test_opaque_pages.py
 # Historical fixed-camera/letterbox BUG4 study remains preserved, superseded by Expand UI contract.
 python3 scripts/test_responsive_ui.py
 python3 scripts/test_host_responsive.py
+# Input routing and cosmetic UI motion are adapter-only; hardware remains a separate gate.
+dotnet build -m:1 tests/InputRouter/InputRouter.csproj -v minimal
+dotnet run --no-build --project tests/InputRouter/InputRouter.csproj
+python3 scripts/test_floating_input.py
+python3 scripts/test_gamepad_ui.py
+python3 scripts/test_mobile_safe_area.py
+python3 scripts/test_ui_motion.py
+python3 scripts/test_ui_motion_visible.py
+python3 scripts/test_ui_motion_preference.py
+python3 scripts/test_mobile_motion_integration.py
 echo "PASS build / core / import / smoke / host lifecycle; logs $logs"
 echo 'Native visual/input, exports, real devices and Unity are separate gates.'
+
+# Rule2 migration and bounded arrival: preserve strict runtime diagnostics.
+dotnet build -m:1 tests/RuleMigrationTests/RuleMigrationTests.csproj -v minimal
+dotnet run --no-build --project tests/RuleMigrationTests/RuleMigrationTests.csproj
+python3 scripts/test_rule_migration_host.py
+python3 scripts/test_preserve_legacy_host.py
+python3 scripts/test_mechanical_arrival.py

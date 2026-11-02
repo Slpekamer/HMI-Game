@@ -1,0 +1,205 @@
+using Godot;
+using Hmi.Core;
+using Hmi.GodotAdapter;
+using Hmi.Adapters.Persistence;
+using System;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Security.Cryptography;
+using System.Text.Json;
+using System.Threading.Tasks;
+
+// Controlled temporary-storage fixture, not natural gameplay or real user migration.
+public partial class RuleUpgradeHostProbe : Node
+{
+ const BindingFlags Flags=BindingFlags.Instance|BindingFlags.NonPublic;
+ const string OldRun="11111111111111111111111111111111";
+ GameHost host; int checks; Task task;
+ string LegacyPath=>ProjectSettings.GlobalizePath("user://checkpoints/v1");
+ string RegistryPath=>ProjectSettings.GlobalizePath("user://checkpoints/rule2");
+ object Field(string n)=>typeof(GameHost).GetField(n,Flags).GetValue(host);
+ void Call(string n,params object[] args)=>typeof(GameHost).GetMethod(n,Flags).Invoke(host,args);
+ GameSimulation Sim=>(GameSimulation)Field("_sim");
+ GameUi Ui=>(GameUi)Field("_ui");
+ void Check(bool ok,string message){checks++;if(!ok)throw new Exception(message);}
+ async Task Flush(){await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);}
+ public override void _Ready(){task=Run();}
+ public override void _Process(double delta)
+ {
+  if(task==null||!task.IsCompleted)return;
+  SetProcess(false);
+  if(task.IsFaulted){GD.PushError(task.Exception.ToString());GetTree().Quit(1);}
+  else{GD.Print("RULE_UPGRADE_HOST PASS "+checks);GetTree().Quit();}
+ }
+ GameSimulation FixtureSimulation()
+ {
+  byte[] b=Godot.FileAccess.GetFileAsBytes("res://content/gameplay.json");
+  return new GameSimulation(JsonSerializer.Deserialize<GameContent>(b,new JsonSerializerOptions{PropertyNameCaseInsensitive=true}),new SimulationLimits(),Convert.ToHexString(SHA256.HashData(b)).ToLowerInvariant());
+ }
+ IRuleMigrationFiles Files()=>new PhysicalRuleMigrationFiles(RegistryPath,LegacyPath);
+ const string OldSlot="22222222222222222222222222222222",OldOp="33333333333333333333333333333333";
+ byte[] Pack<T>(T value){var b=JsonSerializer.SerializeToUtf8Bytes(value);return JsonSerializer.SerializeToUtf8Bytes(new {Payload=Convert.ToBase64String(b),Hash=Convert.ToHexString(SHA256.HashData(b))});}
+ void Setup(bool legacy=false,StoreStatus status=StoreStatus.Active)
+ {
+  var sim=FixtureSimulation();sim.PrepareRun("honey",1030);
+  Check(sim.TryCapturePrepared(new CheckpointIdentity(Guid.ParseExact(OldRun,"N"),2),out var dto,out _),"synthetic prepared fixture");dto.RulesVersion=legacy?WaveRules.LegacyVersion:WaveRules.PriorVersion;
+  var files=Files();var store=new CheckpointStore(legacy?files.Legacy:files.Slot(OldSlot),sim.CatalogHash,dto.RulesVersion,(_,_)=>true);
+  store.BeginRun(OldRun,Guid.NewGuid().ToString("N"),0);
+  if(status!=StoreStatus.PendingStart)store.Save(OldRun,Guid.NewGuid().ToString("N"),1,JsonSerializer.SerializeToUtf8Bytes(dto));
+  if(status==StoreStatus.Closed)store.Close(OldRun,Guid.NewGuid().ToString("N"),2);
+  if(!legacy){
+   var backup=Pack(new MigrationBackup(1,Array.Empty<MigrationBackupFile>()));string fingerprint=Convert.ToHexString(SHA256.HashData(backup));
+   var intent=Pack(new MigrationIntent(2,SlotInitializationKind.NewGame,OldOp,OldSlot,OldSlot,fingerprint,"","",sim.CatalogHash,WaveRules.PriorVersion));
+   using var writer=files.Registry.AcquireWriter();files.Registry.AtomicWrite("intent.json",intent,false);
+   files.Registry.AtomicWrite("selector.json",Pack(new MigrationSelector(2,SlotInitializationKind.NewGame,OldOp,OldSlot,OldSlot,fingerprint,Convert.ToHexString(SHA256.HashData(intent)),sim.CatalogHash,WaveRules.PriorVersion)),false);
+  }
+ }
+ RuleUpgradeInspection View=>(RuleUpgradeInspection)Field("_ruleInspection");
+ void Press(string label){Button(label).EmitSignal(BaseButton.SignalName.Pressed);host.SetProcess(false);}
+ string Bytes(string path)=>!Directory.Exists(path)?"":string.Join("|",Directory.GetFiles(path,"*",SearchOption.AllDirectories).Where(p=>Path.GetFileName(p)!="writer.lock").OrderBy(p=>p,StringComparer.Ordinal).Select(p=>Path.GetRelativePath(path,p)+":"+Convert.ToHexString(SHA256.HashData(System.IO.File.ReadAllBytes(p)))));
+ System.Collections.Generic.IEnumerable<Node> Walk(Node n){yield return n;foreach(Node c in n.GetChildren())foreach(var x in Walk(c))yield return x;}
+ Button Button(string text)=>Walk(Ui).OfType<Button>().Single(b=>b.Text==text&&b.IsInsideTree()&&b.IsVisibleInTree());
+ string Text()=>string.Join("\n",Walk(Ui).OfType<Label>().Where(n=>n.IsVisibleInTree()).Select(n=>n.Text).Concat(Walk(Ui).OfType<RichTextLabel>().Where(n=>n.IsVisibleInTree()).Select(n=>n.Text)));
+ async Task Boot()
+ {
+  host=new GameHost();AddChild(host);host.SetProcess(false);await Flush();
+  Check(Sim.Phase==RunPhase.Selecting&&Sim.Tick==0,"boot never auto Begins migration");
+ }
+ async Task Capture(string name)
+ {
+  string arg=OS.GetCmdlineUserArgs().FirstOrDefault(a=>a.StartsWith("--capture-rule="));if(arg==null)return;
+  Check(GetViewport().GuiGetFocusOwner() is Button focus&&focus.Text=="返回，不修改旧档","safe Return is initial migration modal focus");
+  await ToSignal(RenderingServer.Singleton,RenderingServer.SignalName.FramePostDraw);
+  GD.Print("RULE_CAPTURE "+name+" physical="+DisplayServer.WindowGetSize()+" logical="+GetViewport().GetVisibleRect().Size+" image="+GetViewport().GetTexture().GetImage().GetSize());
+  Check(GetViewport().GetTexture().GetImage().SavePng(arg.Substring(15)+"-"+name+".png")==Error.Ok,"capture actual rule dialog");
+ }
+ void Pad(JoyButton button,bool down,int device=7){using var e=new InputEventJoypadButton{Device=device,ButtonIndex=button,Pressed=down};GetViewport().PushInput(e,true);Call("UpdateGamepadUi",1.0/60);}
+ void ReleasePad(){foreach(var b in new[]{JoyButton.A,JoyButton.B,JoyButton.Start,JoyButton.Y})Pad(b,false);}
+ async Task Run()
+ {
+  string mode=OS.GetCmdlineUserArgs().First(a=>a.StartsWith("--rule-host-case=")).Substring(17);
+  GD.Print("CONTROLLED_RULE3_HOST "+mode+" TEMPORARY XDG ONLY");
+  if(mode.StartsWith("pending-")&&mode.EndsWith("-setup"))
+  {
+   Setup();var c=new RuleMigrationCoordinator(new IntentLostAck(Files(),"upgrade-intent.json"),FixtureSimulation());var v=c.InspectUpgrade();bool failed=false;
+   try{c.ConfirmUpgrade(Guid.NewGuid().ToString("N"),Guid.NewGuid().ToString("N"),v.Fingerprint,mode.Contains("new"));}catch(IOException){failed=true;}
+   Check(failed&&new RuleMigrationCoordinator(Files(),FixtureSimulation()).InspectUpgrade().Kind==RuleUpgradeKind.Incomplete,"durable intent and lost acknowledgement prepared for cold process");return;
+  }
+  if(mode is "prior" or "preserve" or "stale" or "lostack" or "source-close" or "source-temp" or "target-close" or "target-advance" or "pad")Setup();
+  if(mode=="legacy")Setup(true);
+  if(mode=="closed")Setup(false,StoreStatus.Closed);
+  if(mode=="pendingstart")Setup(false,StoreStatus.PendingStart);
+  if(mode=="blocked"){Directory.CreateDirectory(LegacyPath);System.IO.File.WriteAllText(Path.Combine(LegacyPath,"control.json"),"bad");}
+  if(mode.StartsWith("selected-")){
+   Setup();var coordinator=new RuleMigrationCoordinator(Files(),FixtureSimulation());var view=coordinator.InspectUpgrade();
+   var selected=coordinator.ConfirmUpgrade(Guid.NewGuid().ToString("N"),Guid.NewGuid().ToString("N"),view.Fingerprint,mode=="selected-pending");
+   if(mode=="selected-closed")new CheckpointStore(Files().Slot(selected.Slot),FixtureSimulation().CatalogHash,WaveRules.Version,new CheckpointCodec(FixtureSimulation()).Validate).Close(selected.Recovery.Control.Run,Guid.NewGuid().ToString("N"),2);
+  }
+  string old=Bytes(LegacyPath), prior=Bytes(Path.Combine(RegistryPath,"slots",OldSlot));await Boot();
+  Check(!Text().Contains(OldRun)&&!Text().Contains(OldSlot),"UI excludes internal identifiers");
+  if(mode=="pad"){
+   host.ApplyGamepadDevice(7);ReleasePad();Ui.ResumeReviewRequested();await Flush();Call("UpdateGamepadUi",1.0/60);
+   string unchanged=Bytes(RegistryPath);Check((GetViewport().GuiGetFocusOwner() as Button)?.Text=="返回，不修改旧档","pad modal defaults safe return");
+   var confirm=Button("确认升级并继续");confirm.GrabFocus();Pad(JoyButton.A,true,8);Check(Bytes(RegistryPath)==unchanged&&Sim.Phase==RunPhase.Selecting,"unselected device cannot confirm migration");Pad(JoyButton.A,false,8);
+   Pad(JoyButton.B,true);await Flush();Check(!Ui.IsPersistenceModalOpen&&Bytes(RegistryPath)==unchanged,"routed East cancels without writes");
+   ReleasePad();Ui.ShowSelection();Ui.StartRequested(2,1030);await Flush();Call("UpdateGamepadUi",1.0/60);ReleasePad();Button("确认保留并准备新局").GrabFocus();Pad(JoyButton.A,true);host.SetProcess(false);await Flush();
+   Check((bool)Field("_ruleSelected")&&Sim.Phase==RunPhase.Selecting,"pad prepare returns chooser without Begin");
+   Pad(JoyButton.A,true);host.SetProcess(false);Check(Sim.Phase==RunPhase.Selecting,"held confirm cannot activate chooser across modal");
+   ReleasePad();var start=Walk(Ui).OfType<Button>().First(b=>b.IsVisibleInTree()&&b.Text.Contains("开始")&&!b.Disabled);start.GrabFocus();Pad(JoyButton.A,true);host.SetProcess(false);Check(Sim.Phase==RunPhase.Combat,"new press after release can explicitly Start");
+  }
+  else if(mode.StartsWith("selected-")){
+   Check(View.Kind==RuleUpgradeKind.CurrentSelected&&(bool)Field("_ruleSelected"),"cold selected binds validated current authority");
+   var current=((CheckpointSession)Field("_checkpoint")).CurrentRecovery;
+   Check(current.Kind==(mode=="selected-active"?RecoveryKind.Active:mode=="selected-closed"?RecoveryKind.Closed:RecoveryKind.PendingStart),"cold current status not original migration intent");
+   Check(Sim.Phase==RunPhase.Selecting&&Sim.Tick==0,"cold selected never auto Begins");
+   if(mode!="selected-active")Check(!Text().Contains("继续上次"),"closed or pending has no old continuation");
+  }
+  else if(mode=="prior"||mode=="stale"||mode=="lostack"||mode.StartsWith("source-")||mode.StartsWith("target-"))
+  {
+   Check(View.Kind==RuleUpgradeKind.PriorAvailable,"typed prior available");string before=Bytes(RegistryPath);
+   Ui.ResumeReviewRequested();await Flush();
+   Check(Text().Contains("真实弹丸")&&Text().Contains("本波起点")&&Text().Contains("旧档保留")&&Text().Contains("金币0"),"validated summary and upgrade semantics");
+   Check(GetViewport().GuiGetFocusOwner() is Button f&&f.Text=="返回，不修改旧档","destructive modal defaults safe return");
+   await Capture("prior-consent");
+   var stale=Button("确认升级并继续");Press("返回，不修改旧档");stale.EmitSignal(BaseButton.SignalName.Pressed);
+   Check(Bytes(RegistryPath)==before&&Sim.Phase==RunPhase.Selecting,"cancel and stale action do not write or Begin");
+   if(mode=="lostack"){
+    typeof(GameHost).GetField("_ruleMigration",Flags).SetValue(host,new RuleMigrationCoordinator(new IntentLostAck(Files(),"selector.json"),Sim));
+   }
+   Ui.ResumeReviewRequested();await Flush();var confirm=Button("确认升级并继续");
+   if(mode=="stale")Call("RefreshRuleInspection",false);
+   if(mode=="source-close"){
+    new CheckpointStore(Files().Slot(OldSlot),Sim.CatalogHash,WaveRules.PriorVersion,(_,_)=>true).Close(OldRun,Guid.NewGuid().ToString("N"),2);
+    prior=Bytes(Path.Combine(RegistryPath,"slots",OldSlot));
+   }
+   if(mode=="source-temp"){
+    System.IO.File.WriteAllText(Path.Combine(RegistryPath,"slots",OldSlot,"unattributed.tmp"),"unexpected");prior=Bytes(Path.Combine(RegistryPath,"slots",OldSlot));
+   }
+   if(mode.StartsWith("target-")){
+    // Stage exactly this Host confirmation up to selector publication, then cold-inspect a receipt.
+    typeof(GameHost).GetField("_ruleMigration",Flags).SetValue(host,new RuleMigrationCoordinator(new IntentLostAck(Files(),"selector.json",true),Sim));
+   }
+   confirm.EmitSignal(BaseButton.SignalName.Pressed);host.SetProcess(false);
+   if(mode=="stale")Check(Bytes(RegistryPath)==before&&Sim.Phase==RunPhase.Selecting,"old epoch cannot commit");
+   else if(mode.StartsWith("source-"))Check(!(bool)Field("_ruleSelected")&&Sim.Phase==RunPhase.Selecting&&Sim.Tick==0,"changed source between review and confirm never Begins");
+   else if(mode.StartsWith("target-")){
+    Check(View.Kind==RuleUpgradeKind.Incomplete&&Sim.Phase==RunPhase.Selecting,"staged selector failure leaves explicit retry only");
+    Press("返回，不修改旧档");Ui.RetrySaveRequested();await Flush();var retry=Button("确认重试");
+    string target=Files().Slots().Single(x=>x!=OldSlot);var port=Files().Slot(target);var codec=new CheckpointCodec(Sim);var store=new CheckpointStore(port,Sim.CatalogHash,WaveRules.Version,codec.Validate);var recovery=store.Recover();
+    if(mode=="target-close")store.Close(target,Guid.NewGuid().ToString("N"),2);
+    else{
+     var dto=JsonSerializer.Deserialize<WaveCheckpointDto>(recovery.Payload);dto.Sequence=3;store.Save(target,Guid.NewGuid().ToString("N"),2,JsonSerializer.SerializeToUtf8Bytes(dto));
+    }
+    string targetBytes=Bytes(Path.Combine(RegistryPath,"slots",target));retry.EmitSignal(BaseButton.SignalName.Pressed);host.SetProcess(false);
+    Check(Sim.Phase==RunPhase.Selecting&&Sim.Tick==0&&!(bool)Field("_ruleSelected"),"changed staged target blocks retry without Begin");
+    Check(Bytes(Path.Combine(RegistryPath,"slots",target))==targetBytes,"retry does not overwrite advanced or Closed target");
+   }
+   else if(mode=="lostack")Check((bool)Field("_ruleSelected")&&Sim.Phase==RunPhase.Selecting&&Sim.Tick==0,"selected lostack binds but never auto Begins");
+   else{
+    Check(Sim.Phase==RunPhase.Combat&&Sim.Tick==0&&Sim.CharacterId=="honey"&&Sim.Coins==0,"explicit upgrade resumes validated wave start once");
+    int token=Sim.RunToken;string saved=Bytes(RegistryPath);confirm.EmitSignal(BaseButton.SignalName.Pressed);host.SetProcess(false);
+    Check(token==Sim.RunToken&&saved==Bytes(RegistryPath),"duplicate confirmation inert");
+   }
+  }
+  else if(mode.StartsWith("pending-")&&mode.EndsWith("-resume"))
+  {
+   Check(View.Kind==RuleUpgradeKind.Incomplete&&View.Pending!=null,"cold typed receipt available");
+   bool startNew=View.Pending.StartNew;Ui.RetrySaveRequested();await Flush();
+   Check(Sim.Phase==RunPhase.Selecting,"cold inspect never Begins");await Capture("cold-retry");Press("确认重试");
+   Check((bool)Field("_ruleSelected"),"retry selected target");
+   Check(startNew?Sim.Phase==RunPhase.Selecting:Sim.Phase==RunPhase.Combat,"cold retry respects original purpose without guessing hero");
+  }
+  else if(mode=="blocked")
+  {
+   Check(View.Kind==RuleUpgradeKind.Blocked,"malformed source blocked");Ui.RetrySaveRequested();await Flush();
+   Check(!Text().Contains("确认升级并继续")&&Text().Contains("不会自动修复"),"blocked offers recheck not upgrade");await Capture("blocked");Press("返回，不修改旧档");
+   Check(!(bool)Field("_ruleSelected")&&Sim.Phase==RunPhase.Selecting,"blocked cannot Begin");
+  }
+  else
+  {
+   var expected=mode=="fresh"?RuleUpgradeKind.Empty:mode=="legacy"?RuleUpgradeKind.LegacyPreserveOnly:mode=="preserve"?RuleUpgradeKind.PriorAvailable:RuleUpgradeKind.PriorNotResumable;
+   Check(View.Kind==expected,"typed state "+mode);Ui.ShowSelection();Ui.StartRequested(2,1030);await Flush();
+   Check(!Text().Contains("确认升级并继续"),"new game path never offers legacy conversion");
+   await Capture(mode+"-preserve-consent");
+   var label=mode=="fresh"?"确认准备新局":"确认保留并准备新局";var action=Button(label);Press(label);
+   Check((bool)Field("_ruleSelected")&&Sim.Phase==RunPhase.Selecting&&Sim.Tick==0,"preserve or empty selection requires second explicit Start");
+   string committed=Bytes(RegistryPath);action.EmitSignal(BaseButton.SignalName.Pressed);host.SetProcess(false);
+   Check(Bytes(RegistryPath)==committed&&Sim.Phase==RunPhase.Selecting,"old prepare button cannot auto Begin");
+   Ui.StartRequested(2,1030);host.SetProcess(false);
+   Check(Sim.Phase==RunPhase.Combat&&Sim.Tick==0,"fresh chooser explicit Start begins current rules");
+  }
+  Check(Bytes(LegacyPath)==old&&Bytes(Path.Combine(RegistryPath,"slots",OldSlot))==prior,"all original store bytes preserved");
+  host.QueueFree();await Flush();Check(!GodotObject.IsInstanceValid(host),"host queued teardown");
+ }
+ sealed class IntentLostAck : IRuleMigrationFiles
+ {
+  readonly IRuleMigrationFiles f;readonly string failName;readonly bool before;public IntentLostAck(IRuleMigrationFiles files,string name="intent.json",bool failBefore=false){f=files;failName=name;before=failBefore;}
+  public ICheckpointFiles Registry=>new FaultPort(f.Registry,failName,before);public ICheckpointFiles Legacy=>f.Legacy;public string[] Slots()=>f.Slots();public ICheckpointFiles Slot(string id)=>f.Slot(id);
+  sealed class FaultPort:ICheckpointFiles
+  {
+   readonly ICheckpointFiles f;readonly string failName;readonly bool before;public FaultPort(ICheckpointFiles files,string name,bool failBefore){f=files;failName=name;before=failBefore;}public IDisposable AcquireWriter()=>f.AcquireWriter();public string[] Names()=>f.Names();public long Length(string n)=>f.Length(n);public byte[] Read(string n,int m)=>f.Read(n,m);public void Delete(string n)=>f.Delete(n);
+   public void AtomicWrite(string n,byte[] b,bool overwrite){if(n==failName&&before)throw new IOException("fixture before publish: "+n);f.AtomicWrite(n,b,overwrite);if(n==failName)throw new IOException("fixture durable lostack: "+n);}
+  }
+ }
+}

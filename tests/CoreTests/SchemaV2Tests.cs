@@ -9,9 +9,13 @@ internal static class SchemaV2Tests
     private static GameContent Load() => JsonSerializer.Deserialize<GameContent>(File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "legacy-gameplay.json")), new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
     internal static void Run(Action<bool, string> check)
     {
-        const ulong golden = 0x668C7C237D35F542;
+        // Historical rule1 0x668C7C237D35F542 and rule2 0x7D2B96E84569B575 remain recorded.
+        // PROJECTILE-0001 changes authority timing; rule3 digest now includes projectile views/transitions/RNG.
+        const ulong golden = 0xFB1A336A979BCC55;
+        Console.WriteLine("RULE3_SCHEMA_PARITY_DIGEST " + golden.ToString("X16"));
         var data = Load();
-        check(LegacyParity.Digest(data) == golden, "schema1 baseline DLL golden replay digest");
+        check(LegacyParity.Digest(data) == golden, "schema1 rule3 full projectile deterministic replay digest");
+        check(LegacyParity.Digest(data) == golden, "same seed and commands repeat full rule3 actor/projectile trace");
         data.SchemaVersion = 2;
         check(LegacyParity.Digest(data) == golden, "schema2 legacy parent golden replay digest");
         foreach (var card in data.Cards)

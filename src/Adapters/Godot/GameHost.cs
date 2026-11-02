@@ -18,8 +18,15 @@ public partial class GameHost : Node3D
     private EntityId[] _ids;
     private CharacterPresentation[] _presentations;
     private GameEvent?[] _pendingAttacks;
+    private EnemyDamageReaction _damageReaction;
+    private PlayerDamageMaterial _playerDamage;
+    private ProjectilePresentation _projectilePresentation;
+    private ProjectileTransition?[] _pendingLaunches;
     private Camera3D _camera;
     private EnemyHealthVisuals _enemyHealth;
+    private SpawnPreviewVisuals _spawnPreviews;
+    private EnemyEntrancePresentation _enemyEntrance;
+    private MechanicalArrivalVisuals _mechanicalArrival;
     private MeshInstance3D _honey;
     private readonly Node3D[] _orbit = new Node3D[4];
     private readonly MeshInstance3D[] _effects = new MeshInstance3D[64];
@@ -46,13 +53,21 @@ public partial class GameHost : Node3D
             _ids = new EntityId[_sim.Capacity];
             _presentations = new CharacterPresentation[_sim.Capacity];
             _pendingAttacks = new GameEvent?[_sim.Capacity];
+            _pendingLaunches = new ProjectileTransition?[_sim.Capacity];
+            _enemyEntrance = new EnemyEntrancePresentation(_sim.Capacity);
+            _mechanicalArrival = new MechanicalArrivalVisuals(this);
             BuildArena();
+            _damageReaction = new EnemyDamageReaction(this,_camera,_sim.Capacity);
+            _playerDamage = new PlayerDamageMaterial();
+            _projectilePresentation = new ProjectilePresentation(this);
+            _spawnPreviews = new SpawnPreviewVisuals(this, _sim.Limits.EnemyCapacity);
             var enemyHealthLayer = new CanvasLayer { Name="EnemyHealthLayer", Layer=0 };
             AddChild(enemyHealthLayer);
             _enemyHealth = new EnemyHealthVisuals(_sim.Capacity) { Name="EnemyHealthBars" };
             enemyHealthLayer.AddChild(_enemyHealth);
             InitializePersistence(catalogHash);
             InitializeUi();
+            InitializeMovementInput();
             BindPersistenceUi();
             ApplyViewportLayout();
             _ui.ShowHome();
@@ -146,20 +161,21 @@ public partial class GameHost : Node3D
     public override void _Process(double delta)
     {
         if (_sim == null) return;
+        PollMobileSafeArea(delta);
+        UpdateGamepadUi(delta);
+        SynchronizeMovementInput();
         _frames++;
         double elapsed = Math.Min(delta,.25);
+        _damageReaction?.BeginFrame(_sim.RunToken,_sim.Wave);
+        _playerDamage?.BeginFrame(_sim);
+        _projectilePresentation?.Bind(_sim);
         if (_sim.Phase == RunPhase.Combat && !_sim.Paused)
         {
             _accumulator += elapsed;
             int steps = 0;
             while (_accumulator >= GameSimulation.FixedDelta && steps < 8)
             {
-                Vector2 move = _ui.Joystick.Direction;
-                if (Input.IsPhysicalKeyPressed(Key.A) || Input.IsPhysicalKeyPressed(Key.Left)) move.X--;
-                if (Input.IsPhysicalKeyPressed(Key.D) || Input.IsPhysicalKeyPressed(Key.Right)) move.X++;
-                if (Input.IsPhysicalKeyPressed(Key.W) || Input.IsPhysicalKeyPressed(Key.Up)) move.Y--;
-                if (Input.IsPhysicalKeyPressed(Key.S) || Input.IsPhysicalKeyPressed(Key.Down)) move.Y++;
-                move = move.LimitLength();
+                Vector2 move = ReadMoveIntent();
                 // Input directions stay screen-relative with the diagonal presentation camera.
                 Vector3 right = _camera.GlobalBasis.X; right.Y = 0; right = right.Normalized();
                 Vector3 down = _camera.GlobalBasis.Z; down.Y = 0; down = down.Normalized();
@@ -189,6 +205,7 @@ public partial class GameHost : Node3D
     }
     private void Start(int hero, uint seed)
     {
+        if(!_ruleSelected){RequestRuleStart(hero,seed);return;}
         _seed = seed;
         PerformPersistence(e => _checkpoint.StartNew(AssetVisuals.HeroIds[hero], seed, e), _checkpoint.IntentEpoch);
     }
@@ -197,24 +214,37 @@ public partial class GameHost : Node3D
     private static Vector3 ToGodot(Vec2 p,float height=0) => new(p.X,height,p.Y);
     public override void _ExitTree()
     {
+        ReleaseMovementInput();
         ReleaseViewportLayout();
         if(_visuals!=null) ClearVisuals();
+        _spawnPreviews?.Dispose();
+        _mechanicalArrival?.Dispose();
+        _damageReaction?.Dispose();
+        _playerDamage?.Dispose();
+        _projectilePresentation?.Dispose();
         _assets.ReleaseCachedReferences();
     }
 
     private void ClearVisuals()
     {
+        _damageReaction?.ClearPresentation();_playerDamage?.ClearPresentation();_projectilePresentation?.ClearPresentation();
+        if(_pendingLaunches!=null)Array.Clear(_pendingLaunches);
         _cameraBound=false;
         _enemyHealth?.Clear();
+        _spawnPreviews?.Clear();
+        _enemyEntrance?.Clear();
+        _mechanicalArrival?.Clear();
         for(int i=0;i<_visuals.Length;i++) { _presentations[i]?.Dispose(); _visuals[i]?.QueueFree(); _visuals[i]=null; _presentations[i]=null; _pendingAttacks[i]=null; }
         for(int i=0;i<_effects.Length;i++) { _effectTime[i]=0; if(_effects[i]!=null) _effects[i].Visible=false; }
         if(_honey!=null) _honey.Visible=false; foreach(var orbit in _orbit) if(orbit!=null) orbit.Visible=false;
     }
     private void RenderEntities(float delta)
     {
+        _spawnPreviews?.Update(_sim);
+        _mechanicalArrival?.Update(_sim);
         for(int slot=0;slot<_visuals.Length;slot++)
         {
-            if(!_sim.TryGetEntityAtSlot(slot,out var view)) { _presentations[slot]?.Dispose(); _visuals[slot]?.QueueFree(); _visuals[slot]=null; _presentations[slot]=null; _pendingAttacks[slot]=null; continue; }
+            if(!_sim.TryGetEntityAtSlot(slot,out var view)) { _presentations[slot]?.Dispose(); _visuals[slot]?.QueueFree(); _visuals[slot]=null; _presentations[slot]=null; _pendingAttacks[slot]=null; _pendingLaunches[slot]=null; continue; }
             if(_visuals[slot]==null || _ids[slot]!=view.Id)
             {
                 _presentations[slot]?.Dispose();
@@ -223,6 +253,7 @@ public partial class GameHost : Node3D
                 // presenter before binding the new generation, including non-animated kinds.
                 _presentations[slot]=null;
                 if(_pendingAttacks[slot]?.Source!=view.Id) _pendingAttacks[slot]=null;
+                if(_pendingLaunches[slot]?.Owner!=view.Id) _pendingLaunches[slot]=null;
                 _visuals[slot]=_assets.Create(view.Kind==EntityKind.Pickup?"candy_pickup":view.VisualId);
                 _ids[slot]=view.Id; AddChild(_visuals[slot]);
                 if(view.Kind!=EntityKind.Pickup)
@@ -236,14 +267,16 @@ public partial class GameHost : Node3D
             if(presentation!=null)
             {
                 presentation.Snapshot(view,_sim.Tick,_sim.RunToken,_sim.Wave);
-                if(_pendingAttacks[slot] is GameEvent attack)
-                {
+                if(_pendingLaunches[slot] is ProjectileTransition launch &&
+                   (!(_pendingAttacks[slot] is GameEvent other) || launch.Tick>=other.Tick))
+                    presentation.Attack(launch.Owner,launch.RunToken,launch.Wave,launch.Tick);
+                else if(_pendingAttacks[slot] is GameEvent attack)
                     presentation.Attack(attack.Source,attack.RunToken,attack.Wave,attack.Tick);
-                    _pendingAttacks[slot]=null;
-                }
+                _pendingAttacks[slot]=null;_pendingLaunches[slot]=null;
                 presentation.Advance(delta,_sim.Paused || _sim.Phase!=RunPhase.Combat);
             }
             else { node.Visible=view.Active; node.Position=ToGodot(view.Position); }
+            if(view.Kind==EntityKind.Enemy) node.Scale=new Vector3(1.15f,1.15f*_enemyEntrance.VerticalScale(view.Id,_sim.RunToken,_sim.Wave,_sim.Tick),1.15f);
             if(view.Kind==EntityKind.Pickup) { node.Position+=new Vector3(0,.18f+Mathf.Sin(_sim.WaveSeconds*3)*.06f,0); node.Rotation=new Vector3(0,_sim.WaveSeconds,0); }
         }
         bool combat=_sim.Phase==RunPhase.Combat;
@@ -266,6 +299,11 @@ public partial class GameHost : Node3D
             if(_visuals[slot]!=null && _sim.TryGetEntityAtSlot(slot,out var healthView))
                 _enemyHealth.Update(slot,healthView,_visuals[slot],_camera,combat);
         _enemyHealth.EndFrame();
+        _damageReaction?.SyncBindings(_sim,_visuals,_ids);
+        _damageReaction?.EndFrame(delta,_sim.Paused,_sim.Phase==RunPhase.Combat);
+        _playerDamage?.SyncBinding(_sim,_visuals,_ids);
+        _playerDamage?.EndFrame(delta,_sim.Paused,_sim.Phase==RunPhase.Combat);
+        _projectilePresentation?.Reconcile(_sim,(float)(_accumulator/GameSimulation.FixedDelta),_sim.Paused,ProjectilePresentationVisible());
     }
     // Preserve authoritative context across catch-up ticks; coalesce to the newest cosmetic gesture.
     private bool QueuePresentationEvent(GameEvent e)
@@ -279,13 +317,36 @@ public partial class GameHost : Node3D
         _pendingAttacks[e.Source.Index]=e;
         return true;
     }
+    private bool ProjectilePresentationVisible()
+    {
+        if(!_inputFocused || !IsVisibleInTree())return false;
+        if(GetViewport() is SubViewport sub && sub.RenderTargetUpdateMode==SubViewport.UpdateMode.Disabled)return false;
+        for(Node n=GetParent();n!=null;n=n.GetParent())if(n is CanvasItem c && !c.IsVisibleInTree())return false;
+        return true;
+    }
+    private void QueueProjectileLaunch(ProjectileTransition e)
+    {
+        if(e.Kind!=ProjectileTransitionKind.Launched || e.RunToken!=_sim.RunToken || e.Wave!=_sim.Wave ||
+           !ProjectilePresentationVisible() || _sim.Paused || _sim.Phase!=RunPhase.Combat ||
+           e.Owner.Index<0 || e.Owner.Index>=_pendingLaunches.Length || !_sim.TryGetEntity(e.Owner,out _))return;
+        var previous=_pendingLaunches[e.Owner.Index];
+        if(previous is ProjectileTransition old && old.Owner==e.Owner && old.RunToken==e.RunToken && old.Wave==e.Wave && old.Tick>=e.Tick)return;
+        _pendingLaunches[e.Owner.Index]=e;
+    }
     private void ConsumeEvents()
     {
+        _damageReaction?.CaptureStep(_sim);
+        _playerDamage?.CaptureStep(_sim);
+        _projectilePresentation?.CaptureStep(_sim,QueueProjectileLaunch);
+        _enemyEntrance?.Observe(_sim);
+        _mechanicalArrival?.Observe(_sim);
         for(int i=0;i<_sim.EventCount;i++)
         {
             var e=_sim.GetEvent(i);
             if(e.RunToken!=_sim.RunToken || e.Wave!=_sim.Wave) continue;
             QueuePresentationEvent(e);
+            if(e.Kind==EventKind.Ray && (e.Mechanism==FeedbackMechanism.Ricochet || e.Mechanism==FeedbackMechanism.CompanionShot))
+                throw new InvalidOperationException("Rule3 producer emitted legacy instantaneous Ray");
             if(e.Kind!=EventKind.Ray && e.Kind!=EventKind.Melee && e.Kind!=EventKind.Impact && e.Kind!=EventKind.Blast && !(e.Kind==EventKind.Damage&&e.Target==_sim.PlayerId)) continue;
             int slot=_effectCursor++%_effects.Length;
             var mesh=_effects[slot]; var a=ToGodot(e.From,.55f); var b=ToGodot(e.To,.55f); float length=a.DistanceTo(b);
@@ -317,6 +378,7 @@ public partial class GameHost : Node3D
     }
     public override void _Input(InputEvent input)
     {
+        if(HandleGamepadEvent(input))return;
         if(_sim==null || input is not InputEventKey key || !key.Pressed || key.Echo) return;
         if(key.Keycode==Key.Escape)
         {
@@ -328,7 +390,10 @@ public partial class GameHost : Node3D
     }
     public override void _Notification(int what)
     {
+        if(what==NotificationApplicationFocusIn){_inputFocused=true;ResetMovementInput();PollMobileSafeArea(0,true);}
         if(what!=NotificationApplicationFocusOut || _sim==null) return;
+        _inputFocused=false;ResetMovementInput();_damageReaction?.ClearPresentation();_playerDamage?.ClearPresentation();_projectilePresentation?.ClearPresentation();
+        if(_pendingLaunches!=null)Array.Clear(_pendingLaunches);
         _codexResume=false; _accumulator=0; _ui?.Joystick.ResetInput();
         if(_sim.Phase==RunPhase.Combat) Send(CommandKind.Pause,flag:true);
     }
@@ -336,7 +401,7 @@ public partial class GameHost : Node3D
     {
         _codexOpen=true; _codexResume=_sim.Phase==RunPhase.Combat && !_sim.Paused;
         if(_sim.Phase==RunPhase.Combat) Send(CommandKind.Pause,flag:true);
-        _ui.Joystick.ResetInput(); _accumulator=0;
+        _ui.CancelGameplayInput(); _accumulator=0;
         return CodexFormatter.Build(_content, _sim.GetLevel, _sim.GetCardAvailability);
     }
     private void CloseCodex()
@@ -353,8 +418,8 @@ public partial class GameHost : Node3D
         {
             _ui.ShowCombat();
             if(_sim.TryGetEntity(_sim.PlayerId,out var player))
-                _ui.UpdateHud(AssetVisuals.HeroNames[_heroIndex],player.Health,player.MaxHealth,_sim.Wave,24-_sim.WaveSeconds,_sim.Coins,
-                    (ContractStatus(false).Length>0?ContractStatus(false)+" · ":"")+(_sim.PowerSeconds>0?$"强攻 {_sim.PowerSeconds:0}s  ":"")+(_sim.HasteSeconds>0?$"轻快 {_sim.HasteSeconds:0}s":""),_sim.GetStat(Stat.CompanionEnabled)<=0?"可通过特性卡获得独立伙伴":_sim.CompanionsStationary?"伙伴驻守当前位置":"伙伴独立游走 · 不跟随主角",_sim.GetStat(Stat.CompanionEnabled)>0,_sim.IsEndless,_sim.EndlessWavesCompleted);
+                _ui.UpdateHud(AssetVisuals.HeroNames[_heroIndex],player.Health,player.MaxHealth,_sim.Wave,WaveRules.DurationSeconds-_sim.WaveSeconds,_sim.Coins,
+                    (ContractStatus(false).Length>0?ContractStatus(false)+" · ":"")+(_sim.PowerSeconds>0?$"强攻 {_sim.PowerSeconds:0}s  ":"")+(_sim.HasteSeconds>0?$"轻快 {_sim.HasteSeconds:0}s":""),_sim.GetStat(Stat.CompanionEnabled)<=0?"":_sim.CompanionsStationary?"伙伴驻守当前位置":"伙伴独立游走 · 不跟随主角",_sim.GetStat(Stat.CompanionEnabled)>0,_sim.IsEndless,_sim.EndlessWavesCompleted);
             if(!_codexOpen && (phaseChanged || _lastPaused!=_sim.Paused)) _ui.ShowPause(_sim.Paused);
         }
         else if(_sim.Phase==RunPhase.Between && (phaseChanged || _lastCoins!=_sim.Coins || _lastSpent!=_sim.Spent || _lastPicked!=_sim.CardPicked))

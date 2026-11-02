@@ -21,10 +21,16 @@ public sealed class CheckpointCodec
     public byte[] Encode(WaveCheckpointDto checkpoint) => JsonSerializer.SerializeToUtf8Bytes(checkpoint, Options);
 
     public bool TryDecode(byte[] bytes, SnapshotIdentity identity, out WaveCheckpointDto? checkpoint)
+        => TryDecodeCore(bytes, identity, false, out checkpoint);
+
+    public bool TryDecodeArchived(byte[] bytes, SnapshotIdentity identity, out WaveCheckpointDto? checkpoint)
+        => TryDecodeCore(bytes, identity, true, out checkpoint);
+
+    private bool TryDecodeCore(byte[] bytes, SnapshotIdentity identity, bool archived, out WaveCheckpointDto? checkpoint)
     {
         checkpoint = null;
         if (bytes == null || bytes.Length == 0 || bytes.Length > CheckpointStore.SnapshotLimit
-            || identity.Catalog != simulation.CatalogHash || identity.Rules != GameSimulation.CheckpointRulesVersion
+            || identity.Catalog != simulation.CatalogHash || (archived ? identity.Rules != WaveRules.PriorVersion && identity.Rules != WaveRules.LegacyVersion : identity.Rules != GameSimulation.CheckpointRulesVersion)
             || !Guid.TryParseExact(identity.Run, "N", out var run) || run == Guid.Empty || run.ToString("N") != identity.Run) return false;
         try
         {
@@ -46,7 +52,11 @@ public sealed class CheckpointCodec
                 }
             }
             var dto = JsonSerializer.Deserialize<WaveCheckpointDto>(bytes, Options);
-            if (dto == null || !simulation.TryValidateCheckpoint(dto, new CheckpointIdentity(run, identity.Sequence), out _)) return false;
+            if (dto == null || dto.RulesVersion != identity.Rules) return false;
+            bool valid = archived
+                ? simulation.TryValidateArchivedCheckpoint(dto, new CheckpointIdentity(run, identity.Sequence), out _)
+                : simulation.TryValidateCheckpoint(dto, new CheckpointIdentity(run, identity.Sequence), out _);
+            if (!valid) return false;
             checkpoint = dto;
             return true;
         }

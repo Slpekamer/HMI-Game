@@ -32,14 +32,29 @@ public partial class EndlessProbe:Node
    void Start()=>typeof(GameHost).GetMethod("Start",Flags).Invoke(host,new object[]{2,(uint)1030});
    Start();host.SetProcess(false);var ui=(GameUi)Field("_ui");var g=(GameSimulation)Field("_sim");var content=(GameContent)Field("_content");
    var checkpoint=(CheckpointSession)Field("_checkpoint");
-   // Test-only time compression, not natural survival. All progression, choices, RNG,
+   // Synthetic time compression skips combat and real preview lifetimes; never survival/play evidence.
+   // Pending reservations must cancel at the forced boundary. All progression, choices, RNG,
    // history and checkpoint saves still pass through the production Core/host paths.
    void CompleteCurrentWave()
    {
     Check(g.Phase==RunPhase.Combat,"Completion fixture starts from combat");
-    g.Run.Tick=1440;
+    int pendingAtBoundary=g.PendingSpawnCount;
+    g.Run.Tick=WaveRules.DurationTicks;
     g.World.Health[g.PlayerId.Index].Current=g.World.Health[g.PlayerId.Index].Maximum;
     g.Step();Refresh();
+    Check(g.PendingSpawnCount==0,"Synthetic wave completion cancels pending reservations; no post-wave activation");
+    int cancelled=0;for(int i=0;i<g.SpawnTransitionCount;i++)if(g.GetSpawnTransition(i).Kind==SpawnTransitionKind.Cancelled)cancelled++;
+    Check(cancelled==pendingAtBoundary,"All pending reservations receive cancellation at synthetic boundary");
+   }
+   void CheckNewWavePreview()
+   {
+    Check(g.Tick==0&&g.PendingSpawnCount>0,"New wave starts with fresh pending previews, not directly spawned enemies");
+    for(int i=0;i<g.Capacity;i++)if(g.TryGetEntityAtSlot(i,out var entity))Check(entity.Kind!=EntityKind.Enemy,"Pending enemies are not live entities at wave start");
+    for(int i=0;i<g.PendingSpawnCount;i++){
+     var pending=g.GetPendingSpawn(i);
+     Check(pending.Id.RunToken==g.RunToken&&pending.Id.Wave==g.Wave&&pending.ScheduledTick==0&&pending.ActivateTick==WaveRules.SpawnPreviewTicks,
+      "New wave reservations use current scope and the full real preview duration");
+    }
    }
    void PickBaseAndStartNext()
    {
@@ -53,6 +68,7 @@ public partial class EndlessProbe:Node
      "Real host Next persists legal history before starting combat");
     Check(checkpoint.CurrentWaveSaved&&checkpoint.CurrentRecovery.Kind==RecoveryKind.Active&&g.Tick==0,
      "Next acknowledges a real Active safe point before the first simulation tick");
+    CheckNewWavePreview();
    }
    void ReachFiniteVictory()
    {
@@ -64,7 +80,7 @@ public partial class EndlessProbe:Node
     Check(g.Phase==RunPhase.Victory&&g.FiniteCompleted&&g.Wave==6,
      "Six lawful compressed completions establish finite victory");
    }
-   ReachFiniteVictory();await Flush();
+   CheckNewWavePreview();ReachFiniteVictory();await Flush();
    var proceed=Walk(ui).OfType<Button>().Single(b=>b.Text=="继续无尽");
    var finish=Walk(ui).OfType<Button>().Single(b=>b.Text=="结束本局");
    Check(!proceed.Disabled&&!finish.Disabled,"Both explicit finite-completion intents available");
