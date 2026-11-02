@@ -32,7 +32,7 @@ def frames(path):
 
 
 def main():
-    ap=argparse.ArgumentParser();ap.add_argument('base',type=pathlib.Path);ap.add_argument('scenario',choices=['flight','stance','restart']);ap.add_argument('output',type=pathlib.Path);ap.add_argument('--frames',type=int,default=180);a=ap.parse_args();assert 1<=a.frames<=256
+    ap=argparse.ArgumentParser();ap.add_argument('base',type=pathlib.Path);ap.add_argument('scenario',choices=['flight','stance','restart','restart4','restart1']);ap.add_argument('output',type=pathlib.Path);ap.add_argument('--frames',type=int,default=180);a=ap.parse_args();assert 1<=a.frames<=256
     a.output.mkdir(parents=True,exist_ok=False)
     mapping={}
     with tempfile.TemporaryDirectory() as temp:
@@ -51,7 +51,7 @@ def main():
         for tick in range(a.frames):
             canvas=Image.new('RGB',(2560,752),'#181818');d=ImageDraw.Draw(canvas)
             d.text((12,10),'A: rejected in-place Run | fixed camera | original pixels',fill='white')
-            d.text((1292,10),'B: displacement/contact Run WIP | internal visual gate',fill='white')
+            d.text((1292,10),f'B: displacement/contact Run WIP | case: {a.scenario} | internal visual gate',fill='white')
             for i,v in enumerate(['A','B']):
                 with Image.open(temp/f'{v}-{tick:03}.png') as im:canvas.paste(im,(1280*i,32))
             canvas.save(temp/f'pair-{tick:03}.png')
