@@ -1,10 +1,11 @@
 import json,pathlib,math,sys
 r=pathlib.Path(sys.argv[1]);prefix=sys.argv[2];scenario=sys.argv[3];a=r/f'{prefix}-{scenario}-A';b=r/f'{prefix}-{scenario}-B'
-report={'scope':'One fixed-heading forward Run contact/flight prototype, not normal controller','scenario':scenario}
+report={'scope':'One fixed-heading selected contact/flight pilot, not normal controller','scenario':scenario}
 for name in ['authority.jsonl','camera.tsv']:
  assert (a/name).read_bytes()==(b/name).read_bytes(),name;report[name]='byte-identical'
 def read(p):return [json.loads(x) for x in p.read_text().splitlines()]
 ma=read(a/'motion.jsonl');mb=read(b/'motion.jsonl');assert len(ma)==len(mb)==180
+sidehop=ma[0].get('gait')=='StrafeR';report['gait']=ma[0].get('gait','Run')
 for x,y in zip(ma,mb):x.pop('candidate');y.pop('candidate');assert x==y,'Phase/event/speed mismatch'
 report['attack_starts']=[x['frame'] for x in ma if x['observedStart']]
 lower={'Pelvis','Thigh_L','Shin_L','Foot_L','Thigh_R','Shin_R','Foot_R'}
@@ -26,7 +27,8 @@ for row,sk,skold in zip(rows,skin,old):
    drift.append(max(math.hypot(x[0]-y[0],x[2]-y[2]) for x,y in zip(sk['feet'][i]['points'],orig)))
    old_drift.append(max(math.hypot(x[0]-y[0],x[2]-y[2]) for x,y in zip(skold['feet'][i]['points'],oldorig)))
  if d['footfalls']!=previousfall and d['footfalls']>0:
-  fs=[f for f in d['feet'] if f['state']=='stance-anchor'];assert len(fs)==1
+  fs=[f for f in d['feet'] if f['state']=='stance-anchor'];assert len(fs)==(2 if sidehop else 1)
+  if sidehop:assert d['sharedPhase'] and abs(d['feet'][0]['phase']-d['feet'][1]['phase'])<.00001
   f=fs[0];falls.append({'frame':row['frame'],'ordinal':d['footfalls'],'side':f['side'],'anchor':f['anchor']})
  previousfall=d['footfalls']
  if d['stopAge']>0 and all(f['state']=='settled-anchor' for f in d['feet']):end.append((row['frame'],d['stopAge']))

@@ -20,9 +20,18 @@ def transform(s):
 def load(path):
     b=path.read_bytes();n=struct.unpack_from('<I',b,12)[0];j=json.loads(b[20:20+n]);data=b[28+n:]
     def acc(i):
-        a=j['accessors'][i];v=j['bufferViews'][a['bufferView']]
-        dt=np.dtype({5126:'<f4',5123:'<u2',5121:'u1',5125:'<u4'}[a['componentType']]);k={'SCALAR':1,'VEC3':3,'VEC4':4,'MAT4':16}[a['type']]
-        return np.ndarray((a['count'],k),dtype=dt,buffer=data,offset=v.get('byteOffset',0)+a.get('byteOffset',0),strides=(v.get('byteStride',dt.itemsize*k),dt.itemsize)).copy()
+        a=j['accessors'][i]
+        types={5126:'<f4',5123:'<u2',5121:'u1',5125:'<u4'}
+        dt=np.dtype(types[a['componentType']]);k={'SCALAR':1,'VEC3':3,'VEC4':4,'MAT4':16}[a['type']]
+        def read(view,offset,count,dtype,width):
+            v=j['bufferViews'][view];dtype=np.dtype(dtype)
+            return np.ndarray((count,width),dtype=dtype,buffer=data,offset=v.get('byteOffset',0)+offset,strides=(v.get('byteStride',dtype.itemsize*width),dtype.itemsize)).copy()
+        out=read(a['bufferView'],a.get('byteOffset',0),a['count'],dt,k) if 'bufferView' in a else np.zeros((a['count'],k),dtype=dt)
+        if 'sparse' in a:
+            sp=a['sparse'];si=sp['indices'];sv=sp['values']
+            ix=read(si['bufferView'],si.get('byteOffset',0),sp['count'],types[si['componentType']],1).ravel()
+            out[ix]=read(sv['bufferView'],sv.get('byteOffset',0),sp['count'],dt,k)
+        return out
     skin=j['skins'][0];nodes=skin['joints'];names=[j['nodes'][i]['name'] for i in nodes];parents={c:p for p,x in enumerate(j['nodes']) for c in x.get('children',[])}
     parent=[nodes.index(parents[i]) if parents.get(i) in nodes else -1 for i in nodes]
     binds=acc(skin['inverseBindMatrices']).reshape(-1,4,4).transpose(0,2,1)
@@ -64,7 +73,8 @@ def main():
     boot={s:np.flatnonzero(np.all(mass('Foot_'+s)[faces]>.99999,axis=1)) for s in ['L','R']}
     upper=np.flatnonzero(np.all((rest[:,1]>=.17)[faces],axis=1)&np.all((rest[:,1]<=.34)[faces],axis=1)&np.all((mass('Foot_L')+mass('Foot_R'))[faces]<.001,axis=1))
     legs={s:np.flatnonzero(np.all((mass('Thigh_'+s)+mass('Shin_'+s))[faces]>.5,axis=1)) for s in ['L','R']}
-    regions={'boot_L_vs_upper_lowerbody':(boot['L'],upper),'boot_R_vs_upper_lowerbody':(boot['R'],upper),'left_leg_vs_right_leg':(legs['L'],legs['R'])}
+    pelvis=np.flatnonzero(np.all(mass('Pelvis')[faces]>.5,axis=1)&np.all((rest[:,1]<=.34)[faces],axis=1))
+    regions={'leg_L_vs_lower_pelvis_weighted':(legs['L'],pelvis),'leg_R_vs_lower_pelvis_weighted':(legs['R'],pelvis),'boot_L_vs_upper_lowerbody':(boot['L'],upper),'boot_R_vs_upper_lowerbody':(boot['R'],upper),'left_leg_vs_right_leg':(legs['L'],legs['R'])}
     base={k:crossings(rest,faces,*v) for k,v in regions.items()}
     poses={int(x.split('|',1)[0]):x.split('|',1)[1] for x in (args.trace/'pose.tsv').read_text().splitlines()};cameras={int(x.split('|')[0]):transform(x.split('|')[3]) for x in (args.trace/'camera.tsv').read_text().splitlines()};soles={x['frame']:x for x in map(json.loads,(args.trace/'sole.jsonl').read_text().splitlines())}
     reports=[];max_sole_error=0
@@ -87,7 +97,10 @@ def main():
         row={'frame':frame,'sole_reconstruction_max_error_world':max(sole_errors),'regions':{}}
         for name,pair in regions.items():
             hits,cop=crossings(verts,faces,*pair);new=hits-base[name][0]
-            row['regions'][name]={'noncoplanar_crossing_pairs':len(hits),'new_vs_asset_rest_pairs':len(new),'rest_pairs':len(base[name][0]),'coplanar_aabb_candidates_unresolved':cop,'new_pair_examples':sorted(new)[:12]}
+            def describe(face):
+                vertices=faces[face];influence={bone:float(np.mean(mass(bone)[vertices])) for bone in names}
+                return {'triangle':int(face),'source_centroid_model':rest[vertices].mean(0).tolist(),'evaluated_centroid_model':verts[vertices].mean(0).tolist(),'mean_bone_weights':{n:v for n,v in influence.items() if v>.001}}
+            row['regions'][name]={'noncoplanar_crossing_pairs':len(hits),'new_vs_asset_rest_pairs':len(new),'rest_pairs':len(base[name][0]),'coplanar_aabb_candidates_unresolved':cop,'new_pair_examples':[[describe(a),describe(b)]for a,b in sorted(new)[:3]]}
         reports.append(row)
     print(json.dumps({'scope':'Evaluated lower-mesh LBS; no semantic shorts labels, GPU certification or aesthetic acceptance. Coplanar candidates unresolved. Rest seams retained as baseline. Samples are not continuous-time proof.','region_triangle_counts':{k:[len(a),len(b)]for k,(a,b)in regions.items()},'max_sole_reconstruction_error_world':float(max_sole_error),'frames':reports},indent=2))
 if __name__=='__main__':main()
