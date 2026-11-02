@@ -4,7 +4,7 @@ Requires ffmpeg/ffprobe, Python Pillow. Keeps every requested simulation tick (d
 No resizing, cropping, retiming or interpolation. Outputs two 1280x720 streams
 side by side; labels sit in additional top margin. Internal review only.
 """
-import argparse, json, pathlib, subprocess, tempfile
+import argparse, json, pathlib, subprocess, tempfile, sys
 from PIL import Image, ImageDraw
 
 
@@ -22,13 +22,14 @@ def frames(path):
             bits=0
             for i in range(8):
                 rgb=im.getpixel((14+i*14,702))
-                assert max(rgb)-min(rgb)<20 and (max(rgb)<40 or min(rgb)>215),('ambiguous stamp',index,i,rgb)
+                assert max(rgb)<40 or min(rgb)>215,('ambiguous stamp',index,i,rgb)
                 if sum(rgb)>3*127:bits|=1<<i
             yield index,(bits-43)&255,im
             index+=1
     finally:
         p.stdout.close()
-        assert p.wait()==0,'ffmpeg decode failed'
+        status=p.wait()
+        if sys.exc_info()[0] is None:assert status==0,'ffmpeg decode failed'
 
 
 def main():

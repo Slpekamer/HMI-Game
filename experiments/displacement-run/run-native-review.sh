@@ -9,7 +9,9 @@ dotnet build -m:1 > "$BASE/build.log" 2>&1
 unset ROUTE_HEADLESS PROJECTILE_FRAMECHECK
 printf 'chapters=flight-stop,restart-delay-4,restart-delay-1-worst-boundary\n' > "$BASE/capture-case.txt"
 export DISPLACEMENT_LIFECYCLE_PROBE=0 DISPLACEMENT_RESTART_STANCE=0 DISPLACEMENT_RESTART_DELAY=4
-for STOP in flight restart4 restart1;do
+STOPS=(flight restart4 restart1)
+[[ "${DISPLACEMENT_NATIVE_RESTARTS_ONLY:-0}" == 1 ]] && STOPS=(restart4 restart1)
+for STOP in "${STOPS[@]}";do
  export STOP_MODE=flight DISPLACEMENT_RESTART_MATRIX=0
  if [[ "$STOP" != flight ]];then export STOP_MODE=restart DISPLACEMENT_RESTART_MATRIX=1 DISPLACEMENT_RESTART_DELAY="${STOP#restart}";fi
  for VARIANT in A B;do
