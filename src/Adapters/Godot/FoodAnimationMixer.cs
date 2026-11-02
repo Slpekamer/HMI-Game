@@ -12,6 +12,8 @@ internal sealed class FoodAnimationMixer : IDisposable
     private bool _disposed;
     public bool AttackActive => !_disposed && GodotObject.IsInstanceValid(_tree) && _tree.Get("parameters/UpperAttack/active").AsBool();
     public int FilteredTracks { get; }
+    internal float MovementBlend => _movement;
+    internal float RunPhase => _tree.Get("parameters/Run/current_position").AsSingle();
     private FoodAnimationMixer(AnimationTree tree,int tracks) { _tree=tree;FilteredTracks=tracks; }
     public static FoodAnimationMixer TryCreate(AnimationPlayer player,string idle,string run,string attack)
     {

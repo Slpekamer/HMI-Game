@@ -6,6 +6,8 @@ internal static class ControlledGaitDrill
 {
     public static bool Enabled;
     public static bool Candidate;
+    public static bool WeightTransfer;
+    public static bool ProportionCandidate;
     public static string Clip = "StrafeR";
     public static float Yaw;
     public static readonly HashSet<string> LowerBones = new(StringComparer.Ordinal)
