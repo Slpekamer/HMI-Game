@@ -1,4 +1,0 @@
-{
-  "runtime_csharp_differences_from_full_aggregate_and_native_r6": [],
-  "scope": "All source C# excluding generated bin/obj; documentation and new permanent regression runner may differ."
-}

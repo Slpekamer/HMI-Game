@@ -8,6 +8,7 @@ config/features=PackedStringArray("4.6", "C#", "GL Compatibility")
 window/size/viewport_width=1280
 window/size/viewport_height=720
 window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
 window/handheld/orientation=4
 [dotnet]
 project/assembly_name="HmiGame"

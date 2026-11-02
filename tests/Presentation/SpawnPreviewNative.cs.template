@@ -1,0 +1,54 @@
+using Godot;
+using Hmi.Core;
+using Hmi.GodotAdapter;
+using System;
+using System.Reflection;
+using System.IO;
+using System.Collections.Generic;
+using System.Text.Json;
+
+// Controlled timing capture using the real host/persistence in an isolated fresh user-data directory.
+public partial class SpawnPreviewNative : Node
+{
+    const BindingFlags F=BindingFlags.Instance|BindingFlags.NonPublic;
+    GameHost host;GameSimulation sim;SubViewport view;Label label;string folder;bool busy,done;
+    readonly HashSet<long> captured=new();readonly List<object> rows=new();
+    T Field<T>(string name)=>(T)typeof(GameHost).GetField(name,F).GetValue(host);
+    public override void _Ready()
+    {
+        try {
+            folder=OS.GetEnvironment("SPAWN_PREVIEW_OUTPUT");if(string.IsNullOrEmpty(folder))throw new Exception("Explicit test output directory required");Directory.CreateDirectory(folder);
+            GetWindow().Size=new Vector2I(1180,812);
+            var box=new SubViewportContainer {Size=new Vector2(1280,720),Scale=new Vector2(.9f,.9f),Position=new Vector2(12,100),Stretch=false,MouseFilter=Control.MouseFilterEnum.Ignore};AddChild(box);
+            view=new SubViewport {Size=new Vector2I(1280,720),OwnWorld3D=true,HandleInputLocally=true,RenderTargetUpdateMode=SubViewport.UpdateMode.Always};box.AddChild(view);
+            host=new GameHost();view.AddChild(host);host.SetProcess(false);
+            typeof(GameHost).GetMethod("Start",F).Invoke(host,new object[]{1,(uint)1030});host.SetProcess(false);
+            sim=Field<GameSimulation>("_sim");if(sim.Phase!=RunPhase.Combat||sim.Tick!=0)throw new Exception("Fresh durable Start did not enter tick0");
+            typeof(GameHost).GetMethod("RenderEntities",F).Invoke(host,new object[]{0f});
+            var layer=new CanvasLayer {Layer=99};view.AddChild(layer);label=new Label {Position=new Vector2(270,680),MouseFilter=Control.MouseFilterEnum.Ignore};label.AddThemeColorOverride("font_color",new Color("392640"));layer.AddChild(label);
+        } catch(Exception e) {GD.PushError(e.ToString());GetTree().Quit(1);}
+    }
+    public override async void _Process(double delta)
+    {
+        if(done||busy||sim==null)return;busy=true;
+        try {
+            long tick=sim.Tick;
+            if((tick==0||tick==30||tick==59||tick==60||tick==61||tick==90)&&captured.Add(tick)) {
+                typeof(GameHost).GetMethod("RefreshUi",F).Invoke(host,null);
+                var ui=Field<GameUi>("_ui");var timer=(Label)typeof(GameUi).GetField("_timer",F).GetValue(ui);
+                string expected=GameUi.FormatWaveTime(WaveRules.DurationSeconds-sim.WaveSeconds);
+                if(timer.Text!=expected)throw new Exception($"HUD countdown {timer.Text} != authority {expected}");
+                var markers=Field<SpawnPreviewVisuals>("_spawnPreviews");var bars=Field<EnemyHealthVisuals>("_enemyHealth");
+                int enemies=0;for(int i=0;i<sim.Capacity;i++)if(sim.TryGetEntityAtSlot(i,out var e)&&e.Kind==EntityKind.Enemy)enemies++;
+                label.Text=$"CONTROLLED FIXED TICK {tick} | warnings {markers.Count} | enemies {enemies} | no rule cheats";
+                await ToSignal(RenderingServer.Singleton,RenderingServer.SignalName.FramePostDraw);
+                using var image=view.GetTexture().GetImage();if(image.SavePng(folder+$"/tick-{tick:D3}.png")!=Error.Ok)throw new Exception("PNG save failed");
+                rows.Add(new {tick,pending=sim.PendingSpawnCount,markers=markers.Count,enemies,timer=timer.Text,bars=bars.VisibleCount,viewport=view.Size.ToString()});
+                if(tick==59&&enemies!=0)throw new Exception("Enemy appeared before warning deadline");
+                if(tick==60&&enemies!=10)throw new Exception("Expected initial10 activation");
+            }
+            if(tick>=90) {System.IO.File.WriteAllText(folder+"/capture.json",JsonSerializer.Serialize(rows,new JsonSerializerOptions{WriteIndented=true}));GD.Print("SPAWN_PREVIEW_NATIVE PASS six timing captures; no survival/device claim");done=true;GetTree().Quit();return;}
+            host._Process(GameSimulation.FixedDelta);if(sim.Tick-tick!=1)throw new Exception("Expected exactly one authority tick per test update");
+        } catch(Exception e) {done=true;GD.PushError(e.ToString());GetTree().Quit(1);} finally {busy=false;}
+    }
+}

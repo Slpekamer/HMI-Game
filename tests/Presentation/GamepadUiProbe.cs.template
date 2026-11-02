@@ -1,0 +1,76 @@
+using Godot;
+using Hmi.GodotAdapter;
+using Hmi.Core;
+using System;
+using System.Linq;
+using System.Reflection;
+using System.Text.Json;
+using System.Threading.Tasks;
+public partial class GamepadUiProbe:Node
+{
+ GameHost host;GameUi ui;GameSimulation sim;Task task;int checks;
+ const BindingFlags F=BindingFlags.Instance|BindingFlags.NonPublic;
+ void Check(bool b,string why){checks++;if(!b)throw new Exception(why);}
+ T Field<T>(string n)=>(T)typeof(GameHost).GetField(n,F).GetValue(host);
+ object Call(string n,params object[] args)=>typeof(GameHost).GetMethod(n,F).Invoke(host,args);
+ async Task Flush(){for(int i=0;i<4;i++)await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);}
+ static System.Collections.Generic.IEnumerable<Node> Walk(Node n){yield return n;foreach(Node c in n.GetChildren())foreach(var d in Walk(c))yield return d;}
+ Button Button(string contains)=>Walk(ui).OfType<Button>().First(b=>b.IsVisibleInTree()&&!b.Disabled&&b.Text.Contains(contains));
+ void Tick()=>Call("UpdateGamepadUi",1.0/60);
+ void Event(JoyButton b,bool pressed,int device=7){using var e=new InputEventJoypadButton{Device=device,ButtonIndex=b,Pressed=pressed};GetViewport().PushInput(e,true);}
+ void Axis(int device,float value){using var e=new InputEventJoypadMotion{Device=device,Axis=JoyAxis.LeftX,AxisValue=value};GetViewport().PushInput(e,true);}
+ void Release(){foreach(var b in new[]{JoyButton.A,JoyButton.B,JoyButton.Start,JoyButton.Y,JoyButton.DpadDown,JoyButton.DpadUp,JoyButton.DpadLeft,JoyButton.DpadRight})Event(b,false);Tick();}
+ void Press(JoyButton b){Release();Event(b,true);Tick();}
+ void Click(string label){Release();Button(label).GrabFocus();Event(JoyButton.A,true);Tick();}
+ public override void _Ready(){task=Run();}
+ public override void _Process(double delta){if(task?.IsCompleted!=true)return;SetProcess(false);if(task.IsFaulted){GD.PushError(task.Exception.ToString());GetTree().Quit(1);}else{GD.Print("GAMEPAD_UI_PROBE PASS "+checks);GetTree().Quit();}}
+ async Task Run(){
+  host=new GameHost();AddChild(host);host.SetProcess(false);await Flush();ui=Field<GameUi>("_ui");sim=Field<GameSimulation>("_sim");
+  host.ApplyGamepadDevice(7);Release();Check(ui.GamepadHint.Contains("确认"),"input method hint");Check(!ui.Joystick.VisualVisible,"connected pad hides touch");
+  var before=GetViewport().GuiGetFocusOwner();Event(JoyButton.A,true,8);Tick();Check(GetViewport().GuiGetFocusOwner()==before&&sim.Phase==RunPhase.Selecting,"unselected device cannot accept");
+  Call("OnJoyConnectionChanged",(long)3,true);Check(Field<int>("_gamepadId")==7,"second lower-id pad never steals");
+  Click("开始冒险");await Flush();Check(Walk(ui).OfType<HeroSelectionPreview>().Any(),"home to real 3D chooser");Tick();var selectorHint=Walk(ui).OfType<Label>().Single(l=>l.Name=="InputMethodHint");Check(!selectorHint.GetGlobalRect().Intersects(Button("首页").GetGlobalRect()),"chooser hint does not cover back button");
+  var focus=GetViewport().GuiGetFocusOwner();Event(JoyButton.A,true);Tick();Check(sim.Phase==RunPhase.Selecting,"held confirm cannot start across page");
+  Release();ui.NavigateGamepad(0,1);Check(GetViewport().GuiGetFocusOwner()!=null,"chooser navigation finds focus");
+  foreach(var hero in AssetVisuals.HeroNames){Click(hero);Check(Walk(ui).OfType<Label>().Single(l=>l.Name=="SelectionSummary").Text.Contains(hero),"all five heroes selectable via routed confirmation");}
+  Button(AssetVisuals.HeroNames[0]).GrabFocus();for(int hero=1;hero<5;hero++){ui.NavigateGamepad(1,0);Check((GetViewport().GuiGetFocusOwner() as Button)?.Text==AssetVisuals.HeroNames[hero],"all five hero tabs reachable by directional navigation");}Click(AssetVisuals.HeroNames[3]);
+  Click("开始");host.SetProcess(false);await Flush();Check(sim.Phase==RunPhase.Combat&&!sim.Paused,"chooser starts through production checkpoint/session");
+  host.ApplyGamepadDevice(-1);Call("ReadMoveIntent");await Flush();var j=ui.Joystick;Vector2 touchPoint=Vector2.Zero;bool legal=false;for(float yy=j.ActivationRegion.Position.Y+5;yy<j.ActivationRegion.End.Y&&!legal;yy+=20)for(float xx=j.ActivationRegion.Position.X+5;xx<j.ActivationRegion.End.X;xx+=20){var pt=j.GetGlobalTransformWithCanvas()*new Vector2(xx,yy);if(j.CanBeginAtViewport(pt)){touchPoint=pt;legal=true;break;}}Check(legal,"host touch has legal safe area");using(var down=new InputEventScreenTouch{Index=4,Pressed=true,Position=touchPoint})GetViewport().PushInput(down,true);using(var drag=new InputEventScreenDrag{Index=4,Position=touchPoint+new Vector2(70,0)})GetViewport().PushInput(drag,true);Check(((Vector2)Call("ReadMoveIntent")).X>0,"floating gesture routes to production MoveIntent");host.UnregisterMovementProvider("touch");Check(((Vector2)Call("ReadMoveIntent"))==Vector2.Zero&&!j.IsCaptured,"unregister while captured clears intent and capture");host.RegisterMovementProvider("touch",new Hmi.Adapters.Input.MoveProviderOptions(10,.08f));host.ApplyGamepadDevice(7);Release();
+  Call("ReadMoveIntent");Axis(7,.8f);Check(((Vector2)Call("ReadMoveIntent")).X>0,"selected left axis moves");
+  Axis(8,-1);Check(((Vector2)Call("ReadMoveIntent")).X>0,"unselected axis cannot steal");Call("ResetMovementInput");Check(((Vector2)Call("ReadMoveIntent"))==Vector2.Zero,"reset held axis requires neutral");Axis(7,0);Call("ReadMoveIntent");Axis(7,.8f);Check(((Vector2)Call("ReadMoveIntent")).X>0,"neutral rearms selected axis");Axis(7,0);Call("ReadMoveIntent");
+  Press(JoyButton.Start);sim.Step();Call("RefreshUi");Check(sim.Paused&&ui.HasGamepadMenu,"Start pauses authority");Tick();Check(!Walk(ui).OfType<Label>().Single(l=>l.Name=="InputMethodHint").Visible,"pause hides external hint instead of covering HUD");
+  Press(JoyButton.B);sim.Step();Call("RefreshUi");Check(!sim.Paused,"B resumes pause");
+  Press(JoyButton.Y);sim.Step();Check(ui.IsCodexOpen&&sim.Paused,"Y codex pauses authority");ui.ScrollGamepad(10);Check(Walk(ui).OfType<RichTextLabel>().Any(r=>r.IsVisibleInTree()),"codex scroll content exists");
+  Press(JoyButton.B);sim.Step();Call("RefreshUi");Check(!ui.IsCodexOpen&&!sim.Paused,"B codex closes with original resume rule");
+  Press(JoyButton.Start);sim.Step();Call("RefreshUi");Click("退出至选人");Check(ui.IsPersistenceModalOpen,"exit opens existing safe-point confirmation");Click("确认退出");host.SetProcess(false);await Flush();ui.ShowHome();await Flush();Click("继续最近");Check(ui.IsPersistenceModalOpen,"home continue summary modal");Click("确认继续");host.SetProcess(false);await Flush();Check(sim.Phase==RunPhase.Combat&&!sim.Paused,"continue restores production safe point");
+  host.UnregisterMovementProvider("touch");Check(((Vector2)Call("ReadMoveIntent"))==Vector2.Zero,"touch provider can be unregistered without sampler exception");host.RegisterMovementProvider("touch",new Hmi.Adapters.Input.MoveProviderOptions(10,.08f));Check(!ui.Joystick.VisualVisible,"re-register does not restore capture");
+  // Injected connection transition, not physical hardware. No hot transfer to second device.
+  Call("OnJoyConnectionChanged",(long)7,false);sim.Step();Call("RefreshUi");Check(sim.Paused&&Field<int>("_gamepadId")==-1,"active disconnect pauses and deselects");Check(ui.Joystick.Direction==Vector2.Zero,"disconnect zero");Check(ui.GamepadHint.Contains("断开"),"disconnect notice shown");Check(Walk(ui).OfType<Label>().Any(l=>l.IsVisibleInTree()&&l.Text.Contains("断开")&&l.Text.Contains("暂停")),"disconnect status lives inside existing pause description");
+  Event(JoyButton.Start,true,3);Tick();Check(Field<int>("_gamepadId")==3&&sim.Paused,"existing second pad requires explicit Start claim and cannot unpause");Event(JoyButton.Start,false,3);host.ApplyGamepadDevice(7);Release();
+  Event(JoyButton.DpadRight,true);Tick();
+  int replaced=0;ui.ShowReplaceRunConfirmation(()=>replaced++);Tick();Check((GetViewport().GuiGetFocusOwner() as Button)?.Text.Contains("取消")==true,"held navigation across modal cannot move default cancel to destructive confirm");
+  Press(JoyButton.B);Check(!ui.IsPersistenceModalOpen&&replaced==0,"B cancels overwrite without action");
+  int retry=0;ui.RetrySaveRequested=()=>retry++;ui.ShowSaveFailure("controlled storage failure",false);Release();Press(JoyButton.B);Check(ui.IsPersistenceModalOpen,"B cannot bypass failclosed save failure");Tick();Check(!Walk(ui).OfType<Label>().Single(l=>l.Name=="InputMethodHint").Visible,"failure modal hides irrelevant external hints");Press(JoyButton.Start);Check(ui.IsPersistenceModalOpen,"Start cannot bypass failclosed save failure");Click("重试");Tick();Check(retry==1,"retry once");for(int i=0;i<15;i++)Tick();Check(retry==1,"held retry not repeated");ui.HideSaveFailure();
+  // Controlled UI callbacks, not synthetic claims of a naturally completed wave.
+  int chosen=0,bought=0,next=0;ui.PickRequested=_=>chosen++;ui.BuyRequested=_=>bought++;ui.NextRequested=()=>next++;
+  var catalog=JsonSerializer.Deserialize<GameContent>(FileAccess.GetFileAsString("res://content/gameplay.json"),new JsonSerializerOptions{PropertyNameCaseInsensitive=true});
+  OfferUi Card(string id){var c=catalog.Cards.Single(c=>c.Id==id);return new OfferUi(c.Id,c.Name,c.Effect,c.Slot);}
+  var offers=new[]{Card("fusion.sugaring"),Card("base.health"),Card("risk.bounty")};
+  var items=catalog.Items.Select(i=>new OfferUi(i.Id,i.Name,i.Effect+"\n"+i.Downside,i.Price+" 金币",true)).ToArray();
+  ui.ShowBetween(offers,12,12,0,false,Array.Empty<OfferUi>(),false);await Flush();Release();var card=Walk(ui).OfType<Button>().First(b=>b.IsVisibleInTree()&&!b.Disabled&&b.Text.Contains("选择"));card.GrabFocus();Event(JoyButton.A,true);Tick();for(int i=0;i<20;i++)Tick();Check(chosen==1,"card held confirm once");
+  ui.ShowBetween(Array.Empty<OfferUi>(),12,12,0,true,items,true);await Flush();Release();var buy=Walk(ui).OfType<Button>().First(b=>b.IsVisibleInTree()&&!b.Disabled&&b.Text.Contains("兑换"));buy.GrabFocus();Event(JoyButton.A,true);Tick();for(int i=0;i<20;i++)Tick();Check(bought==1,"purchase held confirm once");
+  Click("下一");Check(next==1,"next action reachable");
+  foreach(var size in new[]{new Vector2I(1280,720),new Vector2I(1600,720),new Vector2I(1024,768),new Vector2I(720,1280),new Vector2I(540,1280)}){
+   GetWindow().Size=size;await Flush();Call("ApplyViewportLayout");ui.ShowBetween(offers,12,12,0,false,Array.Empty<OfferUi>(),false);await Flush();Release();
+   var buttons=Walk(ui).OfType<Button>().Where(b=>b.IsVisibleInTree()&&!b.Disabled).ToArray();
+   var reachable=new System.Collections.Generic.HashSet<Button>();var todo=new System.Collections.Generic.Queue<Button>();reachable.Add(buttons[0]);todo.Enqueue(buttons[0]);
+   while(todo.Count>0){var from=todo.Dequeue();foreach(var d in new[]{Vector2I.Left,Vector2I.Right,Vector2I.Up,Vector2I.Down}){from.GrabFocus();ui.NavigateGamepad(d.X,d.Y);var to=GetViewport().GuiGetFocusOwner() as Button;Check(to!=null&&buttons.Contains(to),"focus remains within enabled page controls");if(reachable.Add(to))todo.Enqueue(to);}}
+   Check(reachable.Count==buttons.Length,"every card/CTA reachable through directional graph");
+   var last=buttons.Last();last.GrabFocus();ui.NavigateGamepad(0,1);await Flush();var focused=(Button)GetViewport().GuiGetFocusOwner();var scroll=Walk(ui).OfType<ScrollContainer>().First();Check(scroll.GetGlobalRect().HasPoint(focused.GetGlobalRect().GetCenter()),"focus scrolls into visible page");
+   var hint=Walk(ui).OfType<Label>().Single(l=>l.Name=="InputMethodHint");Tick();Check(hint.GetThemeFont("font").GetStringSize(hint.Text,HorizontalAlignment.Left,-1,hint.GetThemeFontSize("font_size")).X<=hint.Size.X,"full input hint fits safe width");var ledger=Walk(ui).OfType<Label>().First(l=>l.IsVisibleInTree()&&l.Text.StartsWith("余额 "));Check(!hint.Visible||!hint.GetGlobalRect().Intersects(ledger.GetGlobalRect()),"menu hint does not cover wallet at current scroll");Check(scroll.ScrollVertical==0||!hint.Visible,"scrolled content never moves under persistent hint");foreach(var b in buttons)Check(!hint.Visible||!hint.GetGlobalRect().Intersects(b.GetGlobalRect()),"menu hint does not cover card/CTA controls");
+  }
+  int endless=0,finish=0;ui.ContinueRequested=()=>endless++;ui.FinishRequested=()=>finish++;ui.ShowRunEnding(true,false,true,0,10,12,12,0,"");await Flush();Tick();var endingHint=Walk(ui).OfType<Label>().Single(l=>l.Name=="InputMethodHint");var endingTitle=Walk(ui).OfType<Label>().First(l=>l.IsVisibleInTree()&&l.Text=="六波挑战完成");Check(!endingHint.GetGlobalRect().Intersects(endingTitle.GetGlobalRect()),"ending hint does not cover title");Click("继续无尽");for(int i=0;i<12;i++)Tick();Check(endless==1,"ending continue once while held");Click("结束本局");Check(finish==1,"explicit ending finish reachable");
+  host.ConfigureGamepadConfirmCancel(JoyButton.B,JoyButton.A,"East","South");Check(ui.GamepadHint.Contains("East")&&ui.GamepadHint.Contains("South"),"binding configuration synchronizes visible labels");ui.ShowReplaceRunConfirmation(()=>replaced++);Release();Event(JoyButton.A,true);Tick();Check(!ui.IsPersistenceModalOpen&&replaced==0,"configured cancel uses swapped semantic button");host.ConfigureGamepadConfirmCancel(JoyButton.A,JoyButton.B,"下方键","右侧键");
+  host.QueueFree();await Flush();
+ }
+}

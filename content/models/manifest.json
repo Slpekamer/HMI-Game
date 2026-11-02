@@ -1,6 +1,5 @@
 {
   "version": "v02-mixed-static-animated",
-  "recovery": "Source reconstructed from active conversation after local cloud loss; original binary hashes not claimed",
   "author": "Original procedural Blender models authored for HMI-Game",
   "license": "Original project assets; no third-party source assets",
   "blender": "4.3.2",
@@ -104,7 +103,7 @@
           "loop": true
         }
       },
-      "sha256": "38d76d5fe62ecd39c0b4506672c31038f62a797dc493dcbc72ede3f609d916bb",
+      "sha256": "49fad35726ee57dc69f2c00f0e06f20039aa6b059ca8c75f1ac301d554c4559d",
       "provenance": "content/models/food-heroes-provenance.json"
     },
     {

@@ -1,0 +1,37 @@
+using Godot;using Hmi.Core;using Hmi.GodotAdapter;using System;using System.Reflection;using System.Text;using System.Text.Json;
+public partial class MechanicalArrivalProbe:Node
+{
+ const BindingFlags F=BindingFlags.Instance|BindingFlags.NonPublic;
+ int checks;bool finished;Node3D owner;MechanicalArrivalVisuals cues;
+ void Check(bool x,string m){checks++;if(!x)throw new Exception(m);}
+ GameSimulation New(){var c=JsonSerializer.Deserialize<GameContent>(FileAccess.GetFileAsBytes("res://content/gameplay.json"),new JsonSerializerOptions{PropertyNameCaseInsensitive=true});var g=new GameSimulation(c,new SimulationLimits(),new string('a',64));g.StartRun("crit",1030);return g;}
+ object Field(GameSimulation g,string n)=>typeof(GameSimulation).GetField(n,F).GetValue(g);
+ string State(GameSimulation g){var b=new StringBuilder();var r=Field(g,"Run");b.Append(g.Phase).Append('|').Append(g.RunToken).Append('|').Append(g.Wave).Append('|').Append(g.Tick).Append('|').Append(g.Paused).Append('|').Append(g.Coins).Append('|').Append(g.Earned).Append('|').Append(g.Spent).Append('|').Append(g.Kills).Append('|').Append(r.GetType().GetField("Random",F).GetValue(r)).Append('|').Append(g.PendingSpawnCount);
+ for(int i=0;i<g.Capacity;i++)if(g.TryGetEntityAtSlot(i,out var e))b.Append(';').Append(e.Id).Append(':').Append(e.Kind).Append(':').Append(e.Position.X.ToString("R")).Append(',').Append(e.Position.Y.ToString("R")).Append(':').Append(e.Health.ToString("R")).Append(':').Append(e.Facing.X.ToString("R")).Append(',').Append(e.Facing.Y.ToString("R"));
+ for(int i=0;i<g.EventCount;i++){var e=g.GetEvent(i);b.Append("|E").Append(e.Kind).Append(':').Append(e.Source).Append(':').Append(e.Target).Append(':').Append(e.Value.ToString("R")).Append(':').Append(e.From.X.ToString("R")).Append(',').Append(e.From.Y.ToString("R")).Append(':').Append(e.To.X.ToString("R")).Append(',').Append(e.To.Y.ToString("R"));}return b.ToString();}
+ void At60(GameSimulation g,bool observe=true){for(int i=0;i<60;i++){g.Step();if(observe)cues.Observe(g);}}
+ public override void _Ready(){try{
+ owner=new Node3D();AddChild(owner);cues=new MechanicalArrivalVisuals(owner);var g=New();var baseline=New();
+ cues.Observe(g);cues.Update(g);Check(cues.Count==0,"scheduled warnings cannot create assembly cue");
+ for(int i=0;i<60;i++){g.Step();baseline.Step();cues.Observe(g);cues.Update(g);Check(State(g)==State(baseline),"read-only cue leaves actual authority/events/RNG exact");if(g.Tick<60)Check(cues.Count==0,"no preactivation cue");}
+ Check(cues.Count>0&&cues.Count<=10&&cues.InstanceCount==cues.Count*15,"real activated batch bounded15 instances");
+ Check(cues.Accepted+cues.SpatiallySuppressed==10,"initial ten accounted without pretending suppression visible");
+ int count=cues.Count,accepted=cues.Accepted;Check(cues.TryGet(0,out var first,out var position,out var birth,out var firstRender)&&birth==60&&firstRender==60,"full entity birth/render identity");
+ for(int i=0;i<20;i++){cues.Observe(g);cues.Update(g);Check(cues.Count==count&&cues.Accepted==accepted,"duplicate same tick does not recreate or extend");}
+ g.Enqueue(GameCommand.Pause(true));g.Step();for(int i=0;i<30;i++){g.Step();cues.Observe(g);cues.Update(g);Check(g.Tick==60&&cues.TryGet(0,out var id,out var p,out var t,out var f)&&id==first&&p.X==position.X&&p.Y==position.Y&&t==birth&&f==firstRender,"pause freezes cue lifetime and origin");}
+ g.Enqueue(GameCommand.Pause(false));g.Step();cues.Observe(g);cues.Update(g);
+ var world=Field(g,"World");var generation=(int[])world.GetType().GetField("Generation",F).GetValue(world);generation[first.Index]++;cues.Update(g);bool found=false;for(int i=0;cues.TryGet(i,out var e,out _,out _,out _);i++)if(e==first)found=true;Check(!found,"recycled slot does not inherit assembly");
+ cues.Clear();cues.Observe(g);cues.Update(g);Check(cues.Count==0,"same-scope clear cannot replay consumed tick");
+ g.StartRun("crit",1030);cues.Update(g);Check(cues.Count==0,"scope switch removes previous entities");At60(g);for(int i=0;i<7;i++){g.Step();cues.Observe(g);}cues.Update(g);Check(cues.TryGet(0,out _,out _,out long b8,out long f8)&&b8==60&&f8==67,"eight-step catch-up gets first rendering without delta double age");
+ for(int i=0;i<20;i++){g.Step();cues.Observe(g);}cues.Update(g);bool old=false;for(int i=0;cues.TryGet(i,out _,out _,out long b,out _);i++)if(b==60)old=true;Check(!old,"old expired batch does not revive at later render");
+ g.StartRun("crit",1030);cues.Update(g);At60(g,false);for(int i=0;i<20;i++)g.Step();cues.Observe(g);cues.Update(g);Check(cues.Count==0,"missed notification cannot replay historical birth");
+ // Controlled pressure: request extra reservations through the real scheduling method, never fake Activated events.
+ g.StartRun("crit",1030);cues.Update(g);object reservations=Field(g,"SpawnReservations");var schedule=reservations.GetType().GetMethod("Schedule",F);for(int i=0;i<100;i++)schedule.Invoke(reservations,new object[]{g});int scheduled=g.PendingSpawnCount;At60(g);cues.Update(g);
+ Check(scheduled>16&&cues.Count<=16&&cues.InstanceCount<=240,"real pressure schedule remains bounded");Check(cues.BudgetDropped+cues.SpatiallySuppressed+cues.Replaced>0,"dropped/merged pressure is explicit");
+ foreach(Node n in owner.GetChildren())Check(n is MultiMeshInstance3D,"plain owner creates only engine native multimesh node");
+ g.StartRun("crit",1030);cues.Update(g);Check(cues.Count==0&&cues.InstanceCount==0,"newrun clears all pressure cues");
+ cues.Dispose();cues.Dispose();cues.Observe(g);cues.Update(g);cues.Clear();Check(cues.Count==0,"dispose guards repeated lifecycle calls");owner.QueueFree();finished=true;
+ GD.Print("MECHANICAL_COUNTS initial="+count+" initialSpatial="+(10-accepted)+" stressScheduled="+scheduled);
+ }catch(Exception e){GD.PushError(e.ToString());GetTree().Quit(1);}}
+ public override void _Process(double d){if(finished&&!GodotObject.IsInstanceValid(owner)){GD.Print("MECHANICAL_ARRIVAL_PROBE PASS "+checks);GetTree().Quit();}}
+}

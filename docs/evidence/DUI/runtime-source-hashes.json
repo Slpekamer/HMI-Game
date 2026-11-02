@@ -1,9 +1,0 @@
-{
-  "src/Adapters/Godot/GameHost.cs": "67a7b881889a7940835f43cc6ad8bd8c6a201260d00cd5d789cdc7aae5880652",
-  "src/Adapters/Godot/GameUi.cs": "2db641d75162293fe5bca386480ad9abceeb63393a41c874bab90feb6f1b1ffe",
-  "src/Adapters/Godot/CodexFormatter.cs": "78337da1ba5da59edb7759a32af92fa4f908476a1a5d1ef55ce6061acc126d91",
-  "src/Adapters/Godot/EndlessUiFormatter.cs": "9dd3a197b8bd3df4af4799551c19d8c23042e29d6eb7276085dfcda0181f31a8",
-  "content/fonts/CandySans.otf": "0c9e7f3798d52daea75fec161caefb9a96664e0aa54c43d0688c3af7aa566882",
-  "content/gameplay.json": "30981d16c5c608f70e750bbaf809eb1e811aef34d71f24258fcac852eba0e2de",
-  "tests/Presentation/EndlessProbe.cs.template": "a67732a1968d6631732c7defe83f896e54c62349cec31175fbacbdc47ffd13c6"
-}

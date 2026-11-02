@@ -18,8 +18,18 @@ public partial class GameHost : Node3D
     private EntityId[] _ids;
     private CharacterPresentation[] _presentations;
     private GameEvent?[] _pendingAttacks;
+    private ReadyAttentionObserver _readyAttention;
+    private bool _readyPilot;
+    private int _readyRun=-1,_readyWave=-1;private EntityId _readyId=EntityId.None;
+    private float _cosmeticYaw;
+    // Study diagnostics: desired is not actual; pre-classification and final-draw directions differ by up to one render.
+    internal float ReadyDesiredYaw,ReadyAppliedDelta,ReadyHeadingError;
+    internal Vector3 ReadyFinalLocalDirection;internal string ReadyReason="Disabled";
     private Camera3D _camera;
     private EnemyHealthVisuals _enemyHealth;
+    private SpawnPreviewVisuals _spawnPreviews;
+    private EnemyEntrancePresentation _enemyEntrance;
+    private MechanicalArrivalVisuals _mechanicalArrival;
     private MeshInstance3D _honey;
     private readonly Node3D[] _orbit = new Node3D[4];
     private readonly MeshInstance3D[] _effects = new MeshInstance3D[64];
@@ -46,13 +56,19 @@ public partial class GameHost : Node3D
             _ids = new EntityId[_sim.Capacity];
             _presentations = new CharacterPresentation[_sim.Capacity];
             _pendingAttacks = new GameEvent?[_sim.Capacity];
+            _enemyEntrance = new EnemyEntrancePresentation(_sim.Capacity);
+            _mechanicalArrival = new MechanicalArrivalVisuals(this);
+            _readyPilot=OS.GetEnvironment("READY_STRAFE_PILOT")=="1";
+            _readyAttention=new ReadyAttentionObserver(_sim.Capacity,OS.GetEnvironment("READY_MELEE_PRIORITY")=="1");
             BuildArena();
+            _spawnPreviews = new SpawnPreviewVisuals(this, _sim.Limits.EnemyCapacity);
             var enemyHealthLayer = new CanvasLayer { Name="EnemyHealthLayer", Layer=0 };
             AddChild(enemyHealthLayer);
             _enemyHealth = new EnemyHealthVisuals(_sim.Capacity) { Name="EnemyHealthBars" };
             enemyHealthLayer.AddChild(_enemyHealth);
             InitializePersistence(catalogHash);
             InitializeUi();
+            InitializeMovementInput();
             BindPersistenceUi();
             ApplyViewportLayout();
             _ui.ShowHome();
@@ -146,6 +162,9 @@ public partial class GameHost : Node3D
     public override void _Process(double delta)
     {
         if (_sim == null) return;
+        PollMobileSafeArea(delta);
+        UpdateGamepadUi(delta);
+        SynchronizeMovementInput();
         _frames++;
         double elapsed = Math.Min(delta,.25);
         if (_sim.Phase == RunPhase.Combat && !_sim.Paused)
@@ -154,12 +173,7 @@ public partial class GameHost : Node3D
             int steps = 0;
             while (_accumulator >= GameSimulation.FixedDelta && steps < 8)
             {
-                Vector2 move = _ui.Joystick.Direction;
-                if (Input.IsPhysicalKeyPressed(Key.A) || Input.IsPhysicalKeyPressed(Key.Left)) move.X--;
-                if (Input.IsPhysicalKeyPressed(Key.D) || Input.IsPhysicalKeyPressed(Key.Right)) move.X++;
-                if (Input.IsPhysicalKeyPressed(Key.W) || Input.IsPhysicalKeyPressed(Key.Up)) move.Y--;
-                if (Input.IsPhysicalKeyPressed(Key.S) || Input.IsPhysicalKeyPressed(Key.Down)) move.Y++;
-                move = move.LimitLength();
+                Vector2 move = ReadMoveIntent();
                 // Input directions stay screen-relative with the diagonal presentation camera.
                 Vector3 right = _camera.GlobalBasis.X; right.Y = 0; right = right.Normalized();
                 Vector3 down = _camera.GlobalBasis.Z; down.Y = 0; down = down.Normalized();
@@ -189,6 +203,7 @@ public partial class GameHost : Node3D
     }
     private void Start(int hero, uint seed)
     {
+        if(!_ruleSelected){RequestRuleStart(hero,seed);return;}
         _seed = seed;
         PerformPersistence(e => _checkpoint.StartNew(AssetVisuals.HeroIds[hero], seed, e), _checkpoint.IntentEpoch);
     }
@@ -197,21 +212,30 @@ public partial class GameHost : Node3D
     private static Vector3 ToGodot(Vec2 p,float height=0) => new(p.X,height,p.Y);
     public override void _ExitTree()
     {
+        ReleaseMovementInput();
         ReleaseViewportLayout();
         if(_visuals!=null) ClearVisuals();
+        _spawnPreviews?.Dispose();
+        _mechanicalArrival?.Dispose();
         _assets.ReleaseCachedReferences();
     }
 
     private void ClearVisuals()
     {
+        _readyAttention?.Reset();_readyRun=_readyWave=-1;_readyId=EntityId.None;ReadyReason="Reset";
         _cameraBound=false;
         _enemyHealth?.Clear();
+        _spawnPreviews?.Clear();
+        _enemyEntrance?.Clear();
+        _mechanicalArrival?.Clear();
         for(int i=0;i<_visuals.Length;i++) { _presentations[i]?.Dispose(); _visuals[i]?.QueueFree(); _visuals[i]=null; _presentations[i]=null; _pendingAttacks[i]=null; }
         for(int i=0;i<_effects.Length;i++) { _effectTime[i]=0; if(_effects[i]!=null) _effects[i].Visible=false; }
         if(_honey!=null) _honey.Visible=false; foreach(var orbit in _orbit) if(orbit!=null) orbit.Visible=false;
     }
     private void RenderEntities(float delta)
     {
+        _spawnPreviews?.Update(_sim);
+        _mechanicalArrival?.Update(_sim);
         for(int slot=0;slot<_visuals.Length;slot++)
         {
             if(!_sim.TryGetEntityAtSlot(slot,out var view)) { _presentations[slot]?.Dispose(); _visuals[slot]?.QueueFree(); _visuals[slot]=null; _presentations[slot]=null; _pendingAttacks[slot]=null; continue; }
@@ -228,7 +252,7 @@ public partial class GameHost : Node3D
                 if(view.Kind!=EntityKind.Pickup)
                 {
                     _visuals[slot].Scale=Vector3.One*(view.Kind==EntityKind.Player?1.35f:1.15f);
-                    _presentations[slot]=new CharacterPresentation(_visuals[slot],view,_sim.Tick,_sim.RunToken,_sim.Wave);
+                    _presentations[slot]=new CharacterPresentation(_visuals[slot],view,_sim.Tick,_sim.RunToken,_sim.Wave,_readyPilot&&view.Kind==EntityKind.Player&&_heroIndex==1);
                 }
             }
             var node=_visuals[slot];
@@ -238,12 +262,15 @@ public partial class GameHost : Node3D
                 presentation.Snapshot(view,_sim.Tick,_sim.RunToken,_sim.Wave);
                 if(_pendingAttacks[slot] is GameEvent attack)
                 {
-                    presentation.Attack(attack.Source,attack.RunToken,attack.Wave,attack.Tick);
+                    presentation.Attack(attack);
                     _pendingAttacks[slot]=null;
                 }
+                if(_readyPilot&&view.Kind==EntityKind.Player&&_heroIndex==1)
+                    presentation.ClassifyLocomotion(_readyAttention.OutputValid&&(_readyAttention.Desired.AttentionTarget!=null||_readyAttention.Desired.Reason==Hmi.PresentationStudy.HeadingReason.ActualMelee||_readyAttention.Desired.Reason==Hmi.PresentationStudy.HeadingReason.AuthoritativeMeleeAim),_sim.Paused||_sim.Phase!=RunPhase.Combat);
                 presentation.Advance(delta,_sim.Paused || _sim.Phase!=RunPhase.Combat);
             }
             else { node.Visible=view.Active; node.Position=ToGodot(view.Position); }
+            if(view.Kind==EntityKind.Enemy) node.Scale=new Vector3(1.15f,1.15f*_enemyEntrance.VerticalScale(view.Id,_sim.RunToken,_sim.Wave,_sim.Tick),1.15f);
             if(view.Kind==EntityKind.Pickup) { node.Position+=new Vector3(0,.18f+Mathf.Sin(_sim.WaveSeconds*3)*.06f,0); node.Rotation=new Vector3(0,_sim.WaveSeconds,0); }
         }
         bool combat=_sim.Phase==RunPhase.Combat;
@@ -266,6 +293,34 @@ public partial class GameHost : Node3D
             if(_visuals[slot]!=null && _sim.TryGetEntityAtSlot(slot,out var healthView))
                 _enemyHealth.Update(slot,healthView,_visuals[slot],_camera,combat);
         _enemyHealth.EndFrame();
+        UpdateReadyFacing(delta);
+    }
+    private void UpdateReadyFacing(float delta)
+    {
+        ReadyAppliedDelta=0;
+        if(!_readyPilot||_heroIndex!=1||_sim.Phase!=RunPhase.Combat||!_sim.TryGetEntity(_sim.PlayerId,out var p))
+        {_readyAttention.Reset();ReadyReason="Disabled";return;}
+        var actor=_visuals[p.Id.Index];var presenter=_presentations[p.Id.Index];
+        if(actor==null||presenter==null){_readyAttention.Reset();ReadyReason="NoActor";return;}
+        if(_readyRun!=_sim.RunToken||_readyWave!=_sim.Wave||_readyId!=p.Id)
+        {
+            _readyAttention.ResetObservation();_readyRun=_sim.RunToken;_readyWave=_sim.Wave;_readyId=p.Id;
+            _cosmeticYaw=p.Facing.LengthSquared>.000001f?Mathf.Atan2(-p.Facing.X,-p.Facing.Y):actor.Rotation.Y;
+            actor.Rotation=new Vector3(0,_cosmeticYaw,0);
+        }
+        if(!_readyAttention.Observe(_sim,_camera,_visuals,_ids,presenter,delta))
+        {ReadyReason="InvalidObservation";return;}
+        var heading=_readyAttention.Desired;ReadyReason=heading.Reason.ToString();
+        ReadyDesiredYaw=Mathf.Atan2(-heading.Direction.X,-heading.Direction.Y);
+        float error=Mathf.Wrap(ReadyDesiredYaw-_cosmeticYaw,-Mathf.Pi,Mathf.Pi);
+        if(!_sim.Paused&&float.IsFinite(delta)&&delta>0)
+        {
+            float limit=Mathf.DegToRad(240)*Math.Min(delta,.25f);ReadyAppliedDelta=Math.Clamp(error,-limit,limit);
+            _cosmeticYaw=Mathf.Wrap(_cosmeticYaw+ReadyAppliedDelta,-Mathf.Pi,Mathf.Pi);
+            actor.Rotation=new Vector3(0,_cosmeticYaw,0);
+        }
+        ReadyHeadingError=Math.Abs(Mathf.Wrap(ReadyDesiredYaw-_cosmeticYaw,-Mathf.Pi,Mathf.Pi));
+        var motion=presenter.ActualMotion;motion.Y=0;ReadyFinalLocalDirection=motion.LengthSquared()>.000001f?actor.GlobalBasis.Orthonormalized().Inverse()*motion.Normalized():Vector3.Zero;
     }
     // Preserve authoritative context across catch-up ticks; coalesce to the newest cosmetic gesture.
     private bool QueuePresentationEvent(GameEvent e)
@@ -281,6 +336,9 @@ public partial class GameHost : Node3D
     }
     private void ConsumeEvents()
     {
+        if(_readyPilot&&_heroIndex==1)_readyAttention?.CaptureCoreStep(_sim);
+        _enemyEntrance?.Observe(_sim);
+        _mechanicalArrival?.Observe(_sim);
         for(int i=0;i<_sim.EventCount;i++)
         {
             var e=_sim.GetEvent(i);
@@ -317,6 +375,7 @@ public partial class GameHost : Node3D
     }
     public override void _Input(InputEvent input)
     {
+        if(HandleGamepadEvent(input))return;
         if(_sim==null || input is not InputEventKey key || !key.Pressed || key.Echo) return;
         if(key.Keycode==Key.Escape)
         {
@@ -328,7 +387,9 @@ public partial class GameHost : Node3D
     }
     public override void _Notification(int what)
     {
+        if(what==NotificationApplicationFocusIn){_inputFocused=true;ResetMovementInput();PollMobileSafeArea(0,true);}
         if(what!=NotificationApplicationFocusOut || _sim==null) return;
+        _inputFocused=false;ResetMovementInput();_readyAttention?.SuspendAim();
         _codexResume=false; _accumulator=0; _ui?.Joystick.ResetInput();
         if(_sim.Phase==RunPhase.Combat) Send(CommandKind.Pause,flag:true);
     }
@@ -336,7 +397,7 @@ public partial class GameHost : Node3D
     {
         _codexOpen=true; _codexResume=_sim.Phase==RunPhase.Combat && !_sim.Paused;
         if(_sim.Phase==RunPhase.Combat) Send(CommandKind.Pause,flag:true);
-        _ui.Joystick.ResetInput(); _accumulator=0;
+        _ui.CancelGameplayInput(); _accumulator=0;
         return CodexFormatter.Build(_content, _sim.GetLevel, _sim.GetCardAvailability);
     }
     private void CloseCodex()
@@ -353,7 +414,7 @@ public partial class GameHost : Node3D
         {
             _ui.ShowCombat();
             if(_sim.TryGetEntity(_sim.PlayerId,out var player))
-                _ui.UpdateHud(AssetVisuals.HeroNames[_heroIndex],player.Health,player.MaxHealth,_sim.Wave,24-_sim.WaveSeconds,_sim.Coins,
+                _ui.UpdateHud(AssetVisuals.HeroNames[_heroIndex],player.Health,player.MaxHealth,_sim.Wave,WaveRules.DurationSeconds-_sim.WaveSeconds,_sim.Coins,
                     (ContractStatus(false).Length>0?ContractStatus(false)+" · ":"")+(_sim.PowerSeconds>0?$"强攻 {_sim.PowerSeconds:0}s  ":"")+(_sim.HasteSeconds>0?$"轻快 {_sim.HasteSeconds:0}s":""),_sim.GetStat(Stat.CompanionEnabled)<=0?"可通过特性卡获得独立伙伴":_sim.CompanionsStationary?"伙伴驻守当前位置":"伙伴独立游走 · 不跟随主角",_sim.GetStat(Stat.CompanionEnabled)>0,_sim.IsEndless,_sim.EndlessWavesCompleted);
             if(!_codexOpen && (phaseChanged || _lastPaused!=_sim.Paused)) _ui.ShowPause(_sim.Paused);
         }

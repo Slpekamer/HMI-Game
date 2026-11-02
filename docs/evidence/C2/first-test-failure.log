@@ -1,5 +1,0 @@
-SCHEMA2_LOAD cards=256 assignments=65536 elapsed_ms=914.87 allocated_bytes=103616
-Unhandled exception. System.Exception: FAIL: registered effect exact: crit.longwatch/PlayerSpeed
-   at Program.Check(Boolean ok, String name) in /workspace/scratch/80f5bc988ef7/HMI-Game-endless-core/tests/CoreTests/Program.cs:line 16
-   at ProductionBranchTests.Run(Action`2 check) in /workspace/scratch/80f5bc988ef7/HMI-Game-endless-core/tests/CoreTests/ProductionBranchTests.cs:line 42
-   at Program.Main() in /workspace/scratch/80f5bc988ef7/HMI-Game-endless-core/tests/CoreTests/Program.cs:line 95

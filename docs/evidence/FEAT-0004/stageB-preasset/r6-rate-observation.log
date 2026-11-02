@@ -1,5 +1,0 @@
-Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
-
-RATE_OBSERVATION ticksBetweenEvents=24 arrivals=12 maxClipPosition=0.400000 clipLength=.4 scope=current-content maximum melee
-RATE_OBSERVATION ticksBetweenEvents=0 arrivals=19 maxClipPosition=0.400000 clipLength=.4 scope=idealized current-content mixed melee/ray/impact schedule
-RATE_OBSERVATION ticksBetweenEvents=3 arrivals=100 maxClipPosition=0.050000 clipLength=.4 scope=future schema stress not current attainable content

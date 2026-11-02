@@ -5,7 +5,7 @@ using System.Text.Json;
 using Hmi.Core;
 
 // Reconstructed regression suite. Counts/results must be generated afresh, never copied from lost run.
-static class Program
+static partial class Program
 {
     static int checks;
     static GameContent Load() => JsonSerializer.Deserialize<GameContent>(File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "legacy-gameplay.json")), new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
@@ -53,13 +53,13 @@ static class Program
         for (int i = 0; i < g.Capacity; i++)
         if (g.World.Has(i, Components.Enemy))
             g.World.Destroy(i);
-        g.SpawnTimer = 999;
+        g.SpawnTimer = 999; g.SpawnReservations.ResetScope(); /* Controlled empty-arena fixture removes rule2 previews. */
     }
     static EntityId Enemy(GameSimulation g, float x, float y, float hp = 100) => g.World.Create(Components.Enemy | Components.Health, new Vec2(x, y), .44f, "enemy_chaser", hp);
     static void Finish(GameSimulation g)
     {
         Empty(g);
-        int guard = 2000;
+        int guard = WaveRules.DurationTicks + 600;
         while (g.Phase == RunPhase.Combat && guard-- > 0)
         {
             g.World.Health[g.PlayerId.Index].Current = 10000;
@@ -90,6 +90,12 @@ static class Program
     }
     static void Main()
     {
+        AttentionQueryTests();
+        Wave60TimingTests.Run(Check);
+        SpawnPreviewTests.Run(Check);
+        WaveSpawnIndependentTests.Run(Check);
+        CombatObservationTests.Run(Check);
+        CombatObservationIndependentTests.Run(Check);
         SchemaV2IndependentTests.Run(Check);
         SchemaV2Tests.Run(Check);
         ProductionBranchTests.Run(Check);

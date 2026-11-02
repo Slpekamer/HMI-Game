@@ -1,8 +1,0 @@
-Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
-
-FOOD_IMPORTED_INSTANCE_ISOLATION crit passed
-FOOD_IMPORTED_CLIP crit Idle changed_bones=3
-FOOD_IMPORTED_CLIP crit Run changed_bones=15
-FOOD_IMPORTED_CLIP crit Attack changed_bones=7
-FOOD_IMPORTED_ASSET crit bounds=[P: (-0.310635, 0.0, -0.254499), S: (0.762577, 1.2, 0.51213)] meshes=2
-FOOD_HERO_IMPORT_PROBE failures=0 scope=["crit"]

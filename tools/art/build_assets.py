@@ -1,6 +1,4 @@
-"""Reconstructed from active conversation after cloud reset, 2026-10-31.
-Original geometry parameters retained; v01.1 key upright included. Binary identity not claimed.
-"""
+"""Original project procedural geometry generator. Binary identity across toolchain versions is not guaranteed."""
 import bpy, math, json, os, hashlib
 from mathutils import Vector
 ROOT=os.path.abspath(os.environ.get('HMI_ART_OUTPUT',os.path.join(os.path.dirname(__file__),'../v01')))
@@ -122,4 +120,4 @@ ball('Candy core',(0,0,.18),(.18,.18,.18),'pink')
 for x in [-.25,.25]:
  bpy.ops.mesh.primitive_cone_add(vertices=8,radius1=.14,radius2=.045,depth=.19,location=(x,0,.18),rotation=(0,math.pi/2 if x<0 else -math.pi/2,0));finish(bpy.context.object,'Candy wrapper','cream')
 export('candy_pickup',.3)
-json.dump({'version':'v01.1-recovered-20261031','recovery':'Source reconstructed from active conversation after local cloud loss; original binary hashes not claimed','author':'Original procedural Blender models authored for HMI-Game','license':'Original project assets; no third-party source assets','blender':bpy.app.version_string,'coordinate_system':'glTF Y-up, forward -Z, metre units, origin ground center','animation':'Unrigged; adapter handles presentation-only squash/bob','assets':records},open(f'{ROOT}/manifest.json','w'),indent=2)
+json.dump({'version':'v01.1-recovered-20261031','author':'Original procedural Blender models authored for HMI-Game','license':'Original project assets; no third-party source assets','blender':bpy.app.version_string,'coordinate_system':'glTF Y-up, forward -Z, metre units, origin ground center','animation':'Unrigged; adapter handles presentation-only squash/bob','assets':records},open(f'{ROOT}/manifest.json','w'),indent=2)

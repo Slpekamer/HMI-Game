@@ -14,7 +14,7 @@ internal static class TimedHealthIndependentTests
         RunProgressionSystem.FinishWave(g);g.Wallet.OwnedItems[item]=1;g.Loadout.CardPicked=true;g.Run.PendingContract=pending;
         g.Enqueue(GameCommand.NextWave());g.Step();
         for(int i=0;i<g.Capacity;i++)if(g.World.Has(i,Components.Enemy))g.World.Destroy(i);
-        g.SpawnTimer=1000;
+        g.SpawnTimer=1000; g.SpawnReservations.ResetScope(); /* Controlled empty-arena fixture removes rule2 previews. */
         return g;
     }
     private static void Until(GameSimulation g,long tick) { while(g.Tick<tick)g.Step(); }

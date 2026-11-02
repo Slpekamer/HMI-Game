@@ -12,6 +12,16 @@ public sealed class CharacterPresentation : IDisposable
     private readonly FoodAnimationMixer _mixer;
     private readonly EntityId _entity;
     private readonly string _idle, _run, _attack;
+    private readonly bool _directionalPilot;
+    private AnimationLibrary _privateLibrary;private Animation _privateClip;
+    private Vector3 _actualMotion;private bool _rightSelected;
+    public bool ExternalFacing {get;set;}
+    public Vector3 ActualMotion=>_actualMotion;
+    public bool RightSelected=>_rightSelected;
+    public float RightBlend=>_mixer?.RightBlend??0;
+    public long NativeAdvances=>_mixer?.Advances??0;
+    public Vector3 UsedLocalDirection {get;private set;}
+    public string LocomotionDiagnostic {get;private set;}="Idle";
     private readonly FacialBinding[] _face;
     private Vector3 _target, _previousSample;
     private long _tick = -1, _lastAttackTick = -1;
@@ -20,6 +30,13 @@ public sealed class CharacterPresentation : IDisposable
     private float _faceClock, _smileRemaining, _surpriseRemaining;
     private string _current = "";
     private bool _attackQueued, _disposed;
+    private GameEvent? _queuedGestureEvent, _acceptedGestureEvent;
+    private long _acceptedGestureSequence;
+    private long _gestureOwnerEpoch;
+    public long GestureOwnerEpoch => _gestureOwnerEpoch;
+    // Native graph owns the active/end state. No new duration estimate is introduced.
+    public AcceptedGestureSnapshot AcceptedGesture => new(_entity,_runToken,_wave,_acceptedGestureSequence,
+        _acceptedGestureEvent, !_disposed && _mixer!=null && _mixer.AttackActive);
 
     private readonly struct FacialBinding
     {
@@ -34,10 +51,10 @@ public sealed class CharacterPresentation : IDisposable
     public bool HasFacialShapes => _face.Length > 0;
     public string CurrentClip => _current;
 
-    public CharacterPresentation(Node3D root, EntityView view, long tick, int runToken = 0, int wave = 0)
+    public CharacterPresentation(Node3D root, EntityView view, long tick, int runToken = 0, int wave = 0,bool directionalPilot=false)
     {
         _root = root ?? throw new ArgumentNullException(nameof(root));
-        _entity = view.Id; _runToken = runToken; _wave = wave;
+        _entity = view.Id; _runToken = runToken; _wave = wave;_directionalPilot=directionalPilot;ExternalFacing=directionalPilot;
         _player = FindPlayer(root);
         _idle = FindClip("Idle"); _run = FindClip("Run"); _attack = FindClip("Attack");
         if (_player != null)
@@ -53,8 +70,34 @@ public sealed class CharacterPresentation : IDisposable
         _target = _previousSample = new Vector3(view.Position.X, 0, view.Position.Y);
         _root.Position = _target; _tick = tick; _health = view.Health;
         SetFacing(view.Facing); _root.Rotation = new Vector3(0, _facing, 0);
-        _mixer=FoodAnimationMixer.TryCreate(_player,_idle,_run,_attack);
+        string directional=_directionalPilot?CreateRightComposite(_player,_run,FindClip("StrafeR")):"";
+        _mixer=FoodAnimationMixer.TryCreate(_player,_idle,_run,_attack,directional);
         ResetTransient();
+    }
+
+    private string CreateRightComposite(AnimationPlayer player,string run,string strafe)
+    {
+        if(player==null||!player.HasAnimation(run)||!player.HasAnimation(strafe))throw new InvalidOperationException("Four-clip crit required");
+        var original=player.GetAnimation(run);var source=player.GetAnimation(strafe);
+        if(Math.Abs(original.Length-source.Length)>.00001)throw new InvalidOperationException("Directional cycle mismatch");
+        _privateClip=(Animation)original.Duplicate(true);_privateClip.LoopMode=Animation.LoopModeEnum.Linear;
+        var names=new HashSet<string>(StringComparer.Ordinal){"Pelvis","Thigh_L","Shin_L","Foot_L","Thigh_R","Shin_R","Foot_R"};
+        bool Lower(Animation clip,int i){var p=clip.TrackGetPath(i);return p.GetSubNameCount()==1&&names.Contains(p.GetSubName(0));}
+        for(int i=_privateClip.GetTrackCount()-1;i>=0;i--)if(Lower(_privateClip,i))_privateClip.RemoveTrack(i);
+        int tracks=0;var found=new HashSet<string>();for(int i=0;i<source.GetTrackCount();i++)if(Lower(source,i)){source.CopyTrack(i,_privateClip);tracks++;found.Add(source.TrackGetPath(i).GetSubName(0));}
+        if(tracks!=11||found.Count!=7)throw new InvalidOperationException("Exact7bones/11tracks required");
+        _privateLibrary=new AnimationLibrary();_privateLibrary.AddAnimation("StrafeR",_privateClip);player.AddAnimationLibrary("readyright",_privateLibrary);return "readyright/StrafeR";
+    }
+    // Called before the ONE Advance, using the actual root basis from the preceding draw.
+    public void ClassifyLocomotion(bool attentionValid,bool paused)
+    {
+        if(!_directionalPilot)return;
+        Vector3 v=_actualMotion;v.Y=0;
+        UsedLocalDirection=v.LengthSquared()>.000001f?_root.GlobalBasis.Orthonormalized().Inverse()*v.Normalized():Vector3.Zero;
+        float right=UsedLocalDirection.X,forward=-UsedLocalDirection.Z;
+        if(paused||!attentionValid||_speed<=.08f){_rightSelected=false;LocomotionDiagnostic=paused?"Paused":_speed<=.08f?"Idle":"Run-no-attention";return;}
+        _rightSelected=_rightSelected?right>=.60f&&Math.Abs(forward)<=.80f:right>=.75f&&Math.Abs(forward)<=.66f;
+        LocomotionDiagnostic=_rightSelected?"StrafeR":forward>=.6f?"Run-forward":right<-.4f?"Run-fallback-left":"Run-fallback-back-or-diagonal";
     }
 
     public bool Snapshot(EntityView view, long tick, int runToken = 0, int wave = 0)
@@ -71,6 +114,7 @@ public sealed class CharacterPresentation : IDisposable
         _target = new Vector3(view.Position.X, 0, view.Position.Y);
         if (tick != _tick)
         {
+            _actualMotion=!reset&&tick>_tick?(_target-_previousSample)/((tick-_tick)*GameSimulation.FixedDelta):Vector3.Zero;
             _speed = !reset && tick > _tick
                 ? _target.DistanceTo(_previousSample) / ((tick - _tick) * GameSimulation.FixedDelta) : 0;
             _previousSample = _target; _tick = tick;
@@ -84,8 +128,14 @@ public sealed class CharacterPresentation : IDisposable
     {
         if (!Alive() || source != _entity || runToken != _runToken || wave != _wave || tick < 0 || tick > _tick || tick <= _lastAttackTick)
             return false;
-        _lastAttackTick = tick; _attackQueued = true;
+        _lastAttackTick = tick; _attackQueued = true; _queuedGestureEvent=null;
         return true;
+    }
+
+    public bool Attack(GameEvent value)
+    {
+        if(!Attack(value.Source,value.RunToken,value.Wave,value.Tick))return false;
+        _queuedGestureEvent=value;return true;
     }
 
     public void Advance(float delta, bool paused)
@@ -94,11 +144,12 @@ public sealed class CharacterPresentation : IDisposable
         // Defensive presentation clamp only; no simulation time or stats are changed.
         delta = Math.Min(delta, .25f);
         _root.Position = _root.Position.Lerp(_target, 1 - Mathf.Exp(-22 * delta));
-        _root.Rotation = new Vector3(0, Mathf.LerpAngle(_root.Rotation.Y, _facing, 1 - Mathf.Exp(-14 * delta)), 0);
-        bool fireLayer=false;
+        if(!ExternalFacing)_root.Rotation = new Vector3(0, Mathf.LerpAngle(_root.Rotation.Y, _facing, 1 - Mathf.Exp(-14 * delta)), 0);
+        bool fireLayer=false; GameEvent? acceptedCandidate=null;
         if (_attackQueued)
         {
             _attackQueued = false; _smileRemaining = .24f;
+            acceptedCandidate=_queuedGestureEvent; _queuedGestureEvent=null;
             // Coalesce events received while the current gesture is active, including its final step.
             // No delayed gesture backlog; authority hits are never changed here.
             if ((_mixer != null ? !_mixer.AttackActive : _attackRemaining <= 0) && _player != null && _attack.Length > 0)
@@ -114,7 +165,11 @@ public sealed class CharacterPresentation : IDisposable
             if (next.Length > 0 && next != _current)
             { if(_mixer!=null) _current=next; else Play(next, .12, false); }
         }
-        if(_mixer!=null) _mixer.Advance(delta,_speed>.08f,Math.Clamp(_speed/4.8f,.65f,1.6f),fireLayer,false);
+        if(_mixer!=null)
+        {
+            bool accepted=_mixer.Advance(delta,_speed>.08f,Math.Clamp(_speed/4.8f,.65f,1.6f),fireLayer,false,_directionalPilot&&_rightSelected);
+            if(accepted) { _acceptedGestureSequence++; _acceptedGestureEvent=acceptedCandidate; }
+        }
         else _player?.Advance(delta);
         _attackRemaining = Math.Max(0, _attackRemaining - delta);
         // The native graph owns layered gesture lifetime; float countdown must not invent
@@ -136,6 +191,7 @@ public sealed class CharacterPresentation : IDisposable
         if (_disposed) return;
         if (GodotObject.IsInstanceValid(_root)) ResetTransient();
         _mixer?.Dispose();
+        if(_privateLibrary!=null){if(GodotObject.IsInstanceValid(_player)&&_player.HasAnimationLibrary("readyright"))_player.RemoveAnimationLibrary("readyright");_privateLibrary.Dispose();_privateClip.Dispose();_privateLibrary=null;_privateClip=null;}
         _disposed = true;
     }
 
@@ -147,8 +203,11 @@ public sealed class CharacterPresentation : IDisposable
     }
     private void ResetTransient()
     {
+        _gestureOwnerEpoch++;
+        _actualMotion=Vector3.Zero;_rightSelected=false;UsedLocalDirection=Vector3.Zero;LocomotionDiagnostic="Idle";
         _attackRemaining = _smileRemaining = _surpriseRemaining = _faceClock = 0;
         _attackQueued = false; _lastAttackTick = -1; _current = "";
+        _queuedGestureEvent=_acceptedGestureEvent=null; _acceptedGestureSequence=0;
         if(_mixer!=null) _mixer.Reset();
         else if (_player != null && GodotObject.IsInstanceValid(_player))
         {

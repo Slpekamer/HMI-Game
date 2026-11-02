@@ -87,6 +87,7 @@ internal static class EndlessTests
         check(g.GetCardAvailability("risk.bounty") == CardAvailability.Available, "finite risk semantics unchanged");
 
         g = New();
+        for(int i=0;i<WaveRules.SpawnPreviewTicks;i++)g.Step(); // Rule2: wait for actual activation before kill-ledger test.
         g.Wallet.Coins = g.Wallet.Earned = int.MaxValue;
         int enemy = -1;
         for (int i = 0; i < g.Capacity; i++) if (g.World.Has(i, Components.Enemy)) { enemy = i; break; }
@@ -98,13 +99,16 @@ internal static class EndlessTests
         g.Run.Wave = 999;
         g.Loadout.CardPicked = true;
         g.Enqueue(GameCommand.NextWave()); g.Step();
+        // Explicit controlled capacity stress, not natural marker admission: separated perimeter cannot hold256 simultaneous markers.
+        g.SpawnReservations.ResetScope();
+        for(int i=0;i<g.Limits.EnemyCapacity;i++)g.World.Create(Components.Enemy|Components.Health,new Vec2(-12+(i%25),-6+(i/25)),.44f,"enemy_chaser",100000);
         int enemyCount = 0, companionCount = 0;
         for (int i = 0; i < g.Capacity; i++)
         {
             if (g.World.Has(i, Components.Enemy)) { enemyCount++; g.World.Health[i].Current = g.World.Health[i].Maximum = 100000; }
             if (g.World.Has(i, Components.Companion)) companionCount++;
         }
-        check(enemyCount == 256 && companionCount <= 4 && g.EntityCount <= 512, "default endless init enforces actual entity populations");
+        check(enemyCount == 256 && companionCount <= 4 && g.EntityCount <= 512, "controlled live256 capacity stress population");
         g.World.Health[g.PlayerId.Index].Current = g.World.Health[g.PlayerId.Index].Maximum = 100000;
         for (int i = 0; i < 60; i++) g.Step();
         var watch = new Stopwatch();
