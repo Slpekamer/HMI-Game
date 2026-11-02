@@ -1,4 +1,4 @@
-# Synchronized side-hop pilot — WIP, untested
+# Synchronized side-hop pilot — WIP, headless checks in progress
 
 One isolated rightward **two-foot synchronized side-hop**, not an alternating side-step or moving-fire controller. Forward Run and Backpedal motion/style are user-approved and preserved byte-for-byte in their existing adapters. Static proportions, Core movement/speed/events/collision and other characters are unchanged. No production integration is authorized here.
 
@@ -16,4 +16,6 @@ Real Idle foot offsets, synchronous dual-support restart, airborne 3D reach and 
 - Approved Run and Backpedal exact trace regressions through the updated host.
 - Normal-speed native A/B and a separate user style decision. Synchronized double-foot lift may look conspicuously bouncy; stop this candidate if distracting rather than changing amplitudes repeatedly.
 
-No build, runtime, visual or style pass is claimed by this initial WIP checkpoint. Private logs and recordings are not public source payloads.
+Fresh build passed with 0 warnings/errors. Four steady A/B runs and 16 tap scenarios passed independent actual CPU-skinned sole, authority/camera/upper-local/morph/event checks. The tap minimum reach reserve was 1.836 mm and maximum actual stance drift 1.222 micrometres. The selected-gait steady verifier explicitly expects two simultaneous stance feet for StrafeR and retains the single-foot assertion for Run/Backpedal. Restart/lifecycle and approved-behavior exact regressions are still pending; native appearance and style are unreviewed.
+
+`run-native-review.sh` records full-width Chinese sequential A/B chapters (continuous taps and two-tick short tap) through an existing display. Set `GODOT_BIN` to the Godot .NET executable and `DISPLACEMENT_OUTPUT` to a fresh directory. The script does not create a display. Private logs and recordings are not public source payloads.
