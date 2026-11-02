@@ -1,0 +1,49 @@
+using Godot;using Hmi.Core;using Hmi.GodotAdapter;using System;using System.Text.Json;
+public partial class EnemyDamageSemanticProbe:Node3D
+{
+ int checks;bool finished;void C(bool value,string name){checks++;if(!value)throw new Exception(name);}
+ public override void _Ready(){try{Run();GD.Print("ENEMY_DAMAGE_SEMANTIC_PASS "+checks);finished=true;}catch(Exception e){GD.PushError(e.ToString());GetTree().Quit(1);}}
+ public override void _Process(double delta){if(finished){finished=false;GetTree().Quit();}}
+ void Run(){
+ var camera=new Camera3D{Position=new Vector3(4,6,7)};AddChild(camera);camera.LookAt(Vector3.Zero);
+ var root=new Node3D();AddChild(root);var peer=new Node3D();AddChild(peer);
+ using var sharedMesh=new BoxMesh{Size=new Vector3(.5f,.7f,.5f)};using var prior=new StandardMaterial3D{AlbedoColor=new Color(.2f,.3f,.4f,.6f)};
+ var body=new MeshInstance3D{Mesh=sharedMesh,Position=Vector3.Up*.35f,MaterialOverlay=prior};root.AddChild(body);var peerBody=new MeshInstance3D{Mesh=sharedMesh,Position=Vector3.Up*.35f,MaterialOverlay=prior};peer.AddChild(peerBody);
+ var id=new EntityId(1,1);var other=new EntityId(2,1);var deadSource=new EntityId(30,8);var fx=new EnemyDamageReaction(this,camera,64);
+ GameEvent E(long tick,EntityId? target=null,int run=1,int wave=1,float value=3)=>new(EventKind.Damage,deadSource,target??id,new Vec2(-1,0),new Vec2(0,0),value,tick,run,wave);
+ fx.BeginFrame(1,1);C(fx.Capture(E(1),0,1,EntityKind.Enemy,false,false),"real source need not be alive");fx.BindForTest(id,root);fx.EndFrame(.25f,false,true);
+ C(fx.ActiveCount==1&&fx.StartsThisFrame==1,"new hit survives .25 prebirth delta");C(body.MaterialOverlay!=prior&&peerBody.MaterialOverlay==prior&&prior.AlbedoColor==new Color(.2f,.3f,.4f,.6f),"exact actor overlay, shared peer unchanged");
+ var tint=body.MaterialOverlay as StandardMaterial3D;C(tint!=null&&tint.AlbedoColor.A>.3f,"first draw nonzero tint");float alpha=tint.AlbedoColor.A;
+ fx.BeginFrame(1,1);fx.EndFrame(.25f,true,true);C(fx.ActiveCount==1&&tint.AlbedoColor.A==alpha,"pause no TTL/no fade");
+ fx.BeginFrame(1,1);fx.EndFrame(.17f,false,true);C(fx.ActiveCount==0&&body.MaterialOverlay==prior,"expires and exact overlay restored");
+ fx.BeginFrame(1,1);C(fx.Capture(E(2),0,2,EntityKind.Enemy,false,false),"hit observed during cooldown");fx.EndFrame(.01f,false,true);C(fx.ActiveCount==0&&fx.GateDrops==1,"cooldown remains dark, no queued playback");
+ fx.BeginFrame(1,1);fx.EndFrame(.23f,false,true);C(fx.ActiveCount==0,"no delayed hit replay after cooldown");
+ fx.BeginFrame(1,1);fx.Capture(E(3),0,3,EntityKind.Enemy,false,false);fx.EndFrame(.01f,false,true);C(fx.ActiveCount==1,"new hit after dark interval");
+ for(int i=4;i<18;i++){fx.BeginFrame(1,1);fx.Capture(E(i),0,i,EntityKind.Enemy,false,false);fx.EndFrame(.016f,false,true);}C(fx.ActiveCount==0&&body.MaterialOverlay==prior,"continuous hits cannot extend brightness");
+ C(!fx.Capture(E(17),0,17,EntityKind.Enemy,false,false),"repeat buffer rejected");long high=fx.HighTick;fx.ClearPresentation();C(fx.HighTick==high&&!fx.Capture(E(17),0,17,EntityKind.Enemy,false,false),"same scope reset retains dedup");
+ fx.BeginFrame(2,1);C(fx.Capture(E(0,run:2),0,0,EntityKind.Enemy,false,false),"new scope permits tick0");fx.BindForTest(id,root);fx.EndFrame(0,false,true);C(fx.ActiveCount==1,"new scope first draw");
+ fx.ClearPresentation();fx.BeginFrame(3,1);
+ C(!fx.Capture(E(1,run:3),0,1,EntityKind.Companion,false,false),"companion reject");C(!fx.Capture(E(1,run:3),0,1,EntityKind.Player,false,false),"player hurt untouched");C(!fx.Capture(E(1,run:3),0,1,EntityKind.Pickup,false,false),"pickup reject");
+ C(!fx.Capture(E(1,run:3),0,1,null,false,false),"unknown destroyed target no enemy proof");C(fx.Capture(E(1,run:3),0,1,null,true,false),"lethal enemy before render accepted");fx.EndFrame(0,false,true);C(fx.ActiveCount==1&&body.MaterialOverlay==prior,"lethal independent position no actor tint");
+ fx.ClearPresentation();fx.BeginFrame(4,1);fx.BindForTest(id,root);var next=new EntityId(1,2);C(fx.Capture(E(1,next,4),0,1,EntityKind.Enemy,false,false),"new generation before bind accepted");fx.EndFrame(0,false,true);C(body.MaterialOverlay==prior,"old generation actor not tinted");
+ fx.BeginFrame(4,1);fx.EndFrame(.2f,false,true);fx.BindForTest(next,root);fx.BeginFrame(4,1);fx.Capture(E(2,next,4),0,2,EntityKind.Enemy,false,false);fx.EndFrame(.25f,false,true);C(body.MaterialOverlay!=prior,"new exact generation can tint");
+ // If another subsystem replaces the overlay, expiry must not overwrite that later owner.
+ body.MaterialOverlay=null;fx.BeginFrame(4,1);fx.EndFrame(.2f,false,true);C(body.MaterialOverlay==null,"no clobber of later overlay owner");body.MaterialOverlay=prior;
+ fx.ClearPresentation();fx.BeginFrame(5,1);for(int i=0;i<20;i++)fx.Capture(E(i,new EntityId(i+1,1),5),0,i,EntityKind.Enemy,false,false);fx.EndFrame(.25f,false,true);C(fx.ActiveCount==4&&fx.StartsThisFrame==4&&fx.BudgetDrops>=16,"catchup bounded4 starts12pending no backlog");
+ fx.BeginFrame(5,1);fx.EndFrame(.001f,false,true);C(fx.StartsThisFrame==0,"no dropped effects played later");
+ fx.ClearPresentation();fx.BeginFrame(6,1);C(!fx.Capture(E(2,run:6),0,1,EntityKind.Enemy,false,false),"future rejected");C(!fx.Capture(E(1,run:5),0,1,EntityKind.Enemy,false,false),"old scope rejected");C(!fx.Capture(E(1,run:6,value:float.NaN),0,1,EntityKind.Enemy,false,false),"nonfinite rejected");
+ C(fx.Capture(E(1,run:6),0,1,EntityKind.Enemy,false,true)==false,"paused fresh event discarded");C(!fx.Capture(E(1,run:6),0,1,EntityKind.Enemy,false,false),"paused event not replayed");
+ using(var gaps=new EnemyDamageReaction(this,camera,64)){
+ gaps.BeginFrame(1,1);gaps.Capture(E(1),0,1,EntityKind.Enemy,false,false);gaps.BindForTest(id,root);gaps.EndFrame(0,false,true);
+ gaps.BeginFrame(1,1);gaps.EndFrame(.15f,false,true);C(gaps.ActiveCount==1,"last faint frame before expiry");
+ gaps.BeginFrame(1,1);gaps.Capture(E(2),0,2,EntityKind.Enemy,false,false);gaps.EndFrame(.25f,false,true);C(gaps.ActiveCount==0&&gaps.StartsThisFrame==0,"expiry plus cooldown same frame must draw dark");
+ gaps.BeginFrame(1,1);gaps.Capture(E(3),0,3,EntityKind.Enemy,false,false);gaps.EndFrame(.016f,false,true);C(gaps.ActiveCount==1&&gaps.OnsetAt(0).DarkSeconds>0,"new pulse only after actual dark frame");}
+ // Genuine Core lethal-before-render identity: no synthetic Death declaration for this gate.
+ var content=JsonSerializer.Deserialize<GameContent>(FileAccess.GetFileAsBytes("res://content/gameplay.json"),new JsonSerializerOptions{PropertyNameCaseInsensitive=true});var sim=new GameSimulation(content);sim.StartRun("crit",1030);
+ bool found=false;for(int tick=0;tick<3000&&sim.Phase==RunPhase.Combat;tick++){sim.Step();for(int j=0;j<sim.EventCount;j++)if(sim.GetEvent(j).Kind==EventKind.Death)found=true;if(found)break;}
+ C(found&&sim.Phase==RunPhase.Combat,"genuine Core enemy death obtained without HP/position edits");
+ using(var real=new EnemyDamageReaction(this,camera,sim.Capacity)){real.BeginFrame(sim.RunToken,sim.Wave);real.CaptureStep(sim);int accepted=real.Captured;C(accepted>0&&real.PendingCount>0,"same-Step Damage and Death captured before any actor Bind");real.CaptureStep(sim);C(real.Captured==accepted,"same actual Step buffer dedup");real.EndFrame(.25f,false,true);C(real.ActiveCount>0,"genuine lethal remains visible first render");}
+ fx.Dispose();fx.Dispose();fx.BeginFrame(7,1);fx.EndFrame(.2f,false,true);C(!fx.Capture(E(1,run:7),0,1,EntityKind.Enemy,false,false),"disposed rejects");C(body.MaterialOverlay==prior&&peerBody.MaterialOverlay==prior,"dispose leaves peer/prior intact");
+ body.MaterialOverlay=null;peerBody.MaterialOverlay=null;body.Mesh=null;peerBody.Mesh=null;root.QueueFree();peer.QueueFree();camera.QueueFree();
+ }
+}

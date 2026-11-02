@@ -1,4 +1,4 @@
-"""Original vector UI generator recovered from active conversation, 2026-10-31."""
+"""Original project vector UI generator."""
 from pathlib import Path
 import json,hashlib,os
 out=Path(os.environ.get('HMI_ART_OUTPUT',Path(__file__).resolve().parent.parent/'v01'))/'ui';out.mkdir(exist_ok=True,parents=True)

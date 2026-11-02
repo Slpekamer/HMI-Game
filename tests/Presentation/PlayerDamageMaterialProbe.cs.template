@@ -1,0 +1,35 @@
+using Godot;
+using Hmi.Core;
+using Hmi.GodotAdapter;
+using System;
+using System.Collections.Generic;
+using System.Text.Json;
+public partial class PlayerDamageMaterialProbe:Node3D
+{
+ int checks;bool done;GameContent content;
+ void C(bool b,string n){checks++;if(!b)throw new Exception("FAIL "+n);}
+ static List<MeshInstance3D> Meshes(Node n){var a=new List<MeshInstance3D>();void Walk(Node x){if(x is MeshInstance3D m&&m.Mesh!=null)a.Add(m);foreach(Node c in x.GetChildren())Walk(c);}Walk(n);return a;}
+ GameSimulation Sim(){var g=new GameSimulation(content);g.StartRun("crit",1030);return g;}
+ GameEvent Hit(GameSimulation g,long tick,int value=7,EntityId? target=null)=>new(EventKind.Damage,new EntityId(999,99),target??g.PlayerId,default,default,value,tick,g.RunToken,g.Wave,FeedbackMechanism.EnemyContact);
+ public override void _Ready(){try{
+ content=JsonSerializer.Deserialize<GameContent>(Godot.FileAccess.GetFileAsBytes("res://content/gameplay.json"),new JsonSerializerOptions{PropertyNameCaseInsensitive=true});
+ var assets=new AssetVisuals();
+ foreach(string hero in AssetVisuals.HeroIds){var root=assets.Create("hero_"+hero);var peer=assets.Create("hero_"+hero);AddChild(root);AddChild(peer);var a=Meshes(root);var b=Meshes(peer);C(a.Count==2&&b.Count==2,"actual static+face pair "+hero);using var prior=new StandardMaterial3D{AlbedoColor=new Color(.2f,.3f,.4f,.5f)};using var later=new StandardMaterial3D{AlbedoColor=Colors.Blue};var original=new Material[a.Count];var shared=new Material[a.Count];for(int i=0;i<a.Count;i++){original[i]=a[i].MaterialOverlay;a[i].MaterialOverlay=prior;b[i].MaterialOverlay=prior;shared[i]=a[i].GetActiveMaterial(0);C(a[i].Mesh==b[i].Mesh,"mesh shared "+hero);}
+ var g=Sim();using(var fx=new PlayerDamageMaterial()){fx.BeginFrame(g);fx.BindForTest(g.PlayerId,root);C(fx.Capture(Hit(g,1),0,1,g.PlayerId,true,false),"real target accepts destroyed source");fx.EndFrame(.25f,false,true);C(fx.Active&&fx.Age==0&&fx.Alpha==.26f,"newborn survives old delta");for(int i=0;i<a.Count;i++)C(a[i].MaterialOverlay!=prior&&b[i].MaterialOverlay==prior&&a[i].GetActiveMaterial(0)==shared[i],"overlay isolated from shared mesh/material");a[0].MaterialOverlay=later;fx.BeginFrame(g);fx.EndFrame(.2f,false,true);C(!fx.Active&&a[0].MaterialOverlay==later&&a[1].MaterialOverlay==prior,"expiry respects later owner and restores other mesh");C(prior.AlbedoColor==new Color(.2f,.3f,.4f,.5f),"borrowed overlay unchanged");fx.ClearPresentation();fx.Dispose();fx.Dispose();}
+ for(int i=0;i<a.Count;i++){a[i].MaterialOverlay=original[i];b[i].MaterialOverlay=null;}root.QueueFree();peer.QueueFree();}
+ assets.ReleaseCachedReferences();
+ var r=new Node3D();AddChild(r);r.AddChild(AssetVisuals.Box(Vector3.One,Vector3.Zero,Colors.White));var r2=new Node3D();AddChild(r2);r2.AddChild(AssetVisuals.Box(Vector3.One,Vector3.Zero,Colors.White));
+ var sim=Sim();using(var fx=new PlayerDamageMaterial()){
+ fx.BeginFrame(sim);C(!fx.Capture(Hit(sim,1,target:new EntityId(1,1)),0,1,sim.PlayerId,true,false),"other target rejected");C(!fx.Capture(Hit(sim,1),0,1,sim.PlayerId,false,false),"nonplayer evidence rejected");C(!fx.Capture(Hit(sim,2),0,1,sim.PlayerId,true,false),"future rejected");C(!fx.Capture(Hit(sim,1,0),0,1,sim.PlayerId,true,false),"zero rejected");
+ C(fx.Capture(Hit(sim,1),0,1,sim.PlayerId,true,false),"capture before first bind");C(fx.Capture(Hit(sim,1),1,1,sim.PlayerId,true,false)&&fx.Merged==1,"same tick sources merge not strengthen");fx.BindForTest(sim.PlayerId,r);fx.EndFrame(.25f,false,true);C(fx.Active&&fx.Started==1&&fx.Alpha==.26f,"one fixed-strength onset");C(!fx.Capture(Hit(sim,1),1,1,sim.PlayerId,true,false),"duplicate rejected");
+ fx.BeginFrame(sim);fx.Capture(Hit(sim,2),0,2,sim.PlayerId,true,false);fx.EndFrame(.05f,false,true);C(fx.Started==1&&Math.Abs(fx.Age-.05f)<1e-6,"active hit does not restart");string freeze=fx.StateSignature;fx.BeginFrame(sim);fx.EndFrame(.25f,true,true);C(fx.StateSignature==freeze,"pause clock and tint freeze");
+ fx.BeginFrame(sim);fx.Capture(Hit(sim,3),0,3,sim.PlayerId,true,false);fx.EndFrame(.25f,false,true);C(!fx.Active&&fx.Started==1,"expiry render must be dark even with new hit");fx.BeginFrame(sim);fx.Capture(Hit(sim,4),0,4,sim.PlayerId,true,false);fx.EndFrame(.01f,false,true);C(fx.Active&&fx.Started==2,"fresh hit after dark accepted");
+ double time=fx.Clock;long high=fx.HighTick;fx.BindForTest(sim.PlayerId,r2);C(!fx.Active&&fx.Clock==time&&fx.HighTick==high,"same-scope model replacement preserves ledger");fx.BeginFrame(sim);fx.Capture(Hit(sim,5),0,5,sim.PlayerId,true,false);fx.EndFrame(.01f,false,true);C(!fx.Active&&fx.Started==2,"same-scope replacement cannot bypass rolling cap");
+ fx.ClearPresentation();C(!fx.Capture(Hit(sim,5),0,5,sim.PlayerId,true,false),"focus clear preserves dedup");fx.BeginFrame(sim);fx.Capture(Hit(sim,6),0,6,sim.PlayerId,true,false);fx.EndFrame(.25f,false,true);C(fx.BindingDrops==1&&!fx.Pending,"unbound current-frame drop");fx.BeginFrame(sim);fx.BindForTest(sim.PlayerId,r);fx.EndFrame(.25f,false,true);C(!fx.Active,"late binding cannot replay old hit");
+ fx.BeginFrame(sim);fx.Capture(Hit(sim,7),0,7,sim.PlayerId,true,false);fx.EndFrame(.25f,false,true);C(fx.Active&&fx.Started==3,"rolling window eventually permits a fresh event");fx.BeginFrame(sim);fx.EndFrame(0,false,false);C(!fx.Active&&!fx.Pending,"Defeat clears immediately without Death event");
+ sim.StartRun("crit",1030);fx.BeginFrame(sim);fx.BindForTest(sim.PlayerId,r);fx.Capture(Hit(sim,0),0,0,sim.PlayerId,true,false);fx.EndFrame(0,false,true);C(fx.Active&&fx.Age==0,"actual new run resets cap/highwater");
+ fx.ClearPresentation();fx.BeginFrame(sim);C(!fx.Capture(Hit(sim,1),0,1,sim.PlayerId,true,true),"paused notification not presented");fx.BindForTest(sim.PlayerId,r);fx.EndFrame(0,false,true);C(!fx.Active,"paused notification not replayed on resume");var run=typeof(GameSimulation).GetField("Run",System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.NonPublic).GetValue(sim);run.GetType().GetField("Phase",System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.Public|System.Reflection.BindingFlags.NonPublic).SetValue(run,RunPhase.Between);var roots=new Node3D[sim.Capacity];var ids=new EntityId[sim.Capacity];roots[sim.PlayerId.Index]=r;ids[sim.PlayerId.Index]=sim.PlayerId;int binds=fx.BindingsCreated;double oldClock=fx.Clock;long oldHigh=fx.HighTick;for(int i=0;i<20;i++){fx.BeginFrame(sim);fx.SyncBinding(sim,roots,ids);fx.EndFrame(.25f,false,false);}C(fx.BindingsCreated==binds,"Between repeated calls do not bind/allocate");C(fx.Clock==oldClock&&fx.HighTick==oldHigh,"nonCombat clear preserves same-scope ledger");fx.Dispose();fx.Dispose();fx.BeginFrame(sim);fx.EndFrame(.25f,false,true);C(!fx.Active,"disposed idempotent");}
+ r.QueueFree();r2.QueueFree();GD.Print("PLAYER_DAMAGE_MATERIAL_PASS "+checks);done=true;
+ }catch(Exception e){GD.PushError(e.ToString());GetTree().Quit(1);}}
+ public override void _Process(double dt){if(done)GetTree().Quit();}
+}

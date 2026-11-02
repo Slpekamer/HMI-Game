@@ -1,2 +1,0 @@
-46ea8cd98dac552d60ebbc81fcb955fdcfbd10949c6ce4ffe6723e4e7faf5dc7  HMI-Game-save-notice-top-gap-trial/src/Adapters/Godot/GameUi.cs
-1a3983cb9c2e2078a3f69072434145695ab84afec0cc0fd53bcba70edb784093  HMI-Game-save-notice-top-gap-trial/.godot/mono/temp/bin/Debug/HmiGame.dll

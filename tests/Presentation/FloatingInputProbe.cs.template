@@ -1,0 +1,44 @@
+using Godot;
+using Hmi.GodotAdapter;
+using System;
+using System.Threading.Tasks;
+public partial class FloatingInputProbe:Node
+{
+ int checks;Task task;int result;
+ void Check(bool b,string m){checks++;if(!b)throw new Exception(m);}
+ async Task Flush(){for(int i=0;i<4;i++)await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);}
+ public override void _Ready(){task=Run();}
+ public override void _Process(double delta){if(task?.IsCompleted!=true)return;SetProcess(false);if(task.IsFaulted){GD.PushError(task.Exception.ToString());result=1;}else GD.Print("FLOATING_INPUT_PROBE PASS "+checks);GetTree().Quit(result);}
+ Vector2 Legal(TouchJoystick j){for(float y=j.ActivationRegion.Position.Y+5;y<j.ActivationRegion.End.Y;y+=20)for(float x=j.ActivationRegion.Position.X+5;x<j.ActivationRegion.End.X;x+=20){var p=j.GetGlobalTransformWithCanvas()*new Vector2(x,y);if(j.CanBeginAtViewport(p))return p;}throw new Exception("no legal left touch region");}
+ void Down(TouchJoystick j,Vector2 p,int id=2)=>j._UnhandledInput(new InputEventScreenTouch{Pressed=true,Index=id,Position=p});
+ void Drag(TouchJoystick j,Vector2 p,int id=2)=>j._Input(new InputEventScreenDrag{Index=id,Position=p});
+ async Task Run(){
+  var ui=new GameUi();AddChild(ui);await Flush();
+  foreach(var size in new[]{new Vector2I(1280,720),new Vector2I(1600,720),new Vector2I(1024,768),new Vector2I(720,1280),new Vector2I(540,1280)}){
+   var window=GetWindow();window.ContentScaleMode=Window.ContentScaleModeEnum.CanvasItems;window.ContentScaleAspect=Window.ContentScaleAspectEnum.Expand;window.ContentScaleSize=size.X<size.Y?new(720,1280):new(1280,720);window.Size=size;await Flush();
+   var logical=GetViewport().GetVisibleRect().Size;var safe=new Rect2(new Vector2(24,32),logical-new Vector2(48,64));ui.SetLayoutMetrics(logical,safe);ui.ShowCombat();ui.ShowPause(false);await Flush();var j=ui.Joystick;
+   Check(!j.VisualVisible&&!j.IsCaptured&&j.Direction==Vector2.Zero,"idle hidden zero");
+   var p=Legal(j);var transform=j.GetGlobalTransformWithCanvas();var local=transform.AffineInverse()*p;
+   Down(j,p);Check(j.VisualVisible&&j.ActiveTouch==2&&j.Center.DistanceTo(local)<.001f&&j.Direction==Vector2.Zero,"down establishes center but no movement");
+   var target=transform*(local+new Vector2(40,-20));Drag(j,target);Check(j.Direction.DistanceTo(new Vector2(40,-20)/TouchJoystick.TravelRadius)<.0001f,"single inverse canvas mapping");
+   var saved=j.Direction;Down(j,p+new Vector2(20,20),3);Drag(j,p+new Vector2(100,100),3);j._Input(new InputEventScreenTouch{Pressed=false,Index=3});Check(j.ActiveTouch==2&&j.Direction==saved,"second finger cannot steal or release");
+   Drag(j,transform*(local+new Vector2(10000,0)));Check(j.Direction.DistanceTo(Vector2.Right)<.00001f,"outside capture clamped "+j.Direction);
+   j._Input(new InputEventScreenTouch{Index=2,Canceled=true,Pressed=false});Check(!j.VisualVisible&&j.Direction==Vector2.Zero,"OS cancel releases");
+   Drag(j,target);Check(j.Direction==Vector2.Zero,"stale drag rejected");
+   var second=p+transform.BasisXform(new Vector2(0,20));Check(j.CanBeginAtViewport(second),"second legal center exists");Down(j,second);Check(j.Center.DistanceTo(local+new Vector2(0,20))<.001f,"next press relocates center, not following drag");j.ResetInput();
+   j._UnhandledInput(new InputEventScreenTouch{Pressed=true,Index=-1,Position=p});Check(!j.IsCaptured&&!j.VisualVisible,"invalid pointer identity rejected");
+   Down(j,p);Drag(j,target);ui.SetLayoutMetrics(logical,safe);Check(j.IsCaptured,"identical metrics retain capture");ui.SetLayoutMetrics(logical,new Rect2(safe.Position+Vector2.Right,safe.Size-Vector2.Right));Check(!j.IsCaptured,"actual safe-area change clears");await Flush();
+   p=Legal(j);Down(j,p);ui.ShowPause(true);Check(!j.IsCaptured&&!j.CanBeginAtViewport(p),"pause cancels and denies");ui.ShowPause(false);await Flush();
+   p=Legal(j);Down(j,p);ui._Notification((int)NotificationApplicationFocusOut);Check(!j.IsCaptured&&!j.CanBeginAtViewport(p),"focus loss cancels and denies");ui._Notification((int)NotificationApplicationFocusIn);
+   p=Legal(j);Down(j,p);ui.SetTouchInputContext(45,false);Check(!j.IsCaptured&&!j.CanBeginAtViewport(p),"disable provider cancels");ui.SetTouchInputContext(46,true);Drag(j,p+new Vector2(80,0));Check(j.Direction==Vector2.Zero&&!j.VisualVisible,"enable requires fresh down");
+   p=Legal(j);Down(j,p);ui.SetTouchInputContext(47,true);Check(!j.IsCaptured,"generation invalidates capture");
+   var edge=transform*new Vector2(2,2);Check(!j.CanBeginAtViewport(edge),"system safe edge excluded");Check(!j.CanBeginAtViewport(transform*new Vector2(j.Size.X-10,j.Size.Y/2)),"right half excluded");
+   // Full circle, not just center, must avoid visible HUD panels.
+   Check(!j.CanBeginAtViewport(transform*new Vector2(160,110)),"near health HUD rejected");
+   p=Legal(j);j._UnhandledInput(new InputEventMouseButton{Pressed=true,ButtonIndex=MouseButton.Left,Position=p});j._Input(new InputEventMouseMotion{Position=p+new Vector2(90,0)});Check(j.IsCaptured&&j.Direction.X>0,"mouse compatibility");j._Input(new InputEventMouseButton{Pressed=false,ButtonIndex=MouseButton.Left});Check(!j.VisualVisible,"mouse release hides");
+   p=Legal(j);GetViewport().PushInput(new InputEventScreenTouch{Index=19,Pressed=true,Position=p},true);Check(j.ActiveTouch==19,"viewport dispatch reaches floating driver after GUI");GetViewport().PushInput(new InputEventScreenDrag{Index=19,Position=p+new Vector2(60,0)},true);Check(j.Direction.X>0,"viewport-dispatched drag");GetViewport().PushInput(new InputEventScreenTouch{Index=19,Pressed=false,Position=p},true);Check(!j.IsCaptured,"viewport release");
+   p=Legal(j);Down(j,p);ui.ShowHome();Check(!j.IsCaptured&&!j.CanBeginAtViewport(p),"new page cancels");await Flush();
+  }
+  ui.QueueFree();await Flush();
+ }
+}

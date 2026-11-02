@@ -1,5 +1,0 @@
-# Isolated primitive wrapper lifetime candidate
-
-Only AssetVisuals.Box/Disc changes from current stage1: assign newly created exclusive primitive mesh/material to native MeshInstance3D Ref owners, then dispose the temporary managed wrapper deterministically. No GD.Load/shared resource/PackedScene/cache/animation changes, no forced GC, no UI appearance changes. All existing properties remain identical.
-
-Independent native-property gate 3×256 passed. Same-time Codex original6/10 fatal versus candidate0/10; combat-layout both10/10 clean, so that entry did not reproduce and is NOT proven fixed. Full strict aggregate completed exit0; three fresh-XDG actual desktop runs rendered Boxes/HoneyDisc and closed by real window Alt+F4 exit0, without ERROR/FATAL/leak. The permanent256-check factory regression is wired into verify.sh; the final whole-worktree aggregate completed exit0 again after wiring. Exact engine root cause remains unproven; rejection of earlier Theme/GC/texture experiments is retained. This is not an adopted production fix or mobile memory/performance certification.

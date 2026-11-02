@@ -15,8 +15,8 @@ namespace Hmi.Core
             g.MeleeTimer = .72f / g.GetStat(Stat.BasicRate);
             Vec2 destination = g.World.Transform[target].Position;
             g.World.Transform[g.PlayerId.Index].Facing = (destination - g.PlayerPosition).Normalized;
-            g.Emit(EventKind.Melee, g.PlayerId, g.World.Id(target), g.PlayerPosition, destination, g.GetStat(Stat.BasicDamage));
-            g.Damage(target, g.GetStat(Stat.BasicDamage), g.PlayerId);
+            g.Emit(EventKind.Melee, g.PlayerId, g.World.Id(target), g.PlayerPosition, destination, g.GetStat(Stat.BasicDamage), FeedbackMechanism.BasicMelee);
+            g.Damage(target, g.GetStat(Stat.BasicDamage), g.PlayerId, FeedbackMechanism.BasicMelee);
         }
     }
     internal sealed class OrbitSystem : ISimulationSystem
@@ -40,7 +40,7 @@ namespace Hmi.Core
                         || !Geometry.LineClear(g, g.PlayerPosition, candy))
                         continue;
                     w.Enemy[i].OrbitCooldown = .3f;
-                    g.Damage(i, 2.1f, g.PlayerId);
+                    g.Damage(i, 2.1f, g.PlayerId, FeedbackMechanism.Orbit);
                     break;
                 }
             }
@@ -48,31 +48,15 @@ namespace Hmi.Core
     }
     internal sealed class RicochetSystem : ISimulationSystem
     {
-        private readonly int[] _visited = new int[5];
         public void Update(GameSimulation g)
         {
-            if (g.GetStat(Stat.RicochetEnabled) <= 0)
-                return;
+            if (g.GetStat(Stat.RicochetEnabled) <= 0) return;
             g.RicochetTimer -= GameSimulation.FixedDelta;
-            if (g.RicochetTimer > 0)
-                return;
-            int target = Geometry.NearestEnemy(g, g.PlayerPosition, 10.4f);
-            if (target < 0)
-                return;
-            g.RicochetTimer = .85f;
-            Vec2 from = g.PlayerPosition;
-            float damage = 3;
-            int maximum = Math.Min(5, 1 + (int)g.GetStat(Stat.RicochetBounces));
-            for (int hop = 0; hop < maximum && target >= 0; hop++)
-            {
-                _visited[hop] = target;
-                Vec2 hit = g.World.Transform[target].Position;
-                g.Emit(EventKind.Ray, g.PlayerId, g.World.Id(target), from, hit, damage);
-                g.Damage(target, damage, g.PlayerId);
-                from = hit;
-                damage *= .5f;
-                target = Geometry.NearestEnemy(g, from, g.GetStat(Stat.RicochetRange), true, _visited, hop + 1);
-            }
+            if (g.RicochetTimer > 0) return;
+            int target = Geometry.NearestEnemy(g, g.PlayerPosition, ProjectileRules.RicochetInitialRange);
+            if (target < 0) return;
+            g.Projectiles.Request(g, 0, ProjectileKind.Ricochet, g.PlayerId, g.World.Id(target),
+                g.PlayerPosition, 3, (int)g.GetStat(Stat.RicochetBounces), g.GetStat(Stat.RicochetRange));
         }
     }
     internal sealed class HoneySystem : ISimulationSystem
@@ -91,7 +75,7 @@ namespace Hmi.Core
                 if (g.World.Has(i, Components.Enemy)
                     && (g.World.Transform[i].Position - g.PlayerPosition).LengthSquared <= radius * radius
                     && Geometry.LineClear(g, g.PlayerPosition, g.World.Transform[i].Position))
-                    g.Damage(i, 1.25f, g.PlayerId);
+                    g.Damage(i, 1.25f, g.PlayerId, FeedbackMechanism.Honey);
             }
         }
     }
@@ -119,7 +103,7 @@ namespace Hmi.Core
                 {
                     g.ImpactTimer = 1.4f;
                     Vec2 forward = (w.Transform[target].Position - g.PlayerPosition).Normalized;
-                    g.Emit(EventKind.Impact, g.PlayerId, w.Id(target), g.PlayerPosition, g.PlayerPosition + forward * range, range);
+                    g.Emit(EventKind.Impact, g.PlayerId, w.Id(target), g.PlayerPosition, g.PlayerPosition + forward * range, range, FeedbackMechanism.Impact);
                     for (int i = 0; i < w.Capacity; i++)
                     {
                         if (!w.Has(i, Components.Enemy))
@@ -128,7 +112,7 @@ namespace Hmi.Core
                         if (delta.LengthSquared > range * range || Vec2.Dot(delta.Normalized, forward) < .9009689f
                             || !Geometry.LineClear(g, g.PlayerPosition, w.Transform[i].Position))
                             continue;
-                        g.Damage(i, 2.1f, g.PlayerId);
+                        g.Damage(i, 2.1f, g.PlayerId, FeedbackMechanism.Impact);
                         if (!w.Has(i, Components.Enemy))
                             continue;
                         ref var enemy = ref w.Enemy[i];
@@ -154,12 +138,12 @@ namespace Hmi.Core
                         continue;
                     w.Enemy[i].BlastUsed = true;
                     Vec2 center = w.Transform[j].Position;
-                    g.Emit(EventKind.Blast, w.Id(i), w.Id(j), center, center, 2.2f);
+                    g.Emit(EventKind.Blast, w.Id(i), w.Id(j), center, center, 2.2f, FeedbackMechanism.ImpactBlast);
                     // Damage-only terminal effect: no secondary impulse, hence no recursive chain.
                     for (int k = 0; k < w.Capacity; k++)
                     {
                         if (w.Has(k, Components.Enemy) && (w.Transform[k].Position - center).LengthSquared <= 2.2f * 2.2f)
-                            g.Damage(k, 1.8f, g.PlayerId);
+                            g.Damage(k, 1.8f, g.PlayerId, FeedbackMechanism.ImpactBlast);
                     }
                     break;
                 }

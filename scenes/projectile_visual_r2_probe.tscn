@@ -1,0 +1,4 @@
+[gd_scene load_steps=2 format=3]
+[ext_resource type="Script" path="res://src/Adapters/Godot/ProjectileVisualR2Probe.cs" id="1"]
+[node name="ProjectileVisualR2Probe" type="Node"]
+script = ExtResource("1")

@@ -32,7 +32,8 @@ internal static class CodexFormatter
             members.Add(card);
         }
         var text = new StringBuilder("当前构筑 · 跨角色搭配仍受前置与互斥约束\n" +
-            "“满足树条件”仅表示可进入对应抽选池，不代表本波已抽到或可直接领取。\n\n");
+            "“满足树条件”仅表示可进入对应抽选池，不代表本波已抽到或可直接领取。\n" +
+            "可通过特性卡获得独立伙伴。\n\n");
         foreach (var card in content.Cards)
         {
             text.Append(card.Name).Append("  Lv ").Append(level(card.Id)).Append('/')

@@ -24,6 +24,7 @@ public partial class HostResponsiveProbe : Node
   Check(GetViewport().GetTexture().GetImage().SavePng(arg.Substring("--capture-host-responsive=".Length)+"-"+label+".png")==Error.Ok,"real host capture");
  }
  static EntityView Synthetic(int slot=0)=>new(new EntityId(slot,57),EntityKind.Enemy,new Vec2(0,0),new Vec2(0,-1),4,8,"fixture",true);
+ Vector2 LegalJoystickPoint(TouchJoystick j){for(float y=j.ActivationRegion.Position.Y+5;y<j.ActivationRegion.End.Y;y+=20)for(float x=j.ActivationRegion.Position.X+5;x<j.ActivationRegion.End.X;x+=20){var p=j.GetGlobalTransformWithCanvas()*new Vector2(x,y);if(j.CanBeginAtViewport(p))return p;}throw new Exception("No legal floating joystick point");}
  public override async void _Ready(){try{
   host=new GameHost();AddChild(host);host.SetProcess(false);await Flush();
   Call("Start",3,(uint)1030);host.SetProcess(false);
@@ -36,7 +37,7 @@ public partial class HostResponsiveProbe : Node
   foreach(var size in sizes)
   {
    // A held pointer must not survive a genuinely changed viewport coordinate system.
-   ui.Joystick._GuiInput(new InputEventScreenTouch{Index=7,Pressed=true,Position=ui.Joystick.Size/2+new Vector2(35,0)});
+   var beforePoint=LegalJoystickPoint(ui.Joystick);ui.Joystick._UnhandledInput(new InputEventScreenTouch{Index=7,Pressed=true,Position=beforePoint});ui.Joystick._Input(new InputEventScreenDrag{Index=7,Position=beforePoint+new Vector2(35,0)});
    var prior=GetWindow().Size;
    GetWindow().Size=size;await Flush();Call("ApplyViewportLayout");await Flush();
    Check(ReferenceEquals(sim,Field<GameSimulation>("_sim"))&&ReferenceEquals(world,typeof(GameSimulation).GetField("World",F).GetValue(sim))&&sim.RunToken==token&&sim.PlayerId==playerId&&sim.Wave==wave&&sim.Tick==tick&&sim.Paused&&Field<uint>("_seed")==seed,"resize preserves authority/session/tick/seed");
@@ -52,7 +53,7 @@ public partial class HostResponsiveProbe : Node
    Check(xr.X>0&&Math.Abs(xr.Y)<.02f&&yd.Y>0&&Math.Abs(yd.X)<.02f,"screen right/down map correctly");
    Check(Math.Abs((right*.6f+down*.8f).Length()-1)<.0001f,"diagonal screen input preserves magnitude");
    // Actual joystick local event + host production input mapping, without changing authority while paused.
-   ui.Joystick._GuiInput(new InputEventMouseButton{ButtonIndex=MouseButton.Left,Pressed=true,Position=ui.Joystick.Size/2+new Vector2(ui.Joystick.Size.X,0)});
+   var inputPoint=LegalJoystickPoint(ui.Joystick);ui.Joystick._UnhandledInput(new InputEventMouseButton{ButtonIndex=MouseButton.Left,Pressed=true,Position=inputPoint});ui.Joystick._Input(new InputEventMouseMotion{Position=ui.Joystick.GetGlobalTransformWithCanvas()*(ui.Joystick.Center+new Vector2(TouchJoystick.TravelRadius*2,0))});
    Check(ui.Joystick.Direction.X>.99f&&Math.Abs(ui.Joystick.Direction.Y)<.01f,"joystick right axis");
    ui.Joystick._Input(new InputEventMouseButton{ButtonIndex=MouseButton.Left,Pressed=false});Check(ui.Joystick.Direction==Vector2.Zero,"pointer release clears movement");
    Call("RenderEntities",0f);

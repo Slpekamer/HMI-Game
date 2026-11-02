@@ -126,6 +126,9 @@ internal static class TemporaryContractTests
             Console.WriteLine($"D2_CONTRACT id={Load().TemporaryContracts[i].Id} selections={chosen[i]}");
         }
         var stress = new GameSimulation(Load()); stress.StartRun("honey", 1); Saturate(stress); Menu(stress); stress.Run.Wave = 999; Begin(stress, "temp.base.rate");
+        // Rule2 stress setup: direct live population, not impossible256 separated perimeter previews.
+        stress.SpawnReservations.ResetScope();
+        for(int i=0;i<stress.Limits.EnemyCapacity;i++)stress.World.Create(Components.Enemy|Components.Health,new Vec2(-12+(i%25),-6+(i/25)),.44f,"enemy_chaser",100000);
         int enemies = 0;
         for (int i = 0; i < stress.Capacity; i++) if (stress.World.Has(i, Components.Enemy)) { enemies++; stress.World.Health[i].Current = stress.World.Health[i].Maximum = 100000; }
         stress.World.Health[stress.PlayerId.Index].Current = stress.World.Health[stress.PlayerId.Index].Maximum = 100000;

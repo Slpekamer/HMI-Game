@@ -9,9 +9,11 @@ internal static class SchemaV2Tests
     private static GameContent Load() => JsonSerializer.Deserialize<GameContent>(File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "legacy-gameplay.json")), new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
     internal static void Run(Action<bool, string> check)
     {
-        const ulong golden = 0x668C7C237D35F542;
+        // Historical rule1 golden 0x668C7C237D35F542 is retained in ADR-0012, not applicable to changed spawn rules.
+        const ulong golden = 0x7D2B96E84569B575;
+        Console.WriteLine("RULE2_SCHEMA_PARITY_DIGEST " + golden.ToString("X16"));
         var data = Load();
-        check(LegacyParity.Digest(data) == golden, "schema1 baseline DLL golden replay digest");
+        check(LegacyParity.Digest(data) == golden, "schema1 rule2 deterministic replay digest");
         data.SchemaVersion = 2;
         check(LegacyParity.Digest(data) == golden, "schema2 legacy parent golden replay digest");
         foreach (var card in data.Cards)

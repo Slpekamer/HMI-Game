@@ -25,7 +25,7 @@ namespace Hmi.Core
     }
     internal struct CompanionComponent
     {
-        public Vec2 Anchor; public float Cooldown, BuffTime; public bool Support;
+        public Vec2 Anchor; public float Cooldown, BuffTime; public bool Support; public int SpawnOrdinal;
     }
     internal struct PickupComponent
     {

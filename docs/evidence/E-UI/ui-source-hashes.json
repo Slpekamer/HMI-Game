@@ -1,6 +1,0 @@
-{
-  "src/Adapters/Godot/GameUi.cs": "863e248bbd58543b83e9fd70bdba977cf1b9cbfa7f3552cef32c12e76545380f",
-  "src/Adapters/Godot/ResumeUi.cs": "1afaf9701f6e00db141b1aad78773464a7700864470ef29c7e3aff0c294ec8f3",
-  "tests/Presentation/PersistenceUiProbe.cs.template": "db6455add95cd3e077bc07af389f3ff59fc18154467a75a6cad5ed15c24f3113",
-  "content/fonts/CandySans.otf": "a1af181b8b8a55095190dc12cc296811f1702e6c3a8cb539ae303240855352e5"
-}

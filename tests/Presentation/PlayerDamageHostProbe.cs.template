@@ -1,0 +1,20 @@
+using Godot;
+using Hmi.Core;
+using Hmi.GodotAdapter;
+using System;
+using System.Reflection;
+using System.Threading.Tasks;
+public partial class PlayerDamageHostProbe:Node3D
+{
+ const BindingFlags F=BindingFlags.Instance|BindingFlags.NonPublic;int checks;Task task;bool quit;GameHost host;
+ void C(bool b,string n){checks++;if(!b)throw new Exception(n);}T Field<T>(string n)=>(T)typeof(GameHost).GetField(n,F).GetValue(host);void Call(string n,params object[] a)=>typeof(GameHost).GetMethod(n,F).Invoke(host,a);
+ public override void _Ready(){task=Run();}
+ public override void _Process(double d){if(quit||task==null||!task.IsCompleted)return;quit=true;if(task.IsFaulted){GD.PushError(task.Exception.ToString());GetTree().Quit(1);}else{GD.Print("PLAYER_DAMAGE_HOST_PASS "+checks);GetTree().Quit();}}
+ async Task Run(){host=new GameHost();AddChild(host);host.ProcessMode=ProcessModeEnum.Disabled;host.SetProcess(false);var fx=Field<PlayerDamageMaterial>("_playerDamage");C(fx!=null&&!fx.Active,"default owner at Home");Call("Start",1,(uint)1030);host.SetProcess(false);var sim=Field<GameSimulation>("_sim");C(sim.TryGetEntity(sim.PlayerId,out var p)&&p.Health==100&&sim.Coins==0,"natural fresh player");int frames=0;while(!fx.Active&&sim.Phase==RunPhase.Combat&&frames++<500){host._Process(.25);host.SetProcess(false);}C(fx.Active&&sim.TryGetEntity(sim.PlayerId,out p)&&p.Health<100,"real contact through Host");C(fx.Age==0&&fx.Alpha==.26f,"actual initial catchup birth visible");
+ Call("Send",CommandKind.Pause,"",true);host._Process(0);var state=fx.StateSignature;long tick=sim.Tick;for(int i=0;i<3;i++)host._Process(.25);C(sim.Paused&&sim.Tick==tick&&fx.StateSignature==state,"active player tint freezes with ordinary pause");host._Notification((int)NotificationApplicationFocusOut);C(!fx.Active&&!fx.Pending,"focus clears active tint");long high=fx.HighTick;double clock=fx.Clock;host._Notification((int)NotificationApplicationFocusIn);Call("Send",CommandKind.Pause,"",false);host._Process(0);C(!fx.Active&&fx.HighTick==high&&fx.Clock==clock,"same scope focus/resume no replay or reset");
+ Call("Selection");host.SetProcess(false);C(!fx.Active&&!fx.Pending,"selection clears");Call("Start",1,(uint)1030);host.SetProcess(false);host._Process(0);C(sim.Tick==0&&sim.TryGetEntity(sim.PlayerId,out p)&&p.Health==100&&!fx.Active,"new run clean");
+ int n=0;while(sim.Phase==RunPhase.Combat&&n++<1000){host._Process(.25);host.SetProcess(false);}C(sim.Phase==RunPhase.Defeat,"normal zero-input run reached true Defeat without HP edits");C(sim.TryGetEntity(sim.PlayerId,out p)&&p.Health==0&&!fx.Active&&!fx.Pending,"same-Step Defeat never retains player tint");GD.Print("PLAYER_DEFEAT tick="+sim.Tick+" HP="+p.Health+" cues="+fx.Active+" captured="+fx.Captured+" onsets="+fx.Started+" gated="+fx.GateDrops);
+ int bindings=fx.BindingsCreated;for(int i=0;i<20;i++){host._Process(.25);host.SetProcess(false);}C(fx.BindingsCreated==bindings,"Defeat repeated renders never rebind/allocate player mesh lists");C(!fx.Active&&!fx.Pending,"terminal remains clean");
+ host.QueueFree();await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);C(!GodotObject.IsInstanceValid(host),"normal Host free");fx.Dispose();fx.ClearPresentation();C(!fx.Active,"dispose after Host exit idempotent");host=null;
+ }
+}

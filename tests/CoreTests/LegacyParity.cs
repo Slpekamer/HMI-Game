@@ -37,7 +37,7 @@ internal static class LegacyParity
             for (int wave = 1; wave < 6; wave++)
             {
                 for (int i = 0; i < g.Capacity; i++) if (g.World.Has(i, Components.Enemy)) g.World.Destroy(i);
-                g.SpawnTimer = 999;
+                g.SpawnTimer = 999; g.SpawnReservations.ResetScope(); /* Controlled empty-arena fixture removes rule2 previews. */
                 while (g.Phase == RunPhase.Combat) g.Step();
                 var offers = g.GetOffers();
                 foreach (var offer in offers) Text(offer.Id);

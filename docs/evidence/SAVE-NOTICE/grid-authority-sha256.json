@@ -1,9 +1,0 @@
-{
-  "src/Core/Geometry.cs": "d884b53c50025d1165d2326ca545e6d37e424a844eb3b2fb7ae81304dff9d922",
-  "src/Core/World.cs": "233a86ebc65e78f1aefdf3999f8fc713cf1fc7b8452d3646c3f04c5d7ae2cecd",
-  "src/Core/GameSimulation.cs": "a290fa446404d0883ebf8a24d1424422f724ea550dc83e1c5ec65c076484f303",
-  "content/gameplay.json": "30981d16c5c608f70e750bbaf809eb1e811aef34d71f24258fcac852eba0e2de",
-  "src/Adapters/Godot/GameHost.cs": "c2a8e1ebf78321ce3acfce4f3ad7df0b480b016eda4264c672ddae5c9bcfb167",
-  "src/Adapters/Godot/GameUi.cs": "46ea8cd98dac552d60ebbc81fcb955fdcfbd10949c6ce4ffe6723e4e7faf5dc7",
-  "tests/Presentation/SaveNoticeGridProbe.cs.template": "389ca6986f6f9d9e36b1f37bd412d20970217bed926e39473eef05a94d3a265d"
-}

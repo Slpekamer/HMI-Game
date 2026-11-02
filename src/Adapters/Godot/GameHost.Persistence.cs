@@ -13,11 +13,7 @@ public partial class GameHost
 
     private void InitializePersistence(string catalogHash)
     {
-        var codec = new CheckpointCodec(_sim);
-        var files = new PhysicalCheckpointFiles(ProjectSettings.GlobalizePath("user://checkpoints/v1"));
-        var store = new CheckpointStore(files, catalogHash, GameSimulation.CheckpointRulesVersion, codec.Validate);
-        _checkpoint = new CheckpointSession(_sim, store, codec);
-        _checkpoint.RefreshRecovery();
+        InitializeRulePersistence(catalogHash);
     }
 
     private void BindPersistenceUi()
@@ -34,6 +30,8 @@ public partial class GameHost
 
     private void UpdateResumeView()
     {
+        if(!_ruleSelected){UpdateRuleResumeView();return;}
+        _ui.ResumeReviewRequested=null;_ui.ResumeReviewTitle="";
         long viewEpoch = _checkpoint.IntentEpoch;
         _ui.ResumeRequested = () => PerformPersistence(e => _checkpoint.Resume(e), viewEpoch);
         _ui.RetrySaveRequested = () => { if(viewEpoch==_checkpoint.IntentEpoch) RetryPersistence(); };
@@ -60,6 +58,7 @@ public partial class GameHost
 
     private void RequestStart(int hero, uint seed)
     {
+        if(!_ruleSelected){RequestRuleStart(hero,seed);return;}
         if (_ui.IsPersistenceModalOpen || _checkpoint.HasPendingFailure) return;
         long epoch = _checkpoint.IntentEpoch;
         var kind = _checkpoint.CurrentRecovery.Kind;
@@ -78,6 +77,7 @@ public partial class GameHost
 
     private void PerformPersistence(Func<long, bool> operation, long epoch, bool toSelection = false)
     {
+        if(!_ruleSelected)return;
         if (epoch != _checkpoint.IntentEpoch) return;
         _afterSaveToSelection = toSelection;
         CompletePersistence(operation(epoch));
@@ -119,6 +119,7 @@ public partial class GameHost
 
     private void RetryPersistence()
     {
+        if(!_ruleSelected){RefreshRuleInspection(true);return;}
         if (_checkpoint.HasPendingFailure)
             CompletePersistence(_checkpoint.Retry(_checkpoint.IntentEpoch));
         else

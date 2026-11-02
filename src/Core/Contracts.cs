@@ -116,6 +116,7 @@ namespace Hmi.Core
     public readonly struct GameEvent
     {
         public readonly EventKind Kind;
+        public readonly FeedbackMechanism Mechanism;
         public readonly EntityId Source, Target;
         public readonly Vec2 From, To;
         public readonly float Value;
@@ -123,7 +124,11 @@ namespace Hmi.Core
         public readonly int RunToken, Wave;
         public GameEvent(EventKind kind, EntityId source, EntityId target, Vec2 from, Vec2 to,
             float value, long tick, int runToken, int wave)
+            : this(kind, source, target, from, to, value, tick, runToken, wave, FeedbackMechanism.Unknown) { }
+        public GameEvent(EventKind kind, EntityId source, EntityId target, Vec2 from, Vec2 to,
+            float value, long tick, int runToken, int wave, FeedbackMechanism mechanism)
         {
+            Mechanism = mechanism;
             Kind = kind;
             Source = source;
             Target = target;

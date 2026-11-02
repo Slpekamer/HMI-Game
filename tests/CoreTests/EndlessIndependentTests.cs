@@ -81,6 +81,7 @@ internal static class EndlessIndependentTests
         check(g.Run.Random==rng&&g.SpawnCounter==spawn&&g.EntityCount==count,"rejected capped spawns do not consume RNG or IDs");
         int companions=0;for(int i=0;i<g.Capacity;i++)if(g.World.Has(i,Components.Companion))companions++;
         check(companions==1,"configured companion cap is actual entity cap");
+        for(int i=0;i<WaveRules.SpawnPreviewTicks;i++)g.Step(); // Wait for rule2 marker activation before rewarding a kill.
         g.Wallet.Earned=g.Wallet.Coins=int.MaxValue;g.Wallet.Spent=0;
         for(int i=0;i<g.Capacity;i++)if(g.World.Has(i,Components.Enemy)){g.Damage(i,10000,g.PlayerId);break;}
         check(g.Phase==RunPhase.Finished&&g.TerminationReason==RunTerminationReason.LedgerLimit,"reward overflow terminates explicitly");
