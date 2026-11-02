@@ -10,6 +10,9 @@ public sealed class CharacterPresentation : IDisposable
     private readonly Node3D _root;
     private readonly AnimationPlayer _player;
     private readonly FoodAnimationMixer _mixer;
+    private readonly bool _controlledGait;
+    private AnimationLibrary _gaitLibrary;
+    private Animation _gaitClip;
     private readonly EntityId _entity;
     private readonly string _idle, _run, _attack;
     private readonly FacialBinding[] _face;
@@ -40,6 +43,7 @@ public sealed class CharacterPresentation : IDisposable
         _entity = view.Id; _runToken = runToken; _wave = wave;
         _player = FindPlayer(root);
         _idle = FindClip("Idle"); _run = FindClip("Run"); _attack = FindClip("Attack");
+        _controlledGait = ControlledGaitDrill.Enabled && view.Kind == EntityKind.Player && FindClip("StrafeR").Length > 0;
         if (_player != null)
         {
             // One clock owns clip progression. Godot's automatic process must not race pause/morphs.
@@ -53,8 +57,49 @@ public sealed class CharacterPresentation : IDisposable
         _target = _previousSample = new Vector3(view.Position.X, 0, view.Position.Y);
         _root.Position = _target; _tick = tick; _health = view.Health;
         SetFacing(view.Facing); _root.Rotation = new Vector3(0, _facing, 0);
-        _mixer=FoodAnimationMixer.TryCreate(_player,_idle,_run,_attack);
+        string mixerRun = _controlledGait ? CreateGaitComposite() : _run;
+        _mixer=FoodAnimationMixer.TryCreate(_player,_idle,mixerRun,_attack);
         ResetTransient();
+    }
+
+    // Asset-drill-only composition. The static switch is set exclusively by ControlledGaitMovie.
+    // Duplicate Run and replace exactly the seven lower bones; original resources stay untouched.
+    private string CreateGaitComposite()
+    {
+        var original = _player.GetAnimation(_run);
+        string sourceName = FindClip(ControlledGaitDrill.Clip);
+        if (sourceName.Length == 0) throw new InvalidOperationException("Missing directional drill clip");
+        var source = _player.GetAnimation(sourceName);
+        if (Math.Abs(original.Length - source.Length) > .00001)
+            throw new InvalidOperationException("Drill clip period differs from original Run");
+        _gaitClip = (Animation)original.Duplicate(true);
+        _gaitClip.LoopMode = Animation.LoopModeEnum.Linear;
+        bool Lower(Animation clip, int track)
+        {
+            var path = clip.TrackGetPath(track);
+            return path.GetSubNameCount() == 1 && ControlledGaitDrill.LowerBones.Contains(path.GetSubName(0));
+        }
+        if (ControlledGaitDrill.Candidate)
+        {
+            for (int i = _gaitClip.GetTrackCount() - 1; i >= 0; i--)
+                if (Lower(_gaitClip, i)) _gaitClip.RemoveTrack(i);
+            var found = new HashSet<string>();
+            int tracks = 0;
+            for (int i = 0; i < source.GetTrackCount(); i++)
+                if (Lower(source, i))
+                {
+                    source.CopyTrack(i, _gaitClip);
+                    found.Add(source.TrackGetPath(i).GetSubName(0));
+                    tracks++;
+                }
+            if (found.Count != 7 || tracks != 11)
+                throw new InvalidOperationException($"Expected seven lower bones / 11 imported tracks, got {found.Count}/{tracks}");
+        }
+        _gaitLibrary = new AnimationLibrary();
+        _gaitLibrary.AddAnimation("Run", _gaitClip);
+        _player.AddAnimationLibrary("controlledgait", _gaitLibrary);
+        GD.Print($"CONTROLLED_GAIT_COMPOSITE candidate={ControlledGaitDrill.Candidate} clip={ControlledGaitDrill.Clip} period={_gaitClip.Length} private={_gaitClip.GetInstanceId()}");
+        return "controlledgait/Run";
     }
 
     public bool Snapshot(EntityView view, long tick, int runToken = 0, int wave = 0)
@@ -97,7 +142,8 @@ public sealed class CharacterPresentation : IDisposable
         // Defensive presentation clamp only; no simulation time or stats are changed.
         delta = Math.Min(delta, .25f);
         _root.Position = _root.Position.Lerp(_target, 1 - Mathf.Exp(-22 * delta));
-        if(_stationaryFacingHeld){if(_stationaryInputKnown)_root.Rotation=new Vector3(0,StationaryLaunchFacing.Turn(_root.Rotation.Y,_stationaryFacingYaw,delta),0);}
+        if (_controlledGait) _root.Rotation = new Vector3(0, ControlledGaitDrill.Yaw, 0);
+        else if(_stationaryFacingHeld){if(_stationaryInputKnown)_root.Rotation=new Vector3(0,StationaryLaunchFacing.Turn(_root.Rotation.Y,_stationaryFacingYaw,delta),0);}
         else _root.Rotation = new Vector3(0, Mathf.LerpAngle(_root.Rotation.Y, _facing, 1 - Mathf.Exp(-14 * delta)), 0);
         bool fireLayer=false;
         if (_attackQueued)

@@ -18,6 +18,8 @@ public sealed class AssetVisuals
         if (!_scenes.TryGetValue(id, out var scene))
         {
             string path = "res://content/models/" + id + ".glb";
+            if (ControlledGaitDrill.Enabled && id == "hero_crit")
+                path = "res://experiments/crit-directional-gait/runtime/hero_crit-directional-candidate.glb";
             if (ResourceLoader.Exists(path)) { scene = GD.Load<PackedScene>(path); _scenes[id] = scene; }
         }
         if (scene != null) return scene.Instantiate<Node3D>();

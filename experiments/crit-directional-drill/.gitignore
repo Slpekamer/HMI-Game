@@ -1,0 +1,8 @@
+headless-*/
+native-*/
+import-xdg/
+*.log
+*.avi
+*.png
+*.mp4
+baseline-*/
