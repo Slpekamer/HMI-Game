@@ -15,3 +15,5 @@ The approved Run file will stay byte-identical. The new adapter is an explicitly
 
 ## Gate
 Implementation, build and native results are pending in this checkpoint. Require backward A/B authority parity, actual CPU-skinned stance/ground checks, 3D reach/boot geometry, input tap/restart/pause/reset checks, and byte-identical Run behavior regression. Then inspect actual full-speed native footage at unchanged camera/scale. Numerical locking alone is not visual acceptance. Keep failures identifiable and checkpoint every implemented batch before reporting.
+
+The first wired Backpedal A/B build and four steady headless runs passed the inherited sole/reach/parity checker. An additional fixture-only CPU readback now evaluates every rigid boot vertex and reports separation along the body-right axis. This is a real separating-axis bound for the boots, not a claim about trousers, skin folding or GPU appearance. The new readback is checkpointed before testing; Run sole-output format and the approved Run component remain unchanged.

@@ -8,6 +8,7 @@ internal sealed class ControlledGaitSkin
 {
     private sealed record Sample(Skeleton3D Skeleton, int Bone, Transform3D Bind, Vector3 Vertex, string Side);
     private readonly List<Sample> _samples = new();
+    private readonly List<Sample> _bootSamples = new();
     public ControlledGaitSkin(Node root)
     {
         void Walk(Node node)
@@ -40,6 +41,7 @@ internal sealed class ControlledGaitSkin
                                     candidates.Add(new Sample(skeleton, bone, mesh.Skin.GetBindPose(bind), vertices[v], name));
                             }
                     }
+                    _bootSamples.AddRange(candidates);
                     foreach (string side in new[] { "Foot_L", "Foot_R" })
                     {
                         var foot = candidates.Where(p => p.Side == side).ToArray();
@@ -54,6 +56,32 @@ internal sealed class ControlledGaitSkin
         }
         Walk(root);
         if (_samples.Count == 0) throw new InvalidOperationException("No rigid sole source vertices found");
+    }
+    public object ReadBootEnvelope()
+    {
+        var rows = new List<object>();
+        float leftMax = 0, rightMin = 0;
+        var skeleton = _bootSamples[0].Skeleton;
+        Vector3 right = skeleton.GlobalBasis.X.Normalized();
+        Vector3 forward = -skeleton.GlobalBasis.Z.Normalized();
+        foreach (string side in new[] { "Foot_L", "Foot_R" })
+        {
+            var points = new List<Vector3>();
+            foreach (var group in _bootSamples.Where(p => p.Side == side).GroupBy(p => (p.Skeleton, p.Bone, p.Bind)))
+            {
+                Transform3D evaluated = group.Key.Skeleton.GlobalTransform * group.Key.Skeleton.GetBoneGlobalPose(group.Key.Bone) * group.Key.Bind;
+                points.AddRange(group.Select(p => evaluated * p.Vertex));
+            }
+            if (points.Count == 0) throw new InvalidOperationException("Missing rigid boot source vertices");
+            float minX = points.Min(p => p.Dot(right)), maxX = points.Max(p => p.Dot(right));
+            if (side == "Foot_L") leftMax = maxX; else rightMin = minX;
+            rows.Add(new { side, count = points.Count, lateralMin = minX, lateralMax = maxX,
+                forwardMin = points.Min(p => p.Dot(forward)), forwardMax = points.Max(p => p.Dot(forward)),
+                minY = points.Min(p => p.Y), maxY = points.Max(p => p.Y) });
+        }
+        return new { note = "CPU skinned rigid boot envelope, body-relative separating axis; not GPU or trouser collision certification",
+            bodyRight = new[] { right.X, right.Y, right.Z }, bodyForward = new[] { forward.X, forward.Y, forward.Z },
+            lateralGapWorld = rightMin - leftMax, boots = rows };
     }
     public object Read()
     {
