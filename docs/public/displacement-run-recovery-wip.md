@@ -28,3 +28,11 @@ A new bounded 50 ms restart bridge preserves the evaluated foot/body state, cont
 The first restart-bridge runtime matrix completed 26/28 bounded cases; flight-stop restart delays 10 and 11 ticks failed the explicit below-ground guard. This is not a 28-case pass. A 240-tick fixture also hit the actual arena boundary, so the fixture now ends at tick 195 without changing gameplay bounds or root placement. Stopping again within the 50 ms resume bridge remains explicitly unsupported; normal arbitrary input switching is not certified.
 
 A follow-on WIP corrects those two descending-foot cases with an analytic vertical braking segment: duration min(25 ms, actual sole clearance / downward speed), then transition into the existing distance-driven target within the original 50 ms bridge. It preserves initial vertical velocity and reserves at least half the starting clearance during braking. Horizontal motion, body arc, steady gait, root and Core are unchanged. This source revision is checkpointed before rerunning the matrix; do not assume the two failures are resolved yet.
+
+## Fresh restart validation
+Tested source `f2d4c675081758a74aabe1663ede41b3343c369f`, component SHA256 `c060db27b3fb286cff785dee749f069d6af5458cb2457d6017258da1be177e3c`:
+- Build passed. All 28 bounded 195-tick A/B runs and the independent CPU-skin verifier passed: stop phases 150/153, restart delay 0..13 ticks (delay 0 is uninterrupted control).
+- Authority/camera, upper-local poses, morphs and event traces remain exact A/B matches. Actual support sole drift <=0.000001616 world units; reach reserve >=0.00327369; floor residual >=-0.000000127.
+- Original quick restart followed by a second stop, pause/reset probe and four steady flight/stance-stop headless runs passed.
+- Boundary sole movement reaches 0.122474 world units per render tick; this is reported motion, not a visual-continuity pass. Initial bridge velocity is measured render-to-render, not an analytic continuous-time derivative certificate.
+- Native appearance and arbitrary repeated input switching remain unverified. The explicit stop-during-50ms-bridge limitation remains. This is still an isolated internal Run prototype, not production adoption.
