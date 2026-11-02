@@ -1,0 +1,155 @@
+using Godot;
+using Hmi.Core;
+using Hmi.GodotAdapter;
+using Hmi.Adapters.Persistence;
+using System;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Security.Cryptography;
+using System.Text.Json;
+using System.Threading.Tasks;
+
+// Controlled temporary-storage fixture, not natural gameplay or real user migration.
+public partial class PreserveLegacyHostProbe : Node
+{
+ const BindingFlags Flags=BindingFlags.Instance|BindingFlags.NonPublic;
+ const string OldRun="11111111111111111111111111111111";
+ GameHost host; int checks; Task task;
+ string LegacyPath=>ProjectSettings.GlobalizePath("user://checkpoints/v1");
+ string RegistryPath=>ProjectSettings.GlobalizePath("user://checkpoints/rule2");
+ object Field(string n)=>typeof(GameHost).GetField(n,Flags).GetValue(host);
+ void Call(string n,params object[] args)=>typeof(GameHost).GetMethod(n,Flags).Invoke(host,args);
+ GameSimulation Sim=>(GameSimulation)Field("_sim");
+ GameUi Ui=>(GameUi)Field("_ui");
+ void Check(bool ok,string message){checks++;if(!ok)throw new Exception(message);}
+ async Task Flush(){await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);}
+ public override void _Ready(){task=Run();}
+ public override void _Process(double delta)
+ {
+  if(task==null||!task.IsCompleted)return;
+  SetProcess(false);
+  if(task.IsFaulted){GD.PushError(task.Exception.ToString());GetTree().Quit(1);}
+  else{GD.Print("PRESERVE_LEGACY_HOST PASS "+checks);GetTree().Quit();}
+ }
+ GameSimulation FixtureSimulation()
+ {
+  byte[] b=Godot.FileAccess.GetFileAsBytes("res://content/gameplay.json");
+  return new GameSimulation(JsonSerializer.Deserialize<GameContent>(b,new JsonSerializerOptions{PropertyNameCaseInsensitive=true}),new SimulationLimits(),Convert.ToHexString(SHA256.HashData(b)).ToLowerInvariant());
+ }
+ IRuleMigrationFiles Files()=>new PhysicalRuleMigrationFiles(RegistryPath,LegacyPath);
+ void CreateLegacy()
+ {
+  var sim=FixtureSimulation();sim.PrepareRun("honey",1030);
+  Check(sim.TryCapturePrepared(new CheckpointIdentity(Guid.ParseExact(OldRun,"N"),2),out var dto,out _),"controlled legacy fixture capture");
+  dto.RulesVersion=WaveRules.LegacyVersion;
+  var store=new CheckpointStore(new PhysicalCheckpointFiles(LegacyPath),sim.CatalogHash,WaveRules.LegacyVersion,(_,_)=>true);
+  store.BeginRun(OldRun,Guid.NewGuid().ToString("N"),0);store.Save(OldRun,Guid.NewGuid().ToString("N"),1,JsonSerializer.SerializeToUtf8Bytes(dto));
+ }
+ string Bytes(string path)=>!Directory.Exists(path)?"":string.Join("|",Directory.GetFiles(path,"*",SearchOption.AllDirectories).Where(p=>Path.GetFileName(p)!="writer.lock").OrderBy(p=>p,StringComparer.Ordinal).Select(p=>Path.GetRelativePath(path,p)+":"+Convert.ToHexString(SHA256.HashData(System.IO.File.ReadAllBytes(p)))));
+ System.Collections.Generic.IEnumerable<Node> Walk(Node n){yield return n;foreach(Node c in n.GetChildren())foreach(var x in Walk(c))yield return x;}
+ Button Button(string text)=>Walk(Ui).OfType<Button>().Single(b=>b.Text==text&&b.IsInsideTree()&&b.IsVisibleInTree());
+ string Text()=>string.Join("\n",Walk(Ui).OfType<Label>().Where(n=>n.IsVisibleInTree()).Select(n=>n.Text).Concat(Walk(Ui).OfType<RichTextLabel>().Where(n=>n.IsVisibleInTree()).Select(n=>n.Text)));
+ async Task Boot()
+ {
+  host=new GameHost();AddChild(host);host.SetProcess(false);await Flush();
+  Check(Sim.Phase==RunPhase.Selecting&&Sim.Tick==0,"boot never auto Begins migration");
+ }
+
+ const string ConfirmLabel="确认保留并开始新局";
+ void Pick(string name,uint seed)
+ {
+  Ui.ShowSelection();Button(name).EmitSignal(BaseButton.SignalName.Pressed);
+  Walk(Ui).OfType<SpinBox>().Single(n=>n.IsVisibleInTree()).Value=seed;
+  Button("开始冒险").EmitSignal(BaseButton.SignalName.Pressed);host.SetProcess(false);
+ }
+ MigrationInspection Inspect()=>new RuleMigrationCoordinator(Files(),FixtureSimulation()).Inspect();
+ void CheckNew(string hero,uint seed)
+ {
+  var i=Inspect();Check(i.Kind==MigrationKind.Selected&&i.Recovery.Kind==RecoveryKind.Active,"new slot durable Active before Combat observed");
+  Check(Sim.Phase==RunPhase.Combat&&Sim.Tick==0&&Sim.CharacterId==hero&&Sim.Coins==0&&Sim.Earned==0&&Sim.Spent==0,"new choice begins once with empty wallet");
+  Check(i.Checkpoint.CharacterId==hero&&i.Checkpoint.Seed==seed,"new checkpoint uses explicit current hero and seed, not preserved source");
+  Check(i.Checkpoint.RunId!=Guid.ParseExact(OldRun,"N")&&i.Checkpoint.Wave==1,"new UUID and wave1");
+  Check(System.IO.File.Exists(Path.Combine(RegistryPath,"backup.json")),"full old backup exists");
+  var envelope=JsonDocument.Parse(System.IO.File.ReadAllBytes(Path.Combine(RegistryPath,"backup.json")));
+  byte[] payload=Convert.FromBase64String(envelope.RootElement.GetProperty("Payload").GetString());
+  var backup=JsonSerializer.Deserialize<MigrationBackup>(payload);
+  foreach(var f in backup.Files)Check(System.IO.File.ReadAllBytes(Path.Combine(LegacyPath,f.Name)).SequenceEqual(f.Bytes),"backup file bytes exact "+f.Name);
+ }
+ async Task Run()
+ {
+  string mode=OS.GetCmdlineUserArgs().First(a=>a.StartsWith("--preserve-case=")).Substring(16);
+  GD.Print("CONTROLLED_PRESERVE_HOST "+mode+" generated storage only");
+  if(mode=="cold-setup")
+  {
+   CreateLegacy();var c=new RuleMigrationCoordinator(new IntentLostAck(Files()),FixtureSimulation());var before=c.Inspect();bool failed=false;
+   try{c.PreserveLegacyAndInitializeNewGame(Guid.NewGuid().ToString("N"),Guid.NewGuid().ToString("N"),before.Fingerprint);}catch(IOException){failed=true;}
+   Check(failed&&Inspect().Kind==MigrationKind.Incomplete,"intent-only interrupted preserve operation");
+   Check(!System.IO.File.Exists(Path.Combine(RegistryPath,"backup.json"))&&Files().Slots().Length==0,"cold fixture stops before backup/slot");
+   System.IO.File.WriteAllText(ProjectSettings.GlobalizePath("user://legacy-baseline.txt"),Bytes(LegacyPath));return;
+  }
+  if(mode is "happy" or "stale-source" or "lostack")CreateLegacy();
+  string old=Bytes(LegacyPath);await Boot();
+  if(mode=="happy")
+  {
+   Check(((MigrationInspection)Field("_ruleInspection")).Kind==MigrationKind.LegacyAvailable,"actual valid old Active recognized");
+   Pick("卷卷",2026);await Flush();Check(Ui.IsPersistenceModalOpen&&Text().Contains("不继承旧局金币")&&Text().Contains("取消不会更改旧档"),"explicit preserve/new consent explains noninheritance and cancellation");
+   Check(GetViewport().GuiGetFocusOwner() is Button f&&f.Text=="返回，不修改旧档","safe default focus");
+   var cancelled=Button(ConfirmLabel);Button("返回，不修改旧档").EmitSignal(BaseButton.SignalName.Pressed);cancelled.EmitSignal(BaseButton.SignalName.Pressed);host.SetProcess(false);
+   Check(Bytes(LegacyPath)==old&&Files().Slots().Length==0&&!System.IO.File.Exists(Path.Combine(RegistryPath,"intent.json")),"Return and stale confirm do not initialize storage");
+   Check(Sim.Phase==RunPhase.Selecting&&Sim.Tick==0,"cancel does not Begin");await Flush();
+   Pick("脆蓝",2099);await Flush();var epochButton=Button(ConfirmLabel);Call("RefreshRuleInspection",false);epochButton.EmitSignal(BaseButton.SignalName.Pressed);host.SetProcess(false);
+   Check(Files().Slots().Length==0&&Sim.Phase==RunPhase.Selecting,"old rule epoch confirm cannot initialize");
+   Check(!Ui.IsPersistenceModalOpen,"stale modal action dismisses without storage or Begin");await Flush();
+   Pick("卷卷",2031);await Flush();var confirm=Button(ConfirmLabel);confirm.EmitSignal(BaseButton.SignalName.Pressed);host.SetProcess(false);CheckNew("crit",2031);
+   int token=Sim.RunToken;string registry=Bytes(RegistryPath);confirm.EmitSignal(BaseButton.SignalName.Pressed);host.SetProcess(false);
+   Check(Sim.RunToken==token&&Bytes(RegistryPath)==registry,"duplicate current confirmation cannot restart or rewrite");
+   Call("Selection");Check(Inspect().Recovery.Kind==RecoveryKind.Closed,"selected new run closes without touching legacy");
+  }
+  else if(mode=="stale-source")
+  {
+   Pick("卷卷",2031);await Flush();var confirm=Button(ConfirmLabel);var fixture=FixtureSimulation();
+   new CheckpointStore(new PhysicalCheckpointFiles(LegacyPath),fixture.CatalogHash,WaveRules.LegacyVersion,(_,_)=>true).Close(OldRun,Guid.NewGuid().ToString("N"),2);old=Bytes(LegacyPath);
+   confirm.EmitSignal(BaseButton.SignalName.Pressed);host.SetProcess(false);
+   Check(Sim.Phase==RunPhase.Selecting&&Sim.Tick==0&&!(bool)Field("_ruleSelected"),"changed source after visible consent fails closed");
+   Check(Ui.IsPersistenceModalOpen&&Text().Contains("不会自动开始战斗"),"stale source produces contained error modal");
+   Check(!System.IO.File.Exists(Path.Combine(RegistryPath,"selector.json"))&&Files().Slots().Length==0,"stale source cannot publish or stage");
+  }
+  else if(mode=="lostack")
+  {
+   typeof(GameHost).GetField("_ruleMigration",Flags).SetValue(host,new RuleMigrationCoordinator(new IntentLostAck(Files(),"selector.json"),Sim));
+   Pick("卷卷",2031);await Flush();var confirm=Button(ConfirmLabel);confirm.EmitSignal(BaseButton.SignalName.Pressed);host.SetProcess(false);
+   Check(Inspect().Recovery.Kind==RecoveryKind.PendingStart&&(bool)Field("_ruleSelected"),"durable lostack retains selected PendingStart");
+   Check(Sim.Phase==RunPhase.Selecting&&Sim.Tick==0&&Ui.IsPersistenceModalOpen,"lostack never auto Begins captured hero");
+   string registry=Bytes(RegistryPath);confirm.EmitSignal(BaseButton.SignalName.Pressed);Check(Bytes(RegistryPath)==registry&&Sim.Phase==RunPhase.Selecting,"lostack old callback cannot start");
+   Button("返回，不修改旧档").EmitSignal(BaseButton.SignalName.Pressed);await Flush();Pick("脆蓝",2044);CheckNew("bounce",2044);
+  }
+  else if(mode=="cold-resume")
+  {
+   Check(old==System.IO.File.ReadAllText(ProjectSettings.GlobalizePath("user://legacy-baseline.txt")),"cold process source exact");
+   Ui.RetrySaveRequested();await Flush();Check(Text().Contains("旧局已保留")&&Text().Contains("不会猜测上次角色或种子"),"cold preserve receipt explains source vs fresh choice");
+   var retry=Button("确认重试");retry.EmitSignal(BaseButton.SignalName.Pressed);host.SetProcess(false);
+   Check(Inspect().Recovery.Kind==RecoveryKind.PendingStart&&Sim.Phase==RunPhase.Selecting&&Sim.Tick==0,"cold Retry selects only PendingStart and returns chooser");
+   Check(!Ui.IsPersistenceModalOpen&&Walk(Ui).OfType<SpinBox>().Any(n=>n.IsVisibleInTree()),"actual chooser restored after cold retry");
+   string registry=Bytes(RegistryPath);retry.EmitSignal(BaseButton.SignalName.Pressed);Check(Bytes(RegistryPath)==registry&&Sim.Phase==RunPhase.Selecting,"duplicate cold retry does not Begin");
+   Pick("卷卷",2088);CheckNew("crit",2088);
+  }
+  else if(mode=="closed")
+  {
+   Check((bool)Field("_ruleSelected")&&Inspect().Recovery.Kind==RecoveryKind.Closed,"cold selected Closed stays authoritative despite preserved Active");
+   Check(Ui.ResumeReviewRequested==null,"no legacy resume path when selected Closed");Ui.ResumeRequested?.Invoke();host.SetProcess(false);Check(Sim.Phase==RunPhase.Selecting,"Closed resume cannot resurrect old run");
+  }
+  else throw new Exception("unknown mode "+mode);
+  Check(Bytes(LegacyPath)==old,"all Host actions preserve original legacy bytes");host.QueueFree();await Flush();Check(!GodotObject.IsInstanceValid(host),"actual Host cleanup");
+ }
+ sealed class IntentLostAck : IRuleMigrationFiles
+ {
+  readonly IRuleMigrationFiles f;readonly string failName;readonly bool before;public IntentLostAck(IRuleMigrationFiles files,string name="intent.json",bool failBefore=false){f=files;failName=name;before=failBefore;}
+  public ICheckpointFiles Registry=>new FaultPort(f.Registry,failName,before);public ICheckpointFiles Legacy=>f.Legacy;public string[] Slots()=>f.Slots();public ICheckpointFiles Slot(string id)=>f.Slot(id);
+  sealed class FaultPort:ICheckpointFiles
+  {
+   readonly ICheckpointFiles f;readonly string failName;readonly bool before;public FaultPort(ICheckpointFiles files,string name,bool failBefore){f=files;failName=name;before=failBefore;}public IDisposable AcquireWriter()=>f.AcquireWriter();public string[] Names()=>f.Names();public long Length(string n)=>f.Length(n);public byte[] Read(string n,int m)=>f.Read(n,m);public void Delete(string n)=>f.Delete(n);
+   public void AtomicWrite(string n,byte[] b,bool overwrite){if(n==failName&&before)throw new IOException("fixture before publish: "+n);f.AtomicWrite(n,b,overwrite);if(n==failName)throw new IOException("fixture durable lostack: "+n);}
+  }
+ }
+}

@@ -64,11 +64,25 @@ namespace Hmi.Core
             g.PowerTime = g.HasteTime = 0;
             g.SpawnCounter = 0;
             g.EventLength = 0;
+            g.Observations.ResetScope();
+            g.SpawnReservations.ResetScope();
             g.Commands.Clear();
             return true;
         }
+        internal static bool TryConvertLegacy(GameSimulation g, WaveCheckpointDto source, CheckpointIdentity legacyIdentity,
+            CheckpointIdentity targetIdentity, out WaveCheckpointDto? converted, out CheckpointError error)
+        {
+            converted=null;
+            if(!ValidIdentity(targetIdentity) || !ValidIdentity(legacyIdentity) || targetIdentity.RunId==legacyIdentity.RunId) return Fail(CheckpointError.InvalidIdentity,out error);
+            if(!TryBuild(g,source,legacyIdentity,false,out _,out error,WaveRules.LegacyVersion)) return false;
+            converted=Copy(source);
+            converted.RulesVersion=WaveRules.Version;
+            converted.RunId=targetIdentity.RunId;
+            converted.Sequence=targetIdentity.Sequence;
+            return true;
+        }
         private static bool TryBuild(GameSimulation g, WaveCheckpointDto source, CheckpointIdentity expected, bool restoring,
-            out GameSimulation? staged, out CheckpointError error)
+            out GameSimulation? staged, out CheckpointError error, string expectedRules = GameSimulation.CheckpointRulesVersion)
         {
             staged = null;
             if (g.CatalogHash == null) return Fail(CheckpointError.MissingCatalogIdentity, out error);
@@ -78,7 +92,7 @@ namespace Hmi.Core
             if (source.SchemaVersion != 1) return Fail(CheckpointError.InvalidSchema, out error);
             if (!ValidHash(source.CatalogHash) || !string.Equals(source.CatalogHash, g.CatalogHash, StringComparison.OrdinalIgnoreCase))
                 return Fail(CheckpointError.CatalogMismatch, out error);
-            if (source.RulesVersion != GameSimulation.CheckpointRulesVersion || source.EntityCapacity != g.Capacity
+            if (source.RulesVersion != expectedRules || source.EntityCapacity != g.Capacity
                 || source.EnemyCapacity != g.Limits.EnemyCapacity || source.CompanionCapacity != g.Limits.CompanionCapacity
                 || source.EnemyHealthCap != g.Limits.EnemyHealthMultiplierCap || source.EnemySpeedCap != g.Limits.EnemySpeedMultiplierCap)
                 return Fail(CheckpointError.RulesMismatch, out error);

@@ -1,8 +1,0 @@
-Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
-
-FOOD_IMPORTED_INSTANCE_ISOLATION honey passed
-FOOD_IMPORTED_CLIP honey Idle changed_bones=3
-FOOD_IMPORTED_CLIP honey Run changed_bones=15
-FOOD_IMPORTED_CLIP honey Attack changed_bones=7
-FOOD_IMPORTED_ASSET honey bounds=[P: (-0.599181, 0.0, -0.386401), S: (1.099668, 1.2, 0.77281)] meshes=2
-FOOD_HERO_IMPORT_PROBE failures=0 scope=["honey"]

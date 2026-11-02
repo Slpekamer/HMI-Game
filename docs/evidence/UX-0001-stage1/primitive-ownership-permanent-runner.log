@@ -1,8 +1,0 @@
-Primitive ownership build: exit 0; log /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-primitive-ownership-jv9u5cgy/build.log
-Primitive ownership import: exit 0; log /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-primitive-ownership-jv9u5cgy/import.log
-Primitive ownership run: exit 0; log /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-primitive-ownership-jv9u5cgy/run.log
-Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
-
-PRIMITIVE_OWNERSHIP PASS 256 headless native identity only
-
-PASS isolated actual-engine primitive ownership behavior; evidence /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-primitive-ownership-jv9u5cgy

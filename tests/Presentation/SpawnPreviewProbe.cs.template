@@ -1,0 +1,53 @@
+using Godot;
+using Hmi.Core;
+using Hmi.GodotAdapter;
+using System;
+using System.Text.Json;
+
+public partial class SpawnPreviewProbe : Node
+{
+    private int _checks;
+    private Node3D _owner;
+    private SpawnPreviewVisuals _markers;
+    private bool _finished;
+    private void Check(bool value,string message) { _checks++;if(!value)throw new Exception(message); }
+    private static int EnemyCount(GameSimulation g) { int n=0;for(int i=0;i<g.Capacity;i++)if(g.TryGetEntityAtSlot(i,out var e)&&e.Kind==EntityKind.Enemy)n++;return n; }
+    public override void _Ready()
+    {
+        try
+        {
+            var content=JsonSerializer.Deserialize<GameContent>(FileAccess.GetFileAsBytes("res://content/gameplay.json"),new JsonSerializerOptions { PropertyNameCaseInsensitive=true });
+            Check(GameUi.FormatWaveTime(60)=="01:00"&&GameUi.FormatWaveTime(59)=="00:59"&&GameUi.FormatWaveTime(0)=="00:00"&&GameUi.FormatWaveTime(float.NaN)=="00:00","actual remaining duration mm:ss formatting");
+            var g=new GameSimulation(content,new SimulationLimits(),new string('a',64));
+            _owner=new Node3D();AddChild(_owner);_markers=new SpawnPreviewVisuals(_owner,g.Limits.EnemyCapacity);
+            _markers.Update(g);Check(_markers.Count==0,"selection has no ground warning");
+            g.StartRun("crit",1030);_markers.Update(g);
+            Check(_markers.Count==10&&EnemyCount(g)==0,"ten ground warnings and no enemy before activation");
+            Check(_markers.InstanceCount==120,"bounded twelve segments per reservation");
+            Check(_markers.TryGet(0,out var first,out float p)&&p==0&&first.ActivateTick==60,"first warning exact tick-zero identity");
+            for(int tick=1;tick<=59;tick++)
+            {
+                g.Step();_markers.Update(g);
+                Check(_markers.TryGet(0,out var current,out p)&&current.Id.Equals(first.Id)&&current.Position.X==first.Position.X&&current.Position.Y==first.Position.Y,"warning position and full identity stable");
+                Check(Math.Abs(p-tick/60f)<.00001f&&EnemyCount(g)==0,"authority countdown only; no premature entity");
+            }
+            g.Enqueue(GameCommand.Pause(true));g.Step();
+            for(int frame=0;frame<90;frame++) {g.Step();_markers.Update(g);Check(_markers.TryGet(0,out _,out p)&&Math.Abs(p-59/60f)<.00001f,"pause does not age warning");}
+            g.Enqueue(GameCommand.Pause(false));g.Step();_markers.Update(g);
+            Check(g.Tick==60&&_markers.Count==g.PendingSpawnCount&&EnemyCount(g)==10,"tick sixty activates initial ten; later cadence warnings remain authoritative");
+            for(int i=0;i<_markers.Count;i++)Check(_markers.TryGet(i,out var remaining,out _)&&remaining.ScheduledTick>0&&!remaining.Id.Equals(first.Id),"initial reservation removed; only later warnings remain");
+            g.StartRun("crit",1030);_markers.Update(g);Check(_markers.TryGet(0,out var second,out p)&&!second.Id.Equals(first.Id)&&p==0,"new scope cannot reuse stale warning identity");
+            _markers.Clear();Check(_markers.Count==0,"clear discards all visible warnings");
+            _markers.Update(g);Check(_markers.Count==g.PendingSpawnCount,"snapshot restores warnings without consuming transition notification");
+            _markers.Dispose();_markers.Dispose();_markers.Update(g);_markers.Clear();Check(_markers.Count==0,"disposed owner rejects updates idempotently");
+            _owner.QueueFree();_finished=true;
+        }
+        catch(Exception e) { GD.PushError(e.ToString());GetTree().Quit(1); }
+    }
+    public override void _Process(double delta)
+    {
+        if(!_finished)return;
+        if(GodotObject.IsInstanceValid(_owner))return;
+        GD.Print("SPAWN_PREVIEW_PROBE PASS "+_checks);GetTree().Quit(0);
+    }
+}

@@ -1,9 +1,0 @@
-HudSafeView build: exit 0; log /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-opaque-pages-v3uf4mtk/build.log
-HudSafeView import: exit 0; log /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-opaque-pages-v3uf4mtk/import.log
-HudSafeView run: exit 0; log /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-opaque-pages-v3uf4mtk/run.log
-Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
-
-HMI_READY reconstruction=2026-10-31 lighting=linear-direct0.36-ambient0.18
-OPAQUE_PAGE_PROBE PASS checks=144 pairs=0 sameframe / clocks / resources / exit / physical-resize-contract
-
-PASS isolated actual-engine opaque-pages; evidence /workspace/scratch/80f5bc988ef7/godot-toolchain-verification/tools/tmp/hmi-opaque-pages-v3uf4mtk
