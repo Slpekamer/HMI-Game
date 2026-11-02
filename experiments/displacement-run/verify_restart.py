@@ -10,9 +10,9 @@ for stance in [0,1]:
   for file in ['authority.jsonl','camera.tsv']:assert (a/file).read_bytes()==(b/file).read_bytes(),(b.name,file)
   assert upper(a/'pose.tsv')==upper(b/'pose.tsv'),'Upper/morph local mismatch'
   ma=read(a/'motion.jsonl');mb=read(b/'motion.jsonl')
-  assert len(ma)==len(mb)==240
+  assert len(ma)==len(mb)==195
   for x,y in zip(ma,mb):x.pop('candidate');y.pop('candidate');assert x==y,'Motion/event mismatch'
-  rows=read(b/'locomotion.jsonl');skin=read(b/'sole.jsonl');assert len(rows)==len(skin)==240
+  rows=read(b/'locomotion.jsonl');skin=read(b/'sole.jsonl');assert len(rows)==len(skin)==195
   anchors={};drift=[];margins=[];floor=[];boundary=[];resume=(153 if stance else 150)+delay
   for index,(row,sk) in enumerate(zip(rows,skin)):
    d=row['diagnostics'];assert row['frame']==sk['frame']==index

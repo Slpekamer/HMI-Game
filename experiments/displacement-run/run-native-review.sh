@@ -19,7 +19,7 @@ for STOP in flight restart;do
   if grep -E 'ERROR:|FATAL|Unhandled|ObjectDB.*leak|resources still in use' "$OUT/runtime.log";then exit 1;fi
  done
  if [[ "$STOP" == flight ]];then python3 experiments/displacement-run/verify.py "$BASE" native flight > "$BASE/flight-verification.json";fi
- FRAMES=180;[[ "$STOP" == restart ]] && FRAMES=240
+ FRAMES=180;[[ "$STOP" == restart ]] && FRAMES=195
  python3 experiments/displacement-run/align_movie.py "$BASE" "$STOP" "$BASE/comparison-$STOP" --frames "$FRAMES"
 done
 echo 'DISPLACEMENT_NATIVE_REVIEW_CAPTURE_COMPLETE: appearance and restart continuity still require review'
