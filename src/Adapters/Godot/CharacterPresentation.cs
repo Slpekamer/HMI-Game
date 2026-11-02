@@ -88,13 +88,17 @@ public sealed class CharacterPresentation : IDisposable
         return true;
     }
 
+    private bool _stationaryFacingHeld,_stationaryInputKnown;private float _stationaryFacingYaw;
+    internal void SetStationaryFacing(bool held,bool inputKnown,float yaw){_stationaryFacingHeld=held;_stationaryInputKnown=inputKnown;_stationaryFacingYaw=yaw;}
+
     public void Advance(float delta, bool paused)
     {
         if (!Alive() || paused || delta <= 0 || !float.IsFinite(delta)) return;
         // Defensive presentation clamp only; no simulation time or stats are changed.
         delta = Math.Min(delta, .25f);
         _root.Position = _root.Position.Lerp(_target, 1 - Mathf.Exp(-22 * delta));
-        _root.Rotation = new Vector3(0, Mathf.LerpAngle(_root.Rotation.Y, _facing, 1 - Mathf.Exp(-14 * delta)), 0);
+        if(_stationaryFacingHeld){if(_stationaryInputKnown)_root.Rotation=new Vector3(0,StationaryLaunchFacing.Turn(_root.Rotation.Y,_stationaryFacingYaw,delta),0);}
+        else _root.Rotation = new Vector3(0, Mathf.LerpAngle(_root.Rotation.Y, _facing, 1 - Mathf.Exp(-14 * delta)), 0);
         bool fireLayer=false;
         if (_attackQueued)
         {

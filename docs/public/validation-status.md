@@ -1,3 +1,7 @@
+# Additional stationary-facing candidate status
+
+225 pure and231 Host checks passed in scoped runs; native full-view route comparison supports only the stopped-launch benefit. Core source, authoritative results, camera fields and animation local poses remain unchanged. No automatic main-branch integration or Android verification follows from this result. See [candidate details](stationary-facing.md) and [review queue](review-queue.md).
+
 # Validation status — WIP
 
 This public checkpoint contains completed code with known limitations; it is not release acceptance. Runtime code matches the frozen integrated rule 3 candidate. Publication only narrows documentation/provenance and parameterizes environment-specific scripts; it does not add experimental effects.

@@ -158,6 +158,7 @@ public partial class GameHost : Node3D
         }
     }
 
+    private readonly StationaryLaunchFacing _stationaryFacing=new();
     public override void _Process(double delta)
     {
         if (_sim == null) return;
@@ -169,6 +170,7 @@ public partial class GameHost : Node3D
         _damageReaction?.BeginFrame(_sim.RunToken,_sim.Wave);
         _playerDamage?.BeginFrame(_sim);
         _projectilePresentation?.Bind(_sim);
+        _stationaryFacing.Begin(_sim,ProjectilePresentationVisible());
         if (_sim.Phase == RunPhase.Combat && !_sim.Paused)
         {
             _accumulator += elapsed;
@@ -176,6 +178,7 @@ public partial class GameHost : Node3D
             while (_accumulator >= GameSimulation.FixedDelta && steps < 8)
             {
                 Vector2 move = ReadMoveIntent();
+                _stationaryFacing.Input(move.X,move.Y);
                 // Input directions stay screen-relative with the diagonal presentation camera.
                 Vector3 right = _camera.GlobalBasis.X; right.Y = 0; right = right.Normalized();
                 Vector3 down = _camera.GlobalBasis.Z; down.Y = 0; down = down.Normalized();
@@ -227,6 +230,7 @@ public partial class GameHost : Node3D
 
     private void ClearVisuals()
     {
+        _stationaryFacing.ClearPresentation();
         _damageReaction?.ClearPresentation();_playerDamage?.ClearPresentation();_projectilePresentation?.ClearPresentation();
         if(_pendingLaunches!=null)Array.Clear(_pendingLaunches);
         _cameraBound=false;
@@ -273,6 +277,7 @@ public partial class GameHost : Node3D
                 else if(_pendingAttacks[slot] is GameEvent attack)
                     presentation.Attack(attack.Source,attack.RunToken,attack.Wave,attack.Tick);
                 _pendingAttacks[slot]=null;_pendingLaunches[slot]=null;
+                if(view.Kind==EntityKind.Player){_stationaryFacing.Attach(presentation);presentation.SetStationaryFacing(_stationaryFacing.Held,_stationaryFacing.InputKnown,_stationaryFacing.Yaw);}
                 presentation.Advance(delta,_sim.Paused || _sim.Phase!=RunPhase.Combat);
             }
             else { node.Visible=view.Active; node.Position=ToGodot(view.Position); }
@@ -337,6 +342,7 @@ public partial class GameHost : Node3D
     {
         _damageReaction?.CaptureStep(_sim);
         _playerDamage?.CaptureStep(_sim);
+        _stationaryFacing.CaptureStep(_sim);
         _projectilePresentation?.CaptureStep(_sim,QueueProjectileLaunch);
         _enemyEntrance?.Observe(_sim);
         _mechanicalArrival?.Observe(_sim);
@@ -392,7 +398,7 @@ public partial class GameHost : Node3D
     {
         if(what==NotificationApplicationFocusIn){_inputFocused=true;ResetMovementInput();PollMobileSafeArea(0,true);}
         if(what!=NotificationApplicationFocusOut || _sim==null) return;
-        _inputFocused=false;ResetMovementInput();_damageReaction?.ClearPresentation();_playerDamage?.ClearPresentation();_projectilePresentation?.ClearPresentation();
+        _inputFocused=false;_stationaryFacing.ClearPresentation();ResetMovementInput();_damageReaction?.ClearPresentation();_playerDamage?.ClearPresentation();_projectilePresentation?.ClearPresentation();
         if(_pendingLaunches!=null)Array.Clear(_pendingLaunches);
         _codexResume=false; _accumulator=0; _ui?.Joystick.ResetInput();
         if(_sim.Phase==RunPhase.Combat) Send(CommandKind.Pause,flag:true);

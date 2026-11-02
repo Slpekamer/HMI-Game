@@ -1,5 +1,5 @@
-# Public source checkpoint
+# Independent stationary-facing WIP
 
-The owner explicitly authorized public game code, necessary runtime assets, provenance/licenses and concise design/test status. Full internal debugging, recovery history, screenshots, videos and user data are excluded from this copy.
+This completed candidate is published separately for review. It builds on the public integrated rule-3 source but has not been merged into main or the prior integration branch. Only the stopped Crit launch-facing policy and its tests are added. Review status and residual problems are recorded in docs/public/review-queue.md and stationary-facing.md.
 
-See [README](README.md), [engineering rules](AGENTS.md) and [validation status](docs/public/validation-status.md). This is WIP with known failures, not a release. No experimental surface-impact, forced attack-facing or rejected shadow changes are included. Publication does not authorize merging, deploying or distributing a new APK.
+The owner authorized public code, necessary runtime assets, provenance/licenses and concise design/test status. Internal recovery history, screenshots, videos and user saves are not included. No APK is delivered by this branch.

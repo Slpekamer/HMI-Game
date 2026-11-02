@@ -1,3 +1,9 @@
+# Review candidate: stopped Crit launch facing
+
+This independent WIP adds a narrow visual-only correction to the integrated rule-3 source below. When Crit is stopped and a genuine projectile is launched, the visual body turns smoothly toward that recorded launch direction. It does not fix firing backward while moving, change projectile paths, replay attacks or add turn-in-place footwork. This candidate is **awaiting user review**, not merged into the main branch.
+
+See [candidate contract and scoped evidence](docs/public/stationary-facing.md) and the [review queue](docs/public/review-queue.md). Existing shadows, initial-turn residuals and device-validation limits remain.
+
 # 软糖突围 / HMI-Game
 
 Work-in-progress survivor game using Godot **4.6.3 .NET**, Compatibility rendering and a portable C# ECS simulation. This is a source checkpoint, not a stable release or a tested Android package.
