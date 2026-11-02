@@ -19,12 +19,12 @@ def frames(path):
             if not data:break
             assert len(data)==1280*720*3,'truncated frame'
             im=Image.frombytes('RGB',(1280,720),data)
-            bits=0
+            bits=0;samples=[]
             for i in range(8):
-                rgb=im.getpixel((14+i*14,702))
+                rgb=im.getpixel((14+i*14,702));samples.append(rgb)
                 assert max(rgb)<40 or min(rgb)>215,('ambiguous stamp',index,i,rgb)
                 if sum(rgb)>3*127:bits|=1<<i
-            yield index,(bits-43)&255,im
+            yield index,(bits-43)&255,im,samples
             index+=1
     finally:
         p.stdout.close()
@@ -40,10 +40,10 @@ def main():
         temp=pathlib.Path(temp)
         for variant in ['A','B']:
             seen={}; rows=[];previous=-1
-            for index,tick,im in frames(a.base/f'native-{a.scenario}-{variant}'/'capture.avi'):
+            for index,tick,im,samples in frames(a.base/f'native-{a.scenario}-{variant}'/'capture.avi'):
                 assert 0<=tick<a.frames and tick>=previous,('bad stamp order',variant,index,tick)
                 duplicate=tick in seen
-                rows.append({'encoded_frame':index,'simulation_tick':tick,'duplicate':duplicate})
+                rows.append({'encoded_frame':index,'simulation_tick':tick,'duplicate':duplicate,'stamp_center_rgb':samples})
                 if not duplicate:
                     seen[tick]=index;im.save(temp/f'{variant}-{tick:03}.png')
                 previous=tick
@@ -57,6 +57,6 @@ def main():
                 with Image.open(temp/f'{v}-{tick:03}.png') as im:canvas.paste(im,(1280*i,32))
             canvas.save(temp/f'pair-{tick:03}.png')
         subprocess.run(['ffmpeg','-v','error','-framerate','60','-i',str(temp/'pair-%03d.png'),'-c:v','libx264','-crf','18','-pix_fmt','yuv420p','-movflags','+faststart',str(a.output/'comparison.mp4')],check=True)
-    (a.output/'frame-map.json').write_text(json.dumps({'fps':60,'output_frames':a.frames,'mapping':mapping,'rule':'First encoded occurrence of each decoded simulation tick; duplicate stamps explicitly recorded. Complete cycle, no retiming.'},indent=2)+'\n')
+    (a.output/'frame-map.json').write_text(json.dumps({'stamp_thresholds':'black: all RGB<40; white: all RGB>215; otherwise reject. Centers (14+14*i,702).','fps':60,'output_frames':a.frames,'mapping':mapping,'rule':'First encoded occurrence of each decoded simulation tick; duplicate stamps explicitly recorded. Complete cycle, no retiming.'},indent=2)+'\n')
 
 if __name__=='__main__':main()
