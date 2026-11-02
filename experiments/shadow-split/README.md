@@ -23,3 +23,15 @@ reject this candidate rather than sweep parameters.
 No native A/B or performance/device result is claimed by this initial checkpoint.
 Hero-only blob shadows cannot address the observed static-environment issue and
 would sacrifice silhouette/directional/occlusion fidelity; not implemented here.
+
+## Bounded coverage fixture
+`run-native-coverage.sh` launches a separate scene, never normal gameplay. It
+freezes a genuinely paused Combat world and captures west/east/north/south
+camera views, with five 8-cm neighboring positions each, at 1280x720 and 720x1280.
+The transforms use the existing landscape follow-clamp and portrait edge focus
+positions. These are **static diagnostic views, not played edge routes**; they
+do not claim that the player traversed the arena. Camera basis, original aspect
+size policy, projection and near/far are retained. Only diagnostic UI is hidden.
+Each view requires three identical raw framebuffer hashes. A/B manifests require
+identical camera/paused tick data and light settings except the candidate split.
+No native coverage result is claimed by this fixture checkpoint.
