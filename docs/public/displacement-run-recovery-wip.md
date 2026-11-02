@@ -1,5 +1,7 @@
 # Actual-displacement Run — isolated WIP
 
+**Status:** bounded technical and sampled-pixel review completed; the full-width forward-Run/tap-stop video is awaiting user motion/style review. Cadence and airborne style are not yet accepted. No production integration, lateral/backward controller or moving-fire acceptance is implied.
+
 ## Scope and authority
 This is one fixed-heading forward Run presentation prototype, not the moving-fire controller or a production replacement. Normal startup does not enable it. The old in-place action sample was rejected for skating; improved leg visibility alone was not acceptance. Static proportions remain accepted and unchanged.
 
