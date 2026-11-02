@@ -19,7 +19,7 @@ public sealed class AssetVisuals
         {
             string path = "res://content/models/" + id + ".glb";
             if (ControlledGaitDrill.Enabled && id == "hero_crit")
-                path = ControlledGaitDrill.ProportionCandidate ? "res://experiments/proportion-gait/runtime/candidate.glb" : "res://experiments/proportion-gait/runtime/original.glb";
+                path = "res://experiments/displacement-run/runtime/accepted-static-rebuilt.glb";
             if (ResourceLoader.Exists(path)) { scene = GD.Load<PackedScene>(path); _scenes[id] = scene; }
         }
         if (scene != null) return scene.Instantiate<Node3D>();

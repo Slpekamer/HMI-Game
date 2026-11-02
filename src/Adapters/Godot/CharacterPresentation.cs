@@ -14,6 +14,7 @@ public sealed class CharacterPresentation : IDisposable
     private AnimationLibrary _gaitLibrary;
     private Animation _gaitClip;
     private readonly BackpedalWeightTransfer _weightTransfer;
+    private readonly DisplacementRunPresentation _displacementRun;
     private readonly EntityId _entity;
     private readonly string _idle, _run, _attack;
     private readonly FacialBinding[] _face;
@@ -57,10 +58,11 @@ public sealed class CharacterPresentation : IDisposable
         CollectFace(root, bindings); _face = bindings.ToArray();
         _target = _previousSample = new Vector3(view.Position.X, 0, view.Position.Y);
         _root.Position = _target; _tick = tick; _health = view.Health;
-        SetFacing(view.Facing); _root.Rotation = new Vector3(0, _facing, 0);
+        SetFacing(view.Facing); _root.Rotation = new Vector3(0, _controlledGait ? ControlledGaitDrill.Yaw : _facing, 0);
         string mixerRun = _controlledGait ? CreateGaitComposite() : _run;
         _mixer=FoodAnimationMixer.TryCreate(_player,_idle,mixerRun,_attack);
         if (_controlledGait && ControlledGaitDrill.WeightTransfer) _weightTransfer = new BackpedalWeightTransfer(_root);
+        if (_controlledGait && ControlledGaitDrill.DisplacementRun) _displacementRun = new DisplacementRunPresentation(_root);
         ResetTransient();
     }
 
@@ -144,6 +146,7 @@ public sealed class CharacterPresentation : IDisposable
         // Defensive presentation clamp only; no simulation time or stats are changed.
         delta = Math.Min(delta, .25f);
         _weightTransfer?.RestoreBase();
+        _displacementRun?.RestoreBase();
         _root.Position = _root.Position.Lerp(_target, 1 - Mathf.Exp(-22 * delta));
         if (_controlledGait) _root.Rotation = new Vector3(0, ControlledGaitDrill.Yaw, 0);
         else if(_stationaryFacingHeld){if(_stationaryInputKnown)_root.Rotation=new Vector3(0,StationaryLaunchFacing.Turn(_root.Rotation.Y,_stationaryFacingYaw,delta),0);}
@@ -170,6 +173,7 @@ public sealed class CharacterPresentation : IDisposable
         if(_mixer!=null) _mixer.Advance(delta,_speed>.08f,Math.Clamp(_speed/4.8f,.65f,1.6f),fireLayer,false);
         else _player?.Advance(delta);
         if (_weightTransfer != null && _mixer != null) _weightTransfer.Apply(_mixer.RunPhase, _mixer.MovementBlend);
+        _displacementRun?.Advance(delta, _speed > .08f, _target);
         _attackRemaining = Math.Max(0, _attackRemaining - delta);
         // The native graph owns layered gesture lifetime; float countdown must not invent
         // an extra silent clip when an event arrives on the final active render step.
@@ -202,6 +206,7 @@ public sealed class CharacterPresentation : IDisposable
     private void ResetTransient()
     {
         _weightTransfer?.RestoreBase();
+        _displacementRun?.Reset();
         _attackRemaining = _smileRemaining = _surpriseRemaining = _faceClock = 0;
         _attackQueued = false; _lastAttackTick = -1; _current = "";
         if(_mixer!=null) _mixer.Reset();
