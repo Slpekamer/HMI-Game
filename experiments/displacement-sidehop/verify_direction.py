@@ -13,6 +13,8 @@ for b in sorted(root.glob('*-B')):
   if m['input']!=0:assert m['localRight']>.01 and abs(m['localForward'])<.0001,('not rightward body-relative movement',b.name,row['frame'])
   d=row['diagnostics']
   if 'feet' not in d:continue
+  assert d['sharedPhase'] and len(d['feet'])==2
+  left,right=d['feet'];assert left['stance']==right['stance'] and abs(left['phase']-right['phase'])<.00001,('not synchronized contacts/phase',b.name,row['frame'])
   dots.append(sum(x*y for x,y in zip(d['bodyForward'],d['travelAxis'])))
   if previous is not None:
    delta=[x-y for x,y in zip(d['root'],previous['root'])];distance=math.sqrt(sum(x*x for x in delta));phase_errors.append(abs((d['distance']-previous['distance'])-distance))
