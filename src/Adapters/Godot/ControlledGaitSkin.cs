@@ -75,7 +75,19 @@ internal sealed class ControlledGaitSkin
             if (points.Count == 0) throw new InvalidOperationException("Missing rigid boot source vertices");
             float minX = points.Min(p => p.Dot(right)), maxX = points.Max(p => p.Dot(right));
             if (side == "Foot_L") leftMax = maxX; else rightMin = minX;
-            rows.Add(new { side, count = points.Count, lateralMin = minX, lateralMax = maxX,
+            var source = _bootSamples.First(p => p.Side == side);
+            Basis actualBasis = skeleton.GlobalBasis * skeleton.GetBoneGlobalPose(source.Bone).Basis;
+            Basis expectedFlat = skeleton.GlobalBasis * skeleton.GetBoneGlobalRest(source.Bone).Basis.Orthonormalized();
+            float flatBasisError = (actualBasis.X-expectedFlat.X).Length() + (actualBasis.Y-expectedFlat.Y).Length() + (actualBasis.Z-expectedFlat.Z).Length();
+            string suffix = side.EndsWith("L", StringComparison.Ordinal) ? "L" : "R";
+            Vector3 hip = skeleton.GetBoneGlobalPose(skeleton.FindBone("Thigh_"+suffix)).Origin;
+            Vector3 knee = skeleton.GetBoneGlobalPose(skeleton.FindBone("Shin_"+suffix)).Origin;
+            Vector3 ankle = skeleton.GetBoneGlobalPose(source.Bone).Origin;
+            Vector3 axis = (ankle-hip).Normalized();
+            Vector3 bend = knee-hip-axis*(knee-hip).Dot(axis);
+            Vector3 anatomicalPole = Vector3.Forward-axis*Vector3.Forward.Dot(axis);
+            float kneePoleAlignment = bend.Normalized().Dot(anatomicalPole.Normalized());
+            rows.Add(new { side, count = points.Count, flatBasisError, kneePoleAlignment, lateralMin = minX, lateralMax = maxX,
                 forwardMin = points.Min(p => p.Dot(forward)), forwardMax = points.Max(p => p.Dot(forward)),
                 minY = points.Min(p => p.Y), maxY = points.Max(p => p.Y) });
         }
