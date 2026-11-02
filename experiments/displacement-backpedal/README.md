@@ -1,6 +1,6 @@
-# Backpedal displacement pilot — native captured, motion/style review pending
+# Backpedal displacement pilot — user-approved bounded motion/style
 
-The user accepted the forward Run/settle motion and static proportions. This separate branch tests **one backward pilot for the same character**, not production integration. Sideways motion and moving-fire heading remain later work; no other hero is changed.
+The user accepted the forward Run/settle motion, static proportions, and this backward motion/style sample. This separate branch tests **one backward pilot for the same character**, not production integration. Sideways motion and moving-fire heading remain later work; no other hero is changed.
 
 Base: `5c9251e34507a9292112a2a1ed835d8b1c2ee85f`. Approved Run component remains byte-identical: SHA256 `59a33f326c3c4344566243499c7af03703625be853a03d8a66bd12062f69fdfa`. Backpedal component SHA256: `1fb095ec7451766ae328f2a8803e96b4a0b0598c1cef56aa8d8d9e86c140fd2e`.
 
@@ -24,7 +24,7 @@ The approved Run implementation is retained unchanged. The Backpedal adapter is 
 
 Fresh native captures completed both backward continuous-tap and short-tap chapters. All four streams preserve all 195 simulation ticks; each AVI has one repeated terminal stamped frame that is explicitly omitted. The full-width Chinese A-then-B video is 780 frames / 13 seconds at 60 fps, 1280x752 including the title margin, and passed complete decoding. Native actual CPU skin, boot envelopes and locomotion traces match the corresponding headless cases byte-for-byte; authority/camera match A/B and each stream has 195 post-draw attachment samples with zero measured transform error. Runtime logs are clean; the existing editor-import shutdown diagnostic is tracked separately, not called an all-logs-clean result.
 
-These are bounded numerical, lifecycle and capture results. **Actual reverse-step readability, deformation, landing/airborne style and normal-speed appearance await motion/style review.** No backward action or full controller acceptance is claimed.
+The user approved this bounded backward motion/style sample after reviewing the native A/B video. The approved Run and Backpedal behaviors remain preserved separately. This approval is not production integration, a general directional controller, or moving-fire heading acceptance; sideways motion remains pending.
 
 ## Reproduce
 Use the dependency setup in `../displacement-run/README.md`. Every runner needs a fresh output directory and a Godot .NET executable.
