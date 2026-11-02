@@ -40,6 +40,7 @@ internal sealed class DisplacementRunPresentation
         public bool Stance, Settling, Settled, StopReleasePending;
         public Vector3 SettleRelative, SettleVelocity, Velocity, ResumeOffset, ResumeVelocityOffset;
         public bool ResumeHold;
+        public float ResumeHeight, ResumeVerticalVelocity, ResumeBrakeDuration;
         public float SettleLift;
         public string State = "initial";
     }
@@ -134,7 +135,7 @@ internal sealed class DisplacementRunPresentation
         RestoreBase(); _distance = _age = _stopAge = _bodyDelta = _hop = 0; _footfalls = 0;
         _started = _stopping = _initialCaptured = _resuming = false;
         _resumeAge = _resumeBodyOffset = _resumeBodyVelocityOffset = _bodyVelocity = _lastSpeed = 0; _restartCount = 0; _failure = ""; _lastRoot = GodotObject.IsInstanceValid(_root) && _root.IsInsideTree() ? _root.GlobalPosition : Vector3.Zero;
-        foreach (var f in _feet) { f.CycleIndex = int.MinValue; f.Stance = f.Settling = f.Settled = f.StopReleasePending = false; f.SettleVelocity = f.Velocity = f.ResumeOffset = f.ResumeVelocityOffset = Vector3.Zero; f.ResumeHold = false; f.State = "reset"; }
+        foreach (var f in _feet) { f.CycleIndex = int.MinValue; f.Stance = f.Settling = f.Settled = f.StopReleasePending = false; f.SettleVelocity = f.Velocity = f.ResumeOffset = f.ResumeVelocityOffset = Vector3.Zero; f.ResumeHold = false; f.ResumeHeight = f.ResumeVerticalVelocity = f.ResumeBrakeDuration = 0; f.State = "reset"; }
         Diagnostics = new { state = "reset", distance = 0f };
     }
     public void Advance(float dt, bool moving, Vector3 authoritativeTarget)
@@ -206,8 +207,9 @@ internal sealed class DisplacementRunPresentation
                     }
                     else
                     {
-                        Vector3 target = NominalFootOrigin(f, _distance, Vector3.Zero);
-                        target += BridgeOffset(resumeT, f.ResumeOffset, f.ResumeVelocityOffset);
+                        Vector3 nominal = NominalFootOrigin(f, _distance, Vector3.Zero);
+                        Vector3 target = nominal + BridgeOffset(resumeT, f.ResumeOffset, f.ResumeVelocityOffset);
+                        if (f.ResumeBrakeDuration > 0) target.Y = ResumeVertical(f, _resumeAge, nominal.Y);
                         if (target.Y < f.AnkleY - .00001f) Fail("Resume bridge would put the rigid sole below its preserved ground");
                         f.World = new Transform3D(f.Flat, target); f.Stance = false; f.State = "resume-bridge";
                         if (resumeT >= 1 && q <= Contact)
@@ -288,7 +290,15 @@ internal sealed class DisplacementRunPresentation
         {
             f.ResumeHold = f == support;
             f.ResumeOffset = f.World.Origin - NominalFootOrigin(f, _distance, currentDisplacement);
-            f.ResumeVelocityOffset = f.Velocity - NominalFootVelocity(f, _distance, _lastSpeed);
+            // A locked anchor has zero instantaneous velocity; its last landing-frame average is not that velocity.
+            Vector3 incoming = f.Stance ? Vector3.Zero : f.Velocity;
+            f.ResumeVelocityOffset = incoming - NominalFootVelocity(f, _distance, _lastSpeed);
+            f.ResumeHeight = f.World.Origin.Y - f.AnkleY;
+            f.ResumeVerticalVelocity = incoming.Y;
+            // Stop the actual descent before floor contact, not by clamping the evaluated position.
+            // At tau the clearance is h + v*tau/2 >= h/2, with zero vertical speed.
+            f.ResumeBrakeDuration = incoming.Y < 0 && f.ResumeHeight > 0
+                ? Math.Min(ResumeDuration / 2, f.ResumeHeight / -incoming.Y) : 0;
             if (f.ResumeHold)
             {
                 // Rephasing matches the held support, so it needs no position/velocity bridge.
@@ -330,6 +340,17 @@ internal sealed class DisplacementRunPresentation
         if (u < Fillet) { float t = u / Fillet; return Lift * 6*t*(1-t) / Fillet; }
         if (u > Swing - Fillet) { float t = (Swing-u) / Fillet; return -Lift * 6*t*(1-t) / Fillet; }
         return 0;
+    }
+    private static float ResumeVertical(Foot f, float age, float nominalY)
+    {
+        float tau = f.ResumeBrakeDuration;
+        if (age <= tau)
+            return f.AnkleY + f.ResumeHeight + f.ResumeVerticalVelocity * age
+                - f.ResumeVerticalVelocity * age * age / (2 * tau);
+        float heightAfterBrake = f.ResumeHeight + f.ResumeVerticalVelocity * tau / 2;
+        float t = Smooth((age - tau) / (ResumeDuration - tau));
+        // Convex blend of two nonnegative clearances; endpoint inherits the original curve velocity.
+        return f.AnkleY + heightAfterBrake + (nominalY - f.AnkleY - heightAfterBrake) * t;
     }
     private static float BridgeOffset(float t, float offset, float velocityOffset) =>
         (2*t*t*t-3*t*t+1)*offset + (t*t*t-2*t*t+t)*ResumeDuration*velocityOffset;
@@ -375,7 +396,7 @@ internal sealed class DisplacementRunPresentation
             bodyDrop = -_bodyDelta, bodyHop = _hop, height = Height, groundY = _ground,
             root = V(_root.GlobalPosition), authorityTarget = V(authority),
             feet = _feet.Select(f => new { side = f.Side==0?"L":"R", phase=f.Phase, state=f.State, stance=f.Stance,
-                reachMargin=f.Margin, worldVelocity=V(f.Velocity), resumeHeldAnchor=f.ResumeHold, resumeOffset=V(f.ResumeOffset), resumeVelocityOffset=V(f.ResumeVelocityOffset), stopReleasePending=f.StopReleasePending, settleAge=f.SettleAge, settleInitialRelativeVelocity=V(f.SettleVelocity), anchor=V(f.Anchor.Origin), ankle=V(f.World.Origin), ankleGroundY=f.AnkleY,
+                reachMargin=f.Margin, worldVelocity=V(f.Velocity), resumeHeldAnchor=f.ResumeHold, resumeOffset=V(f.ResumeOffset), resumeVelocityOffset=V(f.ResumeVelocityOffset), resumeInitialSoleHeight=f.ResumeHeight, resumeInitialVerticalVelocity=f.ResumeVerticalVelocity, resumeBrakeDuration=f.ResumeBrakeDuration, stopReleasePending=f.StopReleasePending, settleAge=f.SettleAge, settleInitialRelativeVelocity=V(f.SettleVelocity), anchor=V(f.Anchor.Origin), ankle=V(f.World.Origin), ankleGroundY=f.AnkleY,
                 solePositions=f.Sole.Select(p=>V((_skeleton.GlobalTransform*_skeleton.GetBoneGlobalPose(f.Bone))*p)).ToArray() }).ToArray() };
     }
     private void Fail(string message) { _failure = message; throw new InvalidOperationException("DisplacementRun: " + message); }

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Decode embedded stamps; align A/B by simulation tick, never guessed AVI index.
-Requires ffmpeg/ffprobe, Python Pillow. Keeps complete 0..179 simulation cycle.
+Requires ffmpeg/ffprobe, Python Pillow. Keeps every requested simulation tick (default 0..179).
 No resizing, cropping, retiming or interpolation. Outputs two 1280x720 streams
 side by side; labels sit in additional top margin. Internal review only.
 """
