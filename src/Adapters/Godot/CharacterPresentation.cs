@@ -16,6 +16,7 @@ public sealed class CharacterPresentation : IDisposable
     private readonly BackpedalWeightTransfer _weightTransfer;
     private readonly DisplacementRunPresentation _displacementRun;
     private readonly DisplacementBackpedalPresentation _displacementBackpedal;
+    private readonly DisplacementSideHopPresentation _displacementSideHop;
     private readonly EntityId _entity;
     private readonly string _idle, _run, _attack;
     private readonly FacialBinding[] _face;
@@ -65,7 +66,8 @@ public sealed class CharacterPresentation : IDisposable
         if (_controlledGait && ControlledGaitDrill.WeightTransfer) _weightTransfer = new BackpedalWeightTransfer(_root);
         if (_controlledGait && ControlledGaitDrill.DisplacementRun)
         {
-            if (ControlledGaitDrill.Clip == "Backpedal") _displacementBackpedal = new DisplacementBackpedalPresentation(_root);
+            if (ControlledGaitDrill.Clip == "StrafeR") _displacementSideHop = new DisplacementSideHopPresentation(_root);
+            else if (ControlledGaitDrill.Clip == "Backpedal") _displacementBackpedal = new DisplacementBackpedalPresentation(_root);
             else _displacementRun = new DisplacementRunPresentation(_root);
         }
         ResetTransient();
@@ -153,6 +155,7 @@ public sealed class CharacterPresentation : IDisposable
         _weightTransfer?.RestoreBase();
         _displacementRun?.RestoreBase();
         _displacementBackpedal?.RestoreBase();
+        _displacementSideHop?.RestoreBase();
         _root.Position = _root.Position.Lerp(_target, 1 - Mathf.Exp(-22 * delta));
         if (_controlledGait) _root.Rotation = new Vector3(0, ControlledGaitDrill.Yaw, 0);
         else if(_stationaryFacingHeld){if(_stationaryInputKnown)_root.Rotation=new Vector3(0,StationaryLaunchFacing.Turn(_root.Rotation.Y,_stationaryFacingYaw,delta),0);}
@@ -181,6 +184,7 @@ public sealed class CharacterPresentation : IDisposable
         if (_weightTransfer != null && _mixer != null) _weightTransfer.Apply(_mixer.RunPhase, _mixer.MovementBlend);
         _displacementRun?.Advance(delta, _speed > .08f, _target);
         _displacementBackpedal?.Advance(delta, _speed > .08f, _target);
+        _displacementSideHop?.Advance(delta, _speed > .08f, _target);
         _attackRemaining = Math.Max(0, _attackRemaining - delta);
         // The native graph owns layered gesture lifetime; float countdown must not invent
         // an extra silent clip when an event arrives on the final active render step.
@@ -215,6 +219,7 @@ public sealed class CharacterPresentation : IDisposable
         _weightTransfer?.RestoreBase();
         _displacementRun?.Reset();
         _displacementBackpedal?.Reset();
+        _displacementSideHop?.Reset();
         _attackRemaining = _smileRemaining = _surpriseRemaining = _faceClock = 0;
         _attackQueued = false; _lastAttackTick = -1; _current = "";
         if(_mixer!=null) _mixer.Reset();
