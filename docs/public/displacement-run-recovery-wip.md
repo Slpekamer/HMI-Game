@@ -26,20 +26,21 @@ Tests use .NET 10.0.403 / Godot 4.6.3 Mono. Evidence is not inferred from unavai
 | Current tap authority/camera, upper-local poses, morph/event timing | Exact A/B parity. |
 | Current tap actual CPU-skinned stance drift | <= 0.000001416 world units; minimum reach reserve 0.001818035; minimum floor residual approximately -0.000000127. |
 | Current boundary motion | Maximum sole movement 0.122474 world units per rendered tick. This is reported motion, not visual-continuity certification. |
-| Prior conditional-brake revision | All 28 bounded restart timings passed (26 real restarts plus two zero-interval controls). Current joint-brake revision is rerunning these and steady/lifecycle probes. |
+| Current candidate regressions | All 28 bounded restart timings passed (26 real restarts plus two zero-interval controls), four steady A/B runs, pause/reset during active resume and tap-stop, and stationary-facing probes 225/231. |
+| Current candidate native captures | Running one-tick alternating taps and idle short-tap stopping: four A/B recordings, all 195 simulation ticks preserved. Native CPU skin/locomotion match headless exactly; A/B authority/camera match; each stream has 195 post-draw attachment samples with zero measured transform error. |
 | Frozen earlier native candidate (`c060db…`) | Flight stop, restart delay 4 and worst boundary delay 1 recorded. Native CPU skin matched headless; post-draw attachment errors measured zero. This is not native validation of the new tap-stop code. |
 
 Actual sole checks use a separate CPU-skin readback, not target-to-target comparison. Duplicate material vertices are not independent contacts or GPU contact certification. Bridge initial velocity is a measured finite difference; the whole discrete system is not claimed analytically C1.
 
-Native source AVIs contain one repeated final stamped frame each. Comparison tooling records every original stamp-center RGB sample, rejects ambiguous values and preserves all unique simulation ticks. Only repeated terminal encoded frames are omitted. The archived three-chapter side-by-side experiment totals 570 frames / 9.5 s; future primary review uses full-width A then B with Chinese labels. Videos and private traces are not Git payloads.
+Native source AVIs contain one repeated final stamped frame each. Comparison tooling records every original stamp-center RGB sample, rejects ambiguous values and preserves all unique simulation ticks. Only repeated terminal encoded frames are omitted. The archived three-chapter side-by-side experiment totals 570 frames / 9.5 s; the current primary review uses full-width A then B with Chinese labels: four streams each preserve 195 unique ticks (one repeated terminal encoded frame removed per source), totaling 780 frames / 13 s at 1280x752 including the label margin. Full decode and stamp mapping passed. Videos and private traces are not Git payloads.
 
-Runtime logs were clean for the frozen native captures. Editor import still emits its existing `EditorSettings` shutdown diagnostic; this is not an all-logs-error-free claim.
+Runtime logs were clean for both the frozen reference and current tap native captures. Editor import still emits its existing `EditorSettings` shutdown diagnostic; this is not an all-logs-error-free claim.
 
 ## Counterevidence retained
 - Original in-place gait: rejected for skating.
 - Earlier contact prototype: quick restart failed; fixed only within tested bounds, not retroactively called passed.
 - First tap-stop revision: 12/16 completed; one-tick repetition repeatedly restarted an unnecessary vertical brake.
 - Conditional-brake revision: 14/16 completed; two idle alternating cases exposed a real 3D reach failure as vertical separation changed. No guard was removed to pass them.
-- Current 3D-bound candidate: all 16 tap cases pass numeric checks; fresh native appearance and continuous normal-speed grounding remain pending.
+- Current 3D-bound candidate: all 16 tap cases and stated regressions pass; fresh native capture/parity checks pass. Actual appearance and continuous normal-speed grounding still require review.
 
 The prototype remains fixed-heading and bounded to tested timing/render steps. No arbitrary-turn, general variable-framerate, all-direction controller, release, integration, APK or user-animation acceptance is claimed. Further ordinary-input failures must be fixed rather than relabeled acceptable limitations.
