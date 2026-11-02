@@ -36,3 +36,10 @@ Tested source `f2d4c675081758a74aabe1663ede41b3343c369f`, component SHA256 `c060
 - Original quick restart followed by a second stop, pause/reset probe and four steady flight/stance-stop headless runs passed.
 - Boundary sole movement reaches 0.122474 world units per render tick; this is reported motion, not a visual-continuity pass. Initial bridge velocity is measured render-to-render, not an analytic continuous-time derivative certificate.
 - Native appearance and arbitrary repeated input switching remain unverified. The explicit stop-during-50ms-bridge limitation remains. This is still an isolated internal Run prototype, not production adoption.
+
+## Native archive and next input boundary
+The frozen restart candidate completed actual native flight-stop, restart-delay-4 and worst-discrete-step restart-delay-1 A/B recordings. Native CPU-skinned soles match the corresponding headless cases; post-draw attachment transforms match with zero measured error. Runtime logs are clean; editor import still emits its existing `EditorSettings` shutdown diagnostic, so this is not an all-logs-error-free claim.
+
+Each source AVI contains one repeated final stamped frame. The comparison preserves every unique simulation tick (180/195/195) and drops only those repeated terminal encoded frames; three side-by-side chapters total 570 frames at 60 fps. The clean experiment video is archived separately, not included in Git. Pixel sampling found clearer foot exchange and no obvious broken limb, but continuous normal-speed naturalness/grounding is still a visual review gate.
+
+The next isolated WIP adds opt-in tap patterns starting from idle or steady Run, with one-/two-tick releases and resumptions, then either held movement or a full stop. It is intended to expose and fix the remaining stop-during-resume exception, not to declare that limitation acceptable. This fixture checkpoint has not yet validated a new component correction.
