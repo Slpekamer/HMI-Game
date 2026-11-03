@@ -25,7 +25,7 @@ internal sealed class TurningRunPresentation
     private float _dt, _turnSpreadAge, _turnWeight, _crouch, _crouchVelocity, _releaseAge;
     private bool _requestedMoving, _effectiveMoving;
     private bool _turning, _hasTurned, _turnStop;
-    private bool _normalEntryLiftPending, _normalEntryLift;
+    private bool _normalEntryLiftPending, _normalEntryLift, _normalHighSpeedRequested, _normalBoundedTurn;
     private float _turnAge, _turnBodyOffset, _turnBodyVelocityOffset;
     private int _turnCount;
     private const float TurnDuration = .10f;
@@ -50,7 +50,8 @@ internal sealed class TurningRunPresentation
         public float UpperLength, LowerLength, AnkleY, Phase, Margin, SettleAge;
         public bool Stance, Settling, Settled, StopReleasePending;
         public Vector3 SettleRelative, SettleVelocity, Velocity, ResumeOffset, ResumeVelocityOffset, LocalRelative, LocalVelocity;
-        public bool BodySpace;
+        public bool BodySpace, BoundedTurnReady;
+        public Vector3 BoundedTurnStart; public float BoundedTurnHeight;
         public bool ResumeHold, TapSettle, TapLiftoff, TurnLift;
         public float TapHorizontalBrake, TapVerticalBrake, TapHeight, TapVerticalVelocity;
         public float ResumeHeight, ResumeVerticalVelocity, ResumeBrakeDuration;
@@ -145,7 +146,7 @@ internal sealed class TurningRunPresentation
     }
     public void Reset()
     {
-        RestoreBase(); _normalEntryLiftPending = _normalEntryLift = false; _turning = _hasTurned = _turnStop = false; _turnAge = 0; _turnCount = 0; _renderVelocity = Vector3.Zero; if (GodotObject.IsInstanceValid(_skeleton) && _skeleton.IsInsideTree()) { _forward = Horizontal(-_skeleton.GlobalBasis.Z).Normalized(); _previousSkeleton = _skeleton.GlobalTransform; } _turnSpreadAge = _turnWeight = _crouch = _crouchVelocity = _releaseAge = 0; _requestedMoving = _effectiveMoving = false; _lastTravel = _forward; _turnBodyOffset = _turnBodyVelocityOffset = 0; _distance = _age = _stopAge = _bodyDelta = _hop = 0; _footfalls = 0;
+        RestoreBase(); _normalEntryLiftPending = _normalEntryLift = _normalHighSpeedRequested = _normalBoundedTurn = false; _turning = _hasTurned = _turnStop = false; _turnAge = 0; _turnCount = 0; _renderVelocity = Vector3.Zero; if (GodotObject.IsInstanceValid(_skeleton) && _skeleton.IsInsideTree()) { _forward = Horizontal(-_skeleton.GlobalBasis.Z).Normalized(); _previousSkeleton = _skeleton.GlobalTransform; } _turnSpreadAge = _turnWeight = _crouch = _crouchVelocity = _releaseAge = 0; _requestedMoving = _effectiveMoving = false; _lastTravel = _forward; _turnBodyOffset = _turnBodyVelocityOffset = 0; _distance = _age = _stopAge = _bodyDelta = _hop = 0; _footfalls = 0;
         _started = _stopping = _initialCaptured = _resuming = _tapStopping = false;
         _stopBodyOffset = _stopBodyVelocityOffset = 0;
         _resumeAge = _resumeBodyOffset = _resumeBodyVelocityOffset = _bodyVelocity = _lastSpeed = 0; _restartCount = 0; _failure = ""; _lastRoot = GodotObject.IsInstanceValid(_root) && _root.IsInsideTree() ? _root.GlobalPosition : Vector3.Zero;
@@ -155,8 +156,9 @@ internal sealed class TurningRunPresentation
     // Normal-host safety adapter only. Controlled/approved fixed-step experiments never call this.
     // Before moving the root, detect a turn whose next segment outruns even a fully lifted support.
     // Complete a finite, small world-anchored vertical lift first; never project an IK target or move an anchor.
-    internal float LimitNormalTurnEntry(float dt, bool moving, Vector3 authoritativeTarget)
+    internal float LimitNormalTurnEntry(float dt, bool moving, Vector3 authoritativeTarget, bool highSpeed)
     {
+        _normalHighSpeedRequested = highSpeed;
         bool activeLift = _turning && _feet.Any(f => f.TurnLift);
         if (!moving || (_turning && !activeLift) || (_started && !activeLift && !_feet.Any(f => f.Stance))) return dt;
         Vector3 remaining = Horizontal(authoritativeTarget - _root.GlobalPosition);
@@ -182,7 +184,17 @@ internal sealed class TurningRunPresentation
             entryDistance = Math.Min(entryDistance, room * .25f);
         }
         if (!risk) return dt;
-        if(activeLift) _normalEntryLift = true; else _normalEntryLiftPending = true;
+        if(activeLift)
+        {
+            _normalEntryLift = true;
+            if(!_normalBoundedTurn)
+            {
+                _normalBoundedTurn = true;
+                foreach(var f in _feet.Where(f => !f.TurnLift))
+                    CaptureBoundedTurn(f, _previousSkeleton * f.RestThigh.Origin + Vector3.Up * _bodyDelta, _previousSkeleton.Basis.Orthonormalized());
+            }
+        }
+        else _normalEntryLiftPending = true;
         // The same exponential root interpolation is subdivided, not slowed or retargeted.
         return Math.Min(dt, (float)(-Math.Log(1 - Math.Min(entryDistance / remaining.Length(), .5f)) / 22));
     }
@@ -296,12 +308,21 @@ internal sealed class TurningRunPresentation
                         {
                             f.TurnLift = false;
                             InitializeTapAir(f, hipWorld, Vector3.Zero, traveled / dt, _turnAge);
+                            if(_normalBoundedTurn) CaptureBoundedTurn(f, hipWorld, _skeleton.GlobalBasis.Orthonormalized());
                         }
                     }
                     else
                     {
                         float elapsed = _turnAge - f.SettleAge;
                         float duration = TurnDuration - f.SettleAge;
+                        if(_normalBoundedTurn)
+                        {
+                            Vector3 nominal = NominalFootOrigin(f, _distance, Vector3.Zero);
+                            Vector3 target = BoundedTurnPoint(f, hipWorld, nominal, Smooth(elapsed / duration));
+                            f.World = new Transform3D(f.Flat, target); f.Stance = false; f.State = "normal-bounded-turn";
+                        }
+                        else
+                        {
                         if (duration <= Math.Max(f.TapHorizontalBrake, f.TapVerticalBrake)) Fail("No turn interval after braking");
                         Vector3 nominal = NominalFootOrigin(f, _distance, Vector3.Zero);
                         // Lateral clearance has its own 50ms ramp. Do not attenuate it a second time
@@ -325,6 +346,7 @@ internal sealed class TurningRunPresentation
                         // The body heading is already smoothed; airborne shoes travel in its anatomical frame.
                         // Interpolating old WORLD left/right offsets across180 degrees makes them cross.
                         f.World = new Transform3D(f.Flat, target); f.Stance = false; f.State = "turn-bridge";
+                        }
                     }
                 }
                 else if (_resuming)
@@ -441,7 +463,7 @@ internal sealed class TurningRunPresentation
     }
     private void BeginTurn(Vector3 displacement)
     {
-        _normalEntryLift = _normalEntryLiftPending; _normalEntryLiftPending = false;
+        _normalEntryLift = _normalEntryLiftPending; _normalBoundedTurn = _normalHighSpeedRequested || _normalEntryLiftPending; _normalEntryLiftPending = false;
         // Re-enter the original flight curve after a bounded bridge, never reinterpret a rotated
         // world anchor as a valid straight contact. Both feet are airborne during the bridge.
         _phaseOffset = Contact + Fillet - _distance;
@@ -453,6 +475,7 @@ internal sealed class TurningRunPresentation
         _stopping = _tapStopping = _resuming = false;
         foreach (var f in _feet)
         {
+            f.BoundedTurnReady = false;
             f.TurnLift = !_started || f.Stance; f.TurnBasis = f.World.Basis;
             f.Settling = f.Settled = f.StopReleasePending = f.TapSettle = f.TapLiftoff = f.ResumeHold = false;
             if (f.TurnLift) f.Anchor = f.World;
@@ -460,8 +483,39 @@ internal sealed class TurningRunPresentation
             {
                 Vector3 previousHip = _previousSkeleton * f.RestThigh.Origin + Vector3.Up * _bodyDelta;
                 InitializeTapAir(f, previousHip, f.Velocity, _lastSpeed, 0, true);
+                if(_normalBoundedTurn) CaptureBoundedTurn(f, previousHip, _previousSkeleton.Basis.Orthonormalized());
             }
         }
+    }
+    // Explicit high-speed AIRBORNE trajectory, not an IK target clamp. Unit-disk convexity
+    // bounds the horizontal path in the current leg-sphere slice. Width is already in nominal.
+    // Smooth position interpolation does not claim preservation of the incoming foot velocity.
+    private float TurnRadius(Foot f, float vertical)
+    {
+        float reach = (f.UpperLength + f.LowerLength) * _scale - .001f;
+        float squared = reach * reach - vertical * vertical;
+        if(squared <= 0) Fail("High-speed turn has no vertical reach slice");
+        return MathF.Sqrt(squared);
+    }
+    private void CaptureBoundedTurn(Foot f, Vector3 hip, Basis body)
+    {
+        Vector3 local = body.Inverse() * (f.World.Origin - hip);
+        float radius = TurnRadius(f, f.World.Origin.Y - hip.Y);
+        f.BoundedTurnStart = Horizontal(local) / radius;
+        if(f.BoundedTurnStart.LengthSquared() > 1.00001f) Fail("High-speed turn starts outside reachable slice");
+        f.BoundedTurnHeight = f.World.Origin.Y; f.BoundedTurnReady = true;
+    }
+    private Vector3 BoundedTurnPoint(Foot f, Vector3 hip, Vector3 nominal, float t)
+    {
+        if(!f.BoundedTurnReady) Fail("High-speed turn missing actual start pose");
+        Basis body = _skeleton.GlobalBasis.Orthonormalized();
+        float endRadius = TurnRadius(f, nominal.Y - hip.Y);
+        Vector3 end = Horizontal(body.Inverse() * (nominal - hip)) / endRadius;
+        if(end.LengthSquared() > 1.00001f) Fail("High-speed nominal turn endpoint outside reachable slice");
+        float y = Mathf.Lerp(f.BoundedTurnHeight, nominal.Y, t);
+        if(y < f.AnkleY - .00001f) Fail("High-speed turn height below preserved floor");
+        Vector3 relative = f.BoundedTurnStart.Lerp(end, t) * TurnRadius(f, y - hip.Y);
+        Vector3 target = hip + body * relative; target.Y = y; return target;
     }
     private void BeginTapStop(Vector3 currentDisplacement)
     {

@@ -202,7 +202,7 @@ public sealed class CharacterPresentation : IDisposable
             while(remainingStep > 0)
             {
                 float part = _normalPresentation && _turningRun != null
-                    ? _turningRun.LimitNormalTurnEntry(remainingStep, _speed > .08f, _target) : remainingStep;
+                    ? _turningRun.LimitNormalTurnEntry(remainingStep, _speed > .08f, _target, _speed > 6f) : remainingStep;
                 if(part <= 0 || !float.IsFinite(part) || ++LastPresentationSteps > 120)
                     throw new InvalidOperationException("Normal presentation safety subdivision exceeds bounded contract");
                 AdvancePresentationStep(part); ObservePresentationStep?.Invoke(part);
