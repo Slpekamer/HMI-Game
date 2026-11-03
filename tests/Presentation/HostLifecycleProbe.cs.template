@@ -66,7 +66,7 @@ public partial class HostLifecycleProbe : Node
             // Explicit test fixture: keep player alive, remove enemies and advance real fixed ticks.
             for(int i=0;i<g.Capacity;i++)if(g.World.Has(i,Components.Enemy))g.World.Destroy(i);
             g.SpawnTimer=999;
-            for(int i=0;i<1500&&g.Phase==RunPhase.Combat;i++) {g.World.Health[g.PlayerId.Index].Current=10000;g.Step();if(i%30==0){Render();await Flush();}}
+            for(int i=0;i<=WaveRules.DurationTicks&&g.Phase==RunPhase.Combat;i++) {g.World.Health[g.PlayerId.Index].Current=10000;g.Step();if(i%30==0){Render();await Flush();}}
             Check(g.Phase==RunPhase.Between,"Wave one must finish");
             g.Enqueue(GameCommand.Choose(g.GetOffers()[0].Id));g.Step();
             // Companion expansion fixture isolates renderer lifecycle regardless of randomized card offer.
