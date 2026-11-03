@@ -21,3 +21,7 @@ The horizontal shoulder-to-hand proxy is deliberately not certified as precise a
 ## World-target smoothing correction (pending validation)
 
 The initial arm layer smoothed the inverse correction to a moving authored arm, causing persistent horizontal reach-heading lag even after blend-in. The next candidate instead slews the immutable launch's world-space target at a bounded720 degrees/second, then computes the current animation compensation without filtering it a second time. Chest assistance, shoulder angle cap,80ms blend, gesture clock and source launch direction remain unchanged. This does not anticipate a shot or guarantee alignment at its first frame. New range/mesh/native checks are required; earlier proxy errors remain counterevidence.
+
+## Distal arm/torso counterexample and elbow-plane candidate
+
+The world-target run preserves the numerical invariants and removes most steady proxy lag, but independent LBS review found a real right-forearm/torso intersection at180-route frame116 (baseline none). This is not dismissed as a shoulder seam, and better aim alone does not pass geometry. The next candidate reorients the selected arm's existing elbow-bend plane outward by rotating the whole chain around its actual shoulder-to-hand axis. This leaves the hand endpoint, elbow bend amount and bone lengths unchanged. Each arm's plane blend enters/exits over80ms; shoulders and lower body remain untouched. New torso/arm and cross-arm checks are required before native delivery.
