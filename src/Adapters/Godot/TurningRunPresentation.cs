@@ -157,19 +157,22 @@ internal sealed class TurningRunPresentation
     // Complete a finite, small world-anchored vertical lift first; never project an IK target or move an anchor.
     internal float LimitNormalTurnEntry(float dt, bool moving, Vector3 authoritativeTarget)
     {
-        if (!_started || _turning || !moving || !_feet.Any(f => f.Stance)) return dt;
+        bool activeLift = _turning && _feet.Any(f => f.TurnLift);
+        if (!moving || (_turning && !activeLift) || (_started && !activeLift && !_feet.Any(f => f.Stance))) return dt;
         Vector3 remaining = Horizontal(authoritativeTarget - _root.GlobalPosition);
         Vector3 displacement = remaining * (1 - MathF.Exp(-22 * dt));
         float traveled = displacement.Length();
-        if (traveled <= .0001f || _lastTravel.Dot(displacement / traveled) >= .98480775f) return dt;
+        if (traveled <= .0001f || (!activeLift && _lastTravel.Dot(displacement / traveled) >= .98480775f)) return dt;
         Vector3 direction = displacement / traveled;
         bool risk = false; float entryDistance = .004f;
-        foreach (var f in _feet.Where(f => f.Stance))
+        foreach (var f in _feet.Where(f => !_started || f.Stance || (activeLift && f.TurnLift)))
         {
             Vector3 hip = _previousSkeleton * f.RestThigh.Origin + Vector3.Up * _bodyDelta;
-            Vector3 liftedRelative = f.World.Origin + Vector3.Up * Lift - hip;
+            Vector3 lifted = f.World.Origin; lifted.Y = f.AnkleY + Lift;
+            Vector3 liftedRelative = lifted - hip;
             float reach = (f.UpperLength + f.LowerLength) * _scale - .001f;
-            if ((liftedRelative - displacement).Length() <= reach) continue;
+            Vector3 plannedLift = lifted; plannedLift.Y = f.AnkleY + Lift * Smooth((activeLift ? _turnAge + dt : dt) / TurnLiftDuration);
+            if ((plannedLift - hip - displacement).Length() <= reach) continue;
             risk = true;
             float along = liftedRelative.Dot(direction);
             float disc = along * along + reach * reach - liftedRelative.LengthSquared();
@@ -179,7 +182,7 @@ internal sealed class TurningRunPresentation
             entryDistance = Math.Min(entryDistance, room * .25f);
         }
         if (!risk) return dt;
-        _normalEntryLiftPending = true;
+        if(activeLift) _normalEntryLift = true; else _normalEntryLiftPending = true;
         // The same exponential root interpolation is subdivided, not slowed or retargeted.
         return Math.Min(dt, (float)(-Math.Log(1 - Math.Min(entryDistance / remaining.Length(), .5f)) / 22));
     }
