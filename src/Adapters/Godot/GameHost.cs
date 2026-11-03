@@ -276,11 +276,13 @@ public partial class GameHost : Node3D
                 presentation.Snapshot(view,_sim.Tick,_sim.RunToken,_sim.Wave);
                 if(_pendingLaunches[slot] is ProjectileTransition launch &&
                    (!(_pendingAttacks[slot] is GameEvent other) || launch.Tick>=other.Tick))
-                    presentation.Attack(launch.Owner,launch.RunToken,launch.Wave,launch.Tick);
+                    presentation.AttackLaunch(launch,_pendingLaunchAim.TryGetValue(view.Id,out var launchAim)?launchAim:null);
                 else if(_pendingAttacks[slot] is GameEvent attack)
-                    presentation.Attack(attack.Source,attack.RunToken,attack.Wave,attack.Tick);
+                {
+                    if(presentation.Attack(attack.Source,attack.RunToken,attack.Wave,attack.Tick)) presentation.ClearLaunchAim();
+                }
                 _pendingAttacks[slot]=null;_pendingLaunches[slot]=null;
-                if (_pendingLaunchAim.Remove(view.Id, out var aim)) presentation.AcceptLaunchAim(aim);
+                _pendingLaunchAim.Remove(view.Id);
                 if(view.Kind==EntityKind.Player){_stationaryFacing.Attach(presentation);presentation.SetStationaryFacing(_stationaryFacing.Held,_stationaryFacing.InputKnown,_stationaryFacing.Yaw);}
                 presentation.Advance(delta,_sim.Paused || _sim.Phase!=RunPhase.Combat);
             }

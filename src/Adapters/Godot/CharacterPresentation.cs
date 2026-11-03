@@ -160,6 +160,13 @@ public sealed class CharacterPresentation : IDisposable
         return true;
     }
 
+    internal bool AttackLaunch(ProjectileTransition launch, LaunchAimSample? sample)
+    {
+        if(launch.Kind!=ProjectileTransitionKind.Launched || !Attack(launch.Owner,launch.RunToken,launch.Wave,launch.Tick)) return false;
+        if(sample is not LaunchAimSample aim || aim.Projectile!=launch.Id || aim.Tick!=launch.Tick || !AcceptLaunchAim(aim)) ClearLaunchAim();
+        return true;
+    }
+
     private bool _stationaryFacingHeld,_stationaryInputKnown;private float _stationaryFacingYaw;
     internal void SetStationaryFacing(bool held,bool inputKnown,float yaw){_stationaryFacingHeld=held;_stationaryInputKnown=inputKnown;_stationaryFacingYaw=yaw;}
 
