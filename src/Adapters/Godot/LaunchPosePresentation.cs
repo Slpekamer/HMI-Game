@@ -23,11 +23,14 @@ internal sealed class LaunchPosePresentation
         {
             float yaw=(s==0?1:-1)*Mathf.DegToRad(k==0?0:k==1?25:30);
             float z=k==0?-.6f:k==1?0:.6f;
-            keys[s*3+k]=new[]{BuildKey(s,1,0,yaw),BuildKey(s,k==1?1:.8f,z,yaw)};
+            float roll=s==1&&k==2?40:30;
+            var accent=BuildKey(s,k==1?1:.8f,z,yaw,roll);
+            // Front has a single measured clear accent; do not detour through the colliding side waypoint.
+            keys[s*3+k]=new[]{k==0?accent:BuildKey(s,1,0,yaw,roll),accent};
         }
     }
     private static Skeleton3D Find(Node n){if(n is Skeleton3D s)return s;foreach(Node c in n.GetChildren()){var found=Find(c);if(found!=null)return found;}return null;}
-    private Quaternion[] BuildKey(int s,float outAmount,float z,float yaw)
+    private Quaternion[] BuildKey(int s,float outAmount,float z,float yaw,float rollDegrees)
     {
         var q=new Quaternion[7];for(int i=0;i<7;i++)q[i]=skeleton.GetBoneRest(bones[i]).Basis.Orthonormalized().GetRotationQuaternion();
         Transform3D chestRest=skeleton.GetBoneGlobalRest(bones[0]);
@@ -49,7 +52,7 @@ internal sealed class LaunchPosePresentation
         // Rotating about the local Hand translation preserves the shoulder/elbow/hand chain positions.
         // Left and right signs were independently tested; interpolation still needs runtime skin review.
         Vector3 handAxis=skeleton.GetBoneRest(bones[index+2]).Origin.Normalized();
-        q[index+1]=(q[index+1]*new Quaternion(handAxis,Mathf.DegToRad(s==0?-30:30))).Normalized();
+        q[index+1]=(q[index+1]*new Quaternion(handAxis,Mathf.DegToRad(s==0?-rollDegrees:rollDegrees))).Normalized();
         // Preserve the authored wrist rest relation rather than inventing a muzzle axis.
         q[index+2]=skeleton.GetBoneRest(bones[index+2]).Basis.Orthonormalized().GetRotationQuaternion();
         return q;
