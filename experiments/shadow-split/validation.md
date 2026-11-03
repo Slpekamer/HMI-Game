@@ -20,15 +20,16 @@ all shadow casters, atlas size, remaining light properties, Core and event timin
   32-pixel Chinese label header; decoded successfully. No gameplay crop,
   interpolation, rescale or skipped unique simulation tick.
 
-## Visual finding and remaining gate
+## Visual finding and user review
 Camera-compensated consecutive frames 40–55 show the static foreground tower's
 coarse shadow contour substantially smoother/more consistent in B. This is
 promising evidence beyond a still-image sharpness comparison, not a declaration
 that all flicker is fixed. B also makes shadows visibly harder and more defined;
-that style change needs full-size normal-speed review. No obvious new acne was
+the user approved shadow B's visual style on 2026-11-03. No obvious new acne was
 seen in inspected frames, but this is not exhaustive spatial coverage.
 
-Four arena-side routes and portrait/aspect-ratio coverage remain unrun. Do not
+Played arena-side routes and general aspect-ratio coverage remain unvalidated;
+the bounded paused landscape/portrait coverage completed later is recorded below. Do not
 merge or claim production acceptance from this initial route. If original-speed
 review finds continuing instability despite sharpness, stop this candidate;
 do not expand into a parameter sweep.
@@ -63,7 +64,8 @@ Native Compatibility/llvmpipe coverage completed successfully:
 
 These are labeled **frozen paused-world coverage diagnostics, not played routes**.
 The player was not moved to each edge, and no traversal/gameplay claim follows.
-The initial normal-speed route plus the coverage evidence support submitting this
-single candidate for parent/user visual review. Harder, more defined shadows are
-an explicit appearance tradeoff; softness was not tuned. Production integration,
+The user approved the reviewed shadow B candidate's visual style on 2026-11-03.
+Harder, more defined shadows remain an explicit appearance tradeoff; softness
+was not tuned. This approval does not broaden the measured coverage or authorize
+a production merge. Runtime code remains frozen. Production integration,
 all aspect ratios, arbitrary scene changes, and Android/8155 remain unvalidated.

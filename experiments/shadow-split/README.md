@@ -1,4 +1,9 @@
-# Directional first-split study — bounded validation, pending style review
+# Directional first-split study — bounded validation, user-approved visual style
+
+Visual status: shadow B was user-approved on 2026-11-03. The harder-shadow
+appearance tradeoff is accepted for this reviewed candidate; bounded coverage
+and software-renderer/device limits remain. No production merge is authorized
+or performed by this documentation update. Runtime code remains frozen.
 
 Base: approved Run snapshot `5c9251e34507a9292112a2a1ed835d8b1c2ee85f`.
 Requirement: reduce visible moving shadow-edge aliasing without changing camera,
