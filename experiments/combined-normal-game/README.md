@@ -39,3 +39,9 @@ Independent step-level checks retain at least 1.818 mm reach margin. Actual bone
 The normal lifecycle fixture passes 98 checks, including normal identity, complete-bone pause freeze, immutable launch duplicate/context handling, cancellation, focus and disposal. Four other heroes each complete a 600-frame ownership smoke route, retaining no turning/launch layer; this is not exhaustive balance or animation validation for those heroes. Synthetic haste is explicitly a test setup. The actual graph counters and observer do not change Core, and the original TurningRun implementation/guards remain unchanged. Extreme out-of-budget displacement still fails explicitly and is not certified as ordinary gameplay support.
 
 Native recording is pending at this checkpoint. Editor imports can exit zero while reporting EditorSettings initialization errors for Android SDK/shutdown settings; those diagnostics are retained, not silently called clean or changed away. No mobile/device performance or release/merge claim follows.
+
+## First normal recording counterexample
+
+Both initial native A/B runtime runs completed and fourteen trace files matched the corresponding headless files exactly; 1,200 actual post-draw attachment samples had zero error. However, video stamp decoding correctly rejected gray pixels at the required bottom stamp coordinates. Inspection showed the wrapper viewport vertically offset/clipped with a gray lower strip, not a harmless initial blank frame. Those captures are not delivered as full-view review videos and are not repaired by cropping or loosening the stamp gate.
+
+The recorder now explicitly maintains the established fixed-content `Keep` aspect each render, matching the prior reviewed fixture's viewport configuration while leaving GameHost/camera/runtime untouched. Fresh native capture is required; numerical completion does not make the rejected viewport correct.
