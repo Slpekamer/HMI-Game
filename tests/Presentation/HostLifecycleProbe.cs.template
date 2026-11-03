@@ -1,5 +1,6 @@
 using Godot;
 using Hmi.Core;
+using Hmi.GodotAdapter;
 using System;
 using System.Reflection;
 
@@ -11,13 +12,29 @@ public partial class HostLifecycleProbe : Node
     private object Field(string name)=>typeof(GameHost).GetField(name,Flags).GetValue(host);
     private void Call(string name,params object[] args)=>typeof(GameHost).GetMethod(name,Flags).Invoke(host,args);
     private void Check(bool ok,string message){if(!ok)throw new Exception(message);}
+    private static Button FindButton(Node node,string text)
+    {
+        if(node is Button button && button.Text==text)return button;
+        foreach(Node child in node.GetChildren()){var match=FindButton(child,text);if(match!=null)return match;}
+        return null;
+    }
+    private void StartRun(int hero,uint seed)
+    {
+        Call("Start",hero,seed);
+        // Fresh rule selection requires the same explicit confirmation as the real UI.
+        var confirm=FindButton(host,"确认准备新局");
+        if(confirm!=null){confirm.EmitSignal(BaseButton.SignalName.Pressed);Call("Start",hero,seed);}
+        host.SetProcess(false);
+        var simulation=(GameSimulation)Field("_sim");
+        Check(simulation.Phase==RunPhase.Combat && simulation.PlayerId.Index>=0,"Explicit start must reach live combat");
+    }
     private void Render()=>Call("RenderEntities",1f/60);
     private async System.Threading.Tasks.Task Flush(){await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);}
     public override async void _Ready()
     {
         try
         {
-            host=new GameHost();AddChild(host);host.SetProcess(false);Call("Start",3,(uint)1030);
+            host=new GameHost();AddChild(host);host.SetProcess(false);StartRun(3,1030);
             var g=(GameSimulation)Field("_sim");
             for(int i=0;i<g.Capacity;i++)if(i!=g.PlayerId.Index)g.World.Destroy(i);
             var actor=g.World.Create(Components.Enemy|Components.Health,new Vec2(4,4),.44f,"enemy_chaser",100);
@@ -61,7 +78,7 @@ public partial class HostLifecycleProbe : Node
             Render();Check(!presenter.CurrentClip.EndsWith("Attack"),"Future event must not be re-stamped at render");
             GD.Print("HOST_LIFECYCLE preserved catch-up tick / run-wave context / future rejection PASS");
 
-            Call("Start",3,(uint)1030);
+            StartRun(3,1030);
             g=(GameSimulation)Field("_sim");
             // Explicit test fixture: keep player alive, remove enemies and advance real fixed ticks.
             for(int i=0;i<g.Capacity;i++)if(g.World.Has(i,Components.Enemy))g.World.Destroy(i);
@@ -76,8 +93,25 @@ public partial class HostLifecycleProbe : Node
             Check(g.Wave==2&&g.Tick>=120,"Wave two must continue after expanded companions");
             g.Enqueue(GameCommand.Pause(true));g.Step();long paused=g.Tick;Render();await Flush();g.Step();Check(g.Tick==paused,"Pause must still work");
             GD.Print("HOST_LIFECYCLE expanded-companion wave1 -> wave2 / moving-idle / pause PASS");
-            Call("Start",2,(uint)1030);Render();await Flush();Render();
+            StartRun(2,1030);Render();await Flush();Render();
             Check(((GameSimulation)Field("_sim")).Wave==1,"Restart must reset run");
+            for(int cycle=0;cycle<3;cycle++)
+            {
+                StartRun(cycle, (uint)(1040+cycle));Render();await Flush();
+                g=(GameSimulation)Field("_sim");
+                var ui=(GameUi)Field("_ui");
+                for(int menu=0;menu<3;menu++)
+                {
+                    ui.ShowCodex();await Flush();Check(ui.IsCodexOpen,"Codex opens on repeated cycle");
+                    ui.CloseCodex();ui.CloseCodex();await Flush();Check(!ui.IsCodexOpen,"Repeated codex close is safe");
+                }
+                g.Enqueue(GameCommand.Pause(true));g.Step();long stopped=g.Tick;
+                Render();await Flush();g.Step();Check(g.Tick==stopped,"Repeated restart pause freezes tick");
+                g.Enqueue(GameCommand.Pause(false));g.Step();Check(!g.Paused,"Resume leaves paused state");
+                long resumed=g.Tick;g.Step();Check(g.Tick>resumed,"Resume advances simulation again");
+                Render();await Flush();
+            }
+            GD.Print("HOST_LIFECYCLE repeated restart / codex open-close / pause-resume PASS");
             var presenters=(CharacterPresentation[])Field("_presentations");
             var saved=new System.Collections.Generic.List<CharacterPresentation>();
             foreach(var item in presenters)if(item!=null)saved.Add(item);

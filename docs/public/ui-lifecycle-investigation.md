@@ -9,3 +9,8 @@ The unmodified responsive UI runner built with zero warnings/errors, then stoppe
 
 ## Remaining checks
 Reproduce the historical intermittent `script_bindings` teardown fatal; check repeated UI creation/removal, menus and modals, pause/resume, host restart and normal shutdown. Clean samples cannot prove an intermittent failure eliminated. Headless checks cannot establish native rendering, hardware touch/controller behavior, Android export or phone performance.
+
+## Follow-up fixture repair and scoped diagnostics
+The older fixture also called `Start` without the newer explicit rule-selection confirmation, leaving no live player. The test now presses the actual confirmation button when present and asserts Combat before touching the player. Existing entity-generation, catch-up, scope, companion, wave, restart and disposal assertions remain. A repeat section exercises three starts, nine codex open/close cycles including duplicate close, and pause/resume tick behavior.
+
+Five separate headless responsive runtime processes completed 893 checks each and exited zero without runtime diagnostics. The repaired host fixture completed its original lifecycle sequence in a separate diagnostic run. The extended host repeat checks also passed headless with a clean runtime exit. Native processes are still being checked; this checkpoint does not certify them. No production source changed, and no root cause for the historical intermittent native teardown fatal has yet been established.
