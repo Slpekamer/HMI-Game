@@ -22,6 +22,7 @@ public partial class GameHost : Node3D
     private PlayerDamageMaterial _playerDamage;
     private ProjectilePresentation _projectilePresentation;
     private ProjectileTransition?[] _pendingLaunches;
+    private readonly System.Collections.Generic.Dictionary<EntityId, LaunchAimSample> _pendingLaunchAim = new();
     private Camera3D _camera;
     private EnemyHealthVisuals _enemyHealth;
     private SpawnPreviewVisuals _spawnPreviews;
@@ -233,6 +234,7 @@ public partial class GameHost : Node3D
         _stationaryFacing.ClearPresentation();
         _damageReaction?.ClearPresentation();_playerDamage?.ClearPresentation();_projectilePresentation?.ClearPresentation();
         if(_pendingLaunches!=null)Array.Clear(_pendingLaunches);
+        _pendingLaunchAim.Clear();
         _cameraBound=false;
         _enemyHealth?.Clear();
         _spawnPreviews?.Clear();
@@ -248,9 +250,10 @@ public partial class GameHost : Node3D
         _mechanicalArrival?.Update(_sim);
         for(int slot=0;slot<_visuals.Length;slot++)
         {
-            if(!_sim.TryGetEntityAtSlot(slot,out var view)) { _presentations[slot]?.Dispose(); _visuals[slot]?.QueueFree(); _visuals[slot]=null; _presentations[slot]=null; _pendingAttacks[slot]=null; _pendingLaunches[slot]=null; continue; }
+            if(!_sim.TryGetEntityAtSlot(slot,out var view)) { _pendingLaunchAim.Remove(_ids[slot]); _presentations[slot]?.Dispose(); _visuals[slot]?.QueueFree(); _visuals[slot]=null; _presentations[slot]=null; _pendingAttacks[slot]=null; _pendingLaunches[slot]=null; continue; }
             if(_visuals[slot]==null || _ids[slot]!=view.Id)
             {
+                if (_ids[slot]!=view.Id) _pendingLaunchAim.Remove(_ids[slot]);
                 _presentations[slot]?.Dispose();
                 _visuals[slot]?.QueueFree();
                 // A reused slot may change kind (actor -> pickup). Always discard the old
@@ -277,6 +280,7 @@ public partial class GameHost : Node3D
                 else if(_pendingAttacks[slot] is GameEvent attack)
                     presentation.Attack(attack.Source,attack.RunToken,attack.Wave,attack.Tick);
                 _pendingAttacks[slot]=null;_pendingLaunches[slot]=null;
+                if (_pendingLaunchAim.Remove(view.Id, out var aim)) presentation.AcceptLaunchAim(aim);
                 if(view.Kind==EntityKind.Player){_stationaryFacing.Attach(presentation);presentation.SetStationaryFacing(_stationaryFacing.Held,_stationaryFacing.InputKnown,_stationaryFacing.Yaw);}
                 presentation.Advance(delta,_sim.Paused || _sim.Phase!=RunPhase.Combat);
             }
@@ -337,6 +341,8 @@ public partial class GameHost : Node3D
         var previous=_pendingLaunches[e.Owner.Index];
         if(previous is ProjectileTransition old && old.Owner==e.Owner && old.RunToken==e.RunToken && old.Wave==e.Wave && old.Tick>=e.Tick)return;
         _pendingLaunches[e.Owner.Index]=e;
+        _pendingLaunchAim.Remove(e.Owner);
+        if (LaunchAimSample.TryCapture(_sim, e, out var sample)) _pendingLaunchAim[e.Owner]=sample;
     }
     private void ConsumeEvents()
     {
@@ -400,6 +406,7 @@ public partial class GameHost : Node3D
         if(what!=NotificationApplicationFocusOut || _sim==null) return;
         _inputFocused=false;_stationaryFacing.ClearPresentation();ResetMovementInput();_damageReaction?.ClearPresentation();_playerDamage?.ClearPresentation();_projectilePresentation?.ClearPresentation();
         if(_pendingLaunches!=null)Array.Clear(_pendingLaunches);
+        _pendingLaunchAim.Clear();
         _codexResume=false; _accumulator=0; _ui?.Joystick.ResetInput();
         if(_sim.Phase==RunPhase.Combat) Send(CommandKind.Pause,flag:true);
     }

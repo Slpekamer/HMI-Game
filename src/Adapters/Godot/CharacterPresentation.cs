@@ -28,6 +28,13 @@ public sealed class CharacterPresentation : IDisposable
     private float _faceClock, _smileRemaining, _surpriseRemaining;
     private string _current = "";
     private bool _attackQueued, _disposed;
+    private LaunchAimSample? _launchAim;
+    internal LaunchAimSample? LaunchAim => _launchAim;
+    internal bool AcceptLaunchAim(LaunchAimSample sample)
+    {
+        if (!Alive() || sample.Owner != _entity || sample.RunToken != _runToken || sample.Wave != _wave || sample.Tick > _tick || sample.Tick < 0 || (_launchAim is LaunchAimSample old && sample.Tick <= old.Tick)) return false;
+        _launchAim = sample; return true;
+    }
 
     private readonly struct FacialBinding
     {
@@ -251,7 +258,7 @@ public sealed class CharacterPresentation : IDisposable
         _displacementSideHop?.Reset();
         if (GodotObject.IsInstanceValid(_root)) _travelFacing = _root.Rotation.Y; _headingBridgeRemaining = 0;
         _attackRemaining = _smileRemaining = _surpriseRemaining = _faceClock = 0;
-        _attackQueued = false; _lastAttackTick = -1; _current = "";
+        _attackQueued = false; _lastAttackTick = -1; _current = ""; _launchAim = null;
         if(_mixer!=null) _mixer.Reset();
         else if (_player != null && GodotObject.IsInstanceValid(_player))
         {
