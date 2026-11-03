@@ -18,7 +18,7 @@ public sealed class AssetVisuals
         if (!_scenes.TryGetValue(id, out var scene))
         {
             string path = "res://content/models/" + id + ".glb";
-            if (ControlledGaitDrill.Enabled && id == "hero_crit")
+            if ((ControlledGaitDrill.Enabled && id == "hero_crit") || NormalPresentationCandidate.UsesAcceptedModel(id))
                 path = "res://experiments/displacement-run/runtime/accepted-static-rebuilt.glb";
             if (ResourceLoader.Exists(path)) { scene = GD.Load<PackedScene>(path); _scenes[id] = scene; }
         }

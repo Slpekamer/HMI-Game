@@ -86,7 +86,9 @@ public partial class GameHost : Node3D
     private void BuildArena()
     {
         AddChild(new WorldEnvironment { Environment = new Godot.Environment { BackgroundMode = Godot.Environment.BGMode.Color, BackgroundColor = new Color("c8b8d9"), AmbientLightSource = Godot.Environment.AmbientSource.Color, AmbientLightColor = Colors.White, AmbientLightEnergy = .18f, TonemapMode = Godot.Environment.ToneMapper.Linear } });
-        AddChild(new DirectionalLight3D { RotationDegrees = new Vector3(-55,-25,0), LightEnergy = .36f, ShadowEnabled = true });
+        var sunlight = new DirectionalLight3D { RotationDegrees = new Vector3(-55,-25,0), LightEnergy = .36f, ShadowEnabled = true };
+        if (NormalPresentationCandidate.Enabled) sunlight.DirectionalShadowSplit1 = .015f;
+        AddChild(sunlight);
         _camera = new Camera3D { Projection = Camera3D.ProjectionType.Orthogonal, Size = 16.8f, Position = new Vector3(12,22,18), Current = true };
         AddChild(_camera); _camera.LookAt(Vector3.Zero);
         AddChild(AssetVisuals.Box(new Vector3(80,.3f,80), new Vector3(0,-.15f,0), new Color("f4d8ab")));

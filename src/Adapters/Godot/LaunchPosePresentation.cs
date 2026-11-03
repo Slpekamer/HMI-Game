@@ -6,6 +6,7 @@ using System;
 internal sealed class LaunchPosePresentation
 {
     private readonly Skeleton3D skeleton;
+    private readonly bool allowFixtureOverrides;
     private readonly int[] bones;
     private readonly Quaternion[] basis=new Quaternion[7], entry=new Quaternion[7], cancelFrom=new Quaternion[7];
     private readonly Quaternion[][][] keys=new Quaternion[6][][];
@@ -14,8 +15,9 @@ internal sealed class LaunchPosePresentation
     private LaunchAimSample sample;
     private int side,sector;
     internal object Diagnostics{get;private set;}=new{state="idle"};
-    internal LaunchPosePresentation(Node root)
+    internal LaunchPosePresentation(Node root, bool allowFixtureOverrides=false)
     {
+        this.allowFixtureOverrides=allowFixtureOverrides;
         skeleton=Find(root)??throw new InvalidOperationException("Missing launch pose skeleton");
         string[] names={"Chest","UpperArm_L","Forearm_L","Hand_L","UpperArm_R","Forearm_R","Hand_R"};
         bones=Array.ConvertAll(names,n=>skeleton.FindBone(n));if(Array.Exists(bones,x=>x<0))throw new InvalidOperationException("Incomplete launch pose rig");
@@ -84,7 +86,7 @@ internal sealed class LaunchPosePresentation
         {
             Vector3 local=skeleton.GlobalBasis.Orthonormalized().Inverse()*new Vector3(sample.Direction.X,0,sample.Direction.Y);float angle=Mathf.Atan2(-local.X,-local.Z);
             side=local.X<0?0:1;sector=Math.Abs(angle)<Mathf.DegToRad(60)?0:Math.Abs(angle)<Mathf.DegToRad(120)?1:2;
-            string force=OS.GetEnvironment("LAUNCH_POSE_FORCE");if(force.Length>0){string[] parts=force.Split('-');if(parts.Length!=2)throw new InvalidOperationException("Force format front|side|rear-left|right");sector=parts[0] switch{"front"=>0,"side"=>1,"rear"=>2,_=>throw new InvalidOperationException("Bad forced key")};side=parts[1] switch{"left"=>0,"right"=>1,_=>throw new InvalidOperationException("Bad forced side")};}
+            string force=allowFixtureOverrides?OS.GetEnvironment("LAUNCH_POSE_FORCE"):"";if(force.Length>0){string[] parts=force.Split('-');if(parts.Length!=2)throw new InvalidOperationException("Force format front|side|rear-left|right");sector=parts[0] switch{"front"=>0,"side"=>1,"rear"=>2,_=>throw new InvalidOperationException("Bad forced key")};side=parts[1] switch{"left"=>0,"right"=>1,_=>throw new InvalidOperationException("Bad forced side")};}
             selected=true;
         }
         age+=dt;float sweep=age<.08f?0:age<.22f?Smooth((age-.08f)/.14f):age<.34f?1:1-Smooth((age-.34f)/.07f);
@@ -94,7 +96,7 @@ internal sealed class LaunchPosePresentation
             Quaternion target=i==0 || (i>=selectedStart&&i<selectedStart+3)?key[0][i].Slerp(key[1][i],sweep):basis[i];
             Quaternion posed=entry[i].Slerp(target,enter).Slerp(basis[i],exit);skeleton.SetBonePoseRotation(bones[i],posed);
         }
-        Diagnostics=new{state="launch-key-wip",sample.Tick,side,sector,age,sweep,enter,exit,forced=OS.GetEnvironment("LAUNCH_POSE_FORCE"),note="Latched launch-sector energy gesture, not gun/muzzle tracking."};
+        Diagnostics=new{state="launch-key-wip",sample.Tick,side,sector,age,sweep,enter,exit,forced=allowFixtureOverrides?OS.GetEnvironment("LAUNCH_POSE_FORCE"):"",note="Latched launch-sector energy gesture, not gun/muzzle tracking."};
         if(age>=.50f)active=false;
     }
 }

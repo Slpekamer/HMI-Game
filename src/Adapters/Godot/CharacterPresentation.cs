@@ -11,6 +11,8 @@ public sealed class CharacterPresentation : IDisposable
     private readonly AnimationPlayer _player;
     private readonly FoodAnimationMixer _mixer;
     private readonly bool _controlledGait;
+    private readonly bool _normalPresentation;
+    internal bool UsesNormalPresentation => _normalPresentation;
     private AnimationLibrary _gaitLibrary;
     private Animation _gaitClip;
     private readonly BackpedalWeightTransfer _weightTransfer;
@@ -61,6 +63,7 @@ public sealed class CharacterPresentation : IDisposable
         _entity = view.Id; _runToken = runToken; _wave = wave;
         _player = FindPlayer(root);
         _idle = FindClip("Idle"); _run = FindClip("Run"); _attack = FindClip("Attack");
+        _normalPresentation = NormalPresentationCandidate.AppliesTo(view);
         _controlledGait = ControlledGaitDrill.Enabled && view.Kind == EntityKind.Player && FindClip("StrafeR").Length > 0;
         if (_player != null)
         {
@@ -86,9 +89,10 @@ public sealed class CharacterPresentation : IDisposable
             else if (ControlledGaitDrill.Clip == "Backpedal") _displacementBackpedal = new DisplacementBackpedalPresentation(_root);
             else _displacementRun = new DisplacementRunPresentation(_root);
         }
+        if (_normalPresentation) _turningRun = new TurningRunPresentation(_root);
         if (_controlledGait && ControlledGaitDrill.TurningRun && OS.GetEnvironment("MOVING_LAUNCH_AIM")=="1") _movingAim=new MovingLaunchAimPresentation(_root);
-        if (_controlledGait && ControlledGaitDrill.TurningRun && OS.GetEnvironment("MOVING_LAUNCH_POSE")=="1")
-        { if(_movingAim!=null)throw new InvalidOperationException("Choose one experimental upper-body owner");_launchPose=new LaunchPosePresentation(_root); }
+        if (_normalPresentation || (_controlledGait && ControlledGaitDrill.TurningRun && OS.GetEnvironment("MOVING_LAUNCH_POSE")=="1"))
+        { if(_movingAim!=null)throw new InvalidOperationException("Choose one experimental upper-body owner");_launchPose=new LaunchPosePresentation(_root, allowFixtureOverrides:_controlledGait); }
         ResetTransient();
     }
 
@@ -190,7 +194,7 @@ public sealed class CharacterPresentation : IDisposable
         Vector3 previousPosition = _root.Position;
         _root.Position = _root.Position.Lerp(_target, 1 - Mathf.Exp(-22 * delta));
         Vector3 actualTravel = _root.Position - previousPosition; actualTravel.Y = 0;
-        if (_controlledGait && ControlledGaitDrill.TurningRun)
+        if (_turningRun != null)
         {
             bool liftoffFrame = false;
             if (actualTravel.LengthSquared() > .00000001f)
