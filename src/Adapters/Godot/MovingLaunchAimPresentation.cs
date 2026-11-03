@@ -14,6 +14,8 @@ internal sealed class MovingLaunchAimPresentation
     private float chestYaw, weight;
     private int side;
     private long launchTick = -1;
+    private float aimWorldYaw;
+    private bool aimHeadingKnown;
     internal object Diagnostics { get; private set; } = new { state="idle" };
     internal MovingLaunchAimPresentation(Node root)
     {
@@ -31,24 +33,30 @@ internal sealed class MovingLaunchAimPresentation
         for(int i=0;i<2;i++)skeleton.SetBonePoseRotation(arms[i],original[i+1]);
         applied=false;
     }
-    internal void Reset(){RestoreBase();weight=chestYaw=0;armYaw[0]=armYaw[1]=0;launchTick=-1;Diagnostics=new{state="idle"};}
+    internal void Reset(){RestoreBase();weight=chestYaw=0;armYaw[0]=armYaw[1]=0;launchTick=-1;aimHeadingKnown=false;Diagnostics=new{state="idle"};}
     internal void Advance(float dt, LaunchAimSample? sample, long tick, bool attackActive)
     {
         bool valid=sample is LaunchAimSample a && tick>=a.Tick && tick-a.Tick<=60;
         float targetWeight=valid&&attackActive?1:0;
         weight=Mathf.MoveToward(weight,targetWeight,dt/.08f);
-        if(weight<=0){chestYaw=0;armYaw[0]=armYaw[1]=0;Diagnostics=new{state="idle"};return;}
+        if(weight<=0){aimHeadingKnown=false;chestYaw=0;armYaw[0]=armYaw[1]=0;Diagnostics=new{state="idle"};return;}
         if(!valid)return;
         var aim=sample.Value;
         Vector3 worldDirection=new(aim.Direction.X,0,aim.Direction.Y);
         Vector3 local=skeleton.GlobalBasis.Orthonormalized().Inverse()*worldDirection;
         float desired=Mathf.Atan2(-local.X,-local.Z);
-        if(launchTick!=aim.Tick){launchTick=aim.Tick;side=local.X<0?0:1;}
+        if(launchTick!=aim.Tick){launchTick=aim.Tick;int next=local.X<0?0:1;if(next!=side)aimHeadingKnown=false;side=next;}
         chestYaw=Mathf.MoveToward(chestYaw,Mathf.Clamp(desired,-Mathf.Pi/3,Mathf.Pi/3),dt*Mathf.DegToRad(360));
         original[0]=skeleton.GetBonePoseRotation(chest);
         for(int i=0;i<2;i++)original[i+1]=skeleton.GetBonePoseRotation(arms[i]);
         applied=true;
         Yaw(chest,chestYaw*weight);
+        Vector3 sourceReach=skeleton.GlobalBasis*(skeleton.GetBoneGlobalPose(hands[side]).Origin-skeleton.GetBoneGlobalPose(arms[side]).Origin);
+        if(!aimHeadingKnown){aimWorldYaw=Mathf.Atan2(-sourceReach.X,-sourceReach.Z);aimHeadingKnown=true;}
+        float requestedWorldYaw=Mathf.Atan2(-worldDirection.X,-worldDirection.Z);
+        aimWorldYaw+=Mathf.Clamp(Mathf.AngleDifference(aimWorldYaw,requestedWorldYaw),-dt*Mathf.DegToRad(720),dt*Mathf.DegToRad(720));
+        Vector3 smoothLocal=skeleton.GlobalBasis.Orthonormalized().Inverse()*new Vector3(-Mathf.Sin(aimWorldYaw),0,-Mathf.Cos(aimWorldYaw));
+        float smoothDesired=Mathf.Atan2(-smoothLocal.X,-smoothLocal.Z);
         float error=0;
         for(int i=0;i<2;i++)
         {
@@ -59,10 +67,12 @@ internal sealed class MovingLaunchAimPresentation
             if(i==side && reach.LengthSquared()>1e-6f)
             {
                 float current=Mathf.Atan2(-reach.X,-reach.Z);
-                target=Mathf.AngleDifference(current,desired);
+                target=Mathf.AngleDifference(current,smoothDesired);
                 target=Mathf.Clamp(target,-Mathf.DegToRad(170),Mathf.DegToRad(170));
             }
-            armYaw[i]=Mathf.LerpAngle(armYaw[i],target,1-Mathf.Exp(-25*dt));
+            // Smooth the world-space aim target, not the inverse animation correction.
+            // Smoothing that correction makes fast authored arm motion create persistent aim lag.
+            armYaw[i]=i==side?target:Mathf.LerpAngle(armYaw[i],0,1-Mathf.Exp(-25*dt));
             Yaw(arms[i],armYaw[i]*weight);
             if(i==side)
             {
@@ -71,7 +81,7 @@ internal sealed class MovingLaunchAimPresentation
                 error=actual.LengthSquared()>1e-6f?Mathf.Abs(Mathf.AngleDifference(Mathf.Atan2(-actual.X,-actual.Z),desired)):Mathf.Pi;
             }
         }
-        Diagnostics=new{state="upper-yaw-wip",launchTick,side,weight,chestYaw,armYaw=new[]{armYaw[0],armYaw[1]},desired,reachHeadingError=error,note="Shoulder-to-hand horizontal proxy, not a muzzle or authoritative launch origin."};
+        Diagnostics=new{state="upper-yaw-wip",launchTick,side,weight,chestYaw,armYaw=new[]{armYaw[0],armYaw[1]},desired,aimWorldYaw,reachHeadingError=error,note="Shoulder-to-hand horizontal proxy, not a muzzle or authoritative launch origin."};
     }
     private void Yaw(int bone,float angle)
     {
