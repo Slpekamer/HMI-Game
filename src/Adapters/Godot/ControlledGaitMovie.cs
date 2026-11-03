@@ -32,7 +32,7 @@ public partial class ControlledGaitMovie:Node
  int RestartDelay { get { if(!int.TryParse(OS.GetEnvironment("DISPLACEMENT_RESTART_DELAY"),out int n))return 4; if(n<0||n>13)throw new Exception("Restart delay must be 0..13 ticks"); return n; } }
  int RestartStop=>OS.GetEnvironment("DISPLACEMENT_RESTART_STANCE")=="1"?153:150;
  bool RestartMatrix=>OS.GetEnvironment("DISPLACEMENT_RESTART_MATRIX")=="1";
- int FrameLimit=>RestartMatrix||TapPattern.Length>0?195:180;
+ int FrameLimit=>OS.GetEnvironment("LAUNCH_POSE_REVIEW_TAIL")=="1"?210:RestartMatrix||TapPattern.Length>0?195:180;
  string TapPattern=>OS.GetEnvironment("DISPLACEMENT_TAP_PATTERN");
  int LifecycleFrame=>int.TryParse(OS.GetEnvironment("DISPLACEMENT_LIFECYCLE_FRAME"),out int n)?n:100;
  int TapStart=>int.TryParse(OS.GetEnvironment("DISPLACEMENT_TAP_START"),out int n)?n:150;

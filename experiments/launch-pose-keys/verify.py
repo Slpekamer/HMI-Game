@@ -7,7 +7,7 @@ cases=sorted(root.glob('*-B')) if paired else sorted(p for p in root.iterdir() i
 allowed={'Chest','UpperArm_L','Forearm_L','Hand_L','UpperArm_R','Forearm_R','Hand_R'}
 for b in cases:
  a=b.with_name(b.name[:-1]+'A') if paired else root/'baseline'
- n=json.loads((b/'summary.json').read_text())['frame'];assert n in (180,195)
+ n=json.loads((b/'summary.json').read_text())['frame'];assert n in (180,195,210)
  for f in ['authority.jsonl','camera.tsv','sole.jsonl','motion.jsonl','locomotion.jsonl','boot-geometry.jsonl']:assert(a/f).read_bytes()==(b/f).read_bytes(),(b,f)
  for p in [a,b]:
   log=(p/'runtime.log').read_text();assert 'CONTROLLED_GAIT_MOVIE_DONE'in log and not any(x in log for x in ['ERROR:','FATAL','Unhandled','resources still in use','leak'])
