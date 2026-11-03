@@ -1,5 +1,11 @@
 # Combined presentation pre-integration review
 
+## Latest decision and remaining gates
+
+The owner approved both high-speed original-cadence videos on 2026-11-03: interior reversal at 30 fps and wall-side motion at 60 fps. This accepts the shown visual behavior of runtime `e999cb8`; the final native evidence checkpoint is `4586426`. Preserve this effect. It does not remove documented non-C1 motion, same-side mesh contacts, fixture coverage limits or wall occlusion, and is not release or merge authorization.
+
+The numerical highest-current-loadout reach failures documented below are superseded by the passing eight-route revision. Earlier failure and pending sections below are chronological evidence, not the latest status. Remaining integration gates are strict test/fixture classification, final candidate comparison and required runtime-asset/export checks. Historical migration failure, external old-reader coverage, import diagnostics, device/performance and unsupported teleport/future-speed bounds remain explicitly separate; the aggregate suite is not green. Neither main nor integration has been merged.
+
 ## Frozen comparison
 
 Accepted combination: `77e398f405a3a5d86650a1f7cec4bbef060d4503`. Integration remains `a838e3592f92b3de6507de710d56f5abe7513e7f`; main is separate. Direct tree comparison contains 99 changed/added files. Core, Persistence and existing test sources are byte-identical. This is a tree comparison, not a claim that every historical experiment is required for production.
