@@ -12,7 +12,8 @@ using System.Text;
 public partial class LaunchPoseMixedProbe:Node
 {
  const BindingFlags F=BindingFlags.Instance|BindingFlags.NonPublic|BindingFlags.Public;
- static readonly JsonSerializerOptions J=new(){IncludeFields=true};
+ sealed class V2Json:System.Text.Json.Serialization.JsonConverter<Vec2>{public override Vec2 Read(ref Utf8JsonReader r,Type t,JsonSerializerOptions o)=>throw new NotSupportedException();public override void Write(Utf8JsonWriter w,Vec2 v,JsonSerializerOptions o){w.WriteStartArray();w.WriteNumberValue(v.X);w.WriteNumberValue(v.Y);w.WriteEndArray();}}
+ static readonly JsonSerializerOptions J=Options();static JsonSerializerOptions Options(){var o=new JsonSerializerOptions{IncludeFields=true};o.Converters.Add(new V2Json());return o;}
  GameHost host;GameSimulation sim;int frame,melee,launches,cancels;bool ready;string folder;
  readonly StringBuilder authority=new(),cues=new();
  T Field<T>(string name)=>(T)typeof(GameHost).GetField(name,F).GetValue(host);
