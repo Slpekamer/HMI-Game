@@ -22,7 +22,8 @@ internal sealed class TurningRunPresentation
     private Vector3 _forward;
     private Vector3 _renderVelocity, _lastTravel;
     private Transform3D _previousSkeleton;
-    private float _dt, _turnSpreadAge, _turnWeight, _crouch, _crouchVelocity;
+    private float _dt, _turnSpreadAge, _turnWeight, _crouch, _crouchVelocity, _releaseAge;
+    private bool _requestedMoving, _effectiveMoving;
     private bool _turning, _hasTurned, _turnStop;
     private float _turnAge, _turnBodyOffset, _turnBodyVelocityOffset;
     private int _turnCount;
@@ -143,7 +144,7 @@ internal sealed class TurningRunPresentation
     }
     public void Reset()
     {
-        RestoreBase(); _turning = _hasTurned = _turnStop = false; _turnAge = 0; _turnCount = 0; _renderVelocity = Vector3.Zero; if (GodotObject.IsInstanceValid(_skeleton) && _skeleton.IsInsideTree()) { _forward = Horizontal(-_skeleton.GlobalBasis.Z).Normalized(); _previousSkeleton = _skeleton.GlobalTransform; } _turnSpreadAge = _turnWeight = _crouch = _crouchVelocity = 0; _lastTravel = _forward; _turnBodyOffset = _turnBodyVelocityOffset = 0; _distance = _age = _stopAge = _bodyDelta = _hop = 0; _footfalls = 0;
+        RestoreBase(); _turning = _hasTurned = _turnStop = false; _turnAge = 0; _turnCount = 0; _renderVelocity = Vector3.Zero; if (GodotObject.IsInstanceValid(_skeleton) && _skeleton.IsInsideTree()) { _forward = Horizontal(-_skeleton.GlobalBasis.Z).Normalized(); _previousSkeleton = _skeleton.GlobalTransform; } _turnSpreadAge = _turnWeight = _crouch = _crouchVelocity = _releaseAge = 0; _requestedMoving = _effectiveMoving = false; _lastTravel = _forward; _turnBodyOffset = _turnBodyVelocityOffset = 0; _distance = _age = _stopAge = _bodyDelta = _hop = 0; _footfalls = 0;
         _started = _stopping = _initialCaptured = _resuming = _tapStopping = false;
         _stopBodyOffset = _stopBodyVelocityOffset = 0;
         _resumeAge = _resumeBodyOffset = _resumeBodyVelocityOffset = _bodyVelocity = _lastSpeed = 0; _restartCount = 0; _failure = ""; _lastRoot = GodotObject.IsInstanceValid(_root) && _root.IsInsideTree() ? _root.GlobalPosition : Vector3.Zero;
@@ -158,6 +159,12 @@ internal sealed class TurningRunPresentation
         float traveled = displacement.Length();
         if (traveled > .15f) Fail("Teleport rendered displacement outside turning contract");
         _dt = dt; _renderVelocity = displacement / dt;
+        _requestedMoving = moving;
+        _releaseAge = moving ? 0 : _releaseAge + dt;
+        // A one-render-step input gap is not a physical stop while the visual root still moves.
+        // Continue its displacement phase for at most30ms; authority/input are never changed.
+        moving |= _started && traveled / dt > .08f && _releaseAge < .03f;
+        _effectiveMoving = moving;
         Vector3 bodyForward = Horizontal(-_skeleton.GlobalBasis.Z).Normalized();
         if (!float.IsFinite(bodyForward.X) || bodyForward.LengthSquared() < .99f) Fail("Invalid turning basis");
         _forward = bodyForward;
@@ -650,7 +657,7 @@ internal sealed class TurningRunPresentation
     private object ReadDiagnostics(float traveled, Vector3 authority)
     {
         return new { state = _failure.Length>0 ? "failed" : _stopping ? (_tapStopping ? "tap-stopping" : "stopping") : _resuming ? "resuming" : "running", failure = _failure,
-            turning = _turning, turnAge = _turnAge, turnCount = _turnCount, turnStepWeight = _turnWeight, turnCrouch = _crouch, turnCrouchVelocity = _crouchVelocity, forward = V(_forward), renderVelocity = V(_renderVelocity), distance = _distance, phase = Mod(_distance+_phaseOffset,Cycle), phaseOffset = _phaseOffset,
+            turning = _turning, turnAge = _turnAge, turnCount = _turnCount, turnStepWeight = _turnWeight, turnCrouch = _crouch, turnCrouchVelocity = _crouchVelocity, requestedMoving = _requestedMoving, effectiveMoving = _effectiveMoving, releaseAge = _releaseAge, forward = V(_forward), renderVelocity = V(_renderVelocity), distance = _distance, phase = Mod(_distance+_phaseOffset,Cycle), phaseOffset = _phaseOffset,
             renderDistance = traveled, footfalls = _footfalls, restartCount = _restartCount, resumeAge = _resumeAge, resumeDuration = ResumeDuration, tapStopping = _tapStopping, startAge = _age, stopAge = _stopAge,
             bodyDrop = -_bodyDelta, bodyHop = _hop, height = Height, groundY = _ground,
             root = V(_root.GlobalPosition), authorityTarget = V(authority),
