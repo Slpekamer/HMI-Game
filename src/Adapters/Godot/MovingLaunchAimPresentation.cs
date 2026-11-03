@@ -103,7 +103,7 @@ internal sealed class MovingLaunchAimPresentation
         Vector3 axis=current.Normalized().Slerp(goalDirection,blend).Normalized();
         float distance=Mathf.Lerp(current.Length(),.90f*(upper+lower),blend);
         if(distance<=Math.Abs(upper-lower)+1e-6f || distance>=upper+lower-1e-6f)throw new InvalidOperationException("Unreachable cosmetic arm target; no stretch/clamp");
-        Vector3 outward=skeleton.GetBoneGlobalPose(chest).Basis.Orthonormalized().X*(i==0?-1:1)+Vector3.Down*.35f;
+        Vector3 outward=skeleton.GetBoneGlobalPose(chest).Basis.Orthonormalized().X*(i==0?-1:1)+Vector3.Up*.35f;
         Vector3 pole=outward-axis*outward.Dot(axis);
         if(pole.LengthSquared()<1e-8f)throw new InvalidOperationException("Degenerate elbow pole");
         pole=pole.Normalized();
