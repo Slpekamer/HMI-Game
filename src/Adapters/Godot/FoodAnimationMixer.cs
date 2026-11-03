@@ -13,6 +13,8 @@ internal sealed class FoodAnimationMixer : IDisposable
     public bool AttackActive => !_disposed && GodotObject.IsInstanceValid(_tree) && _tree.Get("parameters/UpperAttack/active").AsBool();
     public int FilteredTracks { get; }
     internal float MovementBlend => _movement;
+    internal long AdvanceCount { get; private set; }
+    internal double AdvancedSeconds { get; private set; }
     internal float RunPhase => _tree.Get("parameters/Run/current_position").AsSingle();
     private FoodAnimationMixer(AnimationTree tree,int tracks) { _tree=tree;FilteredTracks=tracks; }
     public static FoodAnimationMixer TryCreate(AnimationPlayer player,string idle,string run,string attack)
@@ -58,6 +60,7 @@ internal sealed class FoodAnimationMixer : IDisposable
         _tree.Set("parameters/RunRate/scale",float.IsFinite(runRate)?Math.Clamp(runRate,.25f,3f):1f);
         if(fire && !AttackActive) _tree.Set("parameters/UpperAttack/request",(int)AnimationNodeOneShot.OneShotRequest.Fire);
         _tree.Advance(delta);
+        AdvanceCount++; AdvancedSeconds += delta;
     }
     public void Reset()
     {

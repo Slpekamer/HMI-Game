@@ -14,6 +14,11 @@ public sealed class CharacterPresentation : IDisposable
     private readonly bool _normalPresentation;
     internal bool UsesNormalPresentation => _normalPresentation;
     internal int LastPresentationSteps { get; private set; }
+    // Optional read-only test observer. Production leaves this null; no extra simulation/event calls.
+    internal Action<float> ObservePresentationStep;
+    internal long AnimationGraphAdvanceCount => _mixer?.AdvanceCount ?? 0;
+    internal double AnimationGraphAdvancedSeconds => _mixer?.AdvancedSeconds ?? 0;
+    internal object NormalGaitDiagnostics => _turningRun?.Diagnostics;
     private AnimationLibrary _gaitLibrary;
     private Animation _gaitClip;
     private readonly BackpedalWeightTransfer _weightTransfer;
@@ -33,7 +38,7 @@ public sealed class CharacterPresentation : IDisposable
     private Vector3 _target, _previousSample;
     private long _tick = -1, _lastAttackTick = -1;
     private int _runToken, _wave;
-    private float _speed, _attackRemaining, _facing, _health, _travelFacing, _headingBridgeRemaining;
+    private float _speed, _attackRemaining, _facing, _health, _travelFacing, _headingBridgeRemaining, _headingLiftRemaining;
     private float _faceClock, _smileRemaining, _surpriseRemaining;
     private string _current = "";
     private bool _attackQueued, _disposed;
@@ -191,7 +196,7 @@ public sealed class CharacterPresentation : IDisposable
         // One render callback, bounded internal integration. No simulation step or extra event delivery.
         // At ordinary 60 Hz this remains the approved single-step path.
         float step = delta / steps;
-        for(int i=0;i<steps;i++) AdvancePresentationStep(step);
+        for(int i=0;i<steps;i++) { AdvancePresentationStep(step); ObservePresentationStep?.Invoke(step); }
     }
 
     private void AdvancePresentationStep(float delta)
@@ -217,8 +222,14 @@ public sealed class CharacterPresentation : IDisposable
                     // One actual render step lets the world-anchored support lift before body yaw.
                     // Shared by A/B; it depends only on real travel, never on cosmetic bone feedback.
                     liftoffFrame = true; _headingBridgeRemaining = .1f;
+                    if(_normalPresentation) _headingLiftRemaining = 1f/60f;
                 }
                 _travelFacing = nextFacing;
+            }
+            if(_normalPresentation && _headingLiftRemaining>0)
+            {
+                // Preserve at least the approved 60 Hz lift interval, not merely one tiny integration step.
+                liftoffFrame=true;_headingLiftRemaining=Math.Max(0,_headingLiftRemaining-delta);
             }
             _headingBridgeRemaining = Math.Max(0, _headingBridgeRemaining - delta);
             // Finish the already-requested cosmetic turn after the position Lerp becomes subpixel.
@@ -296,7 +307,7 @@ public sealed class CharacterPresentation : IDisposable
         _turningRun?.Reset();
         _displacementBackpedal?.Reset();
         _displacementSideHop?.Reset();
-        if (GodotObject.IsInstanceValid(_root)) _travelFacing = _root.Rotation.Y; _headingBridgeRemaining = 0;
+        if (GodotObject.IsInstanceValid(_root)) _travelFacing = _root.Rotation.Y; _headingBridgeRemaining = 0; _headingLiftRemaining = 0;
         _attackRemaining = _smileRemaining = _surpriseRemaining = _faceClock = 0;
         _attackQueued = false; _lastAttackTick = -1; _current = ""; _launchAim = null;
         if(_mixer!=null) _mixer.Reset();

@@ -1,0 +1,49 @@
+using Godot;
+using Hmi.Core;
+using Hmi.GodotAdapter;
+using Hmi.Adapters.Input;
+using System;
+using System.Reflection;
+using System.Text.Json;
+public partial class NormalGameLifecycleProbe:Node
+{
+ const BindingFlags F=BindingFlags.Instance|BindingFlags.NonPublic|BindingFlags.Public;
+ GameHost host;GameSimulation sim;int checks;bool done;
+ T Field<T>(string name)=>(T)typeof(GameHost).GetField(name,F).GetValue(host);
+ void Call(string name,params object[] args)=>typeof(GameHost).GetMethod(name,F).Invoke(host,args);
+ void C(bool value,string reason){checks++;if(!value)throw new Exception(reason);}
+ static Button ButtonAt(Node n,string text){if(n is Button b&&b.Text==text)return b;foreach(Node c in n.GetChildren()){var b2=ButtonAt(c,text);if(b2!=null)return b2;}return null;}
+ void Input(float x){Call("SynchronizeMovementInput");var router=Field<MoveInputRouter>("_moveInputs");C(host.SubmitMovementIntent(router.Token("route"),new MoveIntent(x,0)),"route input");}
+ static string Pose(Node root){if(root is Skeleton3D sk){var b=new System.Text.StringBuilder();for(int i=0;i<sk.GetBoneCount();i++)b.Append(sk.GetBonePose(i).ToString());return b.ToString();}foreach(Node c in root.GetChildren()){string found=Pose(c);if(found.Length>0)return found;}return "";}
+ public override void _Ready()
+ {
+  try{
+   if(!NormalPresentationCandidate.Enabled)throw new Exception("Normal candidate must be enabled");
+   ControlledGaitDrill.Enabled=false;
+   var box=new SubViewportContainer{Size=new(1280,720)};AddChild(box);var viewport=new SubViewport{Size=new(1280,720),OwnWorld3D=true};box.AddChild(viewport);host=new GameHost();viewport.AddChild(host);host.SetProcess(false);Call("Start",1,(uint)1030);ButtonAt(host,"确认准备新局").EmitSignal(Button.SignalName.Pressed);Call("Start",1,(uint)1030);host.SetProcess(false);host.RegisterMovementProvider("route",new MoveProviderOptions(100,0));sim=Field<GameSimulation>("_sim");
+   ProjectileTransition? actualLaunch=null;
+   for(int i=0;i<72;i++){Input(i<30?0:1);host._Process(GameSimulation.FixedDelta);for(int t=0;t<sim.ProjectileTransitionCount;t++){var e=sim.GetProjectileTransition(t);if(e.Kind==ProjectileTransitionKind.Launched&&e.Owner==sim.PlayerId)actualLaunch=e;}}
+   var p=Field<CharacterPresentation[]>("_presentations")[sim.PlayerId.Index];var root=Field<Node3D[]>("_visuals")[sim.PlayerId.Index];C(p.LaunchAim.HasValue,"real moving launch captured");var sample=p.LaunchAim.Value;C(p.UsesNormalPresentation,"normal instance, not controlled fixture");
+   C(!p.AcceptLaunchAim(sample),"same tick duplicate rejected");C(!p.AcceptLaunchAim(default),"invalid owner rejected");
+   string diag=JsonSerializer.Serialize(p.LaunchPoseDiagnostics);C(diag.Contains("launch-key-wip"),"actual pose layer active");var transform=root.Transform;string pose=Pose(root);
+   for(int i=0;i<5;i++)p.Advance(.1f,true);
+   C(JsonSerializer.Serialize(p.LaunchPoseDiagnostics)==diag && root.Transform==transform && Pose(root)==pose,"pause freezes root and complete bone pose");
+   p.Advance(0,false);p.Advance(float.NaN,false);C(JsonSerializer.Serialize(p.LaunchPoseDiagnostics)==diag,"invalid delta freezes");
+   p.CancelLaunchCue();C(!p.LaunchAim.HasValue,"near-melee cancellation removes held launch direction");
+   for(int i=0;i<5;i++){Input(1);host._Process(GameSimulation.FixedDelta);}
+   C(JsonSerializer.Serialize(p.LaunchPoseDiagnostics).Contains("idle"),"cancel crossfade returns original gesture within five60Hz frames");
+   host._Notification((int)MainLoop.NotificationApplicationFocusOut);C(!p.LaunchAim.HasValue,"focus clears immutable sample");C(JsonSerializer.Serialize(p.LaunchPoseDiagnostics).Contains("idle"),"focus restores base pose");
+   Call("ConsumeEvents");C(!p.LaunchAim.HasValue,"same buffer focus replay absent");
+   C(actualLaunch.HasValue,"actual launch retained for replacement contract");
+   typeof(CharacterPresentation).GetMethod("ResetTransient",F).Invoke(p,null);
+   C(p.AttackLaunch(actualLaunch.Value,sample)&&p.LaunchAim.HasValue,"fresh accepted launch gets matching direction");
+   C(!p.AttackLaunch(actualLaunch.Value,null)&&p.LaunchAim.HasValue,"duplicate without sample does not erase valid aim");
+   typeof(CharacterPresentation).GetMethod("ResetTransient",F).Invoke(p,null);
+   C(p.AcceptLaunchAim(sample),"seed old held visual direction after presentation reset");
+   C(p.AttackLaunch(actualLaunch.Value,null)&&!p.LaunchAim.HasValue,"accepted launch with missing evidence clears held direction");
+   C(sim.TryGetEntity(sim.PlayerId,out var view),"player view");C(p.Snapshot(view,sim.Tick,sim.RunToken+1,sim.Wave),"context reset accepted");C(!p.AcceptLaunchAim(sample),"old context rejected");
+   p.Dispose();C(!p.AcceptLaunchAim(sample),"disposed rejects sample");box.QueueFree();GD.Print($"NORMAL_GAME_LIFECYCLE_PASS {checks}");done=true;
+  }catch(Exception e){GD.PushError(e.ToString());GetTree().Quit(1);}
+ }
+ public override void _Process(double delta){if(done)GetTree().Quit();}
+}
