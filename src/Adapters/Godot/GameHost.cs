@@ -279,7 +279,7 @@ public partial class GameHost : Node3D
                     presentation.AttackLaunch(launch,_pendingLaunchAim.TryGetValue(view.Id,out var launchAim)?launchAim:null);
                 else if(_pendingAttacks[slot] is GameEvent attack)
                 {
-                    if(presentation.Attack(attack.Source,attack.RunToken,attack.Wave,attack.Tick)) presentation.ClearLaunchAim();
+                    if(presentation.Attack(attack.Source,attack.RunToken,attack.Wave,attack.Tick)) presentation.CancelLaunchCue();
                 }
                 _pendingAttacks[slot]=null;_pendingLaunches[slot]=null;
                 _pendingLaunchAim.Remove(view.Id);

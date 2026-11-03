@@ -17,8 +17,11 @@ public sealed class CharacterPresentation : IDisposable
     private readonly DisplacementRunPresentation _displacementRun;
     private readonly TurningRunPresentation _turningRun;
     private readonly MovingLaunchAimPresentation _movingAim;
+    private readonly LaunchPosePresentation _launchPose;
+    internal object LaunchPoseDiagnostics => _launchPose?.Diagnostics;
+    internal void CancelLaunchCue(){_launchAim=null;_movingAim?.Reset();_launchPose?.Cancel();}
     internal object MovingAimDiagnostics => _movingAim?.Diagnostics;
-    internal void ClearLaunchAim() { _launchAim=null; _movingAim?.Reset(); }
+    internal void ClearLaunchAim() { _launchAim=null; _movingAim?.Reset(); _launchPose?.Reset(); }
     private readonly DisplacementBackpedalPresentation _displacementBackpedal;
     private readonly DisplacementSideHopPresentation _displacementSideHop;
     private readonly EntityId _entity;
@@ -36,7 +39,7 @@ public sealed class CharacterPresentation : IDisposable
     internal bool AcceptLaunchAim(LaunchAimSample sample)
     {
         if (!Alive() || sample.Owner != _entity || sample.RunToken != _runToken || sample.Wave != _wave || sample.Tick > _tick || sample.Tick < 0 || (_launchAim is LaunchAimSample old && sample.Tick <= old.Tick)) return false;
-        _launchAim = sample; return true;
+        _launchAim = sample; _launchPose?.Launch(sample); return true;
     }
 
     private readonly struct FacialBinding
@@ -84,6 +87,8 @@ public sealed class CharacterPresentation : IDisposable
             else _displacementRun = new DisplacementRunPresentation(_root);
         }
         if (_controlledGait && ControlledGaitDrill.TurningRun && OS.GetEnvironment("MOVING_LAUNCH_AIM")=="1") _movingAim=new MovingLaunchAimPresentation(_root);
+        if (_controlledGait && ControlledGaitDrill.TurningRun && OS.GetEnvironment("MOVING_LAUNCH_POSE")=="1")
+        { if(_movingAim!=null)throw new InvalidOperationException("Choose one experimental upper-body owner");_launchPose=new LaunchPosePresentation(_root); }
         ResetTransient();
     }
 
@@ -175,6 +180,7 @@ public sealed class CharacterPresentation : IDisposable
         if (!Alive() || paused || delta <= 0 || !float.IsFinite(delta)) return;
         // Defensive presentation clamp only; no simulation time or stats are changed.
         delta = Math.Min(delta, .25f);
+        _launchPose?.RestoreBase();
         _movingAim?.RestoreBase();
         _weightTransfer?.RestoreBase();
         _displacementRun?.RestoreBase();
@@ -233,6 +239,7 @@ public sealed class CharacterPresentation : IDisposable
         _displacementBackpedal?.Advance(delta, _speed > .08f, _target);
         _displacementSideHop?.Advance(delta, _speed > .08f, _target);
         _movingAim?.Advance(delta,_launchAim,_tick,_mixer?.AttackActive ?? _attackRemaining>0);
+        _launchPose?.Advance(delta);
         _attackRemaining = Math.Max(0, _attackRemaining - delta);
         // The native graph owns layered gesture lifetime; float countdown must not invent
         // an extra silent clip when an event arrives on the final active render step.
@@ -264,8 +271,10 @@ public sealed class CharacterPresentation : IDisposable
     }
     private void ResetTransient()
     {
+        _launchPose?.RestoreBase();
         _movingAim?.RestoreBase();
         _weightTransfer?.RestoreBase();
+        _launchPose?.Reset();
         _movingAim?.Reset();
         _displacementRun?.Reset();
         _turningRun?.Reset();
