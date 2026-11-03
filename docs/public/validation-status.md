@@ -4,7 +4,15 @@
 
 # Validation status — independent integration candidate
 
-Current combination `77e398f` passed user normal-speed video review. Its scoped numerical/native evidence is in [combination validation](../../experiments/combined-normal-game/README.md). Pre-integration regression and dependency checks are underway; no automatic merge or release follows. The historical rule-3 checkpoint results below retain their original scope and are not a fresh full-suite pass.
+Current combination `77e398f` and the high-speed revision at runtime `e999cb8` passed user original-speed video review (the latter includes 30 fps interior reversal and 60 fps wall-side motion). Its scoped numerical/native evidence is in [combination validation](../../experiments/combined-normal-game/README.md). Pre-integration regression and dependency checks are underway; no automatic merge or release follows. The historical rule-3 checkpoint results below retain their original scope and are not a fresh full-suite pass.
+
+## Latest pre-integration checks
+
+- Ordinary 30/60/120 Hz presentation traces remain exact against the approved combination; eight maximum-current-loadout/haste routes and three native captures have bounded passing evidence.
+- Corrected legacy mixer: 17,590 original assertions pass in its explicit legacy mode. Corrected HostLifecycle runtime passes; strict import gates remain failed, not bypassed.
+- Latest real transition plus active high-speed interruption: 3,253 assertions, including the original 2,485 base checks, pass. Production code remains the visually approved revision.
+- Linux data-pack/.NET publish succeeds with documented process-scoped serial settings, but editor shutdown errors persist. This is not a standalone executable or mobile export acceptance.
+- Core/Persistence stay identical to integration. The pre-existing migration failure and exact old-reader requirement remain unresolved. See [detailed pre-integration evidence](combined-preintegration.md) for failures, fixture scopes and limitations.
 
 ## Historical rule-3 checkpoint
 

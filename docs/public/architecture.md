@@ -1,7 +1,7 @@
 # Architecture
 
 ## Boundaries
-`src/Core` is the engine-neutral fixed-tick gameplay authority. It owns entities, components, combat, wave timing, economy and seeded randomness. `src/Adapters/Godot` maps input to commands, snapshots to visuals and events to animation/feedback. `src/Adapters/Persistence` owns durable storage and migration coordination. Tests are kept outside runtime compilation.
+`src/Core` is the engine-neutral fixed-tick gameplay authority. It owns entities, components, combat, wave timing, economy and seeded randomness. `src/Adapters/Godot` maps input to commands, snapshots to visuals and events to animation/feedback. `src/Adapters/Persistence` owns durable storage and migration coordination. Standalone test projects and injected test templates are outside runtime compilation. Dedicated Godot diagnostic adapters in the adapter source tree are compiled, but run only through their diagnostic scenes/explicit fixture entry points; the normal main scene remains GameHost. This candidate is not a minimal release export.
 
 The core targets .NET Standard 2.1 with C# 8 compatibility constraints; the current Godot host uses its separately pinned SDK. This separation is intended to permit a future Unity adapter, not a claim that Unity integration already exists. No DOTS dependency is assumed.
 

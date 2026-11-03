@@ -1,6 +1,6 @@
 # Review candidate: approved combined presentation
 
-The normal-game combination at `77e398f` has passed user video review: Crit follows actual movement with turning Run, expresses genuine projectile launches through the reviewed energy gesture, and uses the reviewed `.015` shadow split. This remains an independent candidate, not merged into main/integration. Integration-readiness checks are in progress; visual approval is not export, hardware or release certification.
+The normal-game combination at `77e398f` and its high-speed safety revision at runtime `e999cb8` have passed user video review: Crit follows actual movement with turning Run, expresses genuine projectile launches through the reviewed energy gesture, and uses the reviewed `.015` shadow split. This remains an independent candidate, not merged into main/integration. Integration-readiness checks are in progress; visual approval is not export, hardware or release certification.
 
 See [combination evidence and limitations](experiments/combined-normal-game/README.md) and [pre-integration status](docs/public/combined-preintegration.md). The older stopped-facing experiment is preserved as history, not the current Crit root-heading owner.
 
