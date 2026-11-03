@@ -51,6 +51,40 @@ public partial class NormalGameTransitionProbe : Node
   if(ui.IsPersistenceModalOpen){var confirm=ButtonAt(host,"确认开始新局");Check(confirm!=null,label+": expected replacement confirmation");confirm.EmitSignal(Button.SignalName.Pressed);}
   NewPresentation(hero==1,stale,label);Check(sim.RunToken!=token,label+": distinct new run scope");
  }
+ // Explicit catalog-loadout fixture, not a shop/economy or natural pickup acquisition test.
+ void MaximumSpeedFixture(){
+  var catalog=Field(sim,"Catalog");var cards=(CardDefinition[])Field(catalog,"Cards");var items=(ItemDefinition[])Field(catalog,"Items");
+  var cardIndex=(Dictionary<string,int>)Field(catalog,"CardIndex");var itemIndex=(Dictionary<string,int>)Field(catalog,"ItemIndex");
+  var levels=(int[])Field(Field(sim,"Loadout"),"Levels");
+  foreach(var pair in new[]{("crit.reach",1),("crit.skirmish",1),("risk.fleet",2)}){int i=cardIndex[pair.Item1];Check(pair.Item2<=cards[i].Cap,"catalog speed-card cap unchanged");levels[i]=pair.Item2;}
+  int shoes=itemIndex["shoes"];Check(items[shoes].Cap==2,"catalog shoe cap unchanged");var wallet=Field(sim,"Wallet");((int[])Field(wallet,"OwnedItems"))[shoes]=2;((int[])Field(wallet,"ActiveItems"))[shoes]=2;
+  typeof(GameSimulation).Assembly.GetType("Hmi.Core.StatEffectSystem").GetMethod("Recalculate",BindingFlags.Static|BindingFlags.NonPublic).Invoke(null,new object[]{sim});
+  Check(Math.Abs(sim.GetStat(Stat.PlayerSpeed)-1.708f)<1e-5,"highest catalog speed recalculated");
+  typeof(GameSimulation).GetField("HasteTime",F).SetValue(sim,8f);
+ }
+ object ActiveFastTransition(LaunchAimSample sample){
+  MaximumSpeedFixture();var old=Presenter;var gait=Field(old,"_turningRun");int hit=-1;
+  for(int i=0;i<30;i++){
+   Step(-1);
+   if((bool)Field(old,"_normalFastHeading")&&(float)Field(old,"_headingBridgeRemaining")>0&&(bool)Field(gait,"_turning")&&(float)Field(old,"_speed")>6){hit=i;break;}
+  }
+  Check(hit>=0,"UNCOVERED: real reverse input did not reach active high-speed heading within30ticks");
+  var evidence=new{inputTicks=hit+1,tick=sim.Tick,runToken=sim.RunToken,wave=sim.Wave,
+   playerSpeedStat=sim.GetStat(Stat.PlayerSpeed),sampledSpeed=(float)Field(old,"_speed"),
+   normalFastHeading=(bool)Field(old,"_normalFastHeading"),headingRemaining=(float)Field(old,"_headingBridgeRemaining"),
+   activeTurn=(bool)Field(gait,"_turning"),turnAge=(float)Field(gait,"_turnAge"),
+   highSpeedRequested=(bool)Field(gait,"_normalHighSpeedRequested"),boundedTurn=(bool)Field(gait,"_normalBoundedTurn"),
+   hadLaunch=old.LaunchAim.HasValue,fixture="highest catalog loadout plus8s haste; actual input, no injected heading flags"};
+  // Capture before the actual UI disposal, so later failure still records the real hit.
+  File.WriteAllText(Path.Combine(folder,"active-fast-before.json"),JsonSerializer.Serialize(evidence));
+  SelectHero(0,sample,"active fast crit to orbit");
+  Check(!(bool)Field(old,"_normalFastHeading"),"disposed active fast heading cleared");
+  foreach(string n in new[]{"_normalEntryLiftPending","_normalEntryLift","_normalHighSpeedRequested","_normalBoundedTurn","_turning"})
+   Check(!(bool)Field(gait,n),"disposed active gait state cleared: "+n);
+  Check(!(bool)Field(Presenter,"_normalFastHeading"),"new other hero has no fast-heading residue");
+  for(int i=0;i<72;i++)Step(i<30?0:-1);
+  return evidence;
+ }
  public override void _Ready(){try{
   folder=OS.GetEnvironment("NORMAL_TRANSITION_OUTPUT");if(string.IsNullOrEmpty(folder))throw new Exception("Set NORMAL_TRANSITION_OUTPUT; use fresh isolated XDG_DATA_HOME");Directory.CreateDirectory(folder);
   Check(!Directory.Exists(ProjectSettings.GlobalizePath("user://checkpoints")),"fresh isolated checkpoint directory required");Check(NormalPresentationCandidate.Enabled,"normal enabled");ControlledGaitDrill.Enabled=false;
@@ -58,13 +92,15 @@ public partial class NormalGameTransitionProbe : Node
   Host<GameUi>("_ui").StartRequested(1,1030);var initial=ButtonAt(host,"确认准备新局");Check(initial!=null,"fresh rule confirmation visible");initial.EmitSignal(Button.SignalName.Pressed);Host<GameUi>("_ui").StartRequested(1,1030);host.SetProcess(false);
   host.RegisterMovementProvider("transition-probe",new MoveProviderOptions(100,0));sim=Host<GameSimulation>("_sim");NewPresentation(true,null,"initial crit");
   var launch=NaturalLaunch();var old=Presenter;var oldId=sim.PlayerId;int oldWave=sim.Wave,oldToken=sim.RunToken;long originalTick=sim.Tick;
-  // Sole Core fixture mutation: accelerate clock only. No Phase, PlayerId, health or ResetTransient injection.
+  // Wave-end fixture mutates the clock only; separate labeled catalog/haste fixture follows below.
+  // No Phase, PlayerId, health or ResetTransient injection.
   object run=Field(sim,"Run");run.GetType().GetField("Tick",F).SetValue(run,(long)WaveRules.DurationTicks);
   Step();Check(sim.Phase==RunPhase.Between,"clock boundary triggers ordinary wave-end system");OfferSlotView pick=null;foreach(var offer in sim.GetOfferSlots())if(offer.Enabled){pick=offer;break;}
   Check(pick!=null,"eligible actual offer");var ui=Host<GameUi>("_ui");ui.PickRequested(pick.Card.Id);Step();Check(sim.CardPicked,"real UI choose accepted");Check(ui.NextRequested!=null,"real next route bound");ui.NextRequested();
   Retired(old,launch,"next wave");NewPresentation(true,launch,"next wave crit");Check(sim.RunToken==oldToken&&sim.Wave==oldWave+1,"same run next wave");Check(sim.PlayerId!=oldId&&!sim.TryGetEntity(oldId,out _),"old full entity generation invalidated");
-  launch=NaturalLaunch();SelectHero(0,launch,"crit to orbit");for(int i=0;i<72;i++)Step(i<30?0:-1);SelectHero(1,launch,"orbit to crit");NaturalLaunch();
-  File.WriteAllText(Path.Combine(folder,"summary.json"),JsonSerializer.Serialize(new{pass=true,checks,advances,maxSteps,transitions,clockFixture=new{fromTick=originalTick,toTick=WaveRules.DurationTicks,purpose="trigger actual wave-end; not full-wave survival/economy"},scope="real rule confirmation, UI Choose/Next checkpoint, selection/new-run, disposed presenter, hero isolation; no native visual or persistence fault test"},new JsonSerializerOptions{WriteIndented=true}));GD.Print($"NORMAL_GAME_TRANSITION_PASS {checks}");done=true;
+  launch=NaturalLaunch();SelectHero(0,launch,"crit to orbit");for(int i=0;i<72;i++)Step(i<30?0:-1);SelectHero(1,launch,"orbit to crit");launch=NaturalLaunch();
+  int baseChecks=checks,baseAdvances=advances;var activeFast=ActiveFastTransition(launch);
+  File.WriteAllText(Path.Combine(folder,"summary.json"),JsonSerializer.Serialize(new{pass=true,checks,advances,maxSteps,baseChecks,baseAdvances,activeFast,transitions,clockFixture=new{fromTick=originalTick,toTick=WaveRules.DurationTicks,purpose="trigger actual wave-end; not full-wave survival/economy"},scope="real rule confirmation, UI Choose/Next checkpoint, selection/new-run, disposed presenter, hero isolation; no native visual or persistence fault test"},new JsonSerializerOptions{WriteIndented=true}));GD.Print($"NORMAL_GAME_TRANSITION_PASS {checks}");done=true;
  }catch(Exception e){if(!string.IsNullOrEmpty(folder))File.WriteAllText(Path.Combine(folder,"failure.json"),JsonSerializer.Serialize(new{checks,advances,transitions,error=e.ToString()}));GD.PushError(e.ToString());GetTree().Quit(1);}}
  public override void _Process(double delta){if(done)GetTree().Quit();}
 }
