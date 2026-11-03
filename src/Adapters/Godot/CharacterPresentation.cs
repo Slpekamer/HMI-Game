@@ -24,7 +24,7 @@ public sealed class CharacterPresentation : IDisposable
     private Vector3 _target, _previousSample;
     private long _tick = -1, _lastAttackTick = -1;
     private int _runToken, _wave;
-    private float _speed, _attackRemaining, _facing, _health;
+    private float _speed, _attackRemaining, _facing, _health, _travelFacing;
     private float _faceClock, _smileRemaining, _surpriseRemaining;
     private string _current = "";
     private bool _attackQueued, _disposed;
@@ -169,9 +169,11 @@ public sealed class CharacterPresentation : IDisposable
         {
             if (actualTravel.LengthSquared() > .00000001f)
             {
-                float yaw = Mathf.Atan2(-actualTravel.X, -actualTravel.Z);
-                _root.Rotation = new Vector3(0, Mathf.LerpAngle(_root.Rotation.Y, yaw, 1 - Mathf.Exp(-14 * delta)), 0);
+                _travelFacing = Mathf.Atan2(-actualTravel.X, -actualTravel.Z);
             }
+            // Finish the already-requested cosmetic turn after the position Lerp becomes subpixel.
+            // Grounded stop feet target this same final heading before touchdown, never slide afterward.
+            _root.Rotation = new Vector3(0, Mathf.LerpAngle(_root.Rotation.Y, _travelFacing, 1 - Mathf.Exp(-14 * delta)), 0);
         }
         else if (_controlledGait) _root.Rotation = new Vector3(0, ControlledGaitDrill.Yaw, 0);
         else if(_stationaryFacingHeld){if(_stationaryInputKnown)_root.Rotation=new Vector3(0,StationaryLaunchFacing.Turn(_root.Rotation.Y,_stationaryFacingYaw,delta),0);}
@@ -238,6 +240,7 @@ public sealed class CharacterPresentation : IDisposable
         _turningRun?.Reset();
         _displacementBackpedal?.Reset();
         _displacementSideHop?.Reset();
+        if (GodotObject.IsInstanceValid(_root)) _travelFacing = _root.Rotation.Y;
         _attackRemaining = _smileRemaining = _surpriseRemaining = _faceClock = 0;
         _attackQueued = false; _lastAttackTick = -1; _current = "";
         if(_mixer!=null) _mixer.Reset();

@@ -23,7 +23,7 @@ internal sealed class TurningRunPresentation
     private Vector3 _renderVelocity, _lastTravel;
     private Transform3D _previousSkeleton;
     private float _dt, _turnSpreadAge, _turnWeight;
-    private bool _turning, _hasTurned;
+    private bool _turning, _hasTurned, _turnStop;
     private float _turnAge, _turnBodyOffset, _turnBodyVelocityOffset;
     private int _turnCount;
     private const float TurnDuration = .10f;
@@ -44,7 +44,7 @@ internal sealed class TurningRunPresentation
         public int Thigh, Shin, Bone, Side, CycleIndex = int.MinValue;
         public Transform3D RestThigh, RestShin, RestFoot, Initial, World, Anchor;
         public Vector3[] Sole = Array.Empty<Vector3>();
-        public Basis Flat, TurnBasis;
+        public Basis Flat, TurnBasis, StopBasis;
         public float UpperLength, LowerLength, AnkleY, Phase, Margin, SettleAge;
         public bool Stance, Settling, Settled, StopReleasePending;
         public Vector3 SettleRelative, SettleVelocity, Velocity, ResumeOffset, ResumeVelocityOffset;
@@ -142,7 +142,7 @@ internal sealed class TurningRunPresentation
     }
     public void Reset()
     {
-        RestoreBase(); _turning = _hasTurned = false; _turnAge = 0; _turnCount = 0; _renderVelocity = Vector3.Zero; if (GodotObject.IsInstanceValid(_skeleton) && _skeleton.IsInsideTree()) { _forward = Horizontal(-_skeleton.GlobalBasis.Z).Normalized(); _previousSkeleton = _skeleton.GlobalTransform; } _turnSpreadAge = _turnWeight = 0; _lastTravel = _forward; _turnBodyOffset = _turnBodyVelocityOffset = 0; _distance = _age = _stopAge = _bodyDelta = _hop = 0; _footfalls = 0;
+        RestoreBase(); _turning = _hasTurned = _turnStop = false; _turnAge = 0; _turnCount = 0; _renderVelocity = Vector3.Zero; if (GodotObject.IsInstanceValid(_skeleton) && _skeleton.IsInsideTree()) { _forward = Horizontal(-_skeleton.GlobalBasis.Z).Normalized(); _previousSkeleton = _skeleton.GlobalTransform; } _turnSpreadAge = _turnWeight = 0; _lastTravel = _forward; _turnBodyOffset = _turnBodyVelocityOffset = 0; _distance = _age = _stopAge = _bodyDelta = _hop = 0; _footfalls = 0;
         _started = _stopping = _initialCaptured = _resuming = _tapStopping = false;
         _stopBodyOffset = _stopBodyVelocityOffset = 0;
         _resumeAge = _resumeBodyOffset = _resumeBodyVelocityOffset = _bodyVelocity = _lastSpeed = 0; _restartCount = 0; _failure = ""; _lastRoot = GodotObject.IsInstanceValid(_root) && _root.IsInsideTree() ? _root.GlobalPosition : Vector3.Zero;
@@ -201,6 +201,7 @@ internal sealed class TurningRunPresentation
             // A short, explicitly authored wider turning step uses modest extra crouch for reach.
             // This is a trajectory choice, never an IK clamp or a planted-anchor correction.
             _bodyDelta -= .015f * _turnWeight;
+            if (_hasTurned && _tapStopping) _bodyDelta -= .01f * StopArc();
             float resumeT = Math.Clamp(_resumeAge / ResumeDuration, 0, 1);
             if (_resuming) _bodyDelta += BridgeOffset(resumeT, _resumeBodyOffset, _resumeBodyVelocityOffset);
             if (_tapStopping && _stopAge < ResumeDuration)
@@ -314,12 +315,13 @@ internal sealed class TurningRunPresentation
                         {
                             float duration = .2f - f.SettleAge, elapsed = _stopAge - f.SettleAge;
                             if (duration <= Math.Max(f.TapHorizontalBrake, f.TapVerticalBrake)) Fail("No tap settle interval remains after braking");
-                            Vector3 goal = authoritativeTarget + (_skeleton.GlobalTransform * f.RestFoot.Origin - root); goal.Y = f.AnkleY;
+                            Vector3 goal = StopGoal(f, authoritativeTarget, root); goal.Y = f.AnkleY;
                             Vector3 relative = TapHorizontal(f, elapsed, duration, Horizontal(goal - hipWorld));
                             Vector3 target = hipWorld + relative;
+                            if (_hasTurned) target += _skeleton.GlobalBasis.X.Normalized() * ((f.Side == 0 ? -1 : 1) * .04f * StopArc());
                             target.Y = TapVertical(f, elapsed, duration);
                             if (target.Y < f.AnkleY - .00001f) Fail("Tap settle would put rigid sole below preserved ground");
-                            f.World = new Transform3D(f.Flat, target); f.Stance = false; f.State = "tap-settle";
+                            f.World = new Transform3D(StopFootBasis(f), target); f.Stance = false; f.State = "tap-settle";
                             if (elapsed >= duration) { f.Anchor = f.World; f.Settled = true; f.Stance = true; f.State = "settled-anchor"; }
                         }
                     }
@@ -402,6 +404,7 @@ internal sealed class TurningRunPresentation
     }
     private void BeginTapStop(Vector3 currentDisplacement)
     {
+        _turnStop = _hasTurned && (_turnWeight > .001f || _forward.Dot(_lastTravel) < .9999f);
         // Only transient stop entry changes. Actual applied pose/velocities/ground survive.
         float nominalBody = _feet[0].AnkleY + Height + NominalHop(_distance)
             - (_skeleton.GlobalTransform * _feet[0].RestThigh.Origin).Y;
@@ -411,7 +414,7 @@ internal sealed class TurningRunPresentation
         foreach (var f in _feet)
         {
             f.Settling = f.Settled = f.StopReleasePending = false;
-            f.TapSettle = f.TapLiftoff = false;
+            f.TapSettle = f.TapLiftoff = false; f.StopBasis = f.World.Basis;
             if (f.Stance)
             {
                 f.Anchor = f.World; f.TapLiftoff = true;
@@ -527,6 +530,25 @@ internal sealed class TurningRunPresentation
         _tapStopping = false;
         _resumeAge = 0; _resuming = true; _stopping = false; _restartCount++;
         // _distance, _ground, ankle heights, current bodyDelta and anchors deliberately survive.
+    }
+    private float StopArc() => _turnStop ? Square(MathF.Sin(MathF.PI * Math.Clamp(_stopAge / .2f, 0, 1))) : 0;
+    private Basis StopHeadingRotation()
+    {
+        float targetYaw = Mathf.Atan2(-_lastTravel.X, -_lastTravel.Z);
+        float currentYaw = Mathf.Atan2(-_forward.X, -_forward.Z);
+        return new Basis(Vector3.Up, Mathf.AngleDifference(currentYaw, targetYaw));
+    }
+    private Vector3 StopGoal(Foot f, Vector3 authority, Vector3 root)
+    {
+        Vector3 relative = _skeleton.GlobalTransform * f.RestFoot.Origin - root;
+        return authority + (_hasTurned ? StopHeadingRotation() * relative : relative);
+    }
+    private Basis StopFootBasis(Foot f)
+    {
+        if (!_hasTurned) return f.Flat;
+        Basis end = StopHeadingRotation() * f.Flat;
+        return new Basis(f.StopBasis.Orthonormalized().GetRotationQuaternion().Slerp(
+            end.Orthonormalized().GetRotationQuaternion(), Smooth(_stopAge / .2f))).Scaled(Vector3.One * _scale);
     }
     private Vector3 TurningWidth(Foot f) => _skeleton.GlobalBasis.X.Normalized() * ((f.Side == 0 ? -1 : 1) * .04f * _turnWeight);
     private Vector3 NominalFootOrigin(Foot f, float distance, Vector3 rootDisplacement)
