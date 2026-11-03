@@ -1,5 +1,6 @@
 using Godot;
 using Hmi.Core;
+using Hmi.GodotAdapter;
 using System;
 using System.Reflection;
 
