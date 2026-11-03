@@ -47,7 +47,8 @@ internal sealed class TurningRunPresentation
         public Basis Flat, TurnBasis, StopBasis;
         public float UpperLength, LowerLength, AnkleY, Phase, Margin, SettleAge;
         public bool Stance, Settling, Settled, StopReleasePending;
-        public Vector3 SettleRelative, SettleVelocity, Velocity, ResumeOffset, ResumeVelocityOffset;
+        public Vector3 SettleRelative, SettleVelocity, Velocity, ResumeOffset, ResumeVelocityOffset, LocalRelative, LocalVelocity;
+        public bool BodySpace;
         public bool ResumeHold, TapSettle, TapLiftoff, TurnLift;
         public float TapHorizontalBrake, TapVerticalBrake, TapHeight, TapVerticalVelocity;
         public float ResumeHeight, ResumeVerticalVelocity, ResumeBrakeDuration;
@@ -125,7 +126,7 @@ internal sealed class TurningRunPresentation
     }
     private void CaptureInitial()
     {
-        foreach (var f in _feet) { f.Initial = _skeleton.GlobalTransform * _skeleton.GetBoneGlobalPose(f.Bone); f.World = f.Initial; f.Anchor = f.Initial; }
+        foreach (var f in _feet) { f.Initial = _skeleton.GlobalTransform * _skeleton.GetBoneGlobalPose(f.Bone); f.World = f.Initial; f.Anchor = f.Initial; f.LocalRelative = _skeleton.GlobalBasis.Orthonormalized().Inverse() * (f.World.Origin - _skeleton.GlobalTransform * f.RestThigh.Origin); f.LocalVelocity = Vector3.Zero; }
         _ground = _feet.Min(f => f.Sole.Min(p => (f.Initial * p).Y));
         foreach (var f in _feet) f.AnkleY = _ground - f.Sole.Min(p => (f.Flat * p).Y);
         Vector3 hip = _skeleton.GlobalTransform * _feet[0].RestThigh.Origin;
@@ -257,7 +258,9 @@ internal sealed class TurningRunPresentation
                         // Lateral clearance has its own 50ms ramp. Do not attenuate it a second time
                         // through the 100ms forward-flight bridge (that crossed boots at other phases).
                         Vector3 width = TurningWidth(f);
-                        Vector3 target = hipWorld + TapHorizontal(f, elapsed, duration, Horizontal(nominal - hipWorld - width)) + width;
+                        Basis body = _skeleton.GlobalBasis.Orthonormalized();
+                        Vector3 targetRelative = Horizontal(body.Inverse() * (nominal - hipWorld - width));
+                        Vector3 target = hipWorld + body * TapHorizontal(f, elapsed, duration, targetRelative) + width;
                         float tau = f.TapVerticalBrake;
                         if (tau > 0 && elapsed <= tau)
                             target.Y = f.AnkleY + f.TapHeight + f.TapVerticalVelocity * (elapsed - elapsed * elapsed / (2 * tau));
@@ -265,9 +268,9 @@ internal sealed class TurningRunPresentation
                             target.Y = Mathf.Lerp(f.AnkleY + f.TapHeight + f.TapVerticalVelocity * tau / 2, nominal.Y,
                                 Smooth((elapsed - tau) / (duration - tau)));
                         if (target.Y < f.AnkleY - .00001f) Fail("Turn bridge below preserved floor");
-                        Basis turnBasis = new Basis(f.TurnBasis.Orthonormalized().GetRotationQuaternion().Slerp(
-                            f.Flat.Orthonormalized().GetRotationQuaternion(), Smooth(_turnAge / TurnDuration))).Scaled(Vector3.One * _scale);
-                        f.World = new Transform3D(turnBasis, target); f.Stance = false; f.State = "turn-bridge";
+                        // The body heading is already smoothed; airborne shoes travel in its anatomical frame.
+                        // Interpolating old WORLD left/right offsets across180 degrees makes them cross.
+                        f.World = new Transform3D(f.Flat, target); f.Stance = false; f.State = "turn-bridge";
                     }
                 }
                 else if (_resuming)
@@ -316,8 +319,9 @@ internal sealed class TurningRunPresentation
                             float duration = .2f - f.SettleAge, elapsed = _stopAge - f.SettleAge;
                             if (duration <= Math.Max(f.TapHorizontalBrake, f.TapVerticalBrake)) Fail("No tap settle interval remains after braking");
                             Vector3 goal = StopGoal(f, authoritativeTarget, root); goal.Y = f.AnkleY;
-                            Vector3 relative = TapHorizontal(f, elapsed, duration, Horizontal(goal - hipWorld));
-                            Vector3 target = hipWorld + relative;
+                            Basis frameBasis = f.BodySpace ? _skeleton.GlobalBasis.Orthonormalized() : Basis.Identity;
+                            Vector3 relative = TapHorizontal(f, elapsed, duration, Horizontal(frameBasis.Inverse() * (goal - hipWorld)));
+                            Vector3 target = hipWorld + frameBasis * relative;
                             if (_hasTurned) target += _skeleton.GlobalBasis.X.Normalized() * ((f.Side == 0 ? -1 : 1) * .04f * StopArc());
                             target.Y = TapVertical(f, elapsed, duration);
                             if (target.Y < f.AnkleY - .00001f) Fail("Tap settle would put rigid sole below preserved ground");
@@ -367,6 +371,8 @@ internal sealed class TurningRunPresentation
                 f.CycleIndex = cycle;
                 Solve(f, hipWorld);
                 f.Velocity = (f.World.Origin - previousFootOrigin) / dt;
+                Vector3 local = _skeleton.GlobalBasis.Orthonormalized().Inverse() * (f.World.Origin - hipWorld);
+                f.LocalVelocity = (local - f.LocalRelative) / dt; f.LocalRelative = local;
             }
             if (_turning && _turnAge >= TurnDuration) _turning = false;
             _bodyVelocity = (_bodyDelta - previousBodyDelta) / dt; _lastSpeed = traveled / dt;
@@ -398,7 +404,7 @@ internal sealed class TurningRunPresentation
             else
             {
                 Vector3 previousHip = _previousSkeleton * f.RestThigh.Origin + Vector3.Up * _bodyDelta;
-                InitializeTapAir(f, previousHip, f.Velocity, _lastSpeed, 0);
+                InitializeTapAir(f, previousHip, f.Velocity, _lastSpeed, 0, true);
             }
         }
     }
@@ -422,22 +428,26 @@ internal sealed class TurningRunPresentation
             else
             {
                 Vector3 previousHip = _previousSkeleton * f.RestThigh.Origin + Vector3.Up * _bodyDelta;
-                InitializeTapAir(f, previousHip, f.Velocity, _lastSpeed, 0);
+                InitializeTapAir(f, previousHip, f.Velocity, _lastSpeed, 0, true);
             }
         }
     }
-    private void InitializeTapAir(Foot f, Vector3 hipWorld, Vector3 velocity, float rootSpeed, float startAge)
+    private void InitializeTapAir(Foot f, Vector3 hipWorld, Vector3 velocity, float rootSpeed, float startAge, bool previousFrame = false)
     {
         f.TapSettle = true; f.Settling = false; f.Settled = false; f.SettleAge = startAge;
-        f.SettleRelative = Horizontal(f.World.Origin - hipWorld);
+        f.BodySpace = _hasTurned;
+        Basis reference = f.BodySpace ? (previousFrame ? _previousSkeleton.Basis : _skeleton.GlobalBasis).Orthonormalized() : Basis.Identity;
+        f.SettleRelative = Horizontal(reference.Inverse() * (f.World.Origin - hipWorld));
         Vector3 hipVelocity = Horizontal((_skeleton.GlobalTransform * f.RestThigh.Origin - _previousSkeleton * f.RestThigh.Origin) / _dt);
-        f.SettleVelocity = Horizontal(velocity) - hipVelocity;
+        f.SettleVelocity = f.BodySpace ? Horizontal(f.LocalVelocity) : Horizontal(velocity) - hipVelocity;
         f.TapHeight = f.World.Origin.Y - f.AnkleY; f.TapVerticalVelocity = velocity.Y;
         // One initial3D corridor bounds BOTH braking clocks, including actual hip vertical velocity.
         // The pose itself is never projected. Curved later targets remain subject to the hard IK guard.
         float brakeCap = ResumeDuration / 2;
-        Vector3 relative = f.World.Origin - hipWorld;
-        Vector3 relativeVelocity = velocity - hipVelocity - Vector3.Up * _bodyVelocity;
+        Vector3 relative = reference.Inverse() * (f.World.Origin - hipWorld);
+        Vector3 relativeVelocity = f.BodySpace
+            ? new Vector3(f.SettleVelocity.X, velocity.Y - _bodyVelocity, f.SettleVelocity.Z)
+            : velocity - hipVelocity - Vector3.Up * _bodyVelocity;
         float speed3 = relativeVelocity.Length();
         if (speed3 > .000001f)
         {
@@ -536,7 +546,7 @@ internal sealed class TurningRunPresentation
     {
         float targetYaw = Mathf.Atan2(-_lastTravel.X, -_lastTravel.Z);
         float currentYaw = Mathf.Atan2(-_forward.X, -_forward.Z);
-        return new Basis(Vector3.Up, Mathf.AngleDifference(currentYaw, targetYaw));
+        return new Basis(Vector3.Up, Mathf.AngleDifference(currentYaw, targetYaw) * Smooth(_stopAge / .2f));
     }
     private Vector3 StopGoal(Foot f, Vector3 authority, Vector3 root)
     {
@@ -546,9 +556,7 @@ internal sealed class TurningRunPresentation
     private Basis StopFootBasis(Foot f)
     {
         if (!_hasTurned) return f.Flat;
-        Basis end = StopHeadingRotation() * f.Flat;
-        return new Basis(f.StopBasis.Orthonormalized().GetRotationQuaternion().Slerp(
-            end.Orthonormalized().GetRotationQuaternion(), Smooth(_stopAge / .2f))).Scaled(Vector3.One * _scale);
+        return StopHeadingRotation() * f.Flat;
     }
     private Vector3 TurningWidth(Foot f) => _skeleton.GlobalBasis.X.Normalized() * ((f.Side == 0 ? -1 : 1) * .04f * _turnWeight);
     private Vector3 NominalFootOrigin(Foot f, float distance, Vector3 rootDisplacement)
