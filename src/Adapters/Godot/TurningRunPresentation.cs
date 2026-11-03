@@ -164,6 +164,8 @@ internal sealed class TurningRunPresentation
         foreach (var f in _feet) f.Flat = _skeleton.GlobalBasis * f.RestFoot.Basis.Orthonormalized();
         bool changed = traveled > .0001f && _lastTravel.Dot(displacement / traveled) < .98480775f;
         if (changed && !_turning && moving) BeginTurn(displacement);
+        // A restart must enter before advancing this frame's clocks/width, just like a direction change.
+        if (_stopping && moving && _hasTurned) BeginTurn(displacement);
         if (_turning) _turnAge += dt;
         if (_hasTurned) _turnSpreadAge += dt;
         _turnWeight = _hasTurned ? Smooth(_turnSpreadAge / .05f) * (1 - Smooth((_turnSpreadAge - .2f) / .2f)) : 0;
@@ -173,7 +175,7 @@ internal sealed class TurningRunPresentation
             CaptureInitial(); _previousSkeleton = _skeleton.GlobalTransform; Diagnostics = new { state = "idle", distance = _distance, renderDistance = traveled }; return;
         }
         if (!_started) { _started = true; _age = 0; }
-        if (_stopping && moving) { if (_hasTurned) BeginTurn(displacement); else BeginResume(displacement); }
+        if (_stopping && moving) BeginResume(displacement);
         if (!moving && !_stopping)
         {
             if (_hasTurned || _resuming || _age < ResumeDuration) { _turning = false; BeginTapStop(displacement); }
@@ -260,7 +262,12 @@ internal sealed class TurningRunPresentation
                         Vector3 width = TurningWidth(f);
                         Basis body = _skeleton.GlobalBasis.Orthonormalized();
                         Vector3 targetRelative = Horizontal(body.Inverse() * (nominal - hipWorld - width));
-                        Vector3 target = hipWorld + body * TapHorizontal(f, elapsed, duration, targetRelative) + width;
+                        Vector3 bridge = TapHorizontal(f, elapsed, duration, targetRelative);
+                        // Re-entry starts from the actual already-separated foot. Retire that old
+                        // lateral offset while introducing the new width, rather than adding widths
+                        // on every one-tick restart. Forward braking and floor curves are unchanged.
+                        bridge.X *= 1 - Smooth(_turnAge / .05f);
+                        Vector3 target = hipWorld + body * bridge + width;
                         float tau = f.TapVerticalBrake;
                         if (tau > 0 && elapsed <= tau)
                             target.Y = f.AnkleY + f.TapHeight + f.TapVerticalVelocity * (elapsed - elapsed * elapsed / (2 * tau));
