@@ -15,6 +15,7 @@ public sealed class CharacterPresentation : IDisposable
     private Animation _gaitClip;
     private readonly BackpedalWeightTransfer _weightTransfer;
     private readonly DisplacementRunPresentation _displacementRun;
+    private readonly TurningRunPresentation _turningRun;
     private readonly DisplacementBackpedalPresentation _displacementBackpedal;
     private readonly DisplacementSideHopPresentation _displacementSideHop;
     private readonly EntityId _entity;
@@ -66,7 +67,8 @@ public sealed class CharacterPresentation : IDisposable
         if (_controlledGait && ControlledGaitDrill.WeightTransfer) _weightTransfer = new BackpedalWeightTransfer(_root);
         if (_controlledGait && ControlledGaitDrill.DisplacementRun)
         {
-            if (ControlledGaitDrill.Clip == "StrafeR" || ControlledGaitDrill.Clip == "StrafeL")
+            if (ControlledGaitDrill.TurningRun) _turningRun = new TurningRunPresentation(_root);
+            else if (ControlledGaitDrill.Clip == "StrafeR" || ControlledGaitDrill.Clip == "StrafeL")
                 _displacementSideHop = new DisplacementSideHopPresentation(_root, ControlledGaitDrill.Clip == "StrafeL" ? -1 : 1);
             else if (ControlledGaitDrill.Clip == "Backpedal") _displacementBackpedal = new DisplacementBackpedalPresentation(_root);
             else _displacementRun = new DisplacementRunPresentation(_root);
@@ -157,10 +159,21 @@ public sealed class CharacterPresentation : IDisposable
         delta = Math.Min(delta, .25f);
         _weightTransfer?.RestoreBase();
         _displacementRun?.RestoreBase();
+        _turningRun?.RestoreBase();
         _displacementBackpedal?.RestoreBase();
         _displacementSideHop?.RestoreBase();
+        Vector3 previousPosition = _root.Position;
         _root.Position = _root.Position.Lerp(_target, 1 - Mathf.Exp(-22 * delta));
-        if (_controlledGait) _root.Rotation = new Vector3(0, ControlledGaitDrill.Yaw, 0);
+        Vector3 actualTravel = _root.Position - previousPosition; actualTravel.Y = 0;
+        if (_controlledGait && ControlledGaitDrill.TurningRun)
+        {
+            if (actualTravel.LengthSquared() > .00000001f)
+            {
+                float yaw = Mathf.Atan2(-actualTravel.X, -actualTravel.Z);
+                _root.Rotation = new Vector3(0, Mathf.LerpAngle(_root.Rotation.Y, yaw, 1 - Mathf.Exp(-14 * delta)), 0);
+            }
+        }
+        else if (_controlledGait) _root.Rotation = new Vector3(0, ControlledGaitDrill.Yaw, 0);
         else if(_stationaryFacingHeld){if(_stationaryInputKnown)_root.Rotation=new Vector3(0,StationaryLaunchFacing.Turn(_root.Rotation.Y,_stationaryFacingYaw,delta),0);}
         else _root.Rotation = new Vector3(0, Mathf.LerpAngle(_root.Rotation.Y, _facing, 1 - Mathf.Exp(-14 * delta)), 0);
         bool fireLayer=false;
@@ -186,6 +199,7 @@ public sealed class CharacterPresentation : IDisposable
         else _player?.Advance(delta);
         if (_weightTransfer != null && _mixer != null) _weightTransfer.Apply(_mixer.RunPhase, _mixer.MovementBlend);
         _displacementRun?.Advance(delta, _speed > .08f, _target);
+        _turningRun?.Advance(delta, _speed > .08f, _target);
         _displacementBackpedal?.Advance(delta, _speed > .08f, _target);
         _displacementSideHop?.Advance(delta, _speed > .08f, _target);
         _attackRemaining = Math.Max(0, _attackRemaining - delta);
@@ -221,6 +235,7 @@ public sealed class CharacterPresentation : IDisposable
     {
         _weightTransfer?.RestoreBase();
         _displacementRun?.Reset();
+        _turningRun?.Reset();
         _displacementBackpedal?.Reset();
         _displacementSideHop?.Reset();
         _attackRemaining = _smileRemaining = _surpriseRemaining = _faceClock = 0;
