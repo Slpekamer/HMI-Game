@@ -253,7 +253,10 @@ internal sealed class TurningRunPresentation
                         float duration = TurnDuration - f.SettleAge;
                         if (duration <= Math.Max(f.TapHorizontalBrake, f.TapVerticalBrake)) Fail("No turn interval after braking");
                         Vector3 nominal = NominalFootOrigin(f, _distance, Vector3.Zero);
-                        Vector3 target = hipWorld + TapHorizontal(f, elapsed, duration, Horizontal(nominal - hipWorld));
+                        // Lateral clearance has its own 50ms ramp. Do not attenuate it a second time
+                        // through the 100ms forward-flight bridge (that crossed boots at other phases).
+                        Vector3 width = TurningWidth(f);
+                        Vector3 target = hipWorld + TapHorizontal(f, elapsed, duration, Horizontal(nominal - hipWorld - width)) + width;
                         float tau = f.TapVerticalBrake;
                         if (tau > 0 && elapsed <= tau)
                             target.Y = f.AnkleY + f.TapHeight + f.TapVerticalVelocity * (elapsed - elapsed * elapsed / (2 * tau));
