@@ -41,3 +41,7 @@ The90%-reach candidate passed the three standard numeric routes, six short-stop/
 ## Failed-direction replacement semantics
 
 Code review identified a capture-failure edge: a newer launch without a recoverable direction could otherwise reuse an older held sample. The host now pairs the captured direction with the exact accepted projectile identity/tick. An accepted launch lacking that evidence clears the previous visual aim; duplicate/stale attack triggers do not change it. A selected non-projectile gesture also clears the unrelated held direction. This changes no event scheduling or attack graph request. Natural-route and lifecycle checks are rerun; no claim of exhaustive event-overflow coverage is added.
+
+## Horizontal elbow-plane comparison
+
+Raising the elbow cleared180 frame116's torso intersection, but−90 frames126/127 became worse and showed more head overlap. Exact morph-aware head comparison also found existing original-animation head intersections (180 baseline25, raised22), so not every head crossing is newly introduced. The next focused comparison removes only the elbow pole's vertical bias, seeking an outward horizontal fold between chest and head; all other reach/aim settings stay fixed. This is a bounded pose comparison, not a claim of full-body mesh clearance. The probe now explicitly checks matching accepted launch binding, duplicate-no-sample preservation and missing-evidence replacement clearing after a presentation reset.

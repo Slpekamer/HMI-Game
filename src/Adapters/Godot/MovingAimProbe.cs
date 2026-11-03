@@ -20,7 +20,8 @@ public partial class MovingAimProbe:Node
    if(OS.GetEnvironment("MOVING_LAUNCH_AIM")!="1")throw new Exception("Set MOVING_LAUNCH_AIM=1");
    ControlledGaitDrill.Enabled=ControlledGaitDrill.TurningRun=ControlledGaitDrill.DisplacementRun=ControlledGaitDrill.Candidate=ControlledGaitDrill.ProportionCandidate=true;ControlledGaitDrill.Clip="Run";
    var box=new SubViewportContainer{Size=new(1280,720)};AddChild(box);var viewport=new SubViewport{Size=new(1280,720),OwnWorld3D=true};box.AddChild(viewport);host=new GameHost();viewport.AddChild(host);host.SetProcess(false);Call("Start",1,(uint)1030);ButtonAt(host,"确认准备新局").EmitSignal(Button.SignalName.Pressed);Call("Start",1,(uint)1030);host.SetProcess(false);host.RegisterMovementProvider("route",new MoveProviderOptions(100,0));sim=Field<GameSimulation>("_sim");
-   for(int i=0;i<72;i++){Input(i<30?0:1);host._Process(GameSimulation.FixedDelta);}
+   ProjectileTransition? actualLaunch=null;
+   for(int i=0;i<72;i++){Input(i<30?0:1);host._Process(GameSimulation.FixedDelta);for(int t=0;t<sim.ProjectileTransitionCount;t++){var e=sim.GetProjectileTransition(t);if(e.Kind==ProjectileTransitionKind.Launched&&e.Owner==sim.PlayerId)actualLaunch=e;}}
    var p=Field<CharacterPresentation[]>("_presentations")[sim.PlayerId.Index];var root=Field<Node3D[]>("_visuals")[sim.PlayerId.Index];C(p.LaunchAim.HasValue,"real moving launch captured");var sample=p.LaunchAim.Value;
    C(!p.AcceptLaunchAim(sample),"same tick duplicate rejected");C(!p.AcceptLaunchAim(default),"invalid owner rejected");
    string diag=JsonSerializer.Serialize(p.MovingAimDiagnostics);C(diag.Contains("upper-yaw-wip"),"actual pose layer active");var transform=root.Transform;
@@ -29,6 +30,13 @@ public partial class MovingAimProbe:Node
    p.Advance(0,false);p.Advance(float.NaN,false);C(JsonSerializer.Serialize(p.MovingAimDiagnostics)==diag,"invalid delta freezes");
    host._Notification((int)MainLoop.NotificationApplicationFocusOut);C(!p.LaunchAim.HasValue,"focus clears immutable sample");C(JsonSerializer.Serialize(p.MovingAimDiagnostics).Contains("idle"),"focus restores base pose");
    Call("ConsumeEvents");C(!p.LaunchAim.HasValue,"same buffer focus replay absent");
+   C(actualLaunch.HasValue,"actual launch retained for replacement contract");
+   typeof(CharacterPresentation).GetMethod("ResetTransient",F).Invoke(p,null);
+   C(p.AttackLaunch(actualLaunch.Value,sample)&&p.LaunchAim.HasValue,"fresh accepted launch gets matching direction");
+   C(!p.AttackLaunch(actualLaunch.Value,null)&&p.LaunchAim.HasValue,"duplicate without sample does not erase valid aim");
+   typeof(CharacterPresentation).GetMethod("ResetTransient",F).Invoke(p,null);
+   C(p.AcceptLaunchAim(sample),"seed old held visual direction after presentation reset");
+   C(p.AttackLaunch(actualLaunch.Value,null)&&!p.LaunchAim.HasValue,"accepted launch with missing evidence clears held direction");
    C(sim.TryGetEntity(sim.PlayerId,out var view),"player view");C(p.Snapshot(view,sim.Tick,sim.RunToken+1,sim.Wave),"context reset accepted");C(!p.AcceptLaunchAim(sample),"old context rejected");
    p.Dispose();C(!p.AcceptLaunchAim(sample),"disposed rejects sample");box.QueueFree();GD.Print($"MOVING_AIM_PROBE_PASS {checks}");done=true;
   }catch(Exception e){GD.PushError(e.ToString());GetTree().Quit(1);}
