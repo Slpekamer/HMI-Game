@@ -1,5 +1,7 @@
 """Actual-engine presentation regression; test code exists only in an isolated copy.
 
+Legacy five-asset graph/presenter contract only, not the default normal candidate.
+Normal gameplay and real dispose/recreate transitions are covered by separate probes.
 Headless results establish behavior/lifecycle, never visual or device performance.
 """
 from pathlib import Path
@@ -22,6 +24,8 @@ shutil.copytree(root, project, ignore=shutil.ignore_patterns(
     '[node name="PresentationProbe" type="Node3D"]\nscript = ExtResource("1")\n')
 engine = os.environ["GODOT_NET"]
 env = os.environ.copy()
+# Keep this legacy graph/reset contract explicit, independent of the caller environment.
+env["NORMAL_PRESENTATION_CANDIDATE"] = "0"
 env["XDG_CONFIG_HOME"] = str(work / "editor-config")
 Path(env["XDG_CONFIG_HOME"]).mkdir()
 env["XDG_DATA_HOME"] = str(work / "user-data")

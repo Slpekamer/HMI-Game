@@ -5,7 +5,10 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 
-// Actual five imported GLBs; isolated graph candidate only, not gameplay/visual acceptance.
+// Legacy five imported GLBs / AnimationTree / legacy presenter contract.
+// The isolated runner explicitly disables NormalPresentationCandidate; all original assertions remain.
+// Default normal gameplay and real dispose/recreate transitions have separate normal probes.
+// This result is not normal-candidate gameplay or visual acceptance.
 public partial class FoodAnimationMixerProbe : Node3D
 {
     private int checks;

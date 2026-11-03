@@ -12,12 +12,39 @@ public partial class HostLifecycleProbe : Node
     private void Call(string name,params object[] args)=>typeof(GameHost).GetMethod(name,Flags).Invoke(host,args);
     private void Check(bool ok,string message){if(!ok)throw new Exception(message);}
     private void Render()=>Call("RenderEntities",1f/60);
+    private static Button ButtonAt(Node node,string text)
+    {
+        if(node is Button button&&button.Text==text)return button;
+        foreach(Node child in node.GetChildren()){var found=ButtonAt(child,text);if(found!=null)return found;}
+        return null;
+    }
+    private void StartActual(int hero,uint seed)
+    {
+        var ui=(GameUi)Field("_ui");ui.StartRequested(hero,seed);
+        if(ui.IsPersistenceModalOpen)
+        {
+            var prepare=ButtonAt(host,"确认准备新局");
+            if(prepare!=null){prepare.EmitSignal(Button.SignalName.Pressed);ui.StartRequested(hero,seed);}
+            else
+            {
+                var replace=ButtonAt(host,"确认开始新局");
+                Check(replace!=null,"Expected real new-run confirmation, not a blocked persistence operation");
+                replace.EmitSignal(Button.SignalName.Pressed);
+            }
+        }
+        // Successful persistence enables normal processing; this fixture owns its fixed ticks.
+        host.SetProcess(false);
+        var simulation=(GameSimulation)Field("_sim");
+        Check(simulation.Phase==RunPhase.Combat&&simulation.TryGetEntity(simulation.PlayerId,out _),
+            "Real UI start must create a live full player ID before slot tests");
+    }
+
     private async System.Threading.Tasks.Task Flush(){await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);}
     public override async void _Ready()
     {
         try
         {
-            host=new GameHost();AddChild(host);host.SetProcess(false);Call("Start",3,(uint)1030);
+            host=new GameHost();AddChild(host);host.SetProcess(false);StartActual(3,1030);
             var g=(GameSimulation)Field("_sim");
             for(int i=0;i<g.Capacity;i++)if(i!=g.PlayerId.Index)g.World.Destroy(i);
             var actor=g.World.Create(Components.Enemy|Components.Health,new Vec2(4,4),.44f,"enemy_chaser",100);
@@ -61,12 +88,12 @@ public partial class HostLifecycleProbe : Node
             Render();Check(!presenter.CurrentClip.EndsWith("Attack"),"Future event must not be re-stamped at render");
             GD.Print("HOST_LIFECYCLE preserved catch-up tick / run-wave context / future rejection PASS");
 
-            Call("Start",3,(uint)1030);
+            StartActual(3,1030);
             g=(GameSimulation)Field("_sim");
             // Explicit test fixture: keep player alive, remove enemies and advance real fixed ticks.
             for(int i=0;i<g.Capacity;i++)if(g.World.Has(i,Components.Enemy))g.World.Destroy(i);
             g.SpawnTimer=999;
-            for(int i=0;i<1500&&g.Phase==RunPhase.Combat;i++) {g.World.Health[g.PlayerId.Index].Current=10000;g.Step();if(i%30==0){Render();await Flush();}}
+            for(int i=0;i<WaveRules.DurationTicks+2&&g.Phase==RunPhase.Combat;i++) {g.World.Health[g.PlayerId.Index].Current=10000;g.Step();if(i%30==0){Render();await Flush();}}
             Check(g.Phase==RunPhase.Between,"Wave one must finish");
             g.Enqueue(GameCommand.Choose(g.GetOffers()[0].Id));g.Step();
             // Companion expansion fixture isolates renderer lifecycle regardless of randomized card offer.
@@ -76,7 +103,7 @@ public partial class HostLifecycleProbe : Node
             Check(g.Wave==2&&g.Tick>=120,"Wave two must continue after expanded companions");
             g.Enqueue(GameCommand.Pause(true));g.Step();long paused=g.Tick;Render();await Flush();g.Step();Check(g.Tick==paused,"Pause must still work");
             GD.Print("HOST_LIFECYCLE expanded-companion wave1 -> wave2 / moving-idle / pause PASS");
-            Call("Start",2,(uint)1030);Render();await Flush();Render();
+            StartActual(2,1030);Render();await Flush();Render();
             Check(((GameSimulation)Field("_sim")).Wave==1,"Restart must reset run");
             var presenters=(CharacterPresentation[])Field("_presentations");
             var saved=new System.Collections.Generic.List<CharacterPresentation>();
