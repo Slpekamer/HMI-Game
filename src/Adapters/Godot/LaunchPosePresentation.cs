@@ -45,6 +45,11 @@ internal sealed class LaunchPosePresentation
         Basis upper=new Basis(new Quaternion(upperDirection.Normalized(),(elbow-shoulder).Normalized()))*chestDelta*upperRest.Basis.Orthonormalized();
         Basis fore=new Basis(new Quaternion(foreDirection.Normalized(),(hand-elbow).Normalized()))*chestDelta*foreRest.Basis.Orthonormalized();
         q[index]=(chestBasis.Inverse()*upper).Orthonormalized().GetRotationQuaternion();q[index+1]=(upper.Inverse()*fore).Orthonormalized().GetRotationQuaternion();
+        // Fixed artistic forearm roll, selected by actual morphed-skin clearance probes.
+        // Rotating about the local Hand translation preserves the shoulder/elbow/hand chain positions.
+        // Left and right signs were independently tested; interpolation still needs runtime skin review.
+        Vector3 handAxis=skeleton.GetBoneRest(bones[index+2]).Origin.Normalized();
+        q[index+1]=(q[index+1]*new Quaternion(handAxis,Mathf.DegToRad(s==0?-30:30))).Normalized();
         // Preserve the authored wrist rest relation rather than inventing a muzzle axis.
         q[index+2]=skeleton.GetBoneRest(bones[index+2]).Basis.Orthonormalized().GetRotationQuaternion();
         return q;

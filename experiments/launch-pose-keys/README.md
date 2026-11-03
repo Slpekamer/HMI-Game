@@ -29,3 +29,9 @@ Continuous frame inspection shows the opening/accent/retraction gesture without 
 The user approved the first native energy-gesture direction. This approves the stylistic direction, not the unresolved mesh counterexamples or production integration. Preserve the first prototype as a reference.
 
 The next small change lengthens only the cosmetic cue from 360 to 500 ms: 80 ms opening, 140 ms approach to accent, 120 ms readable accent hold, 70 ms return to outward waypoint and 90 ms fade to the current original animation. Actual launch, damage, cooldown and original graph clocks remain unchanged. Near-melee cancellation retains its 60 ms cosmetic handover rather than delaying an attack. Geometry keys are unchanged in this timing batch; all previous cross-intersection counterexamples still apply until independently retested. New timing/interpolation and mixed-event verification remain pending.
+
+## Fixed forearm roll candidate
+
+A narrow offline skin diagnostic rotated the actual Forearm local basis about its Hand-child translation axis, with the Hand hierarchy following normally. At the original front-right accent sample, +30 degrees removes the twelve distal torso intersections without head/cross-arm intersections; the front-left opening sample clears its six at -30 degrees. Fifteen degrees did not clear them. These are only two sampled points, not a general acceptance claim.
+
+The next candidate caches those independently signed fixed rolls in its keys, preserving the skeleton chain endpoints and wrist rest relation. This addresses thick forearm surface orientation rather than blindly moving a ballistic target. Other sectors, entry/retraction interpolation and actual runtime skin remain to be verified. A new read-only simulation probe observes real melee and projectile events in an unmodified encounter; no synthetic attacks or health/range changes are used. Its results are still pending.
