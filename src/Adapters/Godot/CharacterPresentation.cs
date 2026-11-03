@@ -39,6 +39,7 @@ public sealed class CharacterPresentation : IDisposable
     private long _tick = -1, _lastAttackTick = -1;
     private int _runToken, _wave;
     private float _speed, _attackRemaining, _facing, _health, _travelFacing, _headingBridgeRemaining, _headingLiftRemaining;
+    private bool _normalFastHeading;
     private float _faceClock, _smileRemaining, _surpriseRemaining;
     private string _current = "";
     private bool _attackQueued, _disposed;
@@ -234,7 +235,7 @@ public sealed class CharacterPresentation : IDisposable
                     // One actual render step lets the world-anchored support lift before body yaw.
                     // Shared by A/B; it depends only on real travel, never on cosmetic bone feedback.
                     liftoffFrame = true; _headingBridgeRemaining = .1f;
-                    if(_normalPresentation) _headingLiftRemaining = 1f/60f;
+                    if(_normalPresentation) { _headingLiftRemaining = 1f/60f; _normalFastHeading = _speed > 6f; }
                 }
                 _travelFacing = nextFacing;
             }
@@ -246,7 +247,20 @@ public sealed class CharacterPresentation : IDisposable
             _headingBridgeRemaining = Math.Max(0, _headingBridgeRemaining - delta);
             // Finish the already-requested cosmetic turn after the position Lerp becomes subpixel.
             // Grounded stop feet target this same final heading before touchdown, never slide afterward.
-            if (!liftoffFrame) _root.Rotation = new Vector3(0, Mathf.LerpAngle(_root.Rotation.Y, _travelFacing, 1 - Mathf.Exp(-14 * delta)), 0);
+            if (!liftoffFrame)
+            {
+                float turnRate = 14;
+                if(_normalFastHeading)
+                {
+                    float angle = Math.Abs(Mathf.AngleDifference(_root.Rotation.Y, _travelFacing));
+                    float tolerance = Mathf.DegToRad(1);
+                    if(angle <= tolerance) _normalFastHeading = false;
+                    else turnRate = Math.Max(turnRate, MathF.Log(angle / tolerance) / Math.Max(delta, _headingBridgeRemaining));
+                }
+                // At high speed the same airborne window must finish body alignment before planting.
+                // This changes only visual yaw convergence, never the authoritative facing or velocity.
+                _root.Rotation = new Vector3(0, Mathf.LerpAngle(_root.Rotation.Y, _travelFacing, 1 - Mathf.Exp(-turnRate * delta)), 0);
+            }
         }
         else if (_controlledGait) _root.Rotation = new Vector3(0, ControlledGaitDrill.Yaw, 0);
         else if(_stationaryFacingHeld){if(_stationaryInputKnown)_root.Rotation=new Vector3(0,StationaryLaunchFacing.Turn(_root.Rotation.Y,_stationaryFacingYaw,delta),0);}
@@ -319,7 +333,7 @@ public sealed class CharacterPresentation : IDisposable
         _turningRun?.Reset();
         _displacementBackpedal?.Reset();
         _displacementSideHop?.Reset();
-        if (GodotObject.IsInstanceValid(_root)) _travelFacing = _root.Rotation.Y; _headingBridgeRemaining = 0; _headingLiftRemaining = 0;
+        if (GodotObject.IsInstanceValid(_root)) _travelFacing = _root.Rotation.Y; _headingBridgeRemaining = 0; _headingLiftRemaining = 0; _normalFastHeading = false;
         _attackRemaining = _smileRemaining = _surpriseRemaining = _faceClock = 0;
         _attackQueued = false; _lastAttackTick = -1; _current = ""; _launchAim = null;
         if(_mixer!=null) _mixer.Reset();
