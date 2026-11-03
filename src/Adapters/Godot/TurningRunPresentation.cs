@@ -509,7 +509,11 @@ internal sealed class TurningRunPresentation
     {
         if(!f.BoundedTurnReady) Fail("High-speed turn missing actual start pose");
         Basis body = _skeleton.GlobalBasis.Orthonormalized();
-        float endRadius = TurnRadius(f, nominal.Y - hip.Y);
+        // Nominal foot endpoints belong to the nominal body curve, not the transient Hermite hip.
+        // Transport their unit-disk coordinates into the ACTUAL current slice below. At turn end
+        // the body offset vanishes, so the two slices coincide and the original endpoint is exact.
+        float nominalHipY = f.AnkleY + Height + NominalHop(_distance) - _crouch;
+        float endRadius = TurnRadius(f, nominal.Y - nominalHipY);
         Vector3 end = Horizontal(body.Inverse() * (nominal - hip)) / endRadius;
         if(end.LengthSquared() > 1.00001f) Fail("High-speed nominal turn endpoint outside reachable slice");
         float y = Mathf.Lerp(f.BoundedTurnHeight, nominal.Y, t);
