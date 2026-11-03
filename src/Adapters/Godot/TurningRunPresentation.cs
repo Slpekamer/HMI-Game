@@ -185,8 +185,10 @@ internal sealed class TurningRunPresentation
         if (_stopping && moving) BeginResume(displacement);
         if (!moving && !_stopping)
         {
-            if (_hasTurned || _resuming || _age < ResumeDuration + .03f) { _turning = false; BeginTapStop(displacement); }
-            else { _tapStopping = false; _stopping = true; _stopAge = 0; foreach (var f in _feet) f.StopReleasePending = f.Stance; }
+            // The turning controller can stop at any travel phase/speed, including four-tick
+            // forward starts. Use actual-pose lift/brake/settle, not the fixed pilot's reserved
+            // full-speed release fillet. The original fixed-heading Run remains unchanged.
+            _turning = false; BeginTapStop(displacement);
         }
         _distance += traveled; _age += dt; if (_stopping) _stopAge += dt; if (_resuming) _resumeAge += dt;
         float previousBodyDelta = _bodyDelta;
