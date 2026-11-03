@@ -66,7 +66,8 @@ public sealed class CharacterPresentation : IDisposable
         if (_controlledGait && ControlledGaitDrill.WeightTransfer) _weightTransfer = new BackpedalWeightTransfer(_root);
         if (_controlledGait && ControlledGaitDrill.DisplacementRun)
         {
-            if (ControlledGaitDrill.Clip == "StrafeR") _displacementSideHop = new DisplacementSideHopPresentation(_root);
+            if (ControlledGaitDrill.Clip == "StrafeR" || ControlledGaitDrill.Clip == "StrafeL")
+                _displacementSideHop = new DisplacementSideHopPresentation(_root, ControlledGaitDrill.Clip == "StrafeL" ? -1 : 1);
             else if (ControlledGaitDrill.Clip == "Backpedal") _displacementBackpedal = new DisplacementBackpedalPresentation(_root);
             else _displacementRun = new DisplacementRunPresentation(_root);
         }
@@ -78,7 +79,9 @@ public sealed class CharacterPresentation : IDisposable
     private string CreateGaitComposite()
     {
         var original = _player.GetAnimation(_run);
-        string sourceName = FindClip(ControlledGaitDrill.Clip);
+        // The frozen asset has no StrafeL clip. Use its existing lateral base only;
+        // the opt-in displacement component owns the candidate lower pose.
+        string sourceName = FindClip(ControlledGaitDrill.Clip == "StrafeL" ? "StrafeR" : ControlledGaitDrill.Clip);
         if (sourceName.Length == 0) throw new InvalidOperationException("Missing directional drill clip");
         var source = _player.GetAnimation(sourceName);
         if (Math.Abs(original.Length - source.Length) > .00001)

@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace Hmi.GodotAdapter;
 
-/// <summary>Isolated fixed-heading synchronous StrafeR pair-hop prototype. Owns seven lower pose bones only.
+/// <summary>Isolated fixed-heading synchronous lateral pair-hop prototype. Owns seven lower pose bones only.
 /// Derived from Backpedal1fb095; approved Run/Backpedal assets and components remain unchanged.
 /// Phase uses rendered XZ displacement, never input time or authority displacement. No root writes.</summary>
 internal sealed class DisplacementSideHopPresentation
@@ -50,8 +50,9 @@ internal sealed class DisplacementSideHopPresentation
         public string State = "initial";
     }
 
-    public DisplacementSideHopPresentation(Node3D root)
+    public DisplacementSideHopPresentation(Node3D root, int direction = 1)
     {
+        if (direction != -1 && direction != 1) throw new ArgumentOutOfRangeException(nameof(direction), "Lateral direction must be -1 or +1");
         _root = root ?? throw new ArgumentNullException(nameof(root));
         _skeleton = Find(root) ?? throw new InvalidOperationException("Displacement SideHop skeleton missing");
         _pelvis = Bone("Pelvis"); _restPelvis = _skeleton.GetBoneGlobalRest(_pelvis);
@@ -59,7 +60,8 @@ internal sealed class DisplacementSideHopPresentation
         if (Math.Abs(_scale - 1.35f) > .0001f || Math.Abs(_skeleton.GlobalBasis.Scale.Y - _scale) > .0001f || Math.Abs(_skeleton.GlobalBasis.Scale.Z - _scale) > .0001f)
             throw new InvalidOperationException("Displacement SideHop requires unchanged uniform scale1.35");
         _bodyForward = Horizontal(-_skeleton.GlobalBasis.Z).Normalized();
-        _travelAxis = Horizontal(_skeleton.GlobalBasis.X).Normalized(); // Body/shoe forward and anatomical knee pole remain unchanged.
+        _travelAxis = Horizontal(_skeleton.GlobalBasis.X).Normalized();
+        if (direction < 0) _travelAxis = -_travelAxis; // Body/shoe forward and anatomical knee pole remain unchanged.
         _feet = new[] { MakeFoot("L", 0), MakeFoot("R", 1) };
         _owned = new[] { _pelvis, _feet[0].Thigh, _feet[0].Shin, _feet[0].Bone, _feet[1].Thigh, _feet[1].Shin, _feet[1].Bone };
         CollectSoles(root);

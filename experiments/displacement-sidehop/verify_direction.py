@@ -10,7 +10,9 @@ for b in sorted(root.glob('*-B')):
  for row,g,m in zip(rows,geom,motion):
   assert row['frame']==g['frame']==m['frame']
   q=g['geometry'];gaps.append(q['lateralGapWorld']);flat.extend(f['flatBasisError']for f in q['boots']);knees.extend(f['kneePoleAlignment']for f in q['boots'])
-  if m['input']!=0:assert m['localRight']>.01 and abs(m['localForward'])<.0001,('not rightward body-relative movement',b.name,row['frame'])
+  direction=-1 if m['gait']=='StrafeL' else 1
+  assert m['gait'] in ('StrafeR','StrafeL'),m['gait']
+  if m['input']!=0:assert direction*m['localRight']>.01 and abs(m['localForward'])<.0001,('wrong body-relative lateral movement',b.name,row['frame'])
   d=row['diagnostics']
   if 'feet' not in d:continue
   assert d['sharedPhase'] and len(d['feet'])==2

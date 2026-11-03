@@ -5,7 +5,7 @@ for name in ['authority.jsonl','camera.tsv']:
  assert (a/name).read_bytes()==(b/name).read_bytes(),name;report[name]='byte-identical'
 def read(p):return [json.loads(x) for x in p.read_text().splitlines()]
 ma=read(a/'motion.jsonl');mb=read(b/'motion.jsonl');assert len(ma)==len(mb)==180
-sidehop=ma[0].get('gait')=='StrafeR';report['gait']=ma[0].get('gait','Run')
+sidehop=ma[0].get('gait') in ('StrafeR','StrafeL');report['gait']=ma[0].get('gait','Run')
 for x,y in zip(ma,mb):x.pop('candidate');y.pop('candidate');assert x==y,'Phase/event/speed mismatch'
 report['attack_starts']=[x['frame'] for x in ma if x['observedStart']]
 lower={'Pelvis','Thigh_L','Shin_L','Foot_L','Thigh_R','Shin_R','Foot_R'}
