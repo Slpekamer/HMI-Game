@@ -45,3 +45,13 @@ Code review identified a capture-failure edge: a newer launch without a recovera
 ## Horizontal elbow-plane comparison
 
 Raising the elbow cleared180 frame116's torso intersection, but−90 frames126/127 became worse and showed more head overlap. Exact morph-aware head comparison also found existing original-animation head intersections (180 baseline25, raised22), so not every head crossing is newly introduced. The next focused comparison removes only the elbow pole's vertical bias, seeking an outward horizontal fold between chest and head; all other reach/aim settings stay fixed. This is a bounded pose comparison, not a claim of full-body mesh clearance. The probe now explicitly checks matching accepted launch binding, duplicate-no-sample preservation and missing-evidence replacement clearing after a presentation reset.
+
+## Current disposition: numerical invariants passed, pose design unresolved
+
+Runtime d20b1911 completed three180-frame routes with exact approved root/foot/authority/attack-clock invariants and only the seven declared upper-bone rotations changed. The actual host probe passed90 checks, including the new exact-launch/missing-evidence replacement cases. These passes do not resolve appearance.
+
+Morph-aware actual LBS review of the horizontal candidate cleared the original180 frame116 right distal torso/head crossings (one whole-arm coplanar candidate remains unresolved). However−90 frames126/127 still have33/40 distal/torso crossings versus12/12 in the original capture, and20/20 distal/head versus20/12 originally. They occur at full blend with the chest already aligned and near-zero reach-heading proxy error, not just while entering/exiting. Samples are predominantly Forearm surfaces against the Chest side, not shared shoulder vertices. Thus an exact skeleton heading, a fixed90% hand radius and one elbow pole cannot establish clearance of this thick stylized arm.
+
+Further arbitrary pole-angle tuning is paused. The next design decision is whether to accept a bounded upper-body direction cue without claiming precise all-angle aim, or author dedicated side/rear firing poses that respect the character's head/torso/arm volumes. Neither is silently substituted for the requested full visual alignment. The approved turning-run remains unchanged and available; no main/integration merge occurred.
+
+The six native clips recorded at086748a4 were diagnostic counterexample footage only. Their42 trace files match corresponding headless runs, and1,080 postdraw attachment frames show zero transform error; this does not clear their actual arm/torso intersections and is not native evidence for d20b1911. No new moving-aim video is presented as an approved result.
