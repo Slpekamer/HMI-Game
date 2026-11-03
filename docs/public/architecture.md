@@ -13,4 +13,4 @@ Visuals are bounded, instance-owned and cleared on appropriate scope changes. Hu
 ## Extension decisions
 Use stable IDs and small explicit command/event contracts. New effects must state timing, source/target identity, stacking, expiry and interruption behavior. Record save/schema or gameplay changes before integrating them. No cosmetic experiment may silently replace authoritative collision or save selection.
 
-Current unresolved work includes moving attack orientation, natural side/back movement presentation, shadow flicker and dense-scene readability. Rejected experimental fixes are not in this checkpoint.
+The normal-game combination has now passed user video review: the Crit player turns toward actual movement and uses a real-launch energy gesture rather than a gun-muzzle constraint. The reviewed shadow split is included. Original contact regions, harder shadow edges, dense-scene readability and device certification remain limitations. Historical rejected paths remain isolated experiments, not normal gameplay selections. See [pre-integration status](combined-preintegration.md).

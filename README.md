@@ -1,8 +1,8 @@
-# Review candidate: stopped Crit launch facing
+# Review candidate: approved combined presentation
 
-This independent WIP adds a narrow visual-only correction to the integrated rule-3 source below. When Crit is stopped and a genuine projectile is launched, the visual body turns smoothly toward that recorded launch direction. It does not fix firing backward while moving, change projectile paths, replay attacks or add turn-in-place footwork. This candidate is **awaiting user review**, not merged into the main branch.
+The normal-game combination at `77e398f` has passed user video review: Crit follows actual movement with turning Run, expresses genuine projectile launches through the reviewed energy gesture, and uses the reviewed `.015` shadow split. This remains an independent candidate, not merged into main/integration. Integration-readiness checks are in progress; visual approval is not export, hardware or release certification.
 
-See [candidate contract and scoped evidence](docs/public/stationary-facing.md) and the [review queue](docs/public/review-queue.md). Existing shadows, initial-turn residuals and device-validation limits remain.
+See [combination evidence and limitations](experiments/combined-normal-game/README.md) and [pre-integration status](docs/public/combined-preintegration.md). The older stopped-facing experiment is preserved as history, not the current Crit root-heading owner.
 
 # 软糖突围 / HMI-Game
 
@@ -16,7 +16,7 @@ Work-in-progress survivor game using Godot **4.6.3 .NET**, Compatibility renderi
 - Explicit old-save upgrade or preserve-old/start-new confirmation, separate save slots and fail-closed recovery.
 - Floating touch input, action-mapped gamepad UI navigation and codex focus restoration. Desktop event injection is not physical-controller certification.
 
-Experimental surface-impact effects, forced attack-facing, attention/strafe research and rejected shadow adjustments are **not included**. Standing/moving attack direction, shadow flicker and crowd occlusion remain known limitations.
+Rejected experimental effects and directional gait/aiming studies remain separately documented and are not selected by the normal candidate path. The accepted movement/launch layers apply only to the Crit player; other heroes retain their existing paths. Original contact-neighborhood intersections, harder shadow edges and crowd occlusion remain known limitations.
 
 ## Build and run
 Use the .NET edition of Godot (the standard edition cannot compile C#) and the SDK pinned by `global.json` (10.0.403). Restore requires access to the configured .NET package sources.

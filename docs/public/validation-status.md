@@ -2,7 +2,11 @@
 
 225 pure and231 Host checks passed in scoped runs; native full-view route comparison supports only the stopped-launch benefit. Core source, authoritative results, camera fields and animation local poses remain unchanged. No automatic main-branch integration or Android verification follows from this result. See [candidate details](stationary-facing.md) and [review queue](review-queue.md).
 
-# Validation status — WIP
+# Validation status — independent integration candidate
+
+Current combination `77e398f` passed user normal-speed video review. Its scoped numerical/native evidence is in [combination validation](../../experiments/combined-normal-game/README.md). Pre-integration regression and dependency checks are underway; no automatic merge or release follows. The historical rule-3 checkpoint results below retain their original scope and are not a fresh full-suite pass.
+
+## Historical rule-3 checkpoint
 
 This public checkpoint contains completed code with known limitations; it is not release acceptance. Runtime code matches the frozen integrated rule 3 candidate. Publication only narrows documentation/provenance and parameterizes environment-specific scripts; it does not add experimental effects.
 
@@ -15,8 +19,8 @@ This public checkpoint contains completed code with known limitations; it is not
 - Save validation used synthetic fixtures; cancel preserved old bytes and confirmed upgrades selected a distinct rule 3 slot.
 
 ## Failed, limited or unverified
-- Shadow flicker remains. Tested distance and filtering alternatives produced no visual improvement and were not adopted. Other shadow experiments had costs or artifacts and are not production fixes.
-- Moving attacks can still face the movement direction rather than the struck enemy. Natural side/back gait and full skill readability remain unfinished.
+- Historical distance/filter experiments did not help. The later reviewed `.015` first split is now selected by the normal candidate, accepting harder edges; all-device shadow correctness remains unverified.
+- The reviewed Crit turning Run and launch-energy gesture supersede the earlier moving-facing/side-back issue in this candidate. This is not a muzzle-alignment guarantee, all-hero redesign or exhaustive skill readability proof.
 - Contact/short hops and crowded actors can be occluded. Hurt cues intentionally gate repeated events; they are not a confirmation for every hit.
 - Active-projectile pause was not reliably captured in the latest manual run; automatic semantics and ordinary manual pause are distinct evidence.
 - A strict editor-import shutdown diagnostic remains recorded. Historical intermittent native exit failures have not been proved eliminated by subsequent clean scoped runs.
