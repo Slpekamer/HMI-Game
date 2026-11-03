@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-MODE="${1:-smoke}";case "$MODE" in smoke|phases|taps|lifecycle);;*) echo 'Use smoke, phases, taps or lifecycle';exit 2;;esac
+MODE="${1:-smoke}";case "$MODE" in smoke|phases|taps|lifecycle|startup);;*) echo 'Use smoke, phases, taps, lifecycle or startup';exit 2;;esac
 GODOT_BIN="${GODOT_BIN:-godot}";OUT="${TURNING_OUTPUT:-$ROOT/artifacts/turning-run-$MODE}"
 test ! -e "$OUT" || { echo 'Output must be fresh';exit 2; };mkdir -p "$OUT";cd "$ROOT"
 dotnet build -m:1 > "$OUT/build.log" 2>&1
@@ -28,6 +28,7 @@ case "$MODE" in
  smoke) for angle in 0 90 -90 180 -180;do run "turn-$angle" "$angle" 60 '' 150 0;done;;
  phases) for angle in 90 -90 180;do for turn in $(seq 60 74);do run "turn-$angle-at-$turn" "$angle" "$turn" '' 150 0;done;done;;
  taps) for angle in 90 -90 180;do for pattern in 0 01 001 0001 10101010 11001100;do run "turn-$angle-tap-$pattern" "$angle" 60 "$pattern" 63 0;done;done;;
+ startup) for angle in 90 -90 180;do run "startup-$angle" "$angle" 30 '' 150 0;run "startup-$angle-short" "$angle" 30 '110' 30 0;done;;
  lifecycle) for angle in 90 -90 180;do for frame in 61 64 70 153;do run "turn-$angle-pause-$frame" "$angle" 60 '' 150 "$frame";done;done;;
 esac
 if [[ "$MODE" != lifecycle ]];then python3 "$ROOT/experiments/displacement-turning-run/verify.py" "$OUT" > "$OUT/verification.json";fi

@@ -162,7 +162,7 @@ internal sealed class TurningRunPresentation
         _forward = bodyForward;
         foreach (var f in _feet) f.Flat = _skeleton.GlobalBasis * f.RestFoot.Basis.Orthonormalized();
         bool changed = traveled > .0001f && _lastTravel.Dot(displacement / traveled) < .98480775f;
-        if (changed && !_turning && _started && moving) BeginTurn(displacement);
+        if (changed && !_turning && moving) BeginTurn(displacement);
         if (_turning) _turnAge += dt;
         if (_hasTurned) _turnSpreadAge += dt;
         _turnWeight = _hasTurned ? Smooth(_turnSpreadAge / .05f) * (1 - Smooth((_turnSpreadAge - .2f) / .2f)) : 0;
@@ -390,7 +390,7 @@ internal sealed class TurningRunPresentation
         _stopping = _tapStopping = _resuming = false;
         foreach (var f in _feet)
         {
-            f.TurnLift = f.Stance; f.TurnBasis = f.World.Basis;
+            f.TurnLift = !_started || f.Stance; f.TurnBasis = f.World.Basis;
             f.Settling = f.Settled = f.StopReleasePending = f.TapSettle = f.TapLiftoff = f.ResumeHold = false;
             if (f.TurnLift) f.Anchor = f.World;
             else

@@ -25,3 +25,7 @@ The expanded tests then failed at +90 turn-frame64 (previous hip incorrectly rec
 ## Expanded-phase mesh failure retained
 
 The first wider-step candidate cleared the original smoke mesh frames, but -90 degrees beginning at frame61 still produced57/56 boot-triangle crossings at frames62/63. The width target was accidentally eased twice (its own50ms ramp and the100ms forward-flight bridge), so early clearance was insufficient. The next WIP applies that same bounded width ramp directly to already-airborne feet, while the support liftoff branch keeps its original world anchor. No maximum width increase or reach-guard relaxation. The revised phase and mesh gates are pending; no native delivery is approved by these intermediate results.
+
+## Idle-to-reverse edge case
+
+The early-width correction cleared the four focused turn cases, including the prior boot failures, with real LBS boot/leg checks at the failed frames. Additional direct-from-idle tests then found an unreachable first frame for180-degree startup: the turn bridge previously required the gait to have already started. This candidate lets a changed initial direction enter the bridge immediately, treating both actual idle-grounded feet as support liftoffs. Their world anchors lift vertically before horizontal movement. Forward startup still uses the frozen Run-derived path. The interrupted phase run is partial, not a full pass; new startup and complete phase validation remain pending.
