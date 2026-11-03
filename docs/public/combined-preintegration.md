@@ -15,3 +15,9 @@ The accepted normal-speed video is scripted normal GameHost input, not a control
 Fresh architecture/provenance/build and applicable regression checks are pending. Actual reset/wave/hero-switch cleanup and the bounded planner's reachable speed/displacement limits need explicit review. The existing strict aggregate script can fail on editor diagnostics or historical fixture assumptions; failures will be preserved and classified, not bypassed to claim a green aggregate.
 
 No Android package/device performance, physical-controller certification, all-stat/teleport guarantee, exhaustive all-angle skin clearance or release acceptance is implied. Original contact-neighborhood intersections, harder shadows and dense-scene occlusion remain. No main/integration merge is authorized by this checkpoint.
+
+## Added boundary fixtures — awaiting execution
+
+The optional seventh `run-case.sh` argument enables a labeled Crit maximum-speed catalog loadout: prerequisite `crit.reach` rank 1, `crit.skirmish` rank 1, `risk.fleet` rank 2 and two active shoes. The fixture uses the actual stat-effect recalculation and verifies the expected 1.708 speed multiplier. With the separately labeled haste timer this yields 9.1584 m/s. It does not claim earned purchases or full-wave progression. A 30 Hz A/B route with one 250 ms frame will test the actual host catch-up and presentation budget at this current content bound.
+
+The accepted rig under `experiments/displacement-run/runtime/accepted-static-rebuilt.glb` is a required normal runtime asset despite its historical directory name; do not exclude that file merely because it lives below experiments. Budget/source review suggests current legal movement remains below the 120-step limit, but same-ID artificial teleport or future content outside that bound still explicitly fails and is not supported by that estimate.
