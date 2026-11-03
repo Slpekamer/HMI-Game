@@ -11,3 +11,9 @@ Initial wiring is unvalidated WIP. Required checks: build/import distinction; no
 Known accepted limitation remains: original animation contact neighborhoods produce some real entry/exit intersections and changed triangle pairs. The prior bounded six-key skin review did not locate an independent new anatomical contact region, but was not a zero-intersection claim or all-context clearance proof. Normal-game combined effects require fresh evidence and user visual review.
 
 Review identified a normal-loop blocker before validation: the frozen turning gait rejects a single rendered displacement above 0.15 m, which ordinary 30 Hz movement/long frames or haste can exceed. This first wiring checkpoint does not remove that guard and is not claimed playable. A bounded presentation stepping/recovery policy must be designed and tested independently of the unchanged Core clock before native normal-loop acceptance.
+
+## Bounded normal presentation stepping WIP
+
+Normal candidate renders subdivide their existing clamped presentation elapsed time into at most 120 internal steps. Each is at most 1/60 s, with the largest predicted exponential-root interpolation segment bounded to 0.12 m, below the untouched gait's 0.15 m guard. Total cosmetic elapsed time is unchanged; Core is never stepped here, accepted attack events are not replayed, and only the final state is rendered. Controlled fixtures retain their original single-step behavior. Ordinary 60 Hz/4.8 m/s motion is intended to remain one step. Extreme displacement outside the bounded budget fails explicitly rather than silently deleting a guard or changing authority.
+
+This is an integration policy, not a claim that unseen intermediate positions were actually rendered or that every possible stat/teleport is supported. Frame-rate, long-frame, speed/turn/stop and lifecycle validation is pending. The approved TurningRun source remains byte-identical.

@@ -13,6 +13,7 @@ public sealed class CharacterPresentation : IDisposable
     private readonly bool _controlledGait;
     private readonly bool _normalPresentation;
     internal bool UsesNormalPresentation => _normalPresentation;
+    internal int LastPresentationSteps { get; private set; }
     private AnimationLibrary _gaitLibrary;
     private Animation _gaitClip;
     private readonly BackpedalWeightTransfer _weightTransfer;
@@ -184,6 +185,17 @@ public sealed class CharacterPresentation : IDisposable
         if (!Alive() || paused || delta <= 0 || !float.IsFinite(delta)) return;
         // Defensive presentation clamp only; no simulation time or stats are changed.
         delta = Math.Min(delta, .25f);
+        Vector3 remaining = _target - _root.Position; remaining.Y = 0;
+        int steps = _normalPresentation ? NormalPresentationCandidate.StepCount(delta, remaining.Length()) : 1;
+        LastPresentationSteps = steps;
+        // One render callback, bounded internal integration. No simulation step or extra event delivery.
+        // At ordinary 60 Hz this remains the approved single-step path.
+        float step = delta / steps;
+        for(int i=0;i<steps;i++) AdvancePresentationStep(step);
+    }
+
+    private void AdvancePresentationStep(float delta)
+    {
         _launchPose?.RestoreBase();
         _movingAim?.RestoreBase();
         _weightTransfer?.RestoreBase();
