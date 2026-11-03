@@ -1,0 +1,83 @@
+using Godot;
+using Hmi.GodotAdapter;
+using System;
+
+/// <summary>Opt-in upper-body yaw only; never changes root, bone positions, scale or authority.</summary>
+internal sealed class MovingLaunchAimPresentation
+{
+    private readonly Skeleton3D skeleton;
+    private readonly int chest;
+    private readonly int[] arms, hands;
+    private readonly Quaternion[] original = new Quaternion[3];
+    private readonly float[] armYaw = new float[2];
+    private bool applied;
+    private float chestYaw, weight;
+    private int side;
+    private long launchTick = -1;
+    internal object Diagnostics { get; private set; } = new { state="idle" };
+    internal MovingLaunchAimPresentation(Node root)
+    {
+        skeleton=Find(root) ?? throw new InvalidOperationException("Missing aim skeleton");
+        chest=skeleton.FindBone("Chest");
+        arms=new[]{skeleton.FindBone("UpperArm_L"),skeleton.FindBone("UpperArm_R")};
+        hands=new[]{skeleton.FindBone("Hand_L"),skeleton.FindBone("Hand_R")};
+        if(chest<0 || Array.Exists(arms,x=>x<0) || Array.Exists(hands,x=>x<0)) throw new InvalidOperationException("Missing aim chain");
+    }
+    private static Skeleton3D Find(Node n){if(n is Skeleton3D s)return s;foreach(Node c in n.GetChildren()){var found=Find(c);if(found!=null)return found;}return null;}
+    internal void RestoreBase()
+    {
+        if(!applied || !GodotObject.IsInstanceValid(skeleton))return;
+        skeleton.SetBonePoseRotation(chest,original[0]);
+        for(int i=0;i<2;i++)skeleton.SetBonePoseRotation(arms[i],original[i+1]);
+        applied=false;
+    }
+    internal void Reset(){RestoreBase();weight=chestYaw=0;armYaw[0]=armYaw[1]=0;launchTick=-1;Diagnostics=new{state="idle"};}
+    internal void Advance(float dt, LaunchAimSample? sample, long tick, bool attackActive)
+    {
+        bool valid=sample is LaunchAimSample a && tick>=a.Tick && tick-a.Tick<=60;
+        float targetWeight=valid&&attackActive?1:0;
+        weight=Mathf.MoveToward(weight,targetWeight,dt/.08f);
+        if(weight<=0){chestYaw=0;armYaw[0]=armYaw[1]=0;Diagnostics=new{state="idle"};return;}
+        if(!valid)return;
+        var aim=sample.Value;
+        Vector3 worldDirection=new(aim.Direction.X,0,aim.Direction.Y);
+        Vector3 local=skeleton.GlobalBasis.Orthonormalized().Inverse()*worldDirection;
+        float desired=Mathf.Atan2(-local.X,-local.Z);
+        if(launchTick!=aim.Tick){launchTick=aim.Tick;side=local.X<0?0:1;}
+        chestYaw=Mathf.MoveToward(chestYaw,Mathf.Clamp(desired,-Mathf.Pi/3,Mathf.Pi/3),dt*Mathf.DegToRad(360));
+        original[0]=skeleton.GetBonePoseRotation(chest);
+        for(int i=0;i<2;i++)original[i+1]=skeleton.GetBonePoseRotation(arms[i]);
+        applied=true;
+        Yaw(chest,chestYaw*weight);
+        float error=0;
+        for(int i=0;i<2;i++)
+        {
+            Vector3 shoulder=skeleton.GetBoneGlobalPose(arms[i]).Origin;
+            Vector3 hand=skeleton.GetBoneGlobalPose(hands[i]).Origin;
+            Vector3 reach=hand-shoulder; reach.Y=0;
+            float target=0;
+            if(i==side && reach.LengthSquared()>1e-6f)
+            {
+                float current=Mathf.Atan2(-reach.X,-reach.Z);
+                target=Mathf.AngleDifference(current,desired);
+                target=Mathf.Clamp(target,-Mathf.DegToRad(170),Mathf.DegToRad(170));
+            }
+            armYaw[i]=Mathf.LerpAngle(armYaw[i],target,1-Mathf.Exp(-25*dt));
+            Yaw(arms[i],armYaw[i]*weight);
+            if(i==side)
+            {
+                Vector3 actual=skeleton.GetBoneGlobalPose(hands[i]).Origin-skeleton.GetBoneGlobalPose(arms[i]).Origin;
+                actual.Y=0;
+                error=actual.LengthSquared()>1e-6f?Mathf.Abs(Mathf.AngleDifference(Mathf.Atan2(-actual.X,-actual.Z),desired)):Mathf.Pi;
+            }
+        }
+        Diagnostics=new{state="upper-yaw-wip",launchTick,side,weight,chestYaw,armYaw=new[]{armYaw[0],armYaw[1]},desired,reachHeadingError=error,note="Shoulder-to-hand horizontal proxy, not a muzzle or authoritative launch origin."};
+    }
+    private void Yaw(int bone,float angle)
+    {
+        int parent=skeleton.GetBoneParent(bone);
+        Basis parentBasis=parent<0?Basis.Identity:skeleton.GetBoneGlobalPose(parent).Basis.Orthonormalized();
+        Basis global=skeleton.GetBoneGlobalPose(bone).Basis.Orthonormalized();
+        skeleton.SetBonePoseRotation(bone,(parentBasis.Inverse()*new Basis(Vector3.Up,angle)*global).Orthonormalized().GetRotationQuaternion());
+    }
+}

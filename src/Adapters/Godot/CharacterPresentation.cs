@@ -16,6 +16,9 @@ public sealed class CharacterPresentation : IDisposable
     private readonly BackpedalWeightTransfer _weightTransfer;
     private readonly DisplacementRunPresentation _displacementRun;
     private readonly TurningRunPresentation _turningRun;
+    private readonly MovingLaunchAimPresentation _movingAim;
+    internal object MovingAimDiagnostics => _movingAim?.Diagnostics;
+    internal void ClearLaunchAim() { _launchAim=null; _movingAim?.Reset(); }
     private readonly DisplacementBackpedalPresentation _displacementBackpedal;
     private readonly DisplacementSideHopPresentation _displacementSideHop;
     private readonly EntityId _entity;
@@ -80,6 +83,7 @@ public sealed class CharacterPresentation : IDisposable
             else if (ControlledGaitDrill.Clip == "Backpedal") _displacementBackpedal = new DisplacementBackpedalPresentation(_root);
             else _displacementRun = new DisplacementRunPresentation(_root);
         }
+        if (_controlledGait && ControlledGaitDrill.TurningRun && OS.GetEnvironment("MOVING_LAUNCH_AIM")=="1") _movingAim=new MovingLaunchAimPresentation(_root);
         ResetTransient();
     }
 
@@ -164,6 +168,7 @@ public sealed class CharacterPresentation : IDisposable
         if (!Alive() || paused || delta <= 0 || !float.IsFinite(delta)) return;
         // Defensive presentation clamp only; no simulation time or stats are changed.
         delta = Math.Min(delta, .25f);
+        _movingAim?.RestoreBase();
         _weightTransfer?.RestoreBase();
         _displacementRun?.RestoreBase();
         _turningRun?.RestoreBase();
@@ -220,6 +225,7 @@ public sealed class CharacterPresentation : IDisposable
         _turningRun?.Advance(delta, _speed > .08f, _target);
         _displacementBackpedal?.Advance(delta, _speed > .08f, _target);
         _displacementSideHop?.Advance(delta, _speed > .08f, _target);
+        _movingAim?.Advance(delta,_launchAim,_tick,_mixer?.AttackActive ?? _attackRemaining>0);
         _attackRemaining = Math.Max(0, _attackRemaining - delta);
         // The native graph owns layered gesture lifetime; float countdown must not invent
         // an extra silent clip when an event arrives on the final active render step.
@@ -251,7 +257,9 @@ public sealed class CharacterPresentation : IDisposable
     }
     private void ResetTransient()
     {
+        _movingAim?.RestoreBase();
         _weightTransfer?.RestoreBase();
+        _movingAim?.Reset();
         _displacementRun?.Reset();
         _turningRun?.Reset();
         _displacementBackpedal?.Reset();

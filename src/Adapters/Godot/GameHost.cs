@@ -404,7 +404,7 @@ public partial class GameHost : Node3D
     {
         if(what==NotificationApplicationFocusIn){_inputFocused=true;ResetMovementInput();PollMobileSafeArea(0,true);}
         if(what!=NotificationApplicationFocusOut || _sim==null) return;
-        _inputFocused=false;_stationaryFacing.ClearPresentation();ResetMovementInput();_damageReaction?.ClearPresentation();_playerDamage?.ClearPresentation();_projectilePresentation?.ClearPresentation();
+        _inputFocused=false;foreach(var p in _presentations) p?.ClearLaunchAim();_stationaryFacing.ClearPresentation();ResetMovementInput();_damageReaction?.ClearPresentation();_playerDamage?.ClearPresentation();_projectilePresentation?.ClearPresentation();
         if(_pendingLaunches!=null)Array.Clear(_pendingLaunches);
         _pendingLaunchAim.Clear();
         _codexResume=false; _accumulator=0; _ui?.Joystick.ResetInput();
