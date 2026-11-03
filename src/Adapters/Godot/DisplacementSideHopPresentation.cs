@@ -20,7 +20,9 @@ internal sealed class DisplacementSideHopPresentation
     private readonly Transform3D[] _base = new Transform3D[7];
     private readonly Foot[] _feet;
     private readonly Transform3D _restPelvis;
-    private readonly Vector3 _bodyForward, _travelAxis;
+    private readonly Vector3 _bodyForward;
+    private Vector3 _travelAxis;
+    private readonly bool _allowReversal;
     private readonly float _scale;
     private Vector3 _lastRoot;
     private float _distance, _phaseOffset, _age, _stopAge, _bodyDelta, _hop, _ground;
@@ -50,9 +52,10 @@ internal sealed class DisplacementSideHopPresentation
         public string State = "initial";
     }
 
-    public DisplacementSideHopPresentation(Node3D root, int direction = 1)
+    public DisplacementSideHopPresentation(Node3D root, int direction = 1, bool allowReversal = false)
     {
         if (direction != -1 && direction != 1) throw new ArgumentOutOfRangeException(nameof(direction), "Lateral direction must be -1 or +1");
+        _allowReversal = allowReversal;
         _root = root ?? throw new ArgumentNullException(nameof(root));
         _skeleton = Find(root) ?? throw new InvalidOperationException("Displacement SideHop skeleton missing");
         _pelvis = Bone("Pelvis"); _restPelvis = _skeleton.GetBoneGlobalRest(_pelvis);
@@ -161,6 +164,8 @@ internal sealed class DisplacementSideHopPresentation
         Vector3 root = _root.GlobalPosition, displacement = Horizontal(root - _lastRoot); _lastRoot = root;
         if (_bodyForward.Dot(Horizontal(-_skeleton.GlobalBasis.Z).Normalized()) < .99999f) Fail("Fixed-heading prototype cannot turn");
         float traveled = displacement.Length();
+        if (_allowReversal && _started && displacement.Dot(_travelAxis) < -.00001f)
+            BeginReversal(displacement);
         if (traveled > .15f || displacement.Dot(_travelAxis) < -.00001f || (displacement - _travelAxis * displacement.Dot(_travelAxis)).Length() > .0001f)
             Fail("Non-forward/teleport rendered displacement outside prototype contract");
         if (!_started && !moving)
@@ -321,6 +326,16 @@ internal sealed class DisplacementSideHopPresentation
         {
             _failure = ex.Message; Diagnostics = ReadDiagnostics(traveled, authoritativeTarget); throw;
         }
+    }
+    private void BeginReversal(Vector3 currentDisplacement)
+    {
+        // Rephase only when actual render motion reverses, not when input changes.
+        // Reflection about Contact preserves the symmetric nominal foot/hop position.
+        // Keep actual planted world anchors and airborne positions/velocities intact.
+        float oldPhase = Mod(_distance + _phaseOffset, Cycle);
+        _travelAxis = -_travelAxis;
+        _phaseOffset = Mod(Contact - oldPhase, Cycle) - _distance;
+        BeginResume(currentDisplacement);
     }
     private void BeginTapStop(Vector3 currentDisplacement)
     {

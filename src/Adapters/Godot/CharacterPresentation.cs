@@ -67,7 +67,7 @@ public sealed class CharacterPresentation : IDisposable
         if (_controlledGait && ControlledGaitDrill.DisplacementRun)
         {
             if (ControlledGaitDrill.Clip == "StrafeR" || ControlledGaitDrill.Clip == "StrafeL")
-                _displacementSideHop = new DisplacementSideHopPresentation(_root, ControlledGaitDrill.Clip == "StrafeL" ? -1 : 1);
+                _displacementSideHop = new DisplacementSideHopPresentation(_root, ControlledGaitDrill.Clip == "StrafeL" ? -1 : 1, ControlledGaitDrill.LateralReversals);
             else if (ControlledGaitDrill.Clip == "Backpedal") _displacementBackpedal = new DisplacementBackpedalPresentation(_root);
             else _displacementRun = new DisplacementRunPresentation(_root);
         }

@@ -1,0 +1,7 @@
+# Fixed-facing lateral reversal bridge — unvalidated WIP
+
+This isolated opt-in extends the paired side-hop only to right-to-left reversal while keeping body facing fixed. It is not a four-direction, aiming, or production integration. The previous bilateral fixed-axis experiment and approved forward/backward components are preserved separately.
+
+The bridge waits for the sign of actual rendered displacement to reverse. Input sign alone is insufficient because the existing root interpolation can still travel in the old direction. It reflects the distance phase about the contact interval, reverses only the lateral travel axis, retains actual world foot anchors/airborne poses and velocities, then uses the bounded resume bridge. Ground, reach, non-lateral motion and fixed-body-heading guards remain enabled. No root correction, bone stretching, Core movement or collision change is introduced.
+
+The first fixture starts on the original rightward route, reverses at one of ticks 60–74, continues left for 45 ticks and stops. A/B share identical authority input and fixed heading. The A source is the historical in-place lateral clip; it is not a new direction controller. Ordinary runs default to the old behavior. Initial implementation is saved before testing: build, all-phase reversal, repeated reversal, tap interruption, exact old-path regression, actual skin and native visual checks are pending. Reject unreachable bridges rather than silently clamping feet.
