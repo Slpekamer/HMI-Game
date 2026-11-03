@@ -22,7 +22,7 @@ internal sealed class TurningRunPresentation
     private Vector3 _forward;
     private Vector3 _renderVelocity, _lastTravel;
     private bool _turning, _hasTurned;
-    private float _turnAge;
+    private float _turnAge, _turnBodyOffset, _turnBodyVelocityOffset;
     private int _turnCount;
     private const float TurnDuration = .10f;
     private const float TurnLiftDuration = 1f / 60f;
@@ -42,7 +42,7 @@ internal sealed class TurningRunPresentation
         public int Thigh, Shin, Bone, Side, CycleIndex = int.MinValue;
         public Transform3D RestThigh, RestShin, RestFoot, Initial, World, Anchor;
         public Vector3[] Sole = Array.Empty<Vector3>();
-        public Basis Flat;
+        public Basis Flat, TurnBasis;
         public float UpperLength, LowerLength, AnkleY, Phase, Margin, SettleAge;
         public bool Stance, Settling, Settled, StopReleasePending;
         public Vector3 SettleRelative, SettleVelocity, Velocity, ResumeOffset, ResumeVelocityOffset;
@@ -140,7 +140,7 @@ internal sealed class TurningRunPresentation
     }
     public void Reset()
     {
-        RestoreBase(); _turning = _hasTurned = false; _turnAge = 0; _turnCount = 0; _renderVelocity = Vector3.Zero; _forward = Horizontal(-_skeleton.GlobalBasis.Z).Normalized(); _lastTravel = _forward; _distance = _age = _stopAge = _bodyDelta = _hop = 0; _footfalls = 0;
+        RestoreBase(); _turning = _hasTurned = false; _turnAge = 0; _turnCount = 0; _renderVelocity = Vector3.Zero; if (GodotObject.IsInstanceValid(_skeleton) && _skeleton.IsInsideTree()) _forward = Horizontal(-_skeleton.GlobalBasis.Z).Normalized(); _lastTravel = _forward; _turnBodyOffset = _turnBodyVelocityOffset = 0; _distance = _age = _stopAge = _bodyDelta = _hop = 0; _footfalls = 0;
         _started = _stopping = _initialCaptured = _resuming = _tapStopping = false;
         _stopBodyOffset = _stopBodyVelocityOffset = 0;
         _resumeAge = _resumeBodyOffset = _resumeBodyVelocityOffset = _bodyVelocity = _lastSpeed = 0; _restartCount = 0; _failure = ""; _lastRoot = GodotObject.IsInstanceValid(_root) && _root.IsInsideTree() ? _root.GlobalPosition : Vector3.Zero;
@@ -188,6 +188,12 @@ internal sealed class TurningRunPresentation
             float restHipY = (_skeleton.GlobalTransform * _feet[0].RestThigh.Origin).Y;
             float desiredHipY = _feet[0].AnkleY + Height + _hop;
             _bodyDelta = (desiredHipY - restHipY) * start * (1 - settleRise);
+            if (_turning)
+            {
+                float t = Math.Clamp(_turnAge / TurnDuration, 0, 1);
+                _bodyDelta += (2*t*t*t-3*t*t+1)*_turnBodyOffset
+                    + (t*t*t-2*t*t+t)*TurnDuration*_turnBodyVelocityOffset;
+            }
             float resumeT = Math.Clamp(_resumeAge / ResumeDuration, 0, 1);
             if (_resuming) _bodyDelta += BridgeOffset(resumeT, _resumeBodyOffset, _resumeBodyVelocityOffset);
             if (_tapStopping && _stopAge < ResumeDuration)
@@ -248,7 +254,9 @@ internal sealed class TurningRunPresentation
                             target.Y = Mathf.Lerp(f.AnkleY + f.TapHeight + f.TapVerticalVelocity * tau / 2, nominal.Y,
                                 Smooth((elapsed - tau) / (duration - tau)));
                         if (target.Y < f.AnkleY - .00001f) Fail("Turn bridge below preserved floor");
-                        f.World = new Transform3D(f.Flat, target); f.Stance = false; f.State = "turn-bridge";
+                        Basis turnBasis = new Basis(f.TurnBasis.Orthonormalized().GetRotationQuaternion().Slerp(
+                            f.Flat.Orthonormalized().GetRotationQuaternion(), Smooth(_turnAge / TurnDuration))).Scaled(Vector3.One * _scale);
+                        f.World = new Transform3D(turnBasis, target); f.Stance = false; f.State = "turn-bridge";
                     }
                 }
                 else if (_resuming)
@@ -363,11 +371,15 @@ internal sealed class TurningRunPresentation
         // Re-enter the original flight curve after a bounded bridge, never reinterpret a rotated
         // world anchor as a valid straight contact. Both feet are airborne during the bridge.
         _phaseOffset = Contact + Fillet - _distance;
+        float nominalBody = (_feet[0].AnkleY + Height + NominalHop(_distance)
+            - (_skeleton.GlobalTransform * _feet[0].RestThigh.Origin).Y) * Smooth(_age / .05f);
+        _turnBodyOffset = _bodyDelta - nominalBody;
+        _turnBodyVelocityOffset = _bodyVelocity - NominalHopDerivative(_distance) * _lastSpeed;
         _turning = _hasTurned = true; _turnAge = 0; _turnCount++;
         _stopping = _tapStopping = _resuming = false;
         foreach (var f in _feet)
         {
-            f.TurnLift = f.Stance;
+            f.TurnLift = f.Stance; f.TurnBasis = f.World.Basis;
             f.Settling = f.Settled = f.StopReleasePending = f.TapSettle = f.TapLiftoff = f.ResumeHold = false;
             if (f.TurnLift) f.Anchor = f.World;
             else
