@@ -28,6 +28,9 @@ for b in sorted(root.glob('*-B')):
   assert min(x['kneePoleAlignment']for x in g['boots'])>.999,(b,row['frame'],'anatomical knee')
   if 'feet'not in d:continue
   assert d['failure']=='',d
+  assert 0<=d['turnCrouch']<=.025001,(b,row['frame'],'unbounded crouch')
+  if d['effectiveMoving'] and not d['requestedMoving']:
+   assert d['releaseAge']<.03 and math.sqrt(sum(x*x for x in d['renderVelocity']))>.08,(b,row['frame'],'invalid release grace')
   turns=max(turns,d['turnCount'])
   for i,f in enumerate(d['feet']):
    margins.append(f['reachMargin']);floor.extend(p[1]-d['groundY']for p in sk['feet'][i]['points'])
@@ -45,6 +48,8 @@ for b in sorted(root.glob('*-B')):
  assert max(drift,default=0)<.001,(b,'stance drift',max(drift))
  assert max(phase,default=0)<1e-5,(b,'actual distance')
  assert settled and settled[0][1]<=.200001,(b,'settle')
+ if b.name.startswith('long-'):
+  assert turns==1 and max(x['diagnostics'].get('footfalls',0)for x in rows)>=1,(b,'repeated gaps reset real travel phase')
  reports.append({'case':b.name,'frames':n,'turns':turns,'minimum_reach_world':min(margins),'minimum_sole_floor':min(floor),'maximum_continuous_stance_drift':max(drift,default=0),'maximum_distance_error':max(phase,default=0),'first_settled':settled[0],'boot_separation_minimum':min(gaps),'boot_aabb_overlap_requires_mesh_review':overlaps})
 assert reports,'No complete A/B cases'
 print(json.dumps({'scope':'CPU frame/authority/contact gates. AABB overlap unresolved until mesh review; not native appearance acceptance.','cases':reports},indent=2))

@@ -185,7 +185,7 @@ internal sealed class TurningRunPresentation
         if (_stopping && moving) BeginResume(displacement);
         if (!moving && !_stopping)
         {
-            if (_hasTurned || _resuming || _age < ResumeDuration) { _turning = false; BeginTapStop(displacement); }
+            if (_hasTurned || _resuming || _age < ResumeDuration + .03f) { _turning = false; BeginTapStop(displacement); }
             else { _tapStopping = false; _stopping = true; _stopAge = 0; foreach (var f in _feet) f.StopReleasePending = f.Stance; }
         }
         _distance += traveled; _age += dt; if (_stopping) _stopAge += dt; if (_resuming) _resumeAge += dt;

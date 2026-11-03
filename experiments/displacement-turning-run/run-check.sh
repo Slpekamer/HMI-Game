@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-MODE="${1:-smoke}";case "$MODE" in smoke|phases|taps|lifecycle|startup|startup-taps);;*) echo 'Use smoke, phases, taps, lifecycle, startup or startup-taps';exit 2;;esac
+MODE="${1:-smoke}";case "$MODE" in smoke|phases|taps|lifecycle|startup|startup-taps|long-startup|forward-taps);;*) echo 'Use smoke, phases, taps, lifecycle, startup, startup-taps, long-startup or forward-taps';exit 2;;esac
 GODOT_BIN="${GODOT_BIN:-godot}";OUT="${TURNING_OUTPUT:-$ROOT/artifacts/turning-run-$MODE}"
 test ! -e "$OUT" || { echo 'Output must be fresh';exit 2; };mkdir -p "$OUT";cd "$ROOT"
 dotnet build -m:1 > "$OUT/build.log" 2>&1
@@ -30,6 +30,8 @@ case "$MODE" in
  taps) for angle in 90 -90 180;do for pattern in 0 01 001 0001 10101010 11001100;do run "turn-$angle-tap-$pattern" "$angle" 60 "$pattern" 63 0;done;done;;
  startup) for angle in 90 -90 180;do run "startup-$angle" "$angle" 30 '' 150 0;run "startup-$angle-short" "$angle" 30 '110' 30 0;done;;
  startup-taps) for angle in 90 -90 180;do for pattern in 1 111 1111 10101010;do run "startup-$angle-$pattern" "$angle" 30 "$pattern" 30 0;done;done;;
+ long-startup) for angle in 90 -90 180;do run "long-$angle" "$angle" 30 '10101010101010101010101010101010' 30 0;done;;
+ forward-taps) for pattern in 1 11 111 1111;do run "forward-$pattern" 0 30 "$pattern" 30 0;done;;
  lifecycle) for angle in 90 -90 180;do for frame in 61 64 70 153;do run "turn-$angle-pause-$frame" "$angle" 60 '' 150 "$frame";done;done;;
 esac
 if [[ "$MODE" != lifecycle ]];then python3 "$ROOT/experiments/displacement-turning-run/verify.py" "$OUT" > "$OUT/verification.json";fi
