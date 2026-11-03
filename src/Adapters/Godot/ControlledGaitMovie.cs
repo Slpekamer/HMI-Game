@@ -14,7 +14,7 @@ public partial class ControlledGaitMovie:Node
   var world=typeof(GameSimulation).GetField("World",F).GetValue(sim);
   var transforms=(Array)world.GetType().GetField("Transform",F).GetValue(world);
   object transform=transforms.GetValue(sim.PlayerId.Index);
-  transform.GetType().GetField("Position",F).SetValue(transform,new Vec2(-3,1));
+  transform.GetType().GetField("Position",F).SetValue(transform,new Vec2(-4.5f,1));
   transforms.SetValue(transform,sim.PlayerId.Index);
   Call("ClearVisuals");Call("RenderEntities",0f);
  }
