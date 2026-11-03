@@ -30,6 +30,14 @@ public partial class ControlledGaitMovie:Node
  {
   int start=int.TryParse(OS.GetEnvironment("DISPLACEMENT_REVERSE_FRAME"),out int value)?value:60;
   if(start<60||start>74)throw new Exception("Reversal frame must be 60..74 for this bounded route");
+  string pattern=OS.GetEnvironment("DISPLACEMENT_DIRECTION_PATTERN");
+  if(pattern.Length>0)
+  {
+   if(pattern.Length>64||pattern.Any(c=>c!='R'&&c!='L'&&c!='0'))throw new Exception("Direction pattern must contain at most64 R/L/0 ticks");
+   int age=frame-start;
+   if(age<0)return frame<30?0:-1;
+   return age>=pattern.Length?0:pattern[age]=='R'?-1:pattern[age]=='L'?1:0;
+  }
   return frame<30?0:frame<start?-1:frame<start+45?1:0;
  }
  float TapInput(){string p=TapPattern;if(p.Any(c=>c!='0'&&c!='1')||p.Length>32||TapStart<30||TapStart>153)throw new Exception("Invalid bounded tap fixture pattern/start");int age=frame-TapStart;if(age<0)return frame>=30?-1:0;if(age<p.Length)return p[age]=='1'?-1:0;return OS.GetEnvironment("DISPLACEMENT_TAP_END_MOVING")=="0"?0:-1;}

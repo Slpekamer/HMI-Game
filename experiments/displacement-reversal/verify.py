@@ -4,10 +4,10 @@ root=pathlib.Path(sys.argv[1]);reports=[]
 def read(p):return [json.loads(x)for x in p.read_text().splitlines()]
 lower={'Pelvis','Thigh_L','Shin_L','Foot_L','Thigh_R','Shin_R','Foot_R'}
 def upper(p):return [[x for x in row.split('|',1)[1].split(';')if x and x.split(':',1)[0]not in lower]for row in p.read_text().splitlines()]
-for switch in range(60,75):
- a=root/f'reverse-{switch}-A';b=root/f'reverse-{switch}-B'
+for b in sorted(root.glob('*-B')):
+ name=b.name[:-2];switch=name;a=root/(name+'-A')
  for p in [a,b]:assert not(p/'failure.json').exists(),str(p)
- for name in ['authority.jsonl','camera.tsv']:assert(a/name).read_bytes()==(b/name).read_bytes(),(switch,name)
+ for filename in ['authority.jsonl','camera.tsv']:assert(a/filename).read_bytes()==(b/filename).read_bytes(),(switch,filename)
  assert upper(a/'pose.tsv')==upper(b/'pose.tsv'),(switch,'upper local pose/morph changed')
  ma=read(a/'motion.jsonl');mb=read(b/'motion.jsonl');assert len(ma)==len(mb)==180
  for x,y in zip(ma,mb):
@@ -33,14 +33,16 @@ for switch in range(60,75):
   if previous:
    delta=[x-y for x,y in zip(d['root'],previous['root'])]
    assert abs((d['distance']-previous['distance'])-math.sqrt(sum(x*x for x in delta)))<.00001
+   assert sum(x*y for x,y in zip(delta,d['travelAxis']))>=-.00001,(switch,'axis opposes actual travel')
    if sum(x*y for x,y in zip(d['travelAxis'],previous['travelAxis']))<0:
     assert sum(x*y for x,y in zip(delta,d['travelAxis']))>0,(switch,'reversed before actual render motion')
     flips.append(row['frame'])
   if d['stopAge']>0 and all(f['state']=='settled-anchor'for f in d['feet']):settled.append(d['stopAge'])
   previous=d
- assert len(flips)==1,(switch,flips)
+ if name.startswith('reverse-'):assert len(flips)==1,(switch,flips)
  assert min(margins)>=.001,(switch,'reach reserve',min(margins))
  assert min(floor)>=-.001 and max(drift)<=.001,(switch,'sole ground/drift')
  assert settled and min(settled)<=.200001,(switch,'late settle',settled[:1])
- reports.append({'input_reverse_frame':switch,'actual_axis_reverse_frames':flips,'minimum_reach_margin_world':min(margins),'minimum_actual_skin_floor_height':min(floor),'max_actual_skin_anchor_drift':max(drift),'first_settle_age':min(settled)})
-print(json.dumps({'scope':'15 fixed-body-heading right-to-left phase timings only; native appearance/repeated reversals not certified','cases':reports},indent=2))
+ reports.append({'case':switch,'actual_axis_reverse_frames':flips,'minimum_reach_margin_world':min(margins),'minimum_actual_skin_floor_height':min(floor),'max_actual_skin_anchor_drift':max(drift),'first_settle_age':min(settled)})
+assert reports,'No completed candidate cases'
+print(json.dumps({'scope':'Bounded fixed-body-heading reversal fixtures only; native appearance and arbitrary direction control not certified','cases':reports},indent=2))
