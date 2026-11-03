@@ -28,7 +28,7 @@ internal sealed class DisplacementSideHopPresentation
     private float _distance, _phaseOffset, _age, _stopAge, _bodyDelta, _hop, _ground;
     private bool _applied, _started, _stopping, _initialCaptured;
     private int _footfalls, _restartCount;
-    private bool _resuming, _tapStopping;
+    private bool _resuming, _tapStopping, _reversalResuming;
     private float _stopBodyOffset, _stopBodyVelocityOffset;
     private float _resumeAge, _resumeBodyOffset, _resumeBodyVelocityOffset, _bodyVelocity, _lastSpeed;
     private string _failure = "";
@@ -151,7 +151,7 @@ internal sealed class DisplacementSideHopPresentation
     public void Reset()
     {
         RestoreBase(); _distance = _age = _stopAge = _bodyDelta = _hop = 0; _footfalls = 0;
-        _started = _stopping = _initialCaptured = _resuming = _tapStopping = false;
+        _started = _stopping = _initialCaptured = _resuming = _tapStopping = _reversalResuming = false;
         _stopBodyOffset = _stopBodyVelocityOffset = 0;
         _resumeAge = _resumeBodyOffset = _resumeBodyVelocityOffset = _bodyVelocity = _lastSpeed = 0; _restartCount = 0; _failure = ""; _lastRoot = GodotObject.IsInstanceValid(_root) && _root.IsInsideTree() ? _root.GlobalPosition : Vector3.Zero;
         foreach (var f in _feet) { f.CycleIndex = int.MinValue; f.Stance = f.Settling = f.Settled = f.StopReleasePending = false; f.SettleVelocity = f.Velocity = f.ResumeOffset = f.ResumeVelocityOffset = Vector3.Zero; f.ResumeHold = f.TapSettle = f.TapLiftoff = false; f.ResumeHeight = f.ResumeVerticalVelocity = f.ResumeBrakeDuration = 0; f.State = "reset"; }
@@ -165,7 +165,7 @@ internal sealed class DisplacementSideHopPresentation
         if (_bodyForward.Dot(Horizontal(-_skeleton.GlobalBasis.Z).Normalized()) < .99999f) Fail("Fixed-heading prototype cannot turn");
         float traveled = displacement.Length();
         if (_allowReversal && _started && displacement.Dot(_travelAxis) < -.00001f)
-            BeginReversal(displacement);
+            BeginReversal(displacement, dt);
         if (traveled > .15f || displacement.Dot(_travelAxis) < -.00001f || (displacement - _travelAxis * displacement.Dot(_travelAxis)).Length() > .0001f)
             Fail("Non-forward/teleport rendered displacement outside prototype contract");
         if (!_started && !moving)
@@ -176,7 +176,7 @@ internal sealed class DisplacementSideHopPresentation
         if (_stopping && moving) BeginResume(displacement);
         if (!moving && !_stopping)
         {
-            if (_resuming || _age < ResumeDuration) BeginTapStop(displacement);
+            if (_allowReversal || _resuming || _age < ResumeDuration) BeginTapStop(displacement);
             else { _tapStopping = false; _stopping = true; _stopAge = 0; foreach (var f in _feet) f.StopReleasePending = f.Stance; }
         }
         _distance += traveled; _age += dt; if (_stopping) _stopAge += dt; if (_resuming) _resumeAge += dt;
@@ -238,6 +238,11 @@ internal sealed class DisplacementSideHopPresentation
                         Vector3 nominal = NominalFootOrigin(f, _distance, Vector3.Zero);
                         Vector3 target = nominal + BridgeOffset(resumeT, f.ResumeOffset, f.ResumeVelocityOffset);
                         if (f.ResumeBrakeDuration > 0) target.Y = ResumeVertical(f, _resumeAge, nominal.Y);
+                        if (_reversalResuming)
+                        {
+                            target = hipWorld + TapHorizontal(f, _resumeAge, ResumeDuration, Horizontal(nominal - hipWorld));
+                            target.Y = ReversalVertical(f, _resumeAge, nominal.Y);
+                        }
                         if (target.Y < f.AnkleY - .00001f) Fail("Resume bridge would put the rigid sole below its preserved ground");
                         f.World = new Transform3D(f.Flat, target); f.Stance = false; f.State = "resume-bridge";
                         if (resumeT >= 1 && q <= Contact)
@@ -327,7 +332,7 @@ internal sealed class DisplacementSideHopPresentation
             _failure = ex.Message; Diagnostics = ReadDiagnostics(traveled, authoritativeTarget); throw;
         }
     }
-    private void BeginReversal(Vector3 currentDisplacement)
+    private void BeginReversal(Vector3 currentDisplacement, float dt)
     {
         // Rephase only when actual render motion reverses, not when input changes.
         // Reflection about Contact preserves the symmetric nominal foot/hop position.
@@ -336,6 +341,22 @@ internal sealed class DisplacementSideHopPresentation
         _travelAxis = -_travelAxis;
         _phaseOffset = Mod(Contact - oldPhase, Cycle) - _distance;
         BeginResume(currentDisplacement);
+        _reversalResuming = true;
+        foreach (var f in _feet)
+            if (!f.ResumeHold)
+            {
+                Vector3 previousHip = _skeleton.GlobalTransform * f.RestThigh.Origin
+                    - currentDisplacement + Vector3.Up * _bodyDelta;
+                InitializeTapAir(f, previousHip, f.Velocity, currentDisplacement.Length() / dt, 0);
+            }
+    }
+    private static float ReversalVertical(Foot f, float elapsed, float nominalHeight)
+    {
+        float tau = f.TapVerticalBrake;
+        if (tau > 0 && elapsed <= tau)
+            return f.AnkleY + f.TapHeight + f.TapVerticalVelocity * (elapsed - elapsed * elapsed / (2 * tau));
+        float brakedHeight = f.AnkleY + f.TapHeight + f.TapVerticalVelocity * tau / 2;
+        return Mathf.Lerp(brakedHeight, nominalHeight, Smooth((elapsed - tau) / (ResumeDuration - tau)));
     }
     private void BeginTapStop(Vector3 currentDisplacement)
     {
@@ -422,6 +443,7 @@ internal sealed class DisplacementSideHopPresentation
     }
     private void BeginResume(Vector3 currentDisplacement)
     {
+        _reversalResuming = false;
         // These values are the previous actually rendered pose, not the mixer's freshly restored base.
         // Never CaptureInitial here: airborne sole height is not a new ground plane.
         Foot support = _feet.FirstOrDefault(f => f.Stance);
