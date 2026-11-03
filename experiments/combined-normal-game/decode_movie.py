@@ -8,9 +8,9 @@ import argparse, json, pathlib, subprocess, tempfile, sys
 from PIL import Image, ImageDraw
 
 
-def frames(path):
+def frames(path, expected_fps=60):
     info=json.loads(subprocess.check_output(['ffprobe','-v','error','-select_streams','v:0','-show_entries','stream=width,height,r_frame_rate','-of','json',str(path)]))['streams'][0]
-    assert (info['width'],info['height'],info['r_frame_rate'])==(1280,720,'60/1'),info
+    assert (info['width'],info['height'],info['r_frame_rate'])==(1280,720,f'{expected_fps}/1'),info
     p=subprocess.Popen(['ffmpeg','-v','error','-i',str(path),'-f','rawvideo','-pix_fmt','rgb24','-'],stdout=subprocess.PIPE)
     index=0
     try:
