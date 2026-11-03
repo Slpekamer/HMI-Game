@@ -27,7 +27,7 @@ for b in cases:
  for row,authority in zip(rows,auth):
   pose=row['launchPose'];state=pose['state']
   if state=='launch-key-wip':
-   active+=1;assert 0<pose['age']<=.36+1/60+1e-6
+   active+=1;assert 0<pose['age']<=.50+1/60+1e-6
    if previous!=pose['Tick']:
     sample=row['sample'];assert sample and sample['Tick']==pose['Tick']
     events=[x for x in authority['transitions']if x['Kind']==0 and x['ProjectileKind']==0 and x['Id']==sample['Projectile'] and x['Tick']==sample['Tick'] and x['Owner']==sample['Owner']]

@@ -79,14 +79,14 @@ internal sealed class LaunchPosePresentation
             string force=OS.GetEnvironment("LAUNCH_POSE_FORCE");if(force.Length>0){string[] parts=force.Split('-');if(parts.Length!=2)throw new InvalidOperationException("Force format front|side|rear-left|right");sector=parts[0] switch{"front"=>0,"side"=>1,"rear"=>2,_=>throw new InvalidOperationException("Bad forced key")};side=parts[1] switch{"left"=>0,"right"=>1,_=>throw new InvalidOperationException("Bad forced side")};}
             selected=true;
         }
-        age+=dt;float sweep=age<.06f?0:age<.16f?Smooth((age-.06f)/.10f):age<.23f?1:1-Smooth((age-.23f)/.05f);
-        float enter=Smooth(age/.06f),exit=Smooth((age-.28f)/.08f);var key=keys[side*3+sector];int selectedStart=1+side*3;
+        age+=dt;float sweep=age<.08f?0:age<.22f?Smooth((age-.08f)/.14f):age<.34f?1:1-Smooth((age-.34f)/.07f);
+        float enter=Smooth(age/.08f),exit=Smooth((age-.41f)/.09f);var key=keys[side*3+sector];int selectedStart=1+side*3;
         for(int i=0;i<7;i++)
         {
             Quaternion target=i==0 || (i>=selectedStart&&i<selectedStart+3)?key[0][i].Slerp(key[1][i],sweep):basis[i];
             Quaternion posed=entry[i].Slerp(target,enter).Slerp(basis[i],exit);skeleton.SetBonePoseRotation(bones[i],posed);
         }
         Diagnostics=new{state="launch-key-wip",sample.Tick,side,sector,age,sweep,enter,exit,forced=OS.GetEnvironment("LAUNCH_POSE_FORCE"),note="Latched launch-sector energy gesture, not gun/muzzle tracking."};
-        if(age>=.36f)active=false;
+        if(age>=.50f)active=false;
     }
 }
