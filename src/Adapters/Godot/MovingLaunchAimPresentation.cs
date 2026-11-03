@@ -2,14 +2,14 @@ using Godot;
 using Hmi.GodotAdapter;
 using System;
 
-/// <summary>Opt-in upper-body yaw only; never changes root, bone positions, scale or authority.</summary>
+/// <summary>Opt-in upper-body aim only; never changes root, bone positions, scale or authority.</summary>
 internal sealed class MovingLaunchAimPresentation
 {
     private readonly Skeleton3D skeleton;
     private readonly int chest;
     private readonly int[] arms, hands, elbows;
     private readonly float[] planeWeight = new float[2];
-    private readonly Quaternion[] original = new Quaternion[3];
+    private readonly Quaternion[] original = new Quaternion[7];
     private readonly float[] armYaw = new float[2];
     private bool applied;
     private float chestYaw, weight;
@@ -32,7 +32,7 @@ internal sealed class MovingLaunchAimPresentation
     {
         if(!applied || !GodotObject.IsInstanceValid(skeleton))return;
         skeleton.SetBonePoseRotation(chest,original[0]);
-        for(int i=0;i<2;i++)skeleton.SetBonePoseRotation(arms[i],original[i+1]);
+        for(int i=0;i<2;i++){skeleton.SetBonePoseRotation(arms[i],original[1+i*3]);skeleton.SetBonePoseRotation(elbows[i],original[2+i*3]);skeleton.SetBonePoseRotation(hands[i],original[3+i*3]);}
         applied=false;
     }
     internal void Reset(){RestoreBase();weight=chestYaw=0;armYaw[0]=armYaw[1]=planeWeight[0]=planeWeight[1]=0;launchTick=-1;aimHeadingKnown=false;Diagnostics=new{state="idle"};}
@@ -50,7 +50,7 @@ internal sealed class MovingLaunchAimPresentation
         if(launchTick!=aim.Tick){launchTick=aim.Tick;int next=local.X<0?0:1;if(next!=side)aimHeadingKnown=false;side=next;}
         chestYaw=Mathf.MoveToward(chestYaw,Mathf.Clamp(desired,-Mathf.Pi/3,Mathf.Pi/3),dt*Mathf.DegToRad(360));
         original[0]=skeleton.GetBonePoseRotation(chest);
-        for(int i=0;i<2;i++)original[i+1]=skeleton.GetBonePoseRotation(arms[i]);
+        for(int i=0;i<2;i++){original[1+i*3]=skeleton.GetBonePoseRotation(arms[i]);original[2+i*3]=skeleton.GetBonePoseRotation(elbows[i]);original[3+i*3]=skeleton.GetBonePoseRotation(hands[i]);}
         applied=true;
         Yaw(chest,chestYaw*weight);
         Vector3 sourceReach=skeleton.GlobalBasis*(skeleton.GetBoneGlobalPose(hands[side]).Origin-skeleton.GetBoneGlobalPose(arms[side]).Origin);
@@ -90,19 +90,53 @@ internal sealed class MovingLaunchAimPresentation
     }
     private float OutwardElbow(int i,float blend)
     {
+        if(blend<=0)return 0;
         Vector3 shoulder=skeleton.GetBoneGlobalPose(arms[i]).Origin;
         Vector3 hand=skeleton.GetBoneGlobalPose(hands[i]).Origin;
         Vector3 elbow=skeleton.GetBoneGlobalPose(elbows[i]).Origin;
-        Vector3 axis=(hand-shoulder).Normalized();
-        Vector3 current=elbow-shoulder;current-=axis*current.Dot(axis);
+        Basis handBasis=skeleton.GetBoneGlobalPose(hands[i]).Basis.Orthonormalized();
+        Vector3 current=hand-shoulder;
+        float upper=shoulder.DistanceTo(elbow),lower=elbow.DistanceTo(hand);
+        Vector3 horizontal=new(current.X,0,current.Z);
+        if(horizontal.LengthSquared()<1e-8f)return 0;
+        Vector3 goalDirection=(horizontal.Normalized()+Vector3.Down*.08f).Normalized();
+        Vector3 axis=current.Normalized().Slerp(goalDirection,blend).Normalized();
+        float distance=Mathf.Lerp(current.Length(),.90f*(upper+lower),blend);
+        if(distance<=Math.Abs(upper-lower)+1e-6f || distance>=upper+lower-1e-6f)throw new InvalidOperationException("Unreachable cosmetic arm target; no stretch/clamp");
         Vector3 outward=skeleton.GetBoneGlobalPose(chest).Basis.Orthonormalized().X*(i==0?-1:1)+Vector3.Down*.35f;
-        Vector3 target=outward-axis*outward.Dot(axis);
-        if(current.LengthSquared()<1e-9f || target.LengthSquared()<1e-9f)return 0;
-        current=current.Normalized();target=target.Normalized();
-        float angle=Mathf.Atan2(axis.Dot(current.Cross(target)),current.Dot(target));
-        Rotate(arms[i],axis,angle*blend);
+        Vector3 pole=outward-axis*outward.Dot(axis);
+        if(pole.LengthSquared()<1e-8f)throw new InvalidOperationException("Degenerate elbow pole");
+        pole=pole.Normalized();
+        Vector3 oldPole=elbow-shoulder;oldPole-=axis*oldPole.Dot(axis);
+        if(oldPole.LengthSquared()>1e-8f)
+        {
+            oldPole=oldPole.Normalized();
+            float bendAngle=Mathf.Atan2(axis.Dot(oldPole.Cross(pole)),oldPole.Dot(pole));
+            pole=new Basis(axis,bendAngle*blend)*oldPole;
+        }
+        float along=(upper*upper-lower*lower+distance*distance)/(2*distance);
+        float heightSquared=upper*upper-along*along;
+        if(heightSquared<=0)throw new InvalidOperationException("Invalid arm IK height");
+        Vector3 targetElbow=shoulder+axis*along+pole*MathF.Sqrt(heightSquared);
+        Vector3 targetHand=shoulder+axis*distance;
+        AimBone(arms[i],elbows[i],targetElbow);
+        AimBone(elbows[i],hands[i],targetHand);
+        SetGlobalRotation(hands[i],handBasis);
         Vector3 after=skeleton.GetBoneGlobalPose(elbows[i]).Origin-shoulder;after-=axis*after.Dot(axis);
-        return after.Normalized().Dot(target);
+        return after.Normalized().Dot(pole);
+    }
+    private void AimBone(int bone,int child,Vector3 target)
+    {
+        Vector3 origin=skeleton.GetBoneGlobalPose(bone).Origin;
+        Vector3 direction=skeleton.GetBoneGlobalPose(child).Origin-origin;
+        Quaternion delta=new(direction.Normalized(),(target-origin).Normalized());
+        SetGlobalRotation(bone,new Basis(delta)*skeleton.GetBoneGlobalPose(bone).Basis.Orthonormalized());
+    }
+    private void SetGlobalRotation(int bone,Basis global)
+    {
+        int parent=skeleton.GetBoneParent(bone);
+        Basis parentBasis=parent<0?Basis.Identity:skeleton.GetBoneGlobalPose(parent).Basis.Orthonormalized();
+        skeleton.SetBonePoseRotation(bone,(parentBasis.Inverse()*global).Orthonormalized().GetRotationQuaternion());
     }
     private void Yaw(int bone,float angle)=>Rotate(bone,Vector3.Up,angle);
     private void Rotate(int bone,Vector3 axis,float angle)

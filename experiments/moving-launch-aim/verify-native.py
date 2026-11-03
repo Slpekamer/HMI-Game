@@ -10,7 +10,7 @@ for b in sorted(candidate.glob('*-B')):
  log=(b/'runtime.log').read_text();assert 'CONTROLLED_GAIT_MOVIE_DONE'in log and not any(x in log for x in ['ERROR:','FATAL','Unhandled','leak','resources still in use'])
  rows=[json.loads(x)for x in(b/'launch-aim.jsonl').read_text().splitlines()];assert len(rows)==180 and [x['frame']for x in rows]==list(range(180))
  ap=(a/'pose.tsv').read_text().splitlines();bp=(b/'pose.tsv').read_text().splitlines();assert len(ap)==len(bp)==180
- permitted={'Chest','UpperArm_L','UpperArm_R'};changes=0
+ permitted={'Chest','UpperArm_L','UpperArm_R','Forearm_L','Forearm_R','Hand_L','Hand_R'};changes=0
  for x,y in zip(ap,bp):
   xx=x.split('|',1)[1].split(';');yy=y.split('|',1)[1].split(';');assert len(xx)==len(yy)
   for before,after in zip(xx,yy):

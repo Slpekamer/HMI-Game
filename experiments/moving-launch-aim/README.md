@@ -25,3 +25,9 @@ The initial arm layer smoothed the inverse correction to a moving authored arm, 
 ## Distal arm/torso counterexample and elbow-plane candidate
 
 The world-target run preserves the numerical invariants and removes most steady proxy lag, but independent LBS review found a real right-forearm/torso intersection at180-route frame116 (baseline none). This is not dismissed as a shoulder seam, and better aim alone does not pass geometry. The next candidate reorients the selected arm's existing elbow-bend plane outward by rotating the whole chain around its actual shoulder-to-hand axis. This leaves the hand endpoint, elbow bend amount and bone lengths unchanged. Each arm's plane blend enters/exits over80ms; shoulders and lower body remain untouched. New torso/arm and cross-arm checks are required before native delivery.
+
+## Thick forearm clearance candidate
+
+The outward elbow plane still intersects the torso:180 frame116 has32 distal crossing pairs versus baseline0, and−90 frames126/127 also fail. Actual joint positions show the hand is outside the torso; the thick forearm surface extends inward/downward from the deeply bent elbow. These are real surface failures, not a bad aim-axis metric.
+
+A separate-directory candidate now unfolds the selected arm with two-bone IK toward90% of its unchanged total length, nearly horizontal with a small downward slope. Its blend retains the authored reach direction and distance at entry and restores them on exit. The existing outward pole controls elbow placement. Only rotations of Chest and both arm/forearm/hand chains are owned; every local bone translation and scale, root and lower gait remain unchanged. Unreachable/degenerate targets throw instead of stretching limbs or silently clamping. Hand orientation is retained from the preceding aim stage. Geometry, lifecycle and appearance must be rerun; the prior native recording remains the rejected earlier runtime, not evidence for this new candidate.
