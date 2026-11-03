@@ -192,11 +192,23 @@ public sealed class CharacterPresentation : IDisposable
         delta = Math.Min(delta, .25f);
         Vector3 remaining = _target - _root.Position; remaining.Y = 0;
         int steps = _normalPresentation ? NormalPresentationCandidate.StepCount(delta, remaining.Length()) : 1;
-        LastPresentationSteps = steps;
-        // One render callback, bounded internal integration. No simulation step or extra event delivery.
-        // At ordinary 60 Hz this remains the approved single-step path.
+        LastPresentationSteps = 0;
+        // Preserve the existing outer plan exactly unless a normal turn would overrun a support foot.
+        // Only that entry segment is split further. Total graph time and root interpolation are unchanged.
         float step = delta / steps;
-        for(int i=0;i<steps;i++) { AdvancePresentationStep(step); ObservePresentationStep?.Invoke(step); }
+        for(int i=0;i<steps;i++)
+        {
+            float remainingStep = step;
+            while(remainingStep > 0)
+            {
+                float part = _normalPresentation && _turningRun != null
+                    ? _turningRun.LimitNormalTurnEntry(remainingStep, _speed > .08f, _target) : remainingStep;
+                if(part <= 0 || !float.IsFinite(part) || ++LastPresentationSteps > 120)
+                    throw new InvalidOperationException("Normal presentation safety subdivision exceeds bounded contract");
+                AdvancePresentationStep(part); ObservePresentationStep?.Invoke(part);
+                remainingStep -= part;
+            }
+        }
     }
 
     private void AdvancePresentationStep(float delta)

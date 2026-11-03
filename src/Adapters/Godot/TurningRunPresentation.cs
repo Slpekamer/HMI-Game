@@ -25,6 +25,7 @@ internal sealed class TurningRunPresentation
     private float _dt, _turnSpreadAge, _turnWeight, _crouch, _crouchVelocity, _releaseAge;
     private bool _requestedMoving, _effectiveMoving;
     private bool _turning, _hasTurned, _turnStop;
+    private bool _normalEntryLiftPending, _normalEntryLift;
     private float _turnAge, _turnBodyOffset, _turnBodyVelocityOffset;
     private int _turnCount;
     private const float TurnDuration = .10f;
@@ -144,12 +145,43 @@ internal sealed class TurningRunPresentation
     }
     public void Reset()
     {
-        RestoreBase(); _turning = _hasTurned = _turnStop = false; _turnAge = 0; _turnCount = 0; _renderVelocity = Vector3.Zero; if (GodotObject.IsInstanceValid(_skeleton) && _skeleton.IsInsideTree()) { _forward = Horizontal(-_skeleton.GlobalBasis.Z).Normalized(); _previousSkeleton = _skeleton.GlobalTransform; } _turnSpreadAge = _turnWeight = _crouch = _crouchVelocity = _releaseAge = 0; _requestedMoving = _effectiveMoving = false; _lastTravel = _forward; _turnBodyOffset = _turnBodyVelocityOffset = 0; _distance = _age = _stopAge = _bodyDelta = _hop = 0; _footfalls = 0;
+        RestoreBase(); _normalEntryLiftPending = _normalEntryLift = false; _turning = _hasTurned = _turnStop = false; _turnAge = 0; _turnCount = 0; _renderVelocity = Vector3.Zero; if (GodotObject.IsInstanceValid(_skeleton) && _skeleton.IsInsideTree()) { _forward = Horizontal(-_skeleton.GlobalBasis.Z).Normalized(); _previousSkeleton = _skeleton.GlobalTransform; } _turnSpreadAge = _turnWeight = _crouch = _crouchVelocity = _releaseAge = 0; _requestedMoving = _effectiveMoving = false; _lastTravel = _forward; _turnBodyOffset = _turnBodyVelocityOffset = 0; _distance = _age = _stopAge = _bodyDelta = _hop = 0; _footfalls = 0;
         _started = _stopping = _initialCaptured = _resuming = _tapStopping = false;
         _stopBodyOffset = _stopBodyVelocityOffset = 0;
         _resumeAge = _resumeBodyOffset = _resumeBodyVelocityOffset = _bodyVelocity = _lastSpeed = 0; _restartCount = 0; _failure = ""; _lastRoot = GodotObject.IsInstanceValid(_root) && _root.IsInsideTree() ? _root.GlobalPosition : Vector3.Zero;
         foreach (var f in _feet) { f.CycleIndex = int.MinValue; f.Stance = f.Settling = f.Settled = f.StopReleasePending = false; f.SettleVelocity = f.Velocity = f.ResumeOffset = f.ResumeVelocityOffset = Vector3.Zero; f.ResumeHold = f.TapSettle = f.TapLiftoff = false; f.ResumeHeight = f.ResumeVerticalVelocity = f.ResumeBrakeDuration = 0; f.State = "reset"; }
         Diagnostics = new { state = "reset", distance = 0f };
+    }
+    // Normal-host safety adapter only. Controlled/approved fixed-step experiments never call this.
+    // Before moving the root, detect a turn whose next segment outruns even a fully lifted support.
+    // Complete a finite, small world-anchored vertical lift first; never project an IK target or move an anchor.
+    internal float LimitNormalTurnEntry(float dt, bool moving, Vector3 authoritativeTarget)
+    {
+        if (!_started || _turning || !moving || !_feet.Any(f => f.Stance)) return dt;
+        Vector3 remaining = Horizontal(authoritativeTarget - _root.GlobalPosition);
+        Vector3 displacement = remaining * (1 - MathF.Exp(-22 * dt));
+        float traveled = displacement.Length();
+        if (traveled <= .0001f || _lastTravel.Dot(displacement / traveled) >= .98480775f) return dt;
+        Vector3 direction = displacement / traveled;
+        bool risk = false; float entryDistance = .004f;
+        foreach (var f in _feet.Where(f => f.Stance))
+        {
+            Vector3 hip = _previousSkeleton * f.RestThigh.Origin + Vector3.Up * _bodyDelta;
+            Vector3 liftedRelative = f.World.Origin + Vector3.Up * Lift - hip;
+            float reach = (f.UpperLength + f.LowerLength) * _scale - .001f;
+            if ((liftedRelative - displacement).Length() <= reach) continue;
+            risk = true;
+            float along = liftedRelative.Dot(direction);
+            float disc = along * along + reach * reach - liftedRelative.LengthSquared();
+            if (disc <= 0) Fail("Normal turn entry has no lifted reach corridor");
+            float room = along + MathF.Sqrt(disc);
+            if (room <= 0) Fail("Normal turn entry starts outside lifted reach");
+            entryDistance = Math.Min(entryDistance, room * .25f);
+        }
+        if (!risk) return dt;
+        _normalEntryLiftPending = true;
+        // The same exponential root interpolation is subdivided, not slowed or retargeted.
+        return Math.Min(dt, (float)(-Math.Log(1 - Math.Min(entryDistance / remaining.Length(), .5f)) / 22));
     }
     public void Advance(float dt, bool moving, Vector3 authoritativeTarget)
     {
@@ -255,9 +287,9 @@ internal sealed class TurningRunPresentation
                     if (f.TurnLift)
                     {
                         f.World = f.Anchor;
-                        f.World.Origin += Vector3.Up * (Lift * Smooth(_turnAge / TurnLiftDuration));
+                        f.World.Origin += Vector3.Up * (Lift * Smooth(_normalEntryLift ? 1 : _turnAge / TurnLiftDuration));
                         f.Stance = false; f.State = "turn-liftoff";
-                        if (_turnAge >= TurnLiftDuration)
+                        if (_normalEntryLift || _turnAge >= TurnLiftDuration)
                         {
                             f.TurnLift = false;
                             InitializeTapAir(f, hipWorld, Vector3.Zero, traveled / dt, _turnAge);
@@ -406,6 +438,7 @@ internal sealed class TurningRunPresentation
     }
     private void BeginTurn(Vector3 displacement)
     {
+        _normalEntryLift = _normalEntryLiftPending; _normalEntryLiftPending = false;
         // Re-enter the original flight curve after a bounded bridge, never reinterpret a rotated
         // world anchor as a valid straight contact. Both feet are airborne during the bridge.
         _phaseOffset = Contact + Fillet - _distance;
