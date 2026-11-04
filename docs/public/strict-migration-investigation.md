@@ -18,4 +18,18 @@ The immutable historical snapshot `e4e7e6351e8de39c3376594968022f661e189d12` ret
 
 The default current RuleUpgrade run passes 579 checks but reports old reader not run. With the exact compiled prior reader it passes 653 checks: the stage-0 original selection positive control is Selected; all six actual interrupted-upgrade stages are Uncertain to the old reader; original saved bytes and artifact counts stay unchanged. The tests still use synthetic protocol fixtures, not saves from every historical installation. This closes this specific optional prior-reader gate, not the unrelated older schema2-to-schema3 reader gate or all migration coverage.
 
-The historical RuleMigration suite remains failed with an explicit incompatibility assertion instead of a null dereference. Current Core/Persistence behavior is unchanged. Strict presentation reruns under the workaround remain pending.
+The historical RuleMigration suite remains failed with an explicit incompatibility assertion instead of a null dereference. Current Core/Persistence behavior is unchanged. Strict presentation reruns under the workaround are recorded below; no aggregate pass is implied.
+
+## Strict presentation reruns
+The unmodified strict runners for HostLifecycle, ResponsiveUi (893 checks) and the explicitly legacy FoodAnimationMixer contract (17,590 assertions) all returned zero through build, editor import and runtime. Their existing ERROR/Exception rejection logic remains intact. This is materially different from the earlier standalone diagnostic runtime passes after a failed import. It does not cover every historical test, native rendering, hardware devices or an aggregate release gate.
+
+## APK dependency status
+Official Godot 4.6.3 mono Android source/debug/release templates and JDK 21 are now available in the execution environment. Android SDK setup remains blocked by a connection-refused download; no workaround through alternate versions or endpoints was attempted. The initial actual APK export failure is retained, and no successful APK export or installation is claimed. Restoring SDK/build dependencies and rerunning packaging remains separate work.
+
+## Upstream references and interpretation
+- [Android exporter thread exit](https://github.com/godotengine/godot/blob/4.6.3-stable/platform/android/export/export_plugin.cpp#L418-L457) gates the settings read on a runnable preset.
+- [Exporter lifecycle](https://github.com/godotengine/godot/blob/4.6.3-stable/platform/android/export/export_plugin.cpp#L4053-L4087) starts/stops the poll thread.
+- [EditorSettings destruction](https://github.com/godotengine/godot/blob/4.6.3-stable/editor/settings/editor_settings.cpp#L1297-L1303) and [EditorNode teardown](https://github.com/godotengine/godot/blob/4.6.3-stable/editor/editor_node.cpp#L8621-L8651) explain the lifetime boundary; the precise last reference-holder remains unproven. Mono reference retention is a hypothesis, not an observed stack trace.
+- [Runnable one-click deployment](https://docs.godotengine.org/en/4.6/tutorials/export/one-click_deploy.html) documents the disabled feature. It is distinct from APK packaging and manual installation.
+
+Current scoped result: import workaround verified, specific prior-reader compatibility gate verified, historical direct-migration suite still intentionally incompatible/failed, APK verification blocked. Production Core/Persistence and save policy remain unchanged.
