@@ -48,7 +48,8 @@ Checks cover:
 - Official ZIP 16 KiB alignment validation plus independent ELF64/AArch64 shared
   library headers, bounded program-header tables, PT_LOAD file/memory ranges,
   power-of-two alignment of at least 16 KiB and offset/address congruence.
-- ARM64-only native library entries with Godot and Mono runtimes, and exactly one
+- ARM64-only native library entries with exact `libgodot_android.so` and
+  `libmonosgen-2.0.so` runtime names, and exactly one
   nonempty asset entry for each HmiGame, Hmi.Core and Hmi.Persistence assembly.
 - No `.jks` or `.keystore` entries; unchanged APK SHA256 before/after checking.
 - Checks remain active under Python optimization; no safety gate uses `assert`.
@@ -60,11 +61,17 @@ for failed build/import/export diagnostics.
 
 ## Verification, 2026-11-05
 
-- 40 synthetic Python tests pass, including failed v2/zipalign results, wrong or
+- 43 synthetic Python tests pass, including failed v2/zipalign results, wrong or
   duplicate signers, nonzero exits with success text, missing tools, timeouts,
   4 KiB/non-power-of-two ELF alignment, malformed headers, virtual-address
   overflow, truncated segments, duplicate ZIP names, CRC corruption, missing
   assemblies, mutation during verification and Python `-O`.
+- A later review reproduced another false positive: the initial runtime-name
+  substring check accepted a Mono component without the main Mono VM, or a
+  Godot-named lookalike without the engine library. Required library paths now
+  match the pinned export exactly, including case. Three added regressions
+  reject a component-only Mono payload, a Godot lookalike and a wrong-case
+  runtime name. Optional Mono components are not required.
 - Architecture boundary and all nine notice/inclusion checks pass.
 - Independent code review found missing ELF header-version/type/size validation
   and virtual-memory overflow checks in the first implementation. Both were

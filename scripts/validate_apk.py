@@ -18,6 +18,9 @@ import zipfile
 
 PAGE_SIZE = 16 * 1024
 ASSEMBLIES = ("HmiGame.dll", "Hmi.Core.dll", "Hmi.Persistence.dll")
+# Exact loadable runtimes in the pinned Godot 4.6.3 .NET ARM64 export.
+# Optional libmono-component-* libraries cannot replace the Mono VM.
+NATIVE_RUNTIMES = ("libgodot_android.so", "libmonosgen-2.0.so")
 
 
 class ValidationError(Exception):
@@ -87,9 +90,9 @@ def check_payload(apk: Path) -> dict:
         require(bool(libraries), "Missing native runtime libraries")
         require(all(n.startswith("lib/arm64-v8a/") and n.count("/") == 2
                     for n in libraries), "Expected only ARM64 native libraries")
-        require(any("godot" in Path(n).name.lower() for n in libraries)
-                and any("mono" in Path(n).name.lower() for n in libraries),
-                "Missing Godot or Mono native runtime")
+        for runtime in NATIVE_RUNTIMES:
+            require("lib/arm64-v8a/" + runtime in libraries,
+                    f"Missing required native runtime: {runtime}")
         elf = {name: check_elf(archive.read(name), name) for name in sorted(libraries)}
         assemblies = []
         for name in ASSEMBLIES:

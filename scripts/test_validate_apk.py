@@ -41,12 +41,12 @@ class PackagingGateTests(unittest.TestCase):
         self.write_apk()
 
     def write_apk(self, native=None, omit=(), extra=None):
-        entries = {"lib/arm64-v8a/libgodot.so": bytes(elf()),
-                   "lib/arm64-v8a/libmono.so": bytes(elf()),
+        entries = {"lib/arm64-v8a/libgodot_android.so": bytes(elf()),
+                   "lib/arm64-v8a/libmonosgen-2.0.so": bytes(elf()),
                    "AndroidManifest.xml": b"synthetic manifest", "classes.dex": b"synthetic dex"}
         entries.update({"assets/managed/" + n: b"synthetic assembly" for n in gate.ASSEMBLIES})
         if native is not None:
-            entries["lib/arm64-v8a/libgodot.so"] = bytes(native)
+            entries["lib/arm64-v8a/libgodot_android.so"] = bytes(native)
         entries.update(extra or {})
         with zipfile.ZipFile(self.apk, "w", compression=zipfile.ZIP_STORED) as archive:
             for name, data in entries.items():
@@ -139,8 +139,26 @@ class PackagingGateTests(unittest.TestCase):
             gate.check_payload(self.apk)
 
     def test_rejects_missing_runtime(self):
-        self.write_apk(omit=["lib/arm64-v8a/libmono.so"])
-        with self.assertRaisesRegex(gate.ValidationError, "Mono"):
+        self.write_apk(omit=["lib/arm64-v8a/libmonosgen-2.0.so"])
+        with self.assertRaisesRegex(gate.ValidationError, "libmonosgen-2.0.so"):
+            gate.check_payload(self.apk)
+
+    def test_rejects_mono_component_without_main_runtime(self):
+        self.write_apk(omit=["lib/arm64-v8a/libmonosgen-2.0.so"],
+                       extra={"lib/arm64-v8a/libmono-component-debugger.so": bytes(elf())})
+        with self.assertRaisesRegex(gate.ValidationError, "libmonosgen-2.0.so"):
+            gate.check_payload(self.apk)
+
+    def test_rejects_godot_lookalike_without_main_runtime(self):
+        self.write_apk(omit=["lib/arm64-v8a/libgodot_android.so"],
+                       extra={"lib/arm64-v8a/libgodot_plugin.so": bytes(elf())})
+        with self.assertRaisesRegex(gate.ValidationError, "libgodot_android.so"):
+            gate.check_payload(self.apk)
+
+    def test_rejects_wrong_case_runtime_name(self):
+        self.write_apk(omit=["lib/arm64-v8a/libmonosgen-2.0.so"],
+                       extra={"lib/arm64-v8a/libMonoSgen-2.0.so": bytes(elf())})
+        with self.assertRaisesRegex(gate.ValidationError, "libmonosgen-2.0.so"):
             gate.check_payload(self.apk)
 
     def test_rejects_missing_assembly(self):
