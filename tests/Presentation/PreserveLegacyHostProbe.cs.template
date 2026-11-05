@@ -45,6 +45,10 @@ public partial class PreserveLegacyHostProbe : Node
   var sim=FixtureSimulation();sim.PrepareRun("honey",1030);
   Check(sim.TryCapturePrepared(new CheckpointIdentity(Guid.ParseExact(OldRun,"N"),2),out var dto,out _),"controlled legacy fixture capture");
   dto.RulesVersion=WaveRules.LegacyVersion;
+  // Distinct, validated synthetic progression makes unintended inheritance observable.
+  dto.Wave=2;dto.FinitePicks=new[]{"base.health"};dto.Cards.Single(c=>c.Id=="base.health").Count=1;
+  dto.Coins=37;dto.Earned=42;dto.Spent=5;dto.Kills=3;
+  Check(sim.TryValidateArchivedCheckpoint(dto,new CheckpointIdentity(dto.RunId,dto.Sequence),out _),"synthetic rule1 source has valid nonzero wallet and progressed build");
   var store=new CheckpointStore(new PhysicalCheckpointFiles(LegacyPath),sim.CatalogHash,WaveRules.LegacyVersion,(_,_)=>true);
   store.BeginRun(OldRun,Guid.NewGuid().ToString("N"),0);store.Save(OldRun,Guid.NewGuid().ToString("N"),1,JsonSerializer.SerializeToUtf8Bytes(dto));
  }
@@ -80,6 +84,7 @@ public partial class PreserveLegacyHostProbe : Node
   Check(i.Checkpoint.CharacterId==hero&&i.Checkpoint.Seed==seed,"new checkpoint uses explicit current hero and seed, not preserved source");
   Check(i.Checkpoint.RunId!=Guid.ParseExact(OldRun,"N")&&i.Checkpoint.Wave==1,"new UUID and wave1");
   Check(i.Checkpoint.RulesVersion==WaveRules.Version,"new checkpoint uses current projectile rules");
+  Check(i.Checkpoint.Coins==0&&i.Checkpoint.Earned==0&&i.Checkpoint.Spent==0&&i.Checkpoint.Kills==0&&i.Checkpoint.FinitePicks.Length==0&&i.Checkpoint.Cards.Single(c=>c.Id=="base.health").Count==0,"new checkpoint never inherits the nonzero source wallet or progressed build");
   Check(System.IO.File.Exists(Path.Combine(RegistryPath,"upgrade-backup.json")),"full old backup exists");
   using var envelope=JsonDocument.Parse(System.IO.File.ReadAllBytes(Path.Combine(RegistryPath,"upgrade-backup.json")));
   byte[] payload=Convert.FromBase64String(envelope.RootElement.GetProperty("Payload").GetString());
@@ -101,11 +106,12 @@ public partial class PreserveLegacyHostProbe : Node
   GD.Print("CONTROLLED_PRESERVE_HOST "+mode+" generated storage only");
   if(mode=="cold-setup")
   {
-   CreateLegacy();var c=new RuleMigrationCoordinator(new IntentLostAck(Files()),FixtureSimulation());var before=c.InspectUpgrade();bool failed=false;
+   CreateLegacy();string sourceBefore=Bytes(LegacyPath);var c=new RuleMigrationCoordinator(new IntentLostAck(Files()),FixtureSimulation());var before=c.InspectUpgrade();bool failed=false;
    try{c.ConfirmUpgrade(Guid.NewGuid().ToString("N"),Guid.NewGuid().ToString("N"),before.Fingerprint,true);}catch(IOException){failed=true;}
    Check(failed&&Inspect().Kind==RuleUpgradeKind.Incomplete,"intent-only interrupted preserve operation");
    Check(!System.IO.File.Exists(Path.Combine(RegistryPath,"upgrade-backup.json"))&&Files().Slots().Length==0,"cold fixture stops before backup/slot");
-   System.IO.File.WriteAllText(ProjectSettings.GlobalizePath("user://legacy-baseline.txt"),Bytes(LegacyPath));return;
+   Check(Bytes(LegacyPath)==sourceBefore,"interrupted initial preservation leaves source bytes unchanged");
+   System.IO.File.WriteAllText(ProjectSettings.GlobalizePath("user://legacy-baseline.txt"),sourceBefore);return;
   }
   if(mode is "happy" or "stale-source" or "lostack")CreateLegacy();
   string old=Bytes(LegacyPath);await Boot();
@@ -124,7 +130,8 @@ public partial class PreserveLegacyHostProbe : Node
    Pick("脆蓝",2099);await Flush();var epochButton=Button(ConfirmLabel);Call("RefreshRuleInspection",false);epochButton.EmitSignal(BaseButton.SignalName.Pressed);host.SetProcess(false);
    Check(Files().Slots().Length==0&&Sim.Phase==RunPhase.Selecting,"old rule epoch confirm cannot initialize");
    Check(!Ui.IsPersistenceModalOpen,"stale modal action dismisses without storage or Begin");await Flush();
-   Pick("卷卷",2031);await Flush();var confirm=Button(ConfirmLabel);confirm.EmitSignal(BaseButton.SignalName.Pressed);host.SetProcess(false);CheckPrepared();
+   Pick("卷卷",2031);await Flush();var confirm=Button(ConfirmLabel);int beforePrepare=Sim.RunToken;confirm.EmitSignal(BaseButton.SignalName.Pressed);host.SetProcess(false);CheckPrepared();
+   Check(Sim.RunToken==beforePrepare,"preservation preparation never prepares a simulation run");
    string prepared=Bytes(RegistryPath);confirm.EmitSignal(BaseButton.SignalName.Pressed);host.SetProcess(false);
    Check(Bytes(RegistryPath)==prepared&&Sim.Phase==RunPhase.Selecting,"duplicate preparation cannot Begin the earlier choice or rewrite");
    Pick("脆蓝",2037);CheckNew("bounce",2037);
@@ -155,7 +162,8 @@ public partial class PreserveLegacyHostProbe : Node
    Check(old==System.IO.File.ReadAllText(ProjectSettings.GlobalizePath("user://legacy-baseline.txt")),"cold process source exact");
    Ui.RetrySaveRequested();await Flush();Check(Text().Contains("保留旧档另开新局")&&Text().Contains("不会猜测上次角色或种子"),"cold preserve receipt explains source vs fresh choice");
    Check(((RuleUpgradeInspection)Field("_ruleInspection")).Pending?.StartNew==true,"cold receipt preserves the original start-new purpose");
-   var retry=Button("确认重试");retry.EmitSignal(BaseButton.SignalName.Pressed);host.SetProcess(false);
+   var retry=Button("确认重试");int beforeRetry=Sim.RunToken;retry.EmitSignal(BaseButton.SignalName.Pressed);host.SetProcess(false);
+   Check(Sim.RunToken==beforeRetry,"cold retry never prepares a simulation run");
    Check(Inspect().Recovery.Kind==RecoveryKind.PendingStart&&Sim.Phase==RunPhase.Selecting&&Sim.Tick==0,"cold Retry selects only PendingStart and returns chooser");
    Check(!Ui.IsPersistenceModalOpen&&Walk(Ui).OfType<SpinBox>().Any(n=>n.IsVisibleInTree()),"actual chooser restored after cold retry");CheckPrepared();
    string registry=Bytes(RegistryPath);retry.EmitSignal(BaseButton.SignalName.Pressed);Check(Bytes(RegistryPath)==registry&&Sim.Phase==RunPhase.Selecting,"duplicate cold retry does not Begin");

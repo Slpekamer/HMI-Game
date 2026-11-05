@@ -25,6 +25,18 @@ The source backup check now verifies the schema4 envelope checksum, original rul
 - Unchanged failures reproduced as classified above.
 - Adapted strict `test_preserve_legacy_host.py`: build/import/all six processes exit 0, **93 assertions** (32 + 6 + 7 + 20 + 3 + 25). Strict error/leak rejection and required pass markers are unchanged.
 - Architecture and whitespace checks pass.
-- Independent audit, negative controls and broader supported-path regression are pending at this first published batch.
+- Independent audit, negative controls and broader supported-path regression were pending at this first published batch; subsequent results are recorded below.
 
 These are headless synthetic-save behavior checks. They do not establish native pixels, historical-writer compatibility, real user saves, mobile hardware/performance, exports, a fully green aggregate or release readiness. Main and integration are not changed.
+
+
+## Strengthened preservation coverage
+
+Read-only independent audit found no blocking adaptation issue and identified three useful test gaps. A second narrow batch uses a deliberately constructed, semantically validated synthetic rule1 checkpoint at wave2 with a nonzero wallet and a picked health card. The new checkpoint must reset that wallet and build as well as use the later explicit hero/seed. This remains a current-generated fixture, not historical-writer evidence.
+
+The interrupted-intent case now compares original source bytes immediately against a baseline taken before the operation, then passes that same baseline to the cold process. Preparation and cold retry also require the simulation run token to remain unchanged, strengthening final phase/tick checks.
+
+- Strict preservation runner: all six cases pass **103 assertions** (35 + 6 + 8 + 22 + 5 + 27), build/import/runtime exit 0.
+- Current supported upgrade Host: all **21 cases / 188 assertions** pass.
+- Exact prior-rule2 reader is built from immutable `e4e7e6351e8de39c3376594968022f661e189d12`; **RuleUpgrade 656** passes, including the original readable Active positive control and all six after-write upgrade states. This validates old-reader behavior on current-generated synthetic fixtures, not an old-writer-created save corpus.
+- Negative controls and final remote verification are still in progress at this checkpoint. The unchanged historical pure and direct-migration Host tests remain failed; a green full aggregate is not claimed.
