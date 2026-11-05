@@ -2,6 +2,8 @@
 
 The reviewed keyboard lifecycle fix, APK validation gates and approved grid-free candy arena are combined on `candidate/input-apk-candy-20261105`. Main and the existing integration branch are unchanged. Fresh scoped checks, two evidence-backed validation fixes, exact native comparison and the remaining strict import/migration/device gates are recorded in [candidate verification](docs/public/candidate-integration-20261105.md). This is not a fully green release or a new APK.
 
+The separate `fix/strict-migration-candidate-20261105` follow-up disables optional Android one-click deployment, verifies clean strict imports/data-pack export, and tests the real immutable rule2 reader. [Fresh results and remaining failures](docs/public/candidate-strict-gates-20261105.md) preserve the historical rule1-suite failure and the aggregate's next fixture blocker. Explicit APK export remains available, but no new APK or installation is certified.
+
 # Review candidate: approved combined presentation
 
 The normal-game combination at `77e398f` and its high-speed safety revision at runtime `e999cb8` have passed user video review: Crit follows actual movement with turning Run, expresses genuine projectile launches through the reviewed energy gesture, and uses the reviewed `.015` shadow split. This remains an independent candidate, not merged into main/integration. Integration-readiness checks are in progress; visual approval is not export, hardware or release certification.

@@ -1,3 +1,7 @@
+# Strict-import and exact-reader follow-up, 2026-11-05
+
+The independent [strict-gate follow-up](candidate-strict-gates-20261105.md) verifies the Android non-runnable workaround, scoped strict runners, a clean data-pack export and the actual historical rule2 reader (656 checks). It preserves the failed retired-rule1 suite and records the aggregate's next FloorContact fixture failure. No fresh APK/device acceptance or full aggregate pass is claimed. Earlier candidate results below retain their original scope.
+
 # Latest combined candidate, 2026-11-05
 
 See [fresh integration verification](candidate-integration-20261105.md) for the reviewed input/APK/scenery combination, corrected inventory/gamepad fixtures, native comparison and individually classified results. Strict import/export diagnostics, migration failure, exact old-reader coverage and device certification remain open. The earlier checkpoints below retain their historical scope.
