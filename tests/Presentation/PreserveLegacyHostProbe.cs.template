@@ -10,7 +10,9 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-// Controlled temporary-storage fixture, not natural gameplay or real user migration.
+// Controlled rule1 preservation through the current rule3 transaction and Host UI.
+// Synthetic temporary storage, not historical-writer fixtures or real user migration.
+// Preparation must return to selection; a later explicit choice alone begins combat.
 public partial class PreserveLegacyHostProbe : Node
 {
  const BindingFlags Flags=BindingFlags.Instance|BindingFlags.NonPublic;
@@ -56,25 +58,42 @@ public partial class PreserveLegacyHostProbe : Node
   Check(Sim.Phase==RunPhase.Selecting&&Sim.Tick==0,"boot never auto Begins migration");
  }
 
- const string ConfirmLabel="确认保留并开始新局";
+ const string ConfirmLabel="确认保留并准备新局";
  void Pick(string name,uint seed)
  {
   Ui.ShowSelection();Button(name).EmitSignal(BaseButton.SignalName.Pressed);
   Walk(Ui).OfType<SpinBox>().Single(n=>n.IsVisibleInTree()).Value=seed;
   Button("开始冒险").EmitSignal(BaseButton.SignalName.Pressed);host.SetProcess(false);
  }
- MigrationInspection Inspect()=>new RuleMigrationCoordinator(Files(),FixtureSimulation()).Inspect();
+ RuleUpgradeInspection Inspect()=>new RuleMigrationCoordinator(Files(),FixtureSimulation()).InspectUpgrade();
+ void CheckPrepared()
+ {
+  var i=Inspect();
+  Check(i.Kind==RuleUpgradeKind.CurrentSelected&&i.Recovery.Kind==RecoveryKind.PendingStart&&i.Checkpoint==null,"explicit preservation prepares only selected PendingStart");
+  Check((bool)Field("_ruleSelected")&&Sim.Phase==RunPhase.Selecting&&Sim.Tick==0,"preparation cannot auto Begin or reuse the earlier hero and seed");
+  Check(!Ui.IsPersistenceModalOpen&&Walk(Ui).OfType<SpinBox>().Any(n=>n.IsVisibleInTree()),"successful preparation restores the actual chooser");
+ }
  void CheckNew(string hero,uint seed)
  {
-  var i=Inspect();Check(i.Kind==MigrationKind.Selected&&i.Recovery.Kind==RecoveryKind.Active,"new slot durable Active before Combat observed");
+  var i=Inspect();Check(i.Kind==RuleUpgradeKind.CurrentSelected&&i.Recovery.Kind==RecoveryKind.Active,"new slot durable Active before Combat observed");
   Check(Sim.Phase==RunPhase.Combat&&Sim.Tick==0&&Sim.CharacterId==hero&&Sim.Coins==0&&Sim.Earned==0&&Sim.Spent==0,"new choice begins once with empty wallet");
   Check(i.Checkpoint.CharacterId==hero&&i.Checkpoint.Seed==seed,"new checkpoint uses explicit current hero and seed, not preserved source");
   Check(i.Checkpoint.RunId!=Guid.ParseExact(OldRun,"N")&&i.Checkpoint.Wave==1,"new UUID and wave1");
-  Check(System.IO.File.Exists(Path.Combine(RegistryPath,"backup.json")),"full old backup exists");
-  var envelope=JsonDocument.Parse(System.IO.File.ReadAllBytes(Path.Combine(RegistryPath,"backup.json")));
+  Check(i.Checkpoint.RulesVersion==WaveRules.Version,"new checkpoint uses current projectile rules");
+  Check(System.IO.File.Exists(Path.Combine(RegistryPath,"upgrade-backup.json")),"full old backup exists");
+  using var envelope=JsonDocument.Parse(System.IO.File.ReadAllBytes(Path.Combine(RegistryPath,"upgrade-backup.json")));
   byte[] payload=Convert.FromBase64String(envelope.RootElement.GetProperty("Payload").GetString());
-  var backup=JsonSerializer.Deserialize<MigrationBackup>(payload);
-  foreach(var f in backup.Files)Check(System.IO.File.ReadAllBytes(Path.Combine(LegacyPath,f.Name)).SequenceEqual(f.Bytes),"backup file bytes exact "+f.Name);
+  Check(Convert.ToHexString(SHA256.HashData(payload))==envelope.RootElement.GetProperty("Hash").GetString(),"preserved backup envelope checksum exact");
+  using var backup=JsonDocument.Parse(payload);var root=backup.RootElement;var entries=root.GetProperty("Files").EnumerateArray().ToArray();
+  Check(root.GetProperty("Schema").GetInt32()==4&&root.GetProperty("SourceSlot").GetString()==""&&root.GetProperty("SourceRules").GetString()==WaveRules.LegacyVersion,"backup identifies schema4 rule1 source rather than a chained upgrade");
+  var sourceNames=Directory.GetFiles(LegacyPath).Where(p=>Path.GetFileName(p)!="writer.lock").Select(Path.GetFileName).OrderBy(n=>n,StringComparer.Ordinal).ToArray();
+  Check(entries.Select(f=>f.GetProperty("Name").GetString()).OrderBy(n=>n,StringComparer.Ordinal).SequenceEqual(sourceNames),"backup contains every original source file exactly once");
+  foreach(var f in entries)
+  {
+   string name=f.GetProperty("Name").GetString();byte[] bytes=f.GetProperty("Bytes").GetBytesFromBase64();
+   Check(f.GetProperty("Scope").GetString()=="source"&&f.GetProperty("Hash").GetString()==Convert.ToHexString(SHA256.HashData(bytes)),"backup scope and checksum exact "+name);
+   Check(System.IO.File.ReadAllBytes(Path.Combine(LegacyPath,name)).SequenceEqual(bytes),"backup file bytes exact "+name);
+  }
  }
  async Task Run()
  {
@@ -82,26 +101,33 @@ public partial class PreserveLegacyHostProbe : Node
   GD.Print("CONTROLLED_PRESERVE_HOST "+mode+" generated storage only");
   if(mode=="cold-setup")
   {
-   CreateLegacy();var c=new RuleMigrationCoordinator(new IntentLostAck(Files()),FixtureSimulation());var before=c.Inspect();bool failed=false;
-   try{c.PreserveLegacyAndInitializeNewGame(Guid.NewGuid().ToString("N"),Guid.NewGuid().ToString("N"),before.Fingerprint);}catch(IOException){failed=true;}
-   Check(failed&&Inspect().Kind==MigrationKind.Incomplete,"intent-only interrupted preserve operation");
-   Check(!System.IO.File.Exists(Path.Combine(RegistryPath,"backup.json"))&&Files().Slots().Length==0,"cold fixture stops before backup/slot");
+   CreateLegacy();var c=new RuleMigrationCoordinator(new IntentLostAck(Files()),FixtureSimulation());var before=c.InspectUpgrade();bool failed=false;
+   try{c.ConfirmUpgrade(Guid.NewGuid().ToString("N"),Guid.NewGuid().ToString("N"),before.Fingerprint,true);}catch(IOException){failed=true;}
+   Check(failed&&Inspect().Kind==RuleUpgradeKind.Incomplete,"intent-only interrupted preserve operation");
+   Check(!System.IO.File.Exists(Path.Combine(RegistryPath,"upgrade-backup.json"))&&Files().Slots().Length==0,"cold fixture stops before backup/slot");
    System.IO.File.WriteAllText(ProjectSettings.GlobalizePath("user://legacy-baseline.txt"),Bytes(LegacyPath));return;
   }
   if(mode is "happy" or "stale-source" or "lostack")CreateLegacy();
   string old=Bytes(LegacyPath);await Boot();
   if(mode=="happy")
   {
-   Check(((MigrationInspection)Field("_ruleInspection")).Kind==MigrationKind.LegacyAvailable,"actual valid old Active recognized");
+   Check(((RuleUpgradeInspection)Field("_ruleInspection")).Kind==RuleUpgradeKind.LegacyPreserveOnly&&Inspect().Recovery.Kind==RecoveryKind.Active,"actual valid rule1 Active recognized as preservation-only");
+   string initial=Bytes(RegistryPath);Ui.ResumeReviewRequested();await Flush();
+   Check(Text().Contains("不支持直接升级续档")&&!Walk(Ui).OfType<Button>().Any(b=>b.IsVisibleInTree()&&b.Text=="确认升级并继续"),"rule1 review never offers retired direct conversion");
+   Button("返回，不修改旧档").EmitSignal(BaseButton.SignalName.Pressed);
+   Check(Bytes(RegistryPath)==initial&&Sim.Phase==RunPhase.Selecting,"rule1 status review writes nothing and never Begins");
    Pick("卷卷",2026);await Flush();Check(Ui.IsPersistenceModalOpen&&Text().Contains("不继承旧局金币")&&Text().Contains("取消不会更改旧档"),"explicit preserve/new consent explains noninheritance and cancellation");
    Check(GetViewport().GuiGetFocusOwner() is Button f&&f.Text=="返回，不修改旧档","safe default focus");
    var cancelled=Button(ConfirmLabel);Button("返回，不修改旧档").EmitSignal(BaseButton.SignalName.Pressed);cancelled.EmitSignal(BaseButton.SignalName.Pressed);host.SetProcess(false);
-   Check(Bytes(LegacyPath)==old&&Files().Slots().Length==0&&!System.IO.File.Exists(Path.Combine(RegistryPath,"intent.json")),"Return and stale confirm do not initialize storage");
+   Check(Bytes(LegacyPath)==old&&Files().Slots().Length==0&&!System.IO.File.Exists(Path.Combine(RegistryPath,"upgrade-intent.json")),"Return and stale confirm do not initialize storage");
    Check(Sim.Phase==RunPhase.Selecting&&Sim.Tick==0,"cancel does not Begin");await Flush();
    Pick("脆蓝",2099);await Flush();var epochButton=Button(ConfirmLabel);Call("RefreshRuleInspection",false);epochButton.EmitSignal(BaseButton.SignalName.Pressed);host.SetProcess(false);
    Check(Files().Slots().Length==0&&Sim.Phase==RunPhase.Selecting,"old rule epoch confirm cannot initialize");
    Check(!Ui.IsPersistenceModalOpen,"stale modal action dismisses without storage or Begin");await Flush();
-   Pick("卷卷",2031);await Flush();var confirm=Button(ConfirmLabel);confirm.EmitSignal(BaseButton.SignalName.Pressed);host.SetProcess(false);CheckNew("crit",2031);
+   Pick("卷卷",2031);await Flush();var confirm=Button(ConfirmLabel);confirm.EmitSignal(BaseButton.SignalName.Pressed);host.SetProcess(false);CheckPrepared();
+   string prepared=Bytes(RegistryPath);confirm.EmitSignal(BaseButton.SignalName.Pressed);host.SetProcess(false);
+   Check(Bytes(RegistryPath)==prepared&&Sim.Phase==RunPhase.Selecting,"duplicate preparation cannot Begin the earlier choice or rewrite");
+   Pick("脆蓝",2037);CheckNew("bounce",2037);
    int token=Sim.RunToken;string registry=Bytes(RegistryPath);confirm.EmitSignal(BaseButton.SignalName.Pressed);host.SetProcess(false);
    Check(Sim.RunToken==token&&Bytes(RegistryPath)==registry,"duplicate current confirmation cannot restart or rewrite");
    Call("Selection");Check(Inspect().Recovery.Kind==RecoveryKind.Closed,"selected new run closes without touching legacy");
@@ -127,10 +153,11 @@ public partial class PreserveLegacyHostProbe : Node
   else if(mode=="cold-resume")
   {
    Check(old==System.IO.File.ReadAllText(ProjectSettings.GlobalizePath("user://legacy-baseline.txt")),"cold process source exact");
-   Ui.RetrySaveRequested();await Flush();Check(Text().Contains("旧局已保留")&&Text().Contains("不会猜测上次角色或种子"),"cold preserve receipt explains source vs fresh choice");
+   Ui.RetrySaveRequested();await Flush();Check(Text().Contains("保留旧档另开新局")&&Text().Contains("不会猜测上次角色或种子"),"cold preserve receipt explains source vs fresh choice");
+   Check(((RuleUpgradeInspection)Field("_ruleInspection")).Pending?.StartNew==true,"cold receipt preserves the original start-new purpose");
    var retry=Button("确认重试");retry.EmitSignal(BaseButton.SignalName.Pressed);host.SetProcess(false);
    Check(Inspect().Recovery.Kind==RecoveryKind.PendingStart&&Sim.Phase==RunPhase.Selecting&&Sim.Tick==0,"cold Retry selects only PendingStart and returns chooser");
-   Check(!Ui.IsPersistenceModalOpen&&Walk(Ui).OfType<SpinBox>().Any(n=>n.IsVisibleInTree()),"actual chooser restored after cold retry");
+   Check(!Ui.IsPersistenceModalOpen&&Walk(Ui).OfType<SpinBox>().Any(n=>n.IsVisibleInTree()),"actual chooser restored after cold retry");CheckPrepared();
    string registry=Bytes(RegistryPath);retry.EmitSignal(BaseButton.SignalName.Pressed);Check(Bytes(RegistryPath)==registry&&Sim.Phase==RunPhase.Selecting,"duplicate cold retry does not Begin");
    Pick("卷卷",2088);CheckNew("crit",2088);
   }
@@ -144,7 +171,7 @@ public partial class PreserveLegacyHostProbe : Node
  }
  sealed class IntentLostAck : IRuleMigrationFiles
  {
-  readonly IRuleMigrationFiles f;readonly string failName;readonly bool before;public IntentLostAck(IRuleMigrationFiles files,string name="intent.json",bool failBefore=false){f=files;failName=name;before=failBefore;}
+  readonly IRuleMigrationFiles f;readonly string failName;readonly bool before;public IntentLostAck(IRuleMigrationFiles files,string name="upgrade-intent.json",bool failBefore=false){f=files;failName=name;before=failBefore;}
   public ICheckpointFiles Registry=>new FaultPort(f.Registry,failName,before);public ICheckpointFiles Legacy=>f.Legacy;public string[] Slots()=>f.Slots();public ICheckpointFiles Slot(string id)=>f.Slot(id);
   sealed class FaultPort:ICheckpointFiles
   {
