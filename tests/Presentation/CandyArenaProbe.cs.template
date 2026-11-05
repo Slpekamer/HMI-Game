@@ -1,0 +1,122 @@
+using Godot;
+using System;
+using System.Linq;
+
+public partial class CandyArenaProbe : Node
+{
+    private int checks;
+    private bool native;
+    private void Check(bool condition, string message) { checks++; if (!condition) throw new Exception(message); }
+    private Node3D Build()
+    {
+        var root = new Node3D(); AddChild(root);
+        CandyArenaVisuals.BuildBoundary(root); CandyArenaVisuals.BuildVillage(root);
+        CandyArenaVisuals.BuildFloor(root);
+        CandyArenaVisuals.BuildWaferLayers(root, new(-7.4f, 0, -3.8f), 1.04f, 7.6f);
+        CandyArenaVisuals.BuildWaferLayers(root, new(6.52f, 0, -3.8f), 1.04f, 7.6f);
+        return root;
+    }
+    private void Validate(Node3D root)
+    {
+        var nodes = root.GetChildren().OfType<MultiMeshInstance3D>().ToArray();
+        Check(nodes.Length == 27, "27 bounded static batches, not one node per ornament");
+        Check(root.GetChildCount() == nodes.Length + 1, "Only static batches and one floor plane");
+        var floor = root.GetNode<MeshInstance3D>("CandyFloorInlay");
+        Check(floor.Mesh is PlaneMesh plane && plane.Size == new Vector2(28, 16), "Floor inlay is flat within the original arena");
+        Check(Math.Abs(floor.Position.Y - .0005f) < .000001f, "Inlay stays below petal bottoms (.001) and honey (.01)");
+        Check(floor.CastShadow == GeometryInstance3D.ShadowCastingSetting.Off, "Floor inlay cannot cast shadows over actors");
+        var image = ((StandardMaterial3D)floor.MaterialOverride).AlbedoTexture.GetImage();
+        Check(image != null && image.GetWidth() == 1400 && image.GetHeight() == 800, "Imported floor texture size");
+        for (int y = 50; y < 800; y += 100)
+        for (int x = 50; x < 1400; x += 100)
+        {
+            var pixel = image.GetPixel(x, y);
+            Check(pixel.A > .999f && pixel.R > .85f && pixel.G > .7f && pixel.B > .55f, "Actual imported icing stays opaque and light, never unsupported-pattern black");
+        }
+        Check(nodes.Where(n => n.Name.ToString().StartsWith("CandyBoundary_")).Sum(n => n.Multimesh.InstanceCount) == 88, "All 88 original boundary centers preserved");
+        Check(nodes.Where(n => n.Name.ToString().StartsWith("CandyVillage_cake")).Sum(n => n.Multimesh.InstanceCount) == 18, "18 village houses");
+        Check(nodes.Where(n => n.Name.ToString().StartsWith("CandyVillage_icing")).Sum(n => n.Multimesh.InstanceCount) == 18, "18 original roof envelopes");
+        foreach (var node in nodes)
+        {
+            var multi = node.Multimesh;
+            Check(multi.Mesh.GetSurfaceCount() == 1, "One material surface per batch");
+            Check(multi.InstanceCount > 0 && multi.InstanceCount <= 126, "No unbounded instance allocation");
+            Check(multi.Mesh.SurfaceGetMaterial(0) is StandardMaterial3D, "Compatibility standard material, no custom shader");
+            Check(!node.IsProcessing() && !node.IsPhysicsProcessing(), "Static scenery has no per-frame process");
+            var arrays = multi.Mesh.SurfaceGetArrays(0);
+            var vertices = arrays[(int)Mesh.ArrayType.Vertex].AsVector3Array();
+            var normals = arrays[(int)Mesh.ArrayType.Normal].AsVector3Array();
+            foreach (var p in vertices) Check(p.IsFinite(), "Finite mesh vertex");
+            if (multi.Mesh is ArrayMesh)
+            {
+                Check(vertices.Length == 216, "Rounded box has bounded 216 vertices");
+                var indices = arrays[(int)Mesh.ArrayType.Index].AsInt32Array();
+                Check(indices.Length == 900, "Rounded box has bounded 300 triangles");
+                foreach (var n in normals) Check(n.IsFinite() && Math.Abs(n.Length() - 1) < .0001f, "Finite unit rounded normal");
+                for (int i = 0; i < indices.Length; i += 3)
+                {
+                    int a = indices[i], b = indices[i + 1], c = indices[i + 2];
+                    var cross = (vertices[b] - vertices[a]).Cross(vertices[c] - vertices[a]);
+                    Check(cross.LengthSquared() > 1e-15f, "No degenerate triangles");
+                    Check(cross.Dot(normals[a] + normals[b] + normals[c]) < 0, "Godot clockwise front face winding");
+                }
+            }
+            if (!native) continue;
+            for (int i = 0; i < multi.InstanceCount; i++)
+            {
+                var t = multi.GetInstanceTransform(i);
+                Check(t.IsFinite() && Math.Abs(t.Basis.Determinant()) > .001f, "Native retained transform finite and nondegenerate");
+                var bounds = multi.Mesh.GetAabb();
+                if (node.Name.ToString().StartsWith("CandyBoundary_"))
+                {
+                    bool horizontal = Math.Abs(Math.Abs(t.Origin.Z) - 8.3f) < .0001f;
+                    Check(Math.Abs(t.Origin.Y - .25f) < .0001f, "Original boundary center height");
+                    for (int endpoint = 0; endpoint < 8; endpoint++)
+                    {
+                        var p = t * bounds.GetEndpoint(endpoint) - t.Origin;
+                        Check(Math.Abs(p.Y) <= .3751f, "Boundary vertical extent unchanged");
+                        Check(Math.Abs(p.X) <= (horizontal ? .4751f : .2501f) && Math.Abs(p.Z) <= (horizontal ? .2501f : .4751f), "Boundary maximum X/Z extent unchanged");
+                    }
+                }
+                else if (node.Name.ToString().StartsWith("CandyWaferLayers_"))
+                {
+                    Check(t.Origin.Y >= .13f && t.Origin.Y <= .62f, "Wafer bands stay on existing obstacle sides");
+                    Check(bounds.Size.X <= 1.0421f && bounds.Size.Z < 7.6f, "Wafer side reveals have only the declared 1mm antizfight margin");
+                }
+                else
+                {
+                    for (int endpoint = 0; endpoint < 8; endpoint++)
+                        Check(Math.Abs((t * bounds.GetEndpoint(endpoint)).Z) > 10.7f, $"Village geometry stays outside the combat floor and boundary: {node.Name} instance={i}");
+                }
+            }
+        }
+    }
+    public override async void _Ready()
+    {
+        try
+        {
+            native = OS.GetCmdlineUserArgs().Contains("--native");
+            var first = Build(); var second = Build();
+            await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+            Validate(first); Validate(second);
+            var a = first.GetChildren().OfType<MultiMeshInstance3D>().ToArray();
+            var b = second.GetChildren().OfType<MultiMeshInstance3D>().ToArray();
+            for (int i = 0; i < a.Length; i++)
+            {
+                Check(a[i].Multimesh.GetInstanceId() != b[i].Multimesh.GetInstanceId(), "Instance-owned multimeshes");
+                Check(a[i].Multimesh.Mesh.GetInstanceId() != b[i].Multimesh.Mesh.GetInstanceId(), "Instance-owned geometry");
+                Check(a[i].Multimesh.Mesh.SurfaceGetMaterial(0).GetInstanceId() != b[i].Multimesh.Mesh.SurfaceGetMaterial(0).GetInstanceId(), "Instance-owned materials");
+            }
+            first.QueueFree(); await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+            await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+            Validate(second);
+            var replacement = Build(); Validate(replacement);
+            second.QueueFree(); replacement.QueueFree();
+            await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+            await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+            GD.Print($"CANDY_ARENA_PROBE PASS {checks} native={native}");
+            GetTree().Quit(0);
+        }
+        catch (Exception error) { GD.PushError(error.ToString()); GetTree().Quit(1); }
+    }
+}
