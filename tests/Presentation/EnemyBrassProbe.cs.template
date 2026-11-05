@@ -1,0 +1,105 @@
+using Godot;
+using Hmi.Core;
+using Hmi.GodotAdapter;
+using System;
+using System.Collections.Generic;
+
+// Imported resource and damage-overlay ownership only; headless is not visual QA.
+public partial class EnemyBrassProbe : Node3D
+{
+    private int checks;
+    private bool finished;
+    private void Check(bool condition, string message)
+    {
+        checks++;
+        if (!condition) throw new InvalidOperationException(message);
+    }
+    private static List<MeshInstance3D> Meshes(Node root)
+    {
+        var result = new List<MeshInstance3D>();
+        void Walk(Node node)
+        {
+            if (node is MeshInstance3D mesh) result.Add(mesh);
+            foreach (Node child in node.GetChildren()) Walk(child);
+        }
+        Walk(root);
+        return result;
+    }
+    public override void _Ready()
+    {
+        try
+        {
+            var cache = new AssetVisuals();
+            var first = cache.Create("enemy_chaser");
+            var peer = cache.Create("enemy_chaser");
+            AddChild(first);
+            AddChild(peer);
+            peer.Position = Vector3.Right * 2;
+            var firstMeshes = Meshes(first);
+            var peerMeshes = Meshes(peer);
+            Check(firstMeshes.Count == 3 && peerMeshes.Count == 3, "segmented mesh count");
+            var materials = new HashSet<StandardMaterial3D>();
+            foreach (var mesh in firstMeshes)
+            {
+                Check(mesh.MaterialOverride == null && mesh.MaterialOverlay == null, "no runtime override");
+                for (int surface = 0; surface < mesh.Mesh.GetSurfaceCount(); surface++)
+                {
+                    var material = mesh.GetActiveMaterial(surface) as StandardMaterial3D;
+                    Check(material != null, "standard imported material");
+                    materials.Add(material);
+                }
+            }
+            StandardMaterial3D brass = null;
+            foreach (var material in materials)
+                if (material.ResourceName == "brass") brass = material;
+            Check(brass != null, "brass resource exists");
+            Check(Math.Abs(brass.Metallic - .2f) < .00001f, "imported metallic");
+            Check(Math.Abs(brass.Roughness - .55f) < .00001f, "imported roughness");
+            var expected = new Color("e7bf72");
+            Check((new Vector3(brass.AlbedoColor.R, brass.AlbedoColor.G, brass.AlbedoColor.B) -
+                   new Vector3(expected.R, expected.G, expected.B)).Length() < .0001f, "linear glTF imports to expected sRGB albedo");
+            Check(brass.AlbedoColor.A == 1 && brass.Transparency == BaseMaterial3D.TransparencyEnum.Disabled && !brass.EmissionEnabled, "opaque nonemissive brass");
+            Color original = brass.AlbedoColor;
+            var camera = new Camera3D { Position = new Vector3(4, 6, 7) };
+            AddChild(camera);
+            camera.LookAt(Vector3.Zero);
+            var id = new EntityId(1, 1);
+            using (var damage = new EnemyDamageReaction(this, camera, 64))
+            {
+                damage.BeginFrame(1, 1);
+                damage.BindForTest(id, first);
+                var hit = new GameEvent(EventKind.Damage, new EntityId(30, 1), id,
+                    new Vec2(-1, 0), new Vec2(0, 0), 3, 1, 1, 1);
+                Check(damage.Capture(hit, 0, 1, EntityKind.Enemy, false, false), "accepted enemy damage");
+                damage.EndFrame(0, false, true);
+                foreach (var mesh in firstMeshes) Check(mesh.MaterialOverlay != null, "actual imported part tinted");
+                foreach (var mesh in peerMeshes) Check(mesh.MaterialOverlay == null, "peer not tinted");
+                Check(brass.AlbedoColor == original && Math.Abs(brass.Metallic - .2f) < .00001f, "base material untouched by hit");
+                damage.BeginFrame(1, 1);
+                damage.EndFrame(.2f, true, true);
+                Check(damage.ActiveCount == 1, "pause keeps live cue");
+                damage.BeginFrame(1, 1);
+                damage.EndFrame(.17f, false, true);
+                foreach (var mesh in firstMeshes) Check(mesh.MaterialOverlay == null, "actual imported part restored");
+                Check(damage.ActiveCount == 0, "cue expires");
+            }
+            cache.ReleaseCachedReferences();
+            first.Free();
+            Check(GodotObject.IsInstanceValid(brass) && brass.AlbedoColor == original, "peer survives cache release and first instance destruction");
+            foreach (var mesh in peerMeshes) Check(mesh.MaterialOverlay == null && mesh.Mesh != null, "peer material and mesh remain live");
+            peer.Free();
+            camera.Free();
+            GD.Print($"ENEMY_BRASS_PROBE PASS checks={checks}; resource and overlay behavior only, not rendered pixels");
+            finished = true;
+        }
+        catch (Exception error)
+        {
+            GD.PushError(error.ToString());
+            GetTree().Quit(1);
+        }
+    }
+    public override void _Process(double delta)
+    {
+        if (finished) GetTree().Quit();
+    }
+}
