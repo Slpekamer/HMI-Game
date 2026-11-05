@@ -45,6 +45,18 @@ public partial class HostResponsiveProbe : Node
   Call("Start",3,(uint)1030);host.SetProcess(false);
   var sim=Field<GameSimulation>("_sim");var ui=Field<GameUi>("_ui");var camera=Field<Camera3D>("_camera");
   Check(sim.Phase==RunPhase.Combat,"production Start durable ack begins combat");
+  // Rule3 initial enemies are reservations for one real second, not live tick-zero actors.
+  int LiveEnemies()=>Enumerable.Range(0,sim.Capacity).Count(i=>sim.TryGetEntityAtSlot(i,out var entity)&&entity.Kind==EntityKind.Enemy&&entity.Active);
+  Check(sim.Tick==0&&sim.PendingSpawnCount>0&&LiveEnemies()==0,"fresh combat starts with pending previews and no live enemies");
+  long firstActivation=Enumerable.Range(0,sim.PendingSpawnCount).Min(i=>sim.GetPendingSpawn(i).ActivateTick);
+  Check(firstActivation==sim.Tick+WaveRules.SpawnPreviewTicks,"first production reservation retains full preview duration");
+  Call("RenderEntities",0f);Check(Field<EnemyHealthVisuals>("_enemyHealth").VisibleCount==0,"pending previews cannot manufacture enemy health bars");
+  for(int step=0;step<WaveRules.SpawnPreviewTicks;step++)
+  {
+   sim.Step();Call("ConsumeEvents");Call("RenderEntities",(float)GameSimulation.FixedDelta);
+  }
+  Check(sim.Phase==RunPhase.Combat&&sim.Tick==firstActivation&&LiveEnemies()>0,"real fixed ticks activate enemies before the original resize assertions");
+  GD.Print($"HOST_RESPONSIVE_SPAWN tick={sim.Tick} liveEnemies={LiveEnemies()} bars={Field<EnemyHealthVisuals>("_enemyHealth").VisibleCount}");
   sim.Enqueue(GameCommand.Pause(true));sim.Step();Call("RefreshUi");ui.ShowPause(false);
   long tick=sim.Tick;int token=sim.RunToken;int wave=sim.Wave;var playerId=sim.PlayerId;var world=typeof(GameSimulation).GetField("World",F).GetValue(sim);uint seed=Field<uint>("_seed");
   Basis basis=camera.GlobalBasis;
