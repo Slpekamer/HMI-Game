@@ -1,0 +1,113 @@
+using Godot;
+using Hmi.Core;
+using Hmi.GodotAdapter;
+using System;
+using System.Reflection;
+
+// Injected into an isolated test copy. Real Godot key state and production Host sampler;
+// deterministic event injection is not physical-keyboard or operating-system certification.
+public partial class KeyboardInputLifecycleProbe : Node
+{
+    private GameHost host;
+    private int checks;
+    private static readonly BindingFlags Flags=BindingFlags.Instance|BindingFlags.NonPublic;
+    private static readonly Key[] Keys={Key.A,Key.Left,Key.D,Key.Right,Key.W,Key.Up,Key.S,Key.Down};
+    private object Field(string name)=>typeof(GameHost).GetField(name,Flags).GetValue(host);
+    private object Call(string name,params object[] args)=>typeof(GameHost).GetMethod(name,Flags).Invoke(host,args);
+    private GameSimulation Sim=>(GameSimulation)Field("_sim");
+    private GameUi Ui=>(GameUi)Field("_ui");
+    private Vector2 Move()=>(Vector2)Call("ReadMoveIntent");
+    private void Check(bool ok,string message){checks++;if(!ok)throw new Exception(message);}
+    private void KeyEvent(Key key,bool pressed)
+    {
+        using var input=new InputEventKey{Keycode=key,PhysicalKeycode=key,Pressed=pressed};
+        Input.ParseInputEvent(input);
+        Input.FlushBufferedEvents();
+        Check(Input.IsPhysicalKeyPressed(key)==pressed,"engine physical key state tracks injection: "+key);
+    }
+    private void ReleaseAll(){foreach(var key in Keys)KeyEvent(key,false);}
+    private void Escape(){KeyEvent(Key.Escape,true);KeyEvent(Key.Escape,false);Sim.Step();Call("RefreshUi");}
+    private static Button ButtonAt(Node node,string text)
+    {
+        if(node is Button button&&button.Text==text)return button;
+        foreach(Node child in node.GetChildren()){var found=ButtonAt(child,text);if(found!=null)return found;}
+        return null;
+    }
+    private void StartActual(int hero,uint seed)
+    {
+        Ui.StartRequested(hero,seed);
+        if(Ui.IsPersistenceModalOpen)
+        {
+            var prepare=ButtonAt(host,"确认准备新局");
+            if(prepare!=null){prepare.EmitSignal(Button.SignalName.Pressed);Ui.StartRequested(hero,seed);}
+            else
+            {
+                var replace=ButtonAt(host,"确认开始新局");
+                Check(replace!=null,"real new-run confirmation available");
+                replace.EmitSignal(Button.SignalName.Pressed);
+            }
+        }
+        host.SetProcess(false);
+        Check(Sim.Phase==RunPhase.Combat&&Sim.TryGetEntity(Sim.PlayerId,out _),"real start created player");
+    }
+    private async System.Threading.Tasks.Task Flush()
+    {
+        await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);
+        await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);
+    }
+    public override async void _Ready()
+    {
+        try
+        {
+            host=new GameHost();AddChild(host);host.SetProcess(false);StartActual(3,1105);
+            await Flush();ReleaseAll();Check(Move()==Vector2.Zero,"initial neutral");
+            KeyEvent(Key.D,true);
+            for(int i=0;i<12;i++)Check(Move()==Vector2.Right,"ordinary held movement remains continuous");
+            Escape();Check(Sim.Paused&&Move()==Vector2.Zero,"pause suppresses keyboard");
+            Escape();Check(!Sim.Paused,"Escape resumes real pause");
+            for(int i=0;i<12;i++)Check(Move()==Vector2.Zero,"held keyboard must not resume after pause");
+            KeyEvent(Key.D,false);Check(Move()==Vector2.Zero,"full release rearms");
+            KeyEvent(Key.D,true);Check(Move()==Vector2.Right,"fresh press moves after pause");
+
+            Ui.ShowCodex();Sim.Step();Check(Sim.Paused&&Move()==Vector2.Zero,"codex blocks movement");
+            Ui.CloseCodex();Sim.Step();Call("RefreshUi");
+            Check(!Sim.Paused&&Move()==Vector2.Zero,"codex close does not replay held key");
+            KeyEvent(Key.D,false);Move();KeyEvent(Key.D,true);Check(Move()==Vector2.Right,"codex release rearms");
+
+            host._Notification((int)NotificationApplicationFocusOut);
+            Ui._Notification((int)NotificationApplicationFocusOut);Sim.Step();Call("RefreshUi");
+            Check(Sim.Paused&&Move()==Vector2.Zero,"focus loss pauses and blocks");
+            host._Notification((int)NotificationApplicationFocusIn);
+            Ui._Notification((int)NotificationApplicationFocusIn);Escape();
+            Check(!Sim.Paused&&Move()==Vector2.Zero,"focus recovery requires keyboard release");
+            KeyEvent(Key.D,false);Move();KeyEvent(Key.D,true);Check(Move()==Vector2.Right,"focus release rearms");
+
+            StartActual(2,1106);await Flush();
+            Check(Move()==Vector2.Zero,"new run rejects held direction");
+            KeyEvent(Key.D,false);Move();KeyEvent(Key.D,true);Check(Move()==Vector2.Right,"new run fresh press");
+            ReleaseAll();Move();
+
+            // Every nonempty combination includes aliases/opposites. Numerical cancellation
+            // is not neutral: leaving any one key held must not rearm the keyboard.
+            for(int mask=1;mask<256;mask++)
+            {
+                ReleaseAll();Move();
+                for(int i=0;i<Keys.Length;i++)if((mask&(1<<i))!=0)KeyEvent(Keys[i],true);
+                Call("ResetMovementInput");Check(Move()==Vector2.Zero,"reset blocks held mask "+mask);
+                int retained=0;while((mask&(1<<retained))==0)retained++;
+                for(int i=0;i<Keys.Length;i++)if(i!=retained)KeyEvent(Keys[i],false);
+                Check(Move()==Vector2.Zero,"partial release cannot rearm mask "+mask);
+                KeyEvent(Keys[retained],false);Check(Move()==Vector2.Zero,"all up rearms mask "+mask);
+                KeyEvent(Keys[retained],true);Check(Move().Length()>.99f,"fresh alias works mask "+mask);
+            }
+            // A suppressed high-priority keyboard must not starve a freshly armed gamepad.
+            host.ApplyGamepadDevice(7);Move();
+            using(var axis=new InputEventJoypadMotion{Device=7,Axis=JoyAxis.LeftX,AxisValue=.8f})host._Input(axis);
+            Check(Move().X>0,"neutral-gated keyboard permits fresh gamepad movement");
+            Call("ResetMovementInput");Check(Move()==Vector2.Zero,"existing held gamepad gate remains intact");
+            ReleaseAll();host.QueueFree();await Flush();
+            GD.Print("KEYBOARD_INPUT_LIFECYCLE_PROBE PASS "+checks);GetTree().Quit();
+        }
+        catch(Exception error){ReleaseAll();GD.PushError(error.ToString());GetTree().Quit(1);}
+    }
+}
