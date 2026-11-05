@@ -1,3 +1,7 @@
+# Latest combined candidate, 2026-11-05
+
+See [fresh integration verification](candidate-integration-20261105.md) for the reviewed input/APK/scenery combination, corrected inventory/gamepad fixtures, native comparison and individually classified results. Strict import/export diagnostics, migration failure, exact old-reader coverage and device certification remain open. The earlier checkpoints below retain their historical scope.
+
 # Additional stationary-facing candidate status
 
 225 pure and231 Host checks passed in scoped runs; native full-view route comparison supports only the stopped-launch benefit. Core source, authoritative results, camera fields and animation local poses remain unchanged. No automatic main-branch integration or Android verification follows from this result. See [candidate details](stationary-facing.md) and [review queue](review-queue.md).
