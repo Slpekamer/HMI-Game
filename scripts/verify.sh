@@ -73,6 +73,7 @@ python3 scripts/test_host_responsive.py
 dotnet build -m:1 tests/InputRouter/InputRouter.csproj -v minimal
 dotnet run --no-build --project tests/InputRouter/InputRouter.csproj
 python3 scripts/test_floating_input.py
+python3 scripts/test_keyboard_input_lifecycle.py
 python3 scripts/test_gamepad_ui.py
 python3 scripts/test_mobile_safe_area.py
 python3 scripts/test_ui_motion.py
