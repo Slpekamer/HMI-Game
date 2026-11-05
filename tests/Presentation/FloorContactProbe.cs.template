@@ -17,6 +17,31 @@ public partial class FloorContactProbe : Node
     private void Check(bool value, string message) { _checks++; if (!value) throw new Exception(message); }
     private object Field(string name) => typeof(GameHost).GetField(name, Flags).GetValue(_host);
     private void Call(string name, params object[] args) => typeof(GameHost).GetMethod(name, Flags).Invoke(_host, args);
+    private static Button ButtonAt(Node node, string text)
+    {
+        if (node is Button button && button.Text == text) return button;
+        foreach (Node child in node.GetChildren())
+        {
+            var found = ButtonAt(child, text);
+            if (found != null) return found;
+        }
+        return null;
+    }
+    private async System.Threading.Tasks.Task PrepareFreshRule()
+    {
+        var ui = (GameUi)Field("_ui");
+        var sim = (GameSimulation)Field("_sim");
+        ui.StartRequested(2, 1030); await Flush();
+        Check(ui.IsPersistenceModalOpen && sim.Phase == RunPhase.Selecting,
+            "Fresh start requires explicit rule-space consent before combat");
+        var prepare = ButtonAt(_host, "确认准备新局");
+        Check(prepare != null && prepare.IsVisibleInTree() && !prepare.Disabled,
+            "Actual fresh-rule preparation confirmation is available");
+        prepare.EmitSignal(Button.SignalName.Pressed); _host.SetProcess(false); await Flush();
+        Check(!ui.IsPersistenceModalOpen && sim.Phase == RunPhase.Selecting && sim.Tick == 0,
+            "Preparation returns to selection without auto-starting combat");
+        Check((bool)Field("_ruleSelected"), "Confirmed fresh rule space is selected before explicit Start");
+    }
     private async System.Threading.Tasks.Task Flush()
     {
         await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
@@ -95,6 +120,8 @@ public partial class FloorContactProbe : Node
             _host = new GameHost(); AddChild(_host); _host.SetProcess(false); await Flush();
             Check(((GameSimulation)Field("_sim")).Phase != RunPhase.Combat, "Initial host is genuinely noncombat");
             CheckFloor(true); // Initial noncombat page.
+            // Follow real consent before the original explicit Start/geometry lifecycle.
+            await PrepareFreshRule(); CheckFloor(false);
             Call("Start", 2, (uint)1030); _host.SetProcess(false); Call("RenderEntities", 1f / 60); await Flush();
             CheckFloor(false); CheckCombatGeometry(true);
             var ui = (GameUi)Field("_ui");
