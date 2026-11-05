@@ -29,6 +29,8 @@ Run `python3 scripts/test_keyboard_input_lifecycle.py` with the pinned .NET SDK
 and `GODOT_NET` pointing to Godot 4.6.3 .NET. The runner copies the project, injects
 the probe only into that copy and isolates editor configuration and user saves.
 It retains strict failure on engine `ERROR:` diagnostics.
+After a zero-exit import with diagnostics, it also collects the independent runtime
+result before returning failure; this does not filter or waive the import error.
 
 The probe covers continuous ordinary holds, pause/resume, codex close, injected
 focus notifications, confirmed new runs, every nonempty combination of the eight
@@ -42,6 +44,30 @@ but emits the previously documented `EditorSettings not instantiated yet` Androi
 shutdown error, so the strict runner fails before runtime. Running the already
 built/imported isolated runtime separately establishes the specific reproduction
 above; it does not convert the strict runner into a pass.
+
+## Fix and compatibility
+
+`ResetMovementInput` now latches a keyboard-neutral requirement. The host samples
+all WASD/arrow directions and submits zero for the keyboard until none of those
+physical keys are held. It then resumes the existing priority/clamping router
+with no extra per-frame allocation or change to ordinary held-key movement.
+Checking the resulting vector instead was rejected because A+D, W+S and mixed
+arrow aliases can cancel without any key being released. Router-only changes
+were rejected because new tokens are valid but the sampled device state is old.
+
+Neutral must be observed while gameplay input is allowed, matching the existing
+gamepad contract. Releasing during pause and pressing again before resume still
+requires another release. This intentionally affects every shared input-context
+reset, including provider/layout cancellation, not just Escape pause.
+
+The corrected native runtime passes 6,460 assertion checks, including the 255
+nonempty key combinations and the covered real lifecycle routes. The production
+build has zero warnings/errors; Core's 646,403 assertions, the 232-check router
+suite, architecture check and all nine preserved notice checks pass. Core and
+persistence source remain unchanged. Full aggregate verification is not claimed:
+the strict editor-import diagnostic remains a failure, as do previously documented
+unrelated release gates. Wave/provider/layout routes use the same reset method but
+are not individually certified by this probe.
 
 Event injection proves the covered host/input behavior, not physical keyboard,
 controller, OS focus delivery, native appearance or export/device certification.

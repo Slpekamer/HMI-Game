@@ -31,6 +31,7 @@ steps = [
     ("import", [engine, "--headless", "--editor", "--path", str(project), "--import"]),
     ("run", [engine, "--headless", "--path", str(project)]),
 ]
+diagnostic_failures = []
 for name, args in steps:
     log = work / (name + ".log")
     try:
@@ -46,8 +47,14 @@ for name, args in steps:
     print(f"Keyboard input lifecycle {name}: exit {result.returncode}; log {log}")
     if name == "run" or result.returncode:
         print(result.stdout)
-    if result.returncode or "ERROR:" in result.stdout or "Exception" in result.stdout:
+    if result.returncode:
         raise SystemExit(f"FAIL keyboard input lifecycle {name}; evidence {work}")
+    if "ERROR:" in result.stdout or "Exception" in result.stdout:
+        diagnostic_failures.append(name)
+        # A zero-exit import can still contain strict diagnostics. Preserve that
+        # failure, but collect the independent runtime result before reporting it.
     if name == "run" and "KEYBOARD_INPUT_LIFECYCLE_PROBE PASS" not in result.stdout:
         raise SystemExit(f"FAIL missing keyboard input lifecycle pass marker; evidence {work}")
+if diagnostic_failures:
+    raise SystemExit(f"FAIL strict diagnostics in {', '.join(diagnostic_failures)}; evidence {work}")
 print("PASS isolated actual-engine keyboard input lifecycle behavior; evidence", work)
