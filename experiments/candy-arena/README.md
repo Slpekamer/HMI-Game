@@ -1,6 +1,6 @@
 # Candy arena art candidate
 
-Independent presentation work based on `4030b405`. Not merged, owner-approved, or a release/device certification.
+Independent presentation work based on `4030b405`. The final grid-free, original-speed comparison passed owner visual review. This is not merged or a release/device certification.
 
 ## Requirement and scope
 
@@ -27,7 +27,7 @@ Alternatives rejected for this batch: extra center props (occlusion), target-lik
 - Native Godot 4.6.3 Compatibility / Mesa software-rendered geometry and lifecycle probe: **94,573 checks passed**, including rounded mesh winding/normals, finite geometry, exact boundary envelopes, outside-arena village bounds, opaque/light imported floor pixels, dual-instance ownership and destroy/rebuild survival.
 - Strict import gate: **failed**, retaining the existing `EditorSettings not instantiated ... export/android/shutdown_adb_on_exit` diagnostic. The runner reports import and runtime separately and returns failure for this aggregate. The runtime pass does not erase the import failure.
 - Native 1280×720, 30 Hz, original-speed 10-second normal Crit route: 300 simulation/presentation frames. Baseline and art candidate have byte-identical authority, bone/morph pose, camera/root transform, foot/boot geometry, presentation, substep and attachment traces. This proves only the captured route.
-- Architecture and preserved-notice checks passed. Visual review uses actual rendered frames/video, not generated concept imagery. The floor, actors and shadows remained readable in the sampled movement/combat frames; final aesthetic acceptance belongs to the reviewer.
+- Architecture and preserved-notice checks passed. Visual review uses actual rendered frames/video, not generated concept imagery. The floor, actors and shadows remained readable in the sampled movement/combat frames; the final grid-free comparison subsequently passed owner visual review. This does not broaden the technical test scope.
 - Fresh portable Core regression: 646,403 assertions passed. Core source is unchanged; this is not a new balance or full-wave playtest.
 
 Known limits: not all heroes, portrait framing, late crowded waves, physical Android devices, physical controllers, hardware performance or every honey/projectile readability case. The 10-second route includes melee but no actual ranged launches; it is not new projectile validation. No Android package is delivered here.
