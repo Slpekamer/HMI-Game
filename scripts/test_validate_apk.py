@@ -2,8 +2,6 @@
 """Synthetic verifier-policy tests; fixtures are not signed Android applications."""
 import contextlib
 import io
-import json
-import os
 from pathlib import Path
 import struct
 import subprocess
@@ -24,7 +22,10 @@ ALIGNMENT = "Verifying alignment...\nVerification successful\n"
 
 def elf(alignment=16384, machine=183, kind=1, offset=0, virtual=0):
     data = bytearray(120)
-    data[:6] = b"\x7fELF\x02\x01"
+    data[:7] = b"\x7fELF\x02\x01\x01"
+    struct.pack_into("<H", data, 16, 3)
+    struct.pack_into("<I", data, 20, 1)
+    struct.pack_into("<H", data, 52, 64)
     struct.pack_into("<H", data, 18, machine)
     struct.pack_into("<Q", data, 32, 64)
     struct.pack_into("<HH", data, 54, 56, 1)
@@ -100,6 +101,19 @@ class PackagingGateTests(unittest.TestCase):
         for size in [0, 5, 63, 80, 119]:
             with self.subTest(size=size), self.assertRaises(gate.ValidationError):
                 gate.check_elf(elf()[:size], "sample")
+
+    def test_rejects_invalid_header_fields(self):
+        for offset, fmt, value in [(6, "B", 0), (16, "H", 2), (20, "I", 0), (52, "H", 0)]:
+            data = elf()
+            struct.pack_into("<" + fmt, data, offset, value)
+            with self.subTest(offset=offset), self.assertRaises(gate.ValidationError):
+                gate.check_elf(data, "sample")
+
+    def test_rejects_virtual_address_overflow(self):
+        data = elf(virtual=(1 << 64) - 16384)
+        struct.pack_into("<Q", data, 64 + 40, 32768)
+        with self.assertRaisesRegex(gate.ValidationError, "overflows"):
+            gate.check_elf(data, "sample")
 
     def test_rejects_bad_program_header_size(self):
         data = elf()

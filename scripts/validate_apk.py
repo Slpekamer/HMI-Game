@@ -48,6 +48,10 @@ def normalize_certificate(value: str) -> str:
 def check_elf(data: bytes, name: str) -> list[int]:
     require(len(data) >= 64 and data[:6] == b"\x7fELF\x02\x01",
             f"{name}: expected a complete little-endian ELF64 header")
+    require(data[6] == 1 and struct.unpack_from("<I", data, 20)[0] == 1
+            and struct.unpack_from("<H", data, 16)[0] == 3
+            and struct.unpack_from("<H", data, 52)[0] == 64,
+            f"{name}: expected current-version ET_DYN with a 64-byte ELF header")
     require(struct.unpack_from("<H", data, 18)[0] == 183,
             f"{name}: expected AArch64 machine type")
     offset = struct.unpack_from("<Q", data, 32)[0]
@@ -65,6 +69,8 @@ def check_elf(data: bytes, name: str) -> list[int]:
                 f"{name}: PT_LOAD alignment {alignment} is not 16 KiB compatible")
         require(file_offset % alignment == virtual % alignment,
                 f"{name}: incongruent PT_LOAD offset and virtual address")
+        require(memory_size <= (1 << 64) - 1 - virtual,
+                f"{name}: PT_LOAD virtual address range overflows ELF64")
         require(file_size <= memory_size and file_offset + file_size <= len(data),
                 f"{name}: invalid or truncated PT_LOAD segment")
         alignments.append(alignment)
