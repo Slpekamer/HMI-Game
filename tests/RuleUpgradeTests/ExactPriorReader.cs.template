@@ -1,0 +1,22 @@
+using Hmi.Core;
+using Hmi.Adapters.Persistence;
+using System.Security.Cryptography;
+using System.Text.Json;
+
+if(args.Length!=2 || args[1] is not ("Selected" or "Uncertain"))
+    throw new ArgumentException("Expected synthetic fixture directory and Selected/Uncertain inspection kind");
+if(WaveRules.Version!="hmi-core-wave60-preview1-2")throw new Exception("Reader is not rule2");
+byte[] content=File.ReadAllBytes(Path.Combine(AppContext.BaseDirectory,"gameplay.json"));
+string catalog=Convert.ToHexString(SHA256.HashData(content)).ToLowerInvariant();
+var simulation=new GameSimulation(JsonSerializer.Deserialize<GameContent>(content,new JsonSerializerOptions{PropertyNameCaseInsensitive=true})!,new SimulationLimits(32,10,4),catalog);
+var files=new PhysicalRuleMigrationFiles(Path.Combine(args[0],"registry"),Path.Combine(args[0],"legacy"));
+var inspection=new RuleMigrationCoordinator(files,simulation).Inspect();
+if(inspection.Kind.ToString()!=args[1])throw new Exception("Real prior Inspect returned "+inspection.Kind+" expected "+args[1]+" detail="+inspection.Detail);
+if(args[1]=="Selected" && (inspection.Recovery?.Kind!=RecoveryKind.Active
+    || inspection.Checkpoint==null || inspection.Checkpoint.RulesVersion!=WaveRules.Version
+    || inspection.Checkpoint.RunId.ToString("N")!="44444444444444444444444444444444"
+    || inspection.Checkpoint.Sequence!=2))throw new Exception("Positive control is not the original active rule2 checkpoint");
+if(args[1]=="Uncertain" && (inspection.Recovery!=null || inspection.Checkpoint!=null))
+    throw new Exception("Uncertain reader exposed checkpoint authority");
+if(simulation.Phase!=RunPhase.Selecting || simulation.Tick!=0)throw new Exception("Read mutated simulation");
+Console.WriteLine("EXACT_PRIOR_READER PASS kind="+inspection.Kind+" rules="+WaveRules.Version);

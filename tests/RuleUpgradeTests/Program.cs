@@ -185,6 +185,11 @@ static partial class Program
     static void OldReaderCases(string dll)
     {
         Check(File.Exists(dll),"exact prior reader assembly exists");
+        var sample=Setup();var sampleCoordinator=Coordinator(sample);var sampleView=sampleCoordinator.InspectUpgrade();
+        Check(sampleCoordinator.ConfirmUpgrade(Operation,NewRun,sampleView.Fingerprint,false).Kind==RuleUpgradeKind.CurrentSelected,"old reader sample commits");
+        string[] writes=sample.Writes.Select(n=>n.StartsWith(NewRun+":snapshot-",StringComparison.Ordinal)?NewRun+":snapshot":n).ToArray();
+        Check(writes.SequenceEqual(new[]{"registry:upgrade-intent.json","registry:upgrade-backup.json",NewRun+":control.json",NewRun+":snapshot",NewRun+":control.json","registry:selector.json"}),
+            "exact old reader covers every successful upgrade write through selector publication");
         for(int stage=0;stage<=6;stage++)
         {
             var f=Setup();var c=Coordinator(f);var view=c.InspectUpgrade();
@@ -202,8 +207,11 @@ static partial class Program
                 var start=new System.Diagnostics.ProcessStartInfo("dotnet"){UseShellExecute=false,RedirectStandardOutput=true,RedirectStandardError=true};
                 start.ArgumentList.Add(dll);start.ArgumentList.Add(root);start.ArgumentList.Add(stage==0?"Selected":"Uncertain");
                 using var child=System.Diagnostics.Process.Start(start)!;
-                string output=child.StandardOutput.ReadToEnd(),error=child.StandardError.ReadToEnd();
-                Check(child.WaitForExit(15000)&&child.ExitCode==0,"exact old reader cold-open stage "+stage+": "+error);
+                var outputTask=child.StandardOutput.ReadToEndAsync();var errorTask=child.StandardError.ReadToEndAsync();
+                if(!child.WaitForExit(15000))
+                {child.Kill(entireProcessTree:true);child.WaitForExit();throw new Exception("Exact old reader timed out at stage "+stage);}
+                string output=outputTask.GetAwaiter().GetResult(),error=errorTask.GetAwaiter().GetResult();
+                Check(child.ExitCode==0,"exact old reader cold-open stage "+stage+": "+error);
                 Console.WriteLine("OLD_READER_STAGE "+stage+" "+output.Trim());
                 foreach(var p in before)Check(File.Exists(p.Key)&&Hash(File.ReadAllBytes(p.Key))==p.Value,"old reader no saved byte mutation");
                 Check(Directory.GetFiles(root,"*",SearchOption.AllDirectories).Count(p=>Path.GetFileName(p)!="writer.lock")==before.Count,"old reader no new checkpoint artifacts");

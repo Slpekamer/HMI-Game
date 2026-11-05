@@ -14,4 +14,18 @@ An actual `--export-debug "Android Food Preview"` invocation still reached the A
 
 The unchanged baseline `RuleMigrationTests` reproduced its `PreserveHappy` null dereference (exit 134). Its rule1 fixtures expect the retired direct-conversion contract. Rule1 direct conversion remains closed; current supported preserve-old/start-new behavior belongs to `InspectUpgrade`/`ConfirmUpgrade`. The current default `RuleUpgradeTests` passed 579 checks and explicitly reported `OLD_READER NOT_RUN`. These are different contracts; one cannot be claimed as the other passing.
 
-Further strict runner and immutable historical-reader results will be recorded separately. Neither this checkpoint nor clean imports imply a fully green aggregate, fresh APK, hardware/controller performance or real user-save certification.
+The test-only precondition now reports `inspection=Uncertain` and the contract incompatibility rather than dereferencing null. The historical suite still exits 134. No original assertions, historical test invocation, error filter or production conversion behavior was removed or relaxed.
+
+## Fresh exact-prior reader result
+
+The immutable rule2 commit `e4e7e6351e8de39c3376594968022f661e189d12` was fetched and its actual Core/Persistence source compiled. Its gameplay catalog exactly matches the candidate (SHA256 `30981d16c5c608f70e750bbaf809eb1e811aef34d71f24258fcac852eba0e2de`), and both SDK pins resolve to 10.0.403. No historical source constants are rewritten or experimental presentation code adopted.
+
+The wrapper and reader are adapted from `08d4510`, with stronger Active checkpoint/run/sequence positive-control checks, exact six-write transaction coverage, effective child-process timeouts and complete historical/current source and build-output hashes. The real old coordinator accepts the original selected Active rule2 checkpoint at stage 0, then returns Uncertain without checkpoint authority at all six actual after-write upgrade stages. Original saved bytes and artifact counts remain unchanged. The upgraded suite passes 656 checks; reader and current builds have zero warnings/errors. A current-rule3 source is rejected (exit 1), and a shortened commit identity is rejected (exit 2).
+
+These are current-generated synthetic fixtures inspected by an actual historical decoder. They are not old-writer-created saves, certification of every real installation, or evidence for the unrelated schema2-to-schema3 reader gate. The default no-reader run remains 579 checks with `OLD_READER NOT_RUN`.
+
+## Fresh strict runner results
+
+The original strict build/import/runtime runners now pass without bypassing their diagnostic checks: keyboard lifecycle 6,460; floating input 130; corrected gamepad UI 209; HostLifecycle; responsive UI 893; and the explicitly legacy food-animation mixer 17,590. These are scoped engine runs, not physical controllers, phone performance or new visual approval.
+
+Aggregate and additional boundary checks remain separately classified. Neither this checkpoint nor clean imports imply a fully green aggregate, fresh APK, hardware/controller performance or real user-save certification.

@@ -24,6 +24,9 @@ static partial class Program
                 store.Save(OldRun,Guid.NewGuid().ToString("N"),2,JsonSerializer.SerializeToUtf8Bytes(dto));f.Old.Data[store.Recover().Control!.Snapshots[0].Name]=new byte[]{7};
             }
             var sim=Sim();var c=new RuleMigrationCoordinator(f,sim);var p=c.Inspect();string old=Bytes(f.Old);f.Writes.Clear();
+            Check(p.Recovery!=null,
+                "Historical rule1 migration fixture is incompatible with the current closed direct-conversion contract; "
+                + "inspection="+p.Kind+" detail="+p.Detail+". This suite remains failed; use RuleUpgradeTests for the current explicit preserve/upgrade path, not a substitute historical-reader certificate.");
             Check(p.Recovery!.Kind==(rollback?RecoveryKind.RolledBack:RecoveryKind.Active),"valid preserve source");
             var selected=c.PreserveLegacyAndInitializeNewGame(Operation,NewRun,p.Fingerprint);
             Check(selected.Kind==MigrationKind.Selected&&selected.Recovery!.Kind==RecoveryKind.PendingStart&&selected.Checkpoint==null,"preserve creates PendingStart only");
