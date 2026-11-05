@@ -3,6 +3,7 @@ using Hmi.GodotAdapter;
 using Hmi.Core;
 using System;
 using System.Reflection;
+using System.Linq;
 using System.Threading.Tasks;
 public partial class MobileSafeAreaProbe:Node
 {
@@ -15,8 +16,18 @@ public partial class MobileSafeAreaProbe:Node
  void Hold(TouchJoystick j){var p=Legal(j);using(var e=new InputEventScreenTouch{Index=6,Position=p,Pressed=true})GetViewport().PushInput(e,true);using(var e=new InputEventScreenDrag{Index=6,Position=p+new Vector2(45,0)})GetViewport().PushInput(e,true);Check(j.IsCaptured&&j.Direction.X>0,"fresh capture exists");}
  public override void _Ready(){task=Run();}
  public override void _Process(double delta){if(task?.IsCompleted!=true)return;SetProcess(false);if(task.IsFaulted){GD.PushError(task.Exception.ToString());GetTree().Quit(1);}else{GD.Print("MOBILE_SAFE_AREA_PROBE PASS "+checks);GetTree().Quit();}}
+ static System.Collections.Generic.IEnumerable<Node> Walk(Node n){yield return n;foreach(Node c in n.GetChildren())foreach(var d in Walk(c))yield return d;}
+ async Task PrepareFreshRule(){
+  var ui=Field<GameUi>("_ui");var sim=Field<GameSimulation>("_sim");
+  ui.StartRequested(3,1030);await Flush();
+  Check(ui.IsPersistenceModalOpen&&sim.Phase==RunPhase.Selecting,"fresh start requires explicit rule-space consent before combat");
+  var prepare=Walk(ui).OfType<Button>().Single(b=>b.Text=="确认准备新局");
+  Check(prepare.IsVisibleInTree()&&!prepare.Disabled,"actual fresh-rule confirmation is visible and enabled");
+  prepare.EmitSignal(Button.SignalName.Pressed);host.SetProcess(false);await Flush();
+  Check(!ui.IsPersistenceModalOpen&&sim.Phase==RunPhase.Selecting&&sim.Tick==0,"rule-space preparation returns to selection without auto-start");
+ }
  async Task Run(){
-  host=new GameHost();AddChild(host);host.SetProcess(false);await Flush();Call("Start",3,(uint)1030);host.SetProcess(false);await Flush();
+  host=new GameHost();AddChild(host);host.SetProcess(false);await Flush();await PrepareFreshRule();Call("Start",3,(uint)1030);host.SetProcess(false);await Flush();
   var sim=Field<GameSimulation>("_sim");var ui=Field<GameUi>("_ui");sim.Enqueue(GameCommand.Pause(true));sim.Step();Call("RefreshUi");ui.ShowPause(false);await Flush();
   var size=GetViewport().GetVisibleRect().Size;var physical=new Rect2I(0,0,(int)size.X,(int)size.Y);var snapshot=new MobileSafeAreaSnapshot(physical,Transform2D.Identity);int reads=0;
   host.ConfigureSafeAreaReader(()=>{reads++;return snapshot;},true);

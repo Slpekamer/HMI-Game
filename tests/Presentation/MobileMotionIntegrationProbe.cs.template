@@ -58,6 +58,13 @@ public partial class MobileMotionIntegrationProbe:Node
   Release();Walk(ui).OfType<Button>().First(b=>b.IsVisibleInTree()&&b.Text=="关闭").GrabFocus();Event(JoyButton.A,true);Tick();await Flush();Check(!ui.IsPersistenceModalOpen,"confirm closes instructions");Tick();var focus=GetViewport().GuiGetFocusOwner();Check(focus!=null&&focus.IsVisibleInTree()&&!focus.IsQueuedForDeletion(),"close returns valid visible Home focus");await Capture("home-return-focus");
   Event(JoyButton.A,true);Tick();Check(!ui.IsPersistenceModalOpen&&sim.Phase==RunPhase.Selecting,"held close confirm cannot leak into Home");
   Click("开始冒险");await Flush();Check(Walk(ui).OfType<HeroSelectionPreview>().Any(),"Home navigation remains functional with motion");var seedEdit=Walk(ui).OfType<SpinBox>().First().GetLineEdit();seedEdit.GrabFocus();for(int i=0;i<8;i++)Tick();Check(GetViewport().GuiGetFocusOwner()==seedEdit,"new-scope and subsequent polling preserve already selected keyboard seed focus");await Capture("seed-edit-focus");
+  // Prepare fresh storage through the same routed gamepad path, then explicitly start again.
+  Click(AssetVisuals.HeroNames[3]);Click("开始");await Flush();
+  Check(ui.IsPersistenceModalOpen&&sim.Phase==RunPhase.Selecting,"fresh start requires explicit rule-space consent before combat");
+  var prepare=Button("确认准备新局");Check(prepare.IsVisibleInTree()&&!prepare.Disabled,"actual fresh-rule confirmation is visible and enabled");
+  Click("确认准备新局");host.SetProcess(false);await Flush();
+  Check(!ui.IsPersistenceModalOpen&&sim.Phase==RunPhase.Selecting&&sim.Tick==0,"rule-space preparation returns to selection without auto-start");
+  Event(JoyButton.A,true);Tick();Check(sim.Phase==RunPhase.Selecting,"held preparation confirm cannot start returned chooser");
   Click(AssetVisuals.HeroNames[3]);Click("开始");host.SetProcess(false);await Flush();Check(sim.Phase==RunPhase.Combat&&!sim.Paused,"actual session starts after UI motion interactions");
   Check(motion.ActiveCount==0&&motion.Suspended,"combat scope cancels all menu motion");host.ApplyGamepadDevice(-1);Call("ReadMoveIntent");await Flush();HoldTouch();
   host._Notification((int)NotificationApplicationFocusOut);ui._Notification((int)NotificationApplicationFocusOut);Check(!ui.Joystick.IsCaptured&&ui.Joystick.Direction==Vector2.Zero,"focus loss clears floating capture");Check(motion.ActiveCount==0,"focus loss never leaves motion animation pending");
