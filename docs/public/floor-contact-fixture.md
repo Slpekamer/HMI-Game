@@ -14,5 +14,5 @@ Every original source line and assertion remains in its original order. Producti
 
 - Fresh unchanged candidate: strict build/import exit 0; runtime exit 1 at the original combat-start assertion. An initial attempt was blocked by this cloud environment's read-only default .NET runtime directory; writable process-scoped runtime/home directories resolved that setup issue without changing repository files.
 - Corrected strict `scripts/test_floor_contact.py`: build/import/runtime exit 0, zero build warnings/errors, **FLOOR_CONTACT_PROBE PASS 115**, with strict diagnostic rejection unchanged.
-- Architecture and whitespace checks pass. Aggregate continuation is tracked separately; this scoped pass is not a fully green historical suite.
+- Architecture and whitespace checks pass. A disposable production-floor mutation from center -0.15 to -0.14 makes the unchanged strict runner fail the original floor-top assertion. [Aggregate continuation and downstream fixture results](legacy-host-fixture-consent.md) preserve later failures; this scoped pass is not a fully green historical suite.
 - Headless shapes and node lifecycle only. The native 220-instance transform-storage gate is not run in this no-display environment. No visual, hardware, mobile performance, export or release claim follows.

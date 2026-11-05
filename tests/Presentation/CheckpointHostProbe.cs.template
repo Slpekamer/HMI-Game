@@ -14,6 +14,12 @@ public partial class CheckpointHostProbe : Node
     object Field(string name)=>typeof(GameHost).GetField(name,Flags).GetValue(host);
     void Call(string name,params object[] args)=>typeof(GameHost).GetMethod(name,Flags).Invoke(host,args);
     void Check(bool ok,string why){checks++;if(!ok)throw new Exception(why);}
+    static Button ButtonAt(Node node,string text)
+    {
+        if(node is Button button&&button.Text==text)return button;
+        foreach(Node child in node.GetChildren()){var found=ButtonAt(child,text);if(found!=null)return found;}
+        return null;
+    }
     async System.Threading.Tasks.Task Flush(){await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);}
     async System.Threading.Tasks.Task Capture(string stage)
     {
@@ -29,6 +35,16 @@ public partial class CheckpointHostProbe : Node
         {
             host=new GameHost();AddChild(host);host.SetProcess(false);await Flush();
             var sim=(GameSimulation)Field("_sim");var ui=(GameUi)Field("_ui");
+            // Prepare through the actual visible UI before the original production Start and fault seam.
+            ui.StartRequested(3,1030);await Flush();
+            Check(ui.IsPersistenceModalOpen&&sim.Phase==RunPhase.Selecting,
+                "Fresh start requires explicit rule-space consent before combat");
+            var prepare=ButtonAt(host,"确认准备新局");
+            Check(prepare!=null&&prepare.IsVisibleInTree()&&!prepare.Disabled,"Actual fresh-rule preparation confirmation is available");
+            prepare.EmitSignal(Button.SignalName.Pressed);host.SetProcess(false);await Flush();
+            Check(!ui.IsPersistenceModalOpen&&sim.Phase==RunPhase.Selecting&&sim.Tick==0,
+                "Preparation returns to selection without auto-starting combat");
+            Check((bool)Field("_ruleSelected"),"Confirmed fresh rule space is selected before explicit Start");
             Call("Start",3,(uint)1030);host.SetProcess(false);
             Check((bool)Field("_ruleSelected"),"production Start selects an actual rule2 slot before the Session-only fault seam");
             var productionSession=(CheckpointSession)Field("_checkpoint");

@@ -49,6 +49,16 @@ public partial class SelectionPortraitProbe : Node
             ui.Notification((int)Node.NotificationApplicationFocusOut);ui._Process(.08);Check(initial.Clock==clock,"Focus loss freezes selection");ui.Notification((int)Node.NotificationApplicationFocusIn);ui._Process(.08);Check(initial.Clock!=clock,"Focus return resumes selection");
             ui.ShowHome();Check(initial.Released,"Home releases selected animation references immediately");Press(home);Check(!Walk(ui).OfType<SubViewport>().Any(),"Stale Home navigation callback ignored");
             Press(Find<Button>(ui,"HomeStart"));await Flush();CheckSelection(ui,3);ui.SetProcess(true);
+            // Prepare the fresh rule space before selecting the hero/seed under test.
+            // Consent returns to selection; it deliberately does not preserve a pending Start intent.
+            var preparedSim=(GameSimulation)Field("_sim");
+            ui.StartRequested(3,1030);await Flush();
+            Check(ui.IsPersistenceModalOpen&&preparedSim.Phase==RunPhase.Selecting,"Fresh rule preparation requires explicit consent before combat");
+            var prepare=Walk(ui).OfType<Button>().Single(b=>b.Text=="确认准备新局");
+            Check(prepare.IsVisibleInTree()&&!prepare.Disabled,"Actual fresh-rule preparation confirmation is available");
+            Press(prepare);host.SetProcess(false);await Flush();
+            Check((bool)Field("_ruleSelected")&&!ui.IsPersistenceModalOpen&&preparedSim.Phase==RunPhase.Selecting&&preparedSim.Tick==0,"Preparation selects the rule space without auto-starting combat");
+            CheckSelection(ui,3);
             for(int cycle=0;cycle<2;cycle++)for(int hero=0;hero<5;hero++)
             {
                 var card=Find<Button>(ui,"HeroCard_"+AssetVisuals.HeroIds[hero]);

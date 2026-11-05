@@ -30,6 +30,17 @@ public partial class EndlessProbe:Node
    object Field(string name)=>typeof(GameHost).GetField(name,Flags).GetValue(host);
    void Refresh(){typeof(GameHost).GetMethod("RefreshUi",Flags).Invoke(host,null);host.SetProcess(false);}
    void Start()=>typeof(GameHost).GetMethod("Start",Flags).Invoke(host,new object[]{2,(uint)1030});
+   // Fresh isolated storage needs real rule-space consent before the original explicit Start.
+   var preparationUi=(GameUi)Field("_ui");var preparationSim=(GameSimulation)Field("_sim");
+   preparationUi.StartRequested(2,1030);await Flush();
+   Check(preparationUi.IsPersistenceModalOpen&&preparationSim.Phase==RunPhase.Selecting,
+    "Fresh start requires explicit rule-space consent before combat");
+   var prepare=Walk(host).OfType<Button>().SingleOrDefault(b=>b.Text=="确认准备新局");
+   Check(prepare!=null&&prepare.IsVisibleInTree()&&!prepare.Disabled,"Actual fresh-rule preparation confirmation is available");
+   prepare.EmitSignal(Button.SignalName.Pressed);host.SetProcess(false);await Flush();
+   Check(!preparationUi.IsPersistenceModalOpen&&preparationSim.Phase==RunPhase.Selecting&&preparationSim.Tick==0,
+    "Preparation returns to selection without auto-starting combat");
+   Check((bool)Field("_ruleSelected"),"Confirmed fresh rule space is selected before explicit Start");
    Start();host.SetProcess(false);var ui=(GameUi)Field("_ui");var g=(GameSimulation)Field("_sim");var content=(GameContent)Field("_content");
    var checkpoint=(CheckpointSession)Field("_checkpoint");
    // Synthetic time compression skips combat and real preview lifetimes; never survival/play evidence.

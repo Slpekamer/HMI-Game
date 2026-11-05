@@ -21,6 +21,13 @@ public partial class CodexProbe:Node
    var ui=(GameUi)typeof(GameHost).GetField("_ui",Flags).GetValue(host);
    var sim=(GameSimulation)typeof(GameHost).GetField("_sim",Flags).GetValue(host);
    var content=(GameContent)typeof(GameHost).GetField("_content",Flags).GetValue(host);
+   // Real fresh-rule consent prepares selection; the original explicit Start follows separately.
+   ui.StartRequested(2,1030);await Flush();
+   Check(ui.IsPersistenceModalOpen&&sim.Phase==RunPhase.Selecting,"Fresh rule preparation requires explicit consent before combat");
+   var prepare=Walk(ui).OfType<Button>().Single(b=>b.Text=="确认准备新局");
+   Check(prepare.IsVisibleInTree()&&!prepare.Disabled,"Actual fresh-rule preparation confirmation is available");
+   prepare.EmitSignal(BaseButton.SignalName.Pressed);host.SetProcess(false);await Flush();
+   Check((bool)typeof(GameHost).GetField("_ruleSelected",Flags).GetValue(host)&&!ui.IsPersistenceModalOpen&&sim.Phase==RunPhase.Selecting&&sim.Tick==0,"Preparation selects the rule space without auto-starting combat");
    typeof(GameHost).GetMethod("Start",Flags).Invoke(host,new object[]{2,(uint)1030});host.SetProcess(false);await Flush();
    long tick=sim.Tick;ui.ShowCodex();sim.Step();await Flush();
    Check(sim.Paused&&sim.Tick==tick,"Codex opening pauses through command without advancing combat");

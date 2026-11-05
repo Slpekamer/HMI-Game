@@ -21,6 +21,14 @@ public partial class OpaquePageProbe:Node
  object Field(string name)=>typeof(GameHost).GetField(name,Flags).GetValue(host);
  var ui=(GameUi)Field("_ui");var content=(GameContent)Field("_content");var viewport=GetViewport();
  Check(viewport.Disable3D,"Home suppresses main world");Check(!Walk(ui).OfType<SubViewport>().Any(),"Home has no hidden preview worlds");
+ // Fresh storage prepares the real rule space before the original combat fixture.
+ var preparedSim=(GameSimulation)Field("_sim");ui.StartRequested(3,1030);await Flush();
+ Check(ui.IsPersistenceModalOpen&&preparedSim.Phase==RunPhase.Selecting,"fresh start requires rule-space consent before opaque-page combat fixture");
+ var prepare=Walk(ui).OfType<Button>().SingleOrDefault(b=>b.Text=="确认准备新局"&&b.IsVisibleInTree());
+ Check(prepare!=null&&!prepare.Disabled,"real fresh-rule confirmation is available");
+ prepare.EmitSignal(Button.SignalName.Pressed);host.SetProcess(false);await Flush();
+ Check(!ui.IsPersistenceModalOpen&&preparedSim.Phase==RunPhase.Selecting&&preparedSim.Tick==0,"preparation returns to selection without starting combat");
+ Check((bool)Field("_ruleSelected"),"confirmed rule space selected before original Start");
  typeof(GameHost).GetMethod("Start",Flags).Invoke(host,new object[]{3,(uint)1030});host.SetProcess(false);await Flush();var sim=(GameSimulation)Field("_sim");
  void Render()=>typeof(GameHost).GetMethod("RenderEntities",Flags).Invoke(host,new object[]{1f/60});void Combat(){typeof(GameHost).GetMethod("RefreshUi",Flags).Invoke(host,null);host.SetProcess(false);}Render();
  var actor=((Node3D[])Field("_visuals"))[sim.PlayerId.Index];var player=Walk(actor).OfType<AnimationPlayer>().First();var actorId=actor.GetInstanceId();var animationId=player.GetInstanceId();
