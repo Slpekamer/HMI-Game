@@ -92,17 +92,8 @@ public partial class GameHost : Node3D
         _camera = new Camera3D { Projection = Camera3D.ProjectionType.Orthogonal, Size = 16.8f, Position = new Vector3(12,22,18), Current = true };
         AddChild(_camera); _camera.LookAt(Vector3.Zero);
         AddChild(AssetVisuals.Box(new Vector3(80,.3f,80), new Vector3(0,-.15f,0), new Color("f4d8ab")));
-        Color[] colors = { new("b9a5dd"), new("83b9da"), new("edb3cb"), new("efd18d") };
-        for (int x = -14; x <= 14; x++)
-        {
-            AddChild(AssetVisuals.Box(new Vector3(.95f,.75f,.5f), new Vector3(x,.25f,-8.3f), colors[(x+14)%4]));
-            AddChild(AssetVisuals.Box(new Vector3(.95f,.75f,.5f), new Vector3(x,.25f,8.3f), colors[(x+15)%4]));
-        }
-        for (int y = -7; y <= 7; y++)
-        {
-            AddChild(AssetVisuals.Box(new Vector3(.5f,.75f,.95f), new Vector3(-14.3f,.25f,y), colors[(y+7)%4]));
-            AddChild(AssetVisuals.Box(new Vector3(.5f,.75f,.95f), new Vector3(14.3f,.25f,y), colors[(y+8)%4]));
-        }
+        CandyArenaVisuals.BuildFloor(this);
+        CandyArenaVisuals.BuildBoundary(this);
         foreach (var wall in _sim.Walls)
         {
             // GLB tiles replace the internal-wall placeholder without changing core collision extents.
@@ -114,6 +105,7 @@ public partial class GameHost : Node3D
                 tile.Position = new Vector3(wall.X + wall.Width / 2, 0, wall.Y + (i + .5f) * wall.Height / tiles);
                 AddChild(tile);
             }
+            CandyArenaVisuals.BuildWaferLayers(this, new Vector3(wall.X, 0, wall.Y), wall.Width, wall.Height);
         }
         BuildCandyScenery();
         _honey = AssetVisuals.Disc(new Color(1,.65f,.03f,.25f)); AddChild(_honey); _honey.Visible = false;
@@ -149,16 +141,7 @@ public partial class GameHost : Node3D
                 petalBatches[i%4].SetInstanceTransform(petalIndices[i%4]++,new Transform3D(Basis.Identity,position));
             }
         }
-        for(int side=-1;side<=1;side+=2)
-        for(int i=0;i<9;i++)
-        {
-            float x=-17+i*4;
-            float z=side*(12+(i%3)*1.3f);
-            float height=1.5f+(i%4)*.6f;
-            AddChild(AssetVisuals.Box(new Vector3(2.4f,height,2.4f),new Vector3(x,height/2-.05f,z),palette[i%4]));
-            var cap=new MeshInstance3D { Mesh=new SphereMesh { Radius=1.25f,Height=1.4f },Position=new Vector3(x,height,z),MaterialOverride=AssetVisuals.Material(palette[(i+1)%4]) };
-            AddChild(cap);
-        }
+        CandyArenaVisuals.BuildVillage(this);
     }
 
     private readonly StationaryLaunchFacing _stationaryFacing=new();

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="800" viewBox="0 0 1400 800">
+  <!-- Original poured-icing floor: no grid, repeated tiles, target circles, UI or text. -->
+  <rect width="1400" height="800" fill="#f3dfbe"/>
+  <path d="M0 78 C120 132 210 16 354 50 S628 112 784 55 S1056 13 1182 59 S1340 100 1400 42 L1400 728 C1258 666 1138 798 986 744 S714 688 555 745 S268 798 150 740 S24 706 0 750Z" fill="#f7e9ce"/>
+  <path d="M0 220 C98 141 182 174 211 258 S154 418 0 451Z" fill="#f5e4c6"/>
+  <path d="M1400 371 C1312 324 1210 363 1188 452 S1280 608 1400 574Z" fill="#f5e4c6"/>
+  <path d="M0 77 C120 131 210 15 354 49 S628 111 784 54 S1056 12 1182 58 S1340 99 1400 41" fill="none" stroke="#fff0d7" stroke-width="5"/>
+  <path d="M1400 729 C1258 667 1138 799 986 745 S714 689 555 746 S268 799 150 741 S24 707 0 751" fill="none" stroke="#fff0d7" stroke-width="5"/>
+</svg>
