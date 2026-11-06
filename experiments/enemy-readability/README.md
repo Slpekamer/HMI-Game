@@ -44,7 +44,10 @@ cannot establish appearance, renderer cost or physical-device performance. This
 branch is not merged, release-ready, or an APK delivery. No unrun visual gate is
 treated as passed.
 
-## Fresh scoped verification
+## Scoped verification at original study checkpoint
+
+The results in this section describe `8054667`, before the separate fixture
+repair below. Its observed failures remain recorded.
 
 Executed with Godot 4.6.3 Mono and .NET SDK 10.0.403:
 
@@ -84,3 +87,17 @@ No native comparison video was produced. Gameplay-sized brass readability,
 orange hurt-tint contrast, front/back recognition, crowd/wall-shadow behavior,
 performance, physical devices and owner acceptance remain unverified. No merged
 or production recommendation should be inferred from the passing scoped tests.
+
+## Follow-up fixture repair, 2026-11-06
+
+The independent `test/damage-start-consent-20261106` branch repairs only test
+setup: both older probes now follow the production preparation confirmation and
+explicit second-start flow. The original failures were reproduced first and all
+original assertions remain. Two fresh isolated runs passed strict import, damage
+semantics (41), integrated Host (42) and first-hit headless preflight (tick 80,
+one natural damage event). Omitted-confirmation and omitted-second-start controls
+were rejected by both probes. See [fixture repair and scoped validation](../../docs/public/damage-fixture-consent-20261106.md).
+
+This clears those two fixture failures only in the follow-up branch's scoped
+headless damage aggregate. It does not provide native first-post-draw evidence or
+change this material study's pending visual acceptance, export or device gates.

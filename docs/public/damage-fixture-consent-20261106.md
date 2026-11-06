@@ -42,15 +42,27 @@ production to satisfy an obsolete fixture were rejected alternatives.
 
 Godot 4.6.3 Mono and .NET SDK 10.0.403:
 
-- Candidate build and strict headless editor import passed without the runner's
-  error, exception or resource-leak diagnostics.
+- Two independent candidate copies with separate fresh data directories passed
+  build, strict headless editor import and all three behavioral probes without
+  the runner's error, exception or resource-leak diagnostics.
 - Enemy damage semantics: **41 checks passed**, unchanged.
 - Integrated Host: **42 checks passed**, including the 11 setup checks.
 - First-draw headless preflight: **tick 80, one natural enemy damage event**.
   Every sampled Host state equals the independent Core reference. New feedback
   is active with age zero before rendering.
 - Portable Core: **646,403 assertions passed**.
+- Actual-engine Checkpoint Host: **36 checks passed**, including clean build and
+  strict import. Rule Upgrade: **579 checks passed**. Its exact old-reader stage
+  reported **NOT_RUN**; this does not establish historical reader compatibility.
 - Architecture and all nine preserved notice checks passed.
+
+Two deliberate negative controls were compiled in separate test-project copies:
+omitting the preparation button press, and omitting the explicit second start.
+Both probes rejected both mutations (four expected exit-1 results), respectively
+at `confirmation selects a rule slot but does not auto-start combat` and
+`explicit second start begins the requested hero at a durable initial safe point`.
+No success marker was emitted. These mutated copies are counterevidence only;
+the authored fixture and production sources were unchanged by the controls.
 
 Reproduce using an empty work directory for each independent run:
 

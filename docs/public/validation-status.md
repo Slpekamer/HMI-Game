@@ -1,3 +1,13 @@
+# Integrated damage fixture follow-up, 2026-11-06
+
+The independent `test/damage-start-consent-20261106` branch corrects two old
+fixtures that skipped production fresh-run confirmation. Two fresh strict
+headless imports and the complete scoped damage aggregate pass; four deliberate
+missing-confirmation/second-start controls are rejected. No production code or
+asset changes are included. See [scope, original failures and results](damage-fixture-consent-20261106.md).
+Native first-post-draw, visual acceptance, historical-reader compatibility,
+full-suite and device/export gates are not cleared by these results.
+
 # Latest combined candidate, 2026-11-05
 
 See [fresh integration verification](candidate-integration-20261105.md) for the reviewed input/APK/scenery combination, corrected inventory/gamepad fixtures, native comparison and individually classified results. Strict import/export diagnostics, migration failure, exact old-reader coverage and device certification remain open. The earlier checkpoints below retain their historical scope.
