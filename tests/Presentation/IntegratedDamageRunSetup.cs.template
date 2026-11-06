@@ -1,0 +1,84 @@
+using Godot;
+using Hmi.Core;
+using Hmi.GodotAdapter;
+using Hmi.Adapters.Persistence;
+using System;
+using System.Reflection;
+
+// Test-only setup shared by both damage probes. Never writes private state or
+// invokes migration/session internals to bypass the production consent flow.
+internal static class IntegratedDamageRunSetup
+{
+    const BindingFlags Fields = BindingFlags.Instance | BindingFlags.NonPublic;
+
+    static T Read<T>(GameHost host, string name)
+        => (T)typeof(GameHost).GetField(name, Fields).GetValue(host);
+
+    static Button ButtonAt(Node node, string text)
+    {
+        if (node is Button button && button.Text == text && !button.IsQueuedForDeletion()) return button;
+        foreach (Node child in node.GetChildren())
+        {
+            var found = ButtonAt(child, text);
+            if (found != null) return found;
+        }
+        return null;
+    }
+
+    internal static void StartFresh(GameHost host, int hero, uint seed, Action<bool, string> check)
+    {
+        var ui = Read<GameUi>(host, "_ui");
+        var sim = Read<GameSimulation>(host, "_sim");
+        int initialRun = sim.RunToken;
+        bool NotStarted() => sim.Phase == RunPhase.Selecting && sim.Tick == 0 &&
+            sim.RunToken == initialRun && !sim.TryGetEntity(sim.PlayerId, out _);
+        bool Unselected() => !Read<bool>(host, "_ruleSelected") &&
+            Read<RuleUpgradeInspection>(host, "_ruleInspection").Kind == RuleUpgradeKind.Empty;
+
+        host.SetProcess(false);
+        check(Unselected() && NotStarted(), "damage fixture requires an empty isolated save directory");
+        ui.ShowSelection();
+        ui.StartRequested(hero, seed);
+        host.SetProcess(false);
+        check(ui.IsPersistenceModalOpen && Unselected() && NotStarted(),
+            "start intent without fresh-rule confirmation cannot begin combat");
+        var cancelled = ButtonAt(ui, "确认准备新局");
+        check(cancelled != null && cancelled.IsVisibleInTree() && !cancelled.Disabled,
+            "actual fresh-rule preparation confirmation is available");
+
+        // The old direct Start assumption must remain false, even if called again
+        // and allowed a catch-up frame before the player has confirmed anything.
+        typeof(GameHost).GetMethod("Start", Fields).Invoke(host, new object[] { hero, seed });
+        host._Process(.25);
+        host.SetProcess(false);
+        check(ui.IsPersistenceModalOpen && Unselected() && NotStarted(),
+            "repeated Start without confirmation leaves authority unstarted");
+        check(ui.TryCancelPersistenceModal(), "fresh-rule preparation can be cancelled");
+        cancelled.EmitSignal(BaseButton.SignalName.Pressed);
+        check(!ui.IsPersistenceModalOpen && Unselected() && NotStarted(),
+            "cancel and a stale confirmation cannot select a slot or start combat");
+
+        ui.StartRequested(hero, seed);
+        var prepare = ButtonAt(ui, "确认准备新局");
+        check(ui.IsPersistenceModalOpen && prepare != null && prepare.IsVisibleInTree() && !prepare.Disabled,
+            "fresh start after cancellation requires a new visible confirmation");
+        prepare.EmitSignal(BaseButton.SignalName.Pressed);
+        host.SetProcess(false);
+        check(!ui.IsPersistenceModalOpen && Read<bool>(host, "_ruleSelected") && NotStarted(),
+            "confirmation selects a rule slot but does not auto-start combat");
+        check(Read<CheckpointSession>(host, "_checkpoint").CurrentRecovery.Kind == RecoveryKind.PendingStart,
+            "confirmed preparation is durably PendingStart, not a resumable run");
+        prepare.EmitSignal(BaseButton.SignalName.Pressed);
+        host._Process(.25);
+        host.SetProcess(false);
+        check(NotStarted() && Read<CheckpointSession>(host, "_checkpoint").CurrentRecovery.Kind == RecoveryKind.PendingStart,
+            "repeated confirmation and elapsed frames still require an explicit start");
+
+        ui.StartRequested(hero, seed);
+        host.SetProcess(false);
+        check(sim.Phase == RunPhase.Combat && sim.Tick == 0 && sim.RunToken != initialRun &&
+            sim.CharacterId == AssetVisuals.HeroIds[hero] &&
+            Read<CheckpointSession>(host, "_checkpoint").CurrentRecovery.Kind == RecoveryKind.Active,
+            "explicit second start begins the requested hero at a durable initial safe point");
+    }
+}

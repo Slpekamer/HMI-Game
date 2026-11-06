@@ -12,6 +12,7 @@ def run(name,cmd,e=env,marker=None):
 if args.phase=='prepare':
  if project.exists():raise SystemExit('Refusing overwrite of previous project/evidence')
  shutil.copytree(root,project,ignore=shutil.ignore_patterns('.git','.godot','bin','obj','builds','exports','android','__pycache__'))
+ (project/'src/Adapters/Godot/IntegratedDamageRunSetup.cs').write_text((root/'tests/Presentation/IntegratedDamageRunSetup.cs.template').read_text())
  for name in ['EnemyDamageSemanticProbe','IntegratedDamageHostProbe','IntegratedDamageFirstDrawProbe']:
   (project/('src/Adapters/Godot/'+name+'.cs')).write_text((root/('tests/Presentation/'+name+'.cs.template')).read_text())
   (project/('scenes/'+name+'.tscn')).write_text('[gd_scene load_steps=2 format=3]\n[ext_resource type="Script" path="res://src/Adapters/Godot/'+name+'.cs" id="1"]\n[node name="'+name+'" type="Node3D"]\nscript = ExtResource("1")\n')

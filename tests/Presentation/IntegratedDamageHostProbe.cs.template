@@ -39,7 +39,7 @@ public partial class IntegratedDamageHostProbe:Node3D
   host=new GameHost();AddChild(host);host.ProcessMode=ProcessModeEnum.Disabled;host.SetProcess(false);
   C(typeof(GameHost).GetField("_readyAttention",F)==null,"experimental ready/aim not imported");
   var fx=Field<EnemyDamageReaction>("_damageReaction");C(fx!=null&&fx.ActiveCount==0,"damage owner default enabled at Home");
-  Call("Start",1,(uint)1030);host.SetProcess(false);var sim=Field<GameSimulation>("_sim");
+  IntegratedDamageRunSetup.StartFresh(host,1,1030,C);var sim=Field<GameSimulation>("_sim");
   C(sim.Phase==RunPhase.Combat&&sim.TryGetEntity(sim.PlayerId,out var playerAtStart)&&playerAtStart.Health==100&&sim.Coins==0,"actual durable new run started with original stats");
   int frames=0;while(fx.ActiveCount==0&&sim.Phase==RunPhase.Combat&&frames++<500){host._Process(.25);host.SetProcess(false);}
   C(fx.ActiveCount>0&&sim.Tick>0,"real natural Damage captured through actual Host catchup");
@@ -51,7 +51,7 @@ public partial class IntegratedDamageHostProbe:Node3D
   host._Notification((int)NotificationApplicationFocusOut);C(fx.ActiveCount==0&&fx.PendingCount==0,"focus loss clears reaction immediately");foreach(var m in liveMeshes)if(GodotObject.IsInstanceValid(m))C(m.MaterialOverlay==null,"focus loss restores old enemy overlay");
   host._Notification((int)NotificationApplicationFocusIn);Call("Send",CommandKind.Pause,"",false);host._Process(0);host.SetProcess(false);C(!sim.Paused&&fx.ActiveCount==0,"resume does not replay stale hit");
   int oldRun=sim.RunToken;Call("Selection");host.SetProcess(false);C(fx.ActiveCount==0&&fx.PendingCount==0,"actual restart/selection clears effects");
-  Call("Start",1,(uint)2031);host.SetProcess(false);C(sim.RunToken!=oldRun&&sim.Tick==0&&sim.TryGetEntity(sim.PlayerId,out var playerAtRestart)&&playerAtRestart.Health==100&&sim.Coins==0,"actual new run authority reset with separate seed");host._Process(0);host.SetProcess(false);C(fx.ActiveCount==0&&fx.PendingCount==0,"new scope starts without old tint");
+  Field<GameUi>("_ui").StartRequested(1,2031);host.SetProcess(false);C(sim.RunToken!=oldRun&&sim.Tick==0&&sim.TryGetEntity(sim.PlayerId,out var playerAtRestart)&&playerAtRestart.Health==100&&sim.Coins==0,"actual new run authority reset with separate seed");host._Process(0);host.SetProcess(false);C(fx.ActiveCount==0&&fx.PendingCount==0,"new scope starts without old tint");
   host.QueueFree();await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);C(!GodotObject.IsInstanceValid(host),"normal QueueFree Host teardown");fx.Dispose();fx.ClearPresentation();C(fx.ActiveCount==0,"owner disposal idempotent after Host exit");host=null;
  }
 }
